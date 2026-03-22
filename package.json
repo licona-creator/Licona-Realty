@@ -1,0 +1,44 @@
+{
+  "name": "licona-realty",
+  "version": "1.0.0",
+  "description": "Licona Realty Platform — Smart Moves. Simple Decisions.",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:34377/git/licona-creator/Licona-Realty"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/ssr": "^0.9.0",
+    "@supabase/supabase-js": "^2.99.3",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "autoprefixer": "^10.4.27",
+    "dompurify": "^3.3.3",
+    "framer-motion": "^12.38.0",
+    "isomorphic-dompurify": "^3.6.0",
+    "lucide-react": "^0.577.0",
+    "next": "^16.2.1",
+    "postcss": "^8.5.8",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/dompurify": "^3.0.5",
+    "@types/uuid": "^10.0.0",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.1"
+  }
+}

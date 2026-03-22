@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Montserrat:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Sacramento&display=swap');
+@import 'tailwindcss';
+
+/* ============================================
+   Licona Realty Design System
+   Brand Colors, Typography, and Custom Theme
+   ============================================ */
+
+@theme {
+  /* Brand Colors — exact hex values, no substitutions */
+  --color-navy: #132236;
+  --color-navy-80: rgba(19, 34, 54, 0.80);
+  --color-navy-light: #1a2d47;
+  --color-gold: #d3a971;
+  --color-gold-20: rgba(211, 169, 113, 0.20);
+  --color-gold-15: rgba(211, 169, 113, 0.15);
+  --color-surface: #f4f4f4;
+  --color-text: #1a1a1a;
+  --color-white: #ffffff;
+  --color-dark-card: #1a2535;
+  --color-photo-overlay: rgba(19, 34, 54, 0.55);
+
+  /* Brand Typography */
+  --font-playfair: 'Playfair Display', serif;
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-dm-serif: 'DM Serif Display', serif;
+  --font-sacramento: 'Sacramento', cursive;
+
+  /* Border Radius — Brand Standards */
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-input: 8px;
+  --radius-modal: 16px;
+
+  /* Box Shadows — Brand Standards */
+  --shadow-card: 0 2px 12px rgba(19, 34, 54, 0.08);
+  --shadow-card-dark: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Base Styles */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-inter);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--color-navy);
+    color: var(--color-white);
+  }
+}
+
+/* PWA safe areas for iPhone notch */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold-20);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold);
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--color-gold-20);
+  color: var(--color-navy);
+}

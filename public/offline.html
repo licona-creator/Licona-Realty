@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#132236">
+  <title>Licona Realty — Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #132236, #1a2d47);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .container {
+      text-align: center;
+      max-width: 400px;
+    }
+    .monogram {
+      font-size: 48px;
+      font-weight: 700;
+      color: #d3a971;
+      letter-spacing: 4px;
+      margin-bottom: 32px;
+    }
+    h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #ffffff;
+    }
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 32px;
+    }
+    .retry-btn {
+      display: inline-block;
+      background: #d3a971;
+      color: #132236;
+      padding: 14px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      transition: opacity 200ms ease;
+      border: none;
+      cursor: pointer;
+    }
+    .retry-btn:hover { opacity: 0.9; }
+    .tagline {
+      margin-top: 48px;
+      font-size: 13px;
+      color: rgba(211, 169, 113, 0.6);
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="monogram">LR</div>
+    <h1>You're Offline</h1>
+    <p>
+      It looks like you've lost your internet connection.
+      Please check your connection and try again.
+    </p>
+    <button class="retry-btn" onclick="window.location.reload()">
+      Try Again
+    </button>
+    <p class="tagline">Smart Moves. Simple Decisions.</p>
+  </div>
+</body>
+</html>
