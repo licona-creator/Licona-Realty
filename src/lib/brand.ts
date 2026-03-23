@@ -30,7 +30,9 @@ export const BRAND = {
   // Brand Colors — exact hex values, no substitutions
   colors: {
     primary: '#132236',      // Deep navy
+    navy: '#132236',          // Alias for primary
     accent: '#d3a971',       // Warm gold
+    gold: '#d3a971',          // Alias for accent
     surface: '#f4f4f4',      // Soft white
     text: '#1a1a1a',         // Near black
     white: '#ffffff',        // White for text on dark backgrounds
