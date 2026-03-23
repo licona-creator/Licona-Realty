@@ -62,6 +62,8 @@ export async function middleware(request: NextRequest) {
     '/testimonials',
     '/api/health',
     '/api/webhooks',
+    '/api/setup',
+    '/setup',
   ];
 
   // MFA flow routes — require auth but not MFA completion
