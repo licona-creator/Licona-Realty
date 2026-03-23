@@ -1,30 +1,72 @@
 /**
- * Social Media Marketing Powerhouse
+ * Social Media Marketing Page
  *
- * Full social media growth engine across 6 content pillars.
- * Instagram and Facebook integration. Content calendar.
- * All content to approval queue before publishing.
+ * 6-pillar content strategy with calendar view, content creation,
+ * analytics dashboard, and approval queue integration.
  */
 
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import { BRAND } from '@/lib/brand';
-import { Share2, Instagram } from 'lucide-react';
+import { CONTENT_PILLARS, OPTIMAL_POST_TIMES } from '@/lib/social/meta-client';
+import type { ContentPillar, SocialPlatform } from '@/types/database';
+import {
+  Share2, Instagram, Facebook, Calendar, BarChart3,
+  TrendingUp, Heart, Eye,
+  PlusCircle, Clock, Edit3, Sparkles,
+} from 'lucide-react';
 
-const contentPillars = [
-  { name: 'Market Intelligence', color: '#3B82F6' },
-  { name: 'Client Wins', color: '#22C55E' },
-  { name: 'Local DFW', color: '#F59E0B' },
-  { name: 'Education', color: '#8B5CF6' },
-  { name: 'Behind the Scenes', color: '#EC4899' },
-  { name: 'Personal Brand', color: '#d3a971' },
-];
+type Tab = 'calendar' | 'analytics' | 'create';
+
+interface PostItem {
+  id: string;
+  platform: SocialPlatform;
+  pillar: ContentPillar;
+  caption: string;
+  scheduledTime: string | null;
+  status: 'draft' | 'pending_approval' | 'scheduled' | 'published';
+  engagement?: number;
+}
 
 export default function SocialPage() {
+  const [activeTab, setActiveTab] = useState<Tab>('calendar');
+  const [posts, setPosts] = useState<PostItem[]>([]);
+  const [activePillar, setActivePillar] = useState<ContentPillar | 'all'>('all');
+  const [activePlatform, setActivePlatform] = useState<SocialPlatform | 'all'>('all');
+
+  // Fetch posts
+  const fetchPosts = useCallback(async () => {
+    try {
+      const res = await fetch('/api/social/posts');
+      if (res.ok) {
+        const data = await res.json();
+        setPosts(data.posts || []);
+      }
+    } catch {
+      // Fallback to empty
+    }
+  }, []);
+
+  useEffect(() => { fetchPosts(); }, [fetchPosts]);
+
+  const pillarEntries = Object.entries(CONTENT_PILLARS) as [ContentPillar, typeof CONTENT_PILLARS[ContentPillar]][];
+
+  const pillarColors: Record<ContentPillar, string> = {
+    market_intelligence: '#3B82F6',
+    client_wins: '#22C55E',
+    local_dfw: '#F97316',
+    education: '#8B5CF6',
+    behind_scenes: '#EC4899',
+    personal_brand: BRAND.colors.accent,
+  };
+
   return (
     <div className="p-4 lg:p-8 max-w-7xl mx-auto">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Share2 size={24} className="text-gold" />
@@ -35,42 +77,295 @@ export default function SocialPage() {
             Social Media
           </h1>
         </div>
+        <Button variant="accent" size="sm" onClick={() => setActiveTab('create')}>
+          <PlusCircle size={16} className="mr-1.5" />
+          Create Post
+        </Button>
       </div>
 
-      {/* Content Pillars */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-        {contentPillars.map((pillar) => (
-          <motion.div
-            key={pillar.name}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+      {/* Tabs */}
+      <div className="flex items-center gap-1 mb-6 bg-surface dark:bg-navy/50 rounded-lg p-1 w-fit">
+        {[
+          { key: 'calendar' as Tab, label: 'Calendar', icon: Calendar },
+          { key: 'analytics' as Tab, label: 'Analytics', icon: BarChart3 },
+          { key: 'create' as Tab, label: 'Create', icon: Edit3 },
+        ].map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-montserrat font-medium transition-colors ${
+              activeTab === tab.key
+                ? 'bg-navy text-white dark:bg-gold dark:text-navy'
+                : 'text-text/60 dark:text-white/60 hover:text-text dark:hover:text-white'
+            }`}
           >
-            <Card className="!p-3 text-center">
-              <div
-                className="w-3 h-3 rounded-full mx-auto mb-2"
-                style={{ backgroundColor: pillar.color }}
-              />
-              <p className="text-xs font-montserrat font-medium text-text/70 dark:text-white/70">
-                {pillar.name}
-              </p>
-            </Card>
-          </motion.div>
+            <tab.icon size={14} />
+            {tab.label}
+          </button>
         ))}
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="!p-8 text-center">
-          <Instagram size={40} className="text-gold mx-auto mb-4 opacity-50" />
-          <h2 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-2">
-            Connect Your Accounts
-          </h2>
-          <p className="text-sm text-text/50 dark:text-white/50 font-inter max-w-md mx-auto">
-            Connect Instagram Business and Facebook Page to start planning
-            content across all 6 pillars. The intelligence layer will suggest
-            optimal posting times and content mix.
-          </p>
+      {/* 6-Pillar Strategy Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+        {pillarEntries.map(([key, pillar]) => (
+          <button
+            key={key}
+            onClick={() => setActivePillar(activePillar === key ? 'all' : key)}
+            className={`p-3 rounded-xl border transition-all text-left ${
+              activePillar === key
+                ? 'border-gold bg-gold/10 shadow-sm'
+                : 'border-gold/10 bg-white dark:bg-navy-dark hover:border-gold/30'
+            }`}
+          >
+            <div
+              className="w-3 h-3 rounded-full mb-2"
+              style={{ backgroundColor: pillarColors[key] }}
+            />
+            <p className="text-xs font-montserrat font-semibold text-text dark:text-white leading-tight">
+              {pillar.label}
+            </p>
+            <p className="text-[10px] text-text/40 dark:text-white/40 font-inter mt-1">
+              {pillar.frequency}
+            </p>
+          </button>
+        ))}
+      </div>
+
+      {/* Calendar Tab */}
+      {activeTab === 'calendar' && (
+        <div className="space-y-4">
+          {/* Platform Filter */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActivePlatform('all')}
+              className={`px-3 py-1.5 rounded-full text-xs font-montserrat font-medium transition-colors ${
+                activePlatform === 'all'
+                  ? 'bg-navy text-white dark:bg-gold dark:text-navy'
+                  : 'bg-surface dark:bg-navy/50 text-text/60'
+              }`}
+            >
+              All Platforms
+            </button>
+            <button
+              onClick={() => setActivePlatform('instagram')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-montserrat font-medium transition-colors ${
+                activePlatform === 'instagram'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                  : 'bg-surface dark:bg-navy/50 text-text/60'
+              }`}
+            >
+              <Instagram size={12} /> Instagram
+            </button>
+            <button
+              onClick={() => setActivePlatform('facebook')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-montserrat font-medium transition-colors ${
+                activePlatform === 'facebook'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-surface dark:bg-navy/50 text-text/60'
+              }`}
+            >
+              <Facebook size={12} /> Facebook
+            </button>
+          </div>
+
+          {/* Posts list or empty */}
+          {posts.length > 0 ? (
+            <div className="space-y-3">
+              {posts.map(post => (
+                <Card key={post.id} className="!p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2 mb-2">
+                      {post.platform === 'instagram' ? (
+                        <Instagram size={14} className="text-pink-500" />
+                      ) : (
+                        <Facebook size={14} className="text-blue-600" />
+                      )}
+                      <Badge
+                        variant={post.status === 'published' ? 'success' : post.status === 'scheduled' ? 'gold' : 'navy'}
+                      >
+                        {post.status.replace('_', ' ')}
+                      </Badge>
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: pillarColors[post.pillar] }}
+                      />
+                    </div>
+                    {post.scheduledTime && (
+                      <span className="text-xs text-text/40 dark:text-white/40 font-inter">
+                        <Clock size={10} className="inline mr-1" />
+                        {new Date(post.scheduledTime).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-text dark:text-white font-inter line-clamp-2">
+                    {post.caption}
+                  </p>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="!p-8 text-center">
+              <Calendar size={40} className="text-gold mx-auto mb-4 opacity-50" />
+              <h3 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-2">
+                Content Calendar
+              </h3>
+              <p className="text-sm text-text/50 dark:text-white/50 font-inter max-w-md mx-auto mb-4">
+                Create your first social media post. All posts are routed through the
+                approval queue before publishing.
+              </p>
+              <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
+                <div className="bg-surface dark:bg-navy/50 rounded-lg p-3 text-left">
+                  <p className="text-xs font-montserrat font-semibold text-text/60 dark:text-white/60 mb-1">
+                    Optimal Times (IG)
+                  </p>
+                  {OPTIMAL_POST_TIMES.instagram.weekday.map(t => (
+                    <p key={t} className="text-[10px] font-inter text-text/40 dark:text-white/40">
+                      Weekday: {t}
+                    </p>
+                  ))}
+                </div>
+                <div className="bg-surface dark:bg-navy/50 rounded-lg p-3 text-left">
+                  <p className="text-xs font-montserrat font-semibold text-text/60 dark:text-white/60 mb-1">
+                    Optimal Times (FB)
+                  </p>
+                  {OPTIMAL_POST_TIMES.facebook.weekday.map(t => (
+                    <p key={t} className="text-[10px] font-inter text-text/40 dark:text-white/40">
+                      Weekday: {t}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* Analytics Tab */}
+      {activeTab === 'analytics' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Total Reach', value: '—', icon: Eye },
+              { label: 'Engagement Rate', value: '—', icon: Heart },
+              { label: 'Profile Visits', value: '—', icon: TrendingUp },
+              { label: 'Lead Captures', value: '—', icon: Sparkles },
+            ].map(stat => (
+              <Card key={stat.label} className="!p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <stat.icon size={16} className="text-gold" />
+                </div>
+                <p
+                  className="text-2xl font-bold text-text dark:text-white"
+                  style={{ fontFamily: BRAND.fonts.dmSerif }}
+                >
+                  {stat.value}
+                </p>
+                <p className="text-xs text-text/50 dark:text-white/50 font-inter">
+                  {stat.label}
+                </p>
+              </Card>
+            ))}
+          </div>
+
+          <Card className="!p-6">
+            <h3 className="text-sm font-montserrat font-semibold text-text dark:text-white mb-4">
+              Content Pillar Performance
+            </h3>
+            <div className="space-y-3">
+              {pillarEntries.map(([key, pillar]) => (
+                <div key={key} className="flex items-center gap-3">
+                  <span
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: pillarColors[key] }}
+                  />
+                  <span className="text-sm font-inter text-text dark:text-white w-40">
+                    {pillar.label}
+                  </span>
+                  <div className="flex-1 h-2 bg-surface dark:bg-navy/50 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ backgroundColor: pillarColors[key], width: '0%' }}
+                    />
+                  </div>
+                  <span className="text-xs text-text/40 dark:text-white/40 font-inter w-12 text-right">
+                    0%
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-text/40 dark:text-white/40 font-inter mt-4">
+              Connect your Instagram and Facebook accounts to see performance data.
+            </p>
+          </Card>
+        </div>
+      )}
+
+      {/* Create Tab */}
+      {activeTab === 'create' && (
+        <Card className="!p-6">
+          <h3 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-4">
+            Create Social Post
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-montserrat font-medium text-text/60 dark:text-white/60 mb-2">
+                Platform
+              </label>
+              <div className="flex gap-2">
+                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gold/20 hover:border-gold text-sm font-montserrat transition-colors text-text dark:text-white">
+                  <Instagram size={16} className="text-pink-500" /> Instagram
+                </button>
+                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gold/20 hover:border-gold text-sm font-montserrat transition-colors text-text dark:text-white">
+                  <Facebook size={16} className="text-blue-600" /> Facebook
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-montserrat font-medium text-text/60 dark:text-white/60 mb-2">
+                Content Pillar
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {pillarEntries.map(([key, pillar]) => (
+                  <button
+                    key={key}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gold/10 hover:border-gold text-left transition-colors"
+                  >
+                    <span
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: pillarColors[key] }}
+                    />
+                    <span className="text-xs font-montserrat text-text dark:text-white">
+                      {pillar.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-montserrat font-medium text-text/60 dark:text-white/60 mb-2">
+                Caption
+              </label>
+              <textarea
+                rows={4}
+                className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-white dark:bg-navy focus:border-gold focus:ring-1 focus:ring-gold/30 text-sm font-inter text-text dark:text-white outline-none resize-none"
+                placeholder="Write your caption or let the AI voice engine generate one..."
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button variant="accent">
+                <Sparkles size={14} className="mr-1.5" />
+                Generate with AI
+              </Button>
+              <Button variant="primary">
+                Send to Approval Queue
+              </Button>
+            </div>
+          </div>
         </Card>
-      </motion.div>
+      )}
     </div>
   );
 }

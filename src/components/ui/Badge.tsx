@@ -13,6 +13,7 @@ interface BadgeProps {
   count?: number;
   variant?: 'gold' | 'navy' | 'success' | 'warning' | 'danger';
   label?: string;
+  children?: React.ReactNode;
   className?: string;
   pulse?: boolean;
 }
@@ -25,8 +26,8 @@ const variantStyles = {
   danger: 'bg-red-500 text-white',
 };
 
-export function Badge({ count, variant = 'gold', label, className = '', pulse = false }: BadgeProps) {
-  const displayValue = label || (count !== undefined ? String(count) : '');
+export function Badge({ count, variant = 'gold', label, children, className = '', pulse = false }: BadgeProps) {
+  const displayValue = children || label || (count !== undefined ? String(count) : '');
 
   if (count !== undefined && count <= 0) return null;
 
