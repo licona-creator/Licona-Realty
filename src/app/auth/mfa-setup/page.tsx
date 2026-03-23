@@ -283,6 +283,16 @@ export default function MFASetupPage() {
           </div>
         )}
 
+        {/* Skip MFA */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="text-sm text-white/40 hover:text-gold transition-colors font-inter"
+          >
+            Skip for now
+          </button>
+        </div>
+
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-[10px] text-white/20 font-inter">

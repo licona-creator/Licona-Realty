@@ -103,8 +103,8 @@ export default function RegisterPage() {
         return;
       }
 
-      // Redirect to MFA setup — enforced before any CRM data access
-      router.push('/auth/mfa-setup');
+      // Redirect to dashboard — MFA setup is optional for now
+      router.push('/dashboard');
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {

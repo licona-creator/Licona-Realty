@@ -84,33 +84,33 @@ export async function middleware(request: NextRequest) {
   }
 
   // =============================================
-  // 4. MFA enforcement — must complete MFA before accessing CRM
+  // 4. MFA enforcement — currently optional, uncomment to enforce
   // =============================================
 
-  if (user && !isPublicPath && !isMFAPath && !isAPIRoute) {
-    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-
-    if (aal) {
-      // If MFA is enrolled but not yet verified in this session
-      if (aal.nextLevel === 'aal2' && aal.currentLevel === 'aal1') {
-        const url = request.nextUrl.clone();
-        url.pathname = '/auth/mfa-verify';
-        return NextResponse.redirect(url);
-      }
-
-      // If no MFA enrolled at all — force setup
-      const { data: factors } = await supabase.auth.mfa.listFactors();
-      const hasVerifiedFactor = factors?.totp?.some(
-        (f) => f.status === 'verified'
-      );
-
-      if (!hasVerifiedFactor && !isMFAPath) {
-        const url = request.nextUrl.clone();
-        url.pathname = '/auth/mfa-setup';
-        return NextResponse.redirect(url);
-      }
-    }
-  }
+  // if (user && !isPublicPath && !isMFAPath && !isAPIRoute) {
+  //   const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  //
+  //   if (aal) {
+  //     // If MFA is enrolled but not yet verified in this session
+  //     if (aal.nextLevel === 'aal2' && aal.currentLevel === 'aal1') {
+  //       const url = request.nextUrl.clone();
+  //       url.pathname = '/auth/mfa-verify';
+  //       return NextResponse.redirect(url);
+  //     }
+  //
+  //     // If no MFA enrolled at all — force setup
+  //     const { data: factors } = await supabase.auth.mfa.listFactors();
+  //     const hasVerifiedFactor = factors?.totp?.some(
+  //       (f) => f.status === 'verified'
+  //     );
+  //
+  //     if (!hasVerifiedFactor && !isMFAPath) {
+  //       const url = request.nextUrl.clone();
+  //       url.pathname = '/auth/mfa-setup';
+  //       return NextResponse.redirect(url);
+  //     }
+  //   }
+  // }
 
   // =============================================
   // 5. CSRF token injection (set cookie on every response)
