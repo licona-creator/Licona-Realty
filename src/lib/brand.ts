@@ -123,4 +123,5 @@ export const NAV_ITEMS = [
   { label: 'SEO', href: '/seo', icon: 'trending-up' },
   { label: 'Testimonials', href: '/testimonials', icon: 'star' },
   { label: 'Mortgage Calc', href: '/mortgage', icon: 'calculator' },
+  { label: 'Settings', href: '/settings', icon: 'settings' },
 ] as const;

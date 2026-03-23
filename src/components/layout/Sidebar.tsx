@@ -26,6 +26,7 @@ import {
   TrendingUp,
   Star,
   Calculator,
+  Settings,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -41,6 +42,7 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
   'trending-up': TrendingUp,
   star: Star,
   calculator: Calculator,
+  settings: Settings,
 };
 
 interface SidebarProps {
