@@ -243,7 +243,7 @@ export function BrandAssets() {
                 />
               </div>
               <div
-                className="flex-1 rounded-[8px] p-4 flex items-center justify-center min-h-[80px] border border-gold-15"
+                className="flex-1 rounded-[8px] p-4 flex items-center justify-center min-h-[80px] border border-gold/15"
                 style={{ backgroundColor: '#ffffff' }}
               >
                 <img
@@ -358,7 +358,7 @@ export function BrandAssets() {
           {colors.map((color, i) => (
             <div key={color.hex} className="flex items-center gap-4">
               <div
-                className="w-10 h-10 rounded-[8px] border border-gold-15 flex-shrink-0"
+                className="w-10 h-10 rounded-[8px] border border-gold/15 flex-shrink-0"
                 style={{ backgroundColor: color.editing ? color.tempHex : color.hex }}
               />
               <div className="flex-1 min-w-0">
@@ -454,7 +454,7 @@ export function BrandAssets() {
         </p>
         <div className="space-y-4">
           {FONT_ASSIGNMENTS.map((font) => (
-            <div key={font.name} className="border border-gold-15 rounded-[8px] p-4">
+            <div key={font.name} className="border border-gold/15 rounded-[8px] p-4">
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">{font.name}</p>

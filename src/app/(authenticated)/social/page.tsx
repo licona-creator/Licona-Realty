@@ -71,7 +71,7 @@ export default function SocialPage() {
         <div className="flex items-center gap-3">
           <Share2 size={24} className="text-gold" />
           <h1
-            className="text-2xl font-semibold text-text dark:text-white"
+            className="text-2xl font-semibold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             Social Media
@@ -96,7 +96,7 @@ export default function SocialPage() {
             className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-montserrat font-medium transition-colors ${
               activeTab === tab.key
                 ? 'bg-navy text-white dark:bg-gold dark:text-navy'
-                : 'text-text/60 dark:text-white/60 hover:text-text dark:hover:text-white'
+                : 'text-navy/60 dark:text-white/60 hover:text-navy dark:hover:text-white'
             }`}
           >
             <tab.icon size={14} />
@@ -121,10 +121,10 @@ export default function SocialPage() {
               className="w-3 h-3 rounded-full mb-2"
               style={{ backgroundColor: pillarColors[key] }}
             />
-            <p className="text-xs font-montserrat font-semibold text-text dark:text-white leading-tight">
+            <p className="text-xs font-montserrat font-semibold text-navy dark:text-white leading-tight">
               {pillar.label}
             </p>
-            <p className="text-[10px] text-text/40 dark:text-white/40 font-inter mt-1">
+            <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-1">
               {pillar.frequency}
             </p>
           </button>
@@ -141,7 +141,7 @@ export default function SocialPage() {
               className={`px-3 py-1.5 rounded-full text-xs font-montserrat font-medium transition-colors ${
                 activePlatform === 'all'
                   ? 'bg-navy text-white dark:bg-gold dark:text-navy'
-                  : 'bg-surface dark:bg-navy/50 text-text/60'
+                  : 'bg-surface dark:bg-navy/50 text-navy/60 dark:text-white/60'
               }`}
             >
               All Platforms
@@ -151,7 +151,7 @@ export default function SocialPage() {
               className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-montserrat font-medium transition-colors ${
                 activePlatform === 'instagram'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                  : 'bg-surface dark:bg-navy/50 text-text/60'
+                  : 'bg-surface dark:bg-navy/50 text-navy/60 dark:text-white/60'
               }`}
             >
               <Instagram size={12} /> Instagram
@@ -161,7 +161,7 @@ export default function SocialPage() {
               className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-montserrat font-medium transition-colors ${
                 activePlatform === 'facebook'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-surface dark:bg-navy/50 text-text/60'
+                  : 'bg-surface dark:bg-navy/50 text-navy/60 dark:text-white/60'
               }`}
             >
               <Facebook size={12} /> Facebook
@@ -191,13 +191,13 @@ export default function SocialPage() {
                       />
                     </div>
                     {post.scheduledTime && (
-                      <span className="text-xs text-text/40 dark:text-white/40 font-inter">
+                      <span className="text-xs text-navy/40 dark:text-white/40 font-inter">
                         <Clock size={10} className="inline mr-1" />
                         {new Date(post.scheduledTime).toLocaleDateString()}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-text dark:text-white font-inter line-clamp-2">
+                  <p className="text-sm text-navy dark:text-white font-inter line-clamp-2">
                     {post.caption}
                   </p>
                 </Card>
@@ -206,30 +206,30 @@ export default function SocialPage() {
           ) : (
             <Card className="!p-8 text-center">
               <Calendar size={40} className="text-gold mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-2">
+              <h3 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
                 Content Calendar
               </h3>
-              <p className="text-sm text-text/50 dark:text-white/50 font-inter max-w-md mx-auto mb-4">
+              <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto mb-4">
                 Create your first social media post. All posts are routed through the
                 approval queue before publishing.
               </p>
               <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
                 <div className="bg-surface dark:bg-navy/50 rounded-lg p-3 text-left">
-                  <p className="text-xs font-montserrat font-semibold text-text/60 dark:text-white/60 mb-1">
+                  <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60 mb-1">
                     Optimal Times (IG)
                   </p>
                   {OPTIMAL_POST_TIMES.instagram.weekday.map(t => (
-                    <p key={t} className="text-[10px] font-inter text-text/40 dark:text-white/40">
+                    <p key={t} className="text-[10px] font-inter text-navy/40 dark:text-white/40">
                       Weekday: {t}
                     </p>
                   ))}
                 </div>
                 <div className="bg-surface dark:bg-navy/50 rounded-lg p-3 text-left">
-                  <p className="text-xs font-montserrat font-semibold text-text/60 dark:text-white/60 mb-1">
+                  <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60 mb-1">
                     Optimal Times (FB)
                   </p>
                   {OPTIMAL_POST_TIMES.facebook.weekday.map(t => (
-                    <p key={t} className="text-[10px] font-inter text-text/40 dark:text-white/40">
+                    <p key={t} className="text-[10px] font-inter text-navy/40 dark:text-white/40">
                       Weekday: {t}
                     </p>
                   ))}
@@ -255,12 +255,12 @@ export default function SocialPage() {
                   <stat.icon size={16} className="text-gold" />
                 </div>
                 <p
-                  className="text-2xl font-bold text-text dark:text-white"
+                  className="text-2xl font-bold text-navy dark:text-white"
                   style={{ fontFamily: BRAND.fonts.dmSerif }}
                 >
                   {stat.value}
                 </p>
-                <p className="text-xs text-text/50 dark:text-white/50 font-inter">
+                <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
                   {stat.label}
                 </p>
               </Card>
@@ -268,7 +268,7 @@ export default function SocialPage() {
           </div>
 
           <Card className="!p-6">
-            <h3 className="text-sm font-montserrat font-semibold text-text dark:text-white mb-4">
+            <h3 className="text-sm font-montserrat font-semibold text-navy dark:text-white mb-4">
               Content Pillar Performance
             </h3>
             <div className="space-y-3">
@@ -278,7 +278,7 @@ export default function SocialPage() {
                     className="w-3 h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: pillarColors[key] }}
                   />
-                  <span className="text-sm font-inter text-text dark:text-white w-40">
+                  <span className="text-sm font-inter text-navy dark:text-white w-40">
                     {pillar.label}
                   </span>
                   <div className="flex-1 h-2 bg-surface dark:bg-navy/50 rounded-full overflow-hidden">
@@ -287,13 +287,13 @@ export default function SocialPage() {
                       style={{ backgroundColor: pillarColors[key], width: '0%' }}
                     />
                   </div>
-                  <span className="text-xs text-text/40 dark:text-white/40 font-inter w-12 text-right">
+                  <span className="text-xs text-navy/40 dark:text-white/40 font-inter w-12 text-right">
                     0%
                   </span>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-text/40 dark:text-white/40 font-inter mt-4">
+            <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-4">
               Connect your Instagram and Facebook accounts to see performance data.
             </p>
           </Card>
@@ -303,26 +303,26 @@ export default function SocialPage() {
       {/* Create Tab */}
       {activeTab === 'create' && (
         <Card className="!p-6">
-          <h3 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-4">
+          <h3 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-4">
             Create Social Post
           </h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-montserrat font-medium text-text/60 dark:text-white/60 mb-2">
+              <label className="block text-xs font-montserrat font-medium text-navy/60 dark:text-white/60 mb-2">
                 Platform
               </label>
               <div className="flex gap-2">
-                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gold/20 hover:border-gold text-sm font-montserrat transition-colors text-text dark:text-white">
+                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gold/20 hover:border-gold text-sm font-montserrat transition-colors text-navy dark:text-white">
                   <Instagram size={16} className="text-pink-500" /> Instagram
                 </button>
-                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gold/20 hover:border-gold text-sm font-montserrat transition-colors text-text dark:text-white">
+                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gold/20 hover:border-gold text-sm font-montserrat transition-colors text-navy dark:text-white">
                   <Facebook size={16} className="text-blue-600" /> Facebook
                 </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-montserrat font-medium text-text/60 dark:text-white/60 mb-2">
+              <label className="block text-xs font-montserrat font-medium text-navy/60 dark:text-white/60 mb-2">
                 Content Pillar
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -335,7 +335,7 @@ export default function SocialPage() {
                       className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                       style={{ backgroundColor: pillarColors[key] }}
                     />
-                    <span className="text-xs font-montserrat text-text dark:text-white">
+                    <span className="text-xs font-montserrat text-navy dark:text-white">
                       {pillar.label}
                     </span>
                   </button>
@@ -344,12 +344,12 @@ export default function SocialPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-montserrat font-medium text-text/60 dark:text-white/60 mb-2">
+              <label className="block text-xs font-montserrat font-medium text-navy/60 dark:text-white/60 mb-2">
                 Caption
               </label>
               <textarea
                 rows={4}
-                className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-white dark:bg-navy focus:border-gold focus:ring-1 focus:ring-gold/30 text-sm font-inter text-text dark:text-white outline-none resize-none"
+                className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-white dark:bg-navy focus:border-gold focus:ring-1 focus:ring-gold/30 text-sm font-inter text-navy dark:text-white outline-none resize-none"
                 placeholder="Write your caption or let the AI voice engine generate one..."
               />
             </div>

@@ -135,7 +135,7 @@ export default function ApprovalQueuePage() {
         <div className="flex items-center gap-3">
           <CheckCircle size={24} className="text-gold" />
           <h1
-            className="text-2xl font-semibold text-text dark:text-white"
+            className="text-2xl font-semibold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             Approval Queue
@@ -150,7 +150,7 @@ export default function ApprovalQueuePage() {
           <button
             onClick={() => setFilter('all')}
             className={`px-3 py-1.5 rounded-[8px] text-xs font-montserrat font-medium whitespace-nowrap transition-all
-              ${filter === 'all' ? 'bg-navy text-gold' : 'bg-white dark:bg-dark-card text-text/50 border border-gold-15'}`}
+              ${filter === 'all' ? 'bg-navy text-gold' : 'bg-white dark:bg-dark-card text-navy/50 border border-gold/15'}`}
           >
             All ({items.length})
           </button>
@@ -159,7 +159,7 @@ export default function ApprovalQueuePage() {
               key={type}
               onClick={() => setFilter(type)}
               className={`px-3 py-1.5 rounded-[8px] text-xs font-montserrat font-medium whitespace-nowrap transition-all
-                ${filter === type ? 'bg-navy text-gold' : 'bg-white dark:bg-dark-card text-text/50 border border-gold-15'}`}
+                ${filter === type ? 'bg-navy text-gold' : 'bg-white dark:bg-dark-card text-navy/50 border border-gold/15'}`}
             >
               {itemTypeLabels[type] || type} ({items.filter((i) => i.item_type === type).length})
             </button>
@@ -198,18 +198,18 @@ export default function ApprovalQueuePage() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Icon size={16} className="text-gold" />
-                    <span className="text-xs font-montserrat font-semibold text-text/70 dark:text-white/70 uppercase tracking-wider">
+                    <span className="text-xs font-montserrat font-semibold text-navy/70 dark:text-white/70 uppercase tracking-wider">
                       {itemTypeLabels[item.item_type] || item.item_type}
                     </span>
                     {item.is_overdue && (
                       <Badge label="Overdue" variant="warning" />
                     )}
-                    <span className="text-[10px] text-text/30 dark:text-white/30 font-inter">
+                    <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">
                       {toneProfile?.label}
                     </span>
                   </div>
                   {item.scheduled_time && (
-                    <span className="text-xs text-text/40 dark:text-white/40 font-inter flex items-center gap-1">
+                    <span className="text-xs text-navy/40 dark:text-white/40 font-inter flex items-center gap-1">
                       <Clock size={12} />
                       {new Date(item.scheduled_time).toLocaleDateString()}
                     </span>
@@ -218,7 +218,7 @@ export default function ApprovalQueuePage() {
 
                 {/* Subject */}
                 {item.subject && (
-                  <p className="text-sm font-montserrat font-semibold text-text dark:text-white mb-2">
+                  <p className="text-sm font-montserrat font-semibold text-navy dark:text-white mb-2">
                     {item.subject}
                   </p>
                 )}
@@ -235,8 +235,8 @@ export default function ApprovalQueuePage() {
                   />
                 ) : (
                   <>
-                    <div className="bg-white dark:bg-navy/30 rounded-[8px] p-3 mb-3 border border-gold-15/50">
-                      <p className="text-sm text-text/80 dark:text-white/80 font-inter whitespace-pre-wrap leading-relaxed">
+                    <div className="bg-white dark:bg-navy/30 rounded-[8px] p-3 mb-3 border border-gold/15/50">
+                      <p className="text-sm text-navy/80 dark:text-white/80 font-inter whitespace-pre-wrap leading-relaxed">
                         {item.content}
                       </p>
                     </div>
@@ -289,16 +289,16 @@ export default function ApprovalQueuePage() {
             </div>
             <div className="flex items-center justify-center gap-2 mb-2">
               <Clock size={18} className="text-gold" />
-              <h2 className="text-lg font-montserrat font-semibold text-text dark:text-white">
+              <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white">
                 All Clear
               </h2>
             </div>
-            <p className="text-sm text-text/50 dark:text-white/50 font-inter max-w-md mx-auto">
+            <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto">
               No items are waiting for your review. When campaigns, social posts,
               DocuSign sends, or scheduled messages are ready, they will appear
               here for your approval before anything goes out.
             </p>
-            <p className="text-xs text-text/30 dark:text-white/30 font-inter mt-4">
+            <p className="text-xs text-navy/30 dark:text-white/30 font-inter mt-4">
               Nothing external ever sends without your explicit approval.
             </p>
           </Card>

@@ -22,7 +22,7 @@ export function Card({
   ...props
 }: CardProps) {
   const baseStyles =
-    'rounded-[12px] border border-gold-15 p-5 bg-surface dark:bg-dark-card shadow-[0_2px_12px_rgba(19,34,54,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)]';
+    'rounded-[12px] border border-gold/15 p-5 bg-surface dark:bg-dark-card shadow-[0_2px_12px_rgba(19,34,54,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)]';
 
   const variantStyles = {
     default: '',

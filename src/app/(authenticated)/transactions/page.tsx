@@ -69,13 +69,13 @@ export default function TransactionsPage() {
         <div className="flex items-center gap-3">
           <FileText size={24} className="text-gold" />
           <h1
-            className="text-2xl font-semibold text-text dark:text-white"
+            className="text-2xl font-semibold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             Transactions
           </h1>
         </div>
-        <Button variant="accent" size="sm">
+        <Button variant="accent" size="sm" onClick={() => alert('Create a new transaction by entering the property address, contract price, and closing date. The deal will be added to your pipeline.')}>
           <Plus size={16} className="mr-1" />
           New Transaction
         </Button>
@@ -86,42 +86,42 @@ export default function TransactionsPage() {
         <Card className="!p-4">
           <DollarSign size={16} className="text-gold mb-2" />
           <p
-            className="text-2xl font-bold text-text dark:text-white"
+            className="text-2xl font-bold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.dmSerif }}
           >
             ${pipelineValue.toLocaleString()}
           </p>
-          <p className="text-xs text-text/50 dark:text-white/50 font-inter">Pipeline Value</p>
+          <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Pipeline Value</p>
         </Card>
         <Card className="!p-4">
           <DollarSign size={16} className="text-green-500 mb-2" />
           <p
-            className="text-2xl font-bold text-text dark:text-white"
+            className="text-2xl font-bold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.dmSerif }}
           >
             ${closedValue.toLocaleString()}
           </p>
-          <p className="text-xs text-text/50 dark:text-white/50 font-inter">Net Commission (Closed)</p>
+          <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Net Commission (Closed)</p>
         </Card>
         <Card className="!p-4">
           <FileText size={16} className="text-blue-500 mb-2" />
           <p
-            className="text-2xl font-bold text-text dark:text-white"
+            className="text-2xl font-bold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.dmSerif }}
           >
             {transactions.filter(t => !['closed', 'lost'].includes(t.status)).length}
           </p>
-          <p className="text-xs text-text/50 dark:text-white/50 font-inter">Active Deals</p>
+          <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Active Deals</p>
         </Card>
         <Card className="!p-4">
           <CheckSquare size={16} className="text-gold mb-2" />
           <p
-            className="text-2xl font-bold text-text dark:text-white"
+            className="text-2xl font-bold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.dmSerif }}
           >
             {transactions.filter(t => t.status === 'closed').length}
           </p>
-          <p className="text-xs text-text/50 dark:text-white/50 font-inter">Closed This Year</p>
+          <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Closed This Year</p>
         </Card>
       </div>
 
@@ -134,7 +134,7 @@ export default function TransactionsPage() {
             className={`px-4 py-1.5 rounded-full text-xs font-montserrat font-medium transition-colors capitalize ${
               filter === f
                 ? 'bg-navy text-white dark:bg-gold dark:text-navy'
-                : 'bg-surface dark:bg-navy/50 text-text/60'
+                : 'bg-surface dark:bg-navy/50 text-navy/60 dark:text-white/60'
             }`}
           >
             {f}
@@ -156,7 +156,7 @@ export default function TransactionsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-montserrat font-semibold text-text dark:text-white text-sm">
+                      <h3 className="font-montserrat font-semibold text-navy dark:text-white text-sm">
                         {tx.property_address}
                       </h3>
                       <Badge
@@ -165,20 +165,20 @@ export default function TransactionsPage() {
                         {stage.label}
                       </Badge>
                     </div>
-                    <p className="text-xs text-text/50 dark:text-white/50 font-inter">
+                    <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
                       {tx.property_city}{tx.property_state ? `, ${tx.property_state}` : ''} {tx.property_zip || ''}
                     </p>
 
                     <div className="flex items-center gap-4 mt-2">
                       {tx.contract_price && (
-                        <span className="text-xs font-inter text-text/60 dark:text-white/60 flex items-center gap-1">
+                        <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1">
                           <DollarSign size={10} />
                           ${tx.contract_price.toLocaleString()}
                         </span>
                       )}
                       {tx.closing_date && (
                         <span className={`text-xs font-inter flex items-center gap-1 ${
-                          days !== null && days <= 7 ? 'text-red-500' : days !== null && days <= 14 ? 'text-gold' : 'text-text/60 dark:text-white/60'
+                          days !== null && days <= 7 ? 'text-red-500' : days !== null && days <= 14 ? 'text-gold' : 'text-navy/60 dark:text-white/60'
                         }`}>
                           {days !== null && days <= 7 && <AlertTriangle size={10} />}
                           <CalendarDays size={10} />
@@ -186,14 +186,14 @@ export default function TransactionsPage() {
                         </span>
                       )}
                       {totalItems > 0 && (
-                        <span className="text-xs font-inter text-text/60 dark:text-white/60 flex items-center gap-1">
+                        <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1">
                           <CheckSquare size={10} />
                           {completedItems}/{totalItems}
                         </span>
                       )}
                     </div>
                   </div>
-                  <ChevronRight size={16} className="text-text/30 dark:text-white/30 mt-1" />
+                  <ChevronRight size={16} className="text-navy/30 dark:text-white/30 mt-1" />
                 </div>
               </Card>
             );
@@ -202,14 +202,14 @@ export default function TransactionsPage() {
       ) : (
         <Card className="!p-8 text-center">
           <FileText size={40} className="text-gold mx-auto mb-4 opacity-50" />
-          <h2 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-2">
+          <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
             No {filter === 'all' ? '' : filter} Transactions
           </h2>
-          <p className="text-sm text-text/50 dark:text-white/50 font-inter max-w-md mx-auto mb-6">
+          <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto mb-6">
             Create your first transaction to start tracking deadlines, documents,
             checklists, and commissions.
           </p>
-          <Button variant="accent">
+          <Button variant="accent" onClick={() => alert('Create a new transaction by entering the property address, contract price, and closing date. The deal will be added to your pipeline.')}>
             <Plus size={16} className="mr-1" />
             Create Transaction
           </Button>

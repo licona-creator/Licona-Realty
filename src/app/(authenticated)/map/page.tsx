@@ -207,7 +207,7 @@ export default function MapPage() {
         <div className="flex items-center gap-3">
           <MapPin size={20} className="text-gold" />
           <h1
-            className="text-lg font-semibold text-text dark:text-white"
+            className="text-lg font-semibold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             Client Map
@@ -217,13 +217,13 @@ export default function MapPage() {
 
         {/* Search */}
         <div className="hidden md:flex items-center gap-2 bg-surface dark:bg-navy/50 rounded-lg px-3 py-1.5">
-          <Search size={14} className="text-text/40" />
+          <Search size={14} className="text-navy/40 dark:text-white/40" />
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search contacts..."
-            className="bg-transparent text-sm font-inter outline-none w-48 text-text dark:text-white"
+            className="bg-transparent text-sm font-inter outline-none w-48 text-navy dark:text-white"
           />
         </div>
 
@@ -257,7 +257,7 @@ export default function MapPage() {
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-montserrat font-medium transition-all whitespace-nowrap ${
               activeFilter === filter.value
                 ? 'text-white shadow-sm'
-                : 'text-text/60 dark:text-white/60 hover:bg-surface dark:hover:bg-navy/50'
+                : 'text-navy/60 dark:text-white/60 hover:bg-surface dark:hover:bg-navy/50'
             }`}
             style={
               activeFilter === filter.value
@@ -286,13 +286,13 @@ export default function MapPage() {
                 onClick={() => handleZoom(1)}
                 className="w-10 h-10 bg-white dark:bg-navy-dark rounded-lg shadow-md flex items-center justify-center hover:bg-surface transition-colors"
               >
-                <ZoomIn size={18} className="text-text dark:text-white" />
+                <ZoomIn size={18} className="text-navy dark:text-white" />
               </button>
               <button
                 onClick={() => handleZoom(-1)}
                 className="w-10 h-10 bg-white dark:bg-navy-dark rounded-lg shadow-md flex items-center justify-center hover:bg-surface transition-colors"
               >
-                <ZoomOut size={18} className="text-text dark:text-white" />
+                <ZoomOut size={18} className="text-navy dark:text-white" />
               </button>
               <button
                 onClick={handleRecenter}
@@ -308,16 +308,16 @@ export default function MapPage() {
                 <Card className="!p-4 shadow-lg">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <h3 className="font-montserrat font-semibold text-text dark:text-white">
+                      <h3 className="font-montserrat font-semibold text-navy dark:text-white">
                         {selectedContact.firstName} {selectedContact.lastName}
                       </h3>
-                      <p className="text-xs text-text/50 dark:text-white/50 font-inter">
+                      <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
                         {selectedContact.address}
                       </p>
                     </div>
                     <button
                       onClick={() => setSelectedContact(null)}
-                      className="text-text/40 hover:text-text dark:text-white/40"
+                      className="text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white"
                     >
                       ×
                     </button>
@@ -333,7 +333,7 @@ export default function MapPage() {
                     </Badge>
                   </div>
                   {selectedContact.lastContactedAt && (
-                    <p className="text-xs text-text/40 dark:text-white/40 font-inter mt-2">
+                    <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-2">
                       Last contacted: {new Date(selectedContact.lastContactedAt).toLocaleDateString()}
                     </p>
                   )}
@@ -344,7 +344,7 @@ export default function MapPage() {
             {/* Legend */}
             <div className="absolute bottom-4 left-4 hidden md:block">
               <Card className="!p-3">
-                <p className="text-xs font-montserrat font-semibold text-text/60 dark:text-white/60 mb-2">
+                <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60 mb-2">
                   PIN LEGEND
                 </p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1">
@@ -357,7 +357,7 @@ export default function MapPage() {
                           borderColor: BRAND.colors.accent,
                         }}
                       />
-                      <span className="text-[10px] font-inter text-text/60 dark:text-white/60">
+                      <span className="text-[10px] font-inter text-navy/60 dark:text-white/60">
                         {f.label}
                       </span>
                     </div>
@@ -371,16 +371,16 @@ export default function MapPage() {
           <div className="w-full h-full flex items-center justify-center bg-surface dark:bg-navy">
             <Card className="!p-8 text-center max-w-md">
               <MapPin size={40} className="text-gold mx-auto mb-4 opacity-50" />
-              <h2 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-2">
+              <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
                 DFW Contact Map
               </h2>
-              <p className="text-sm text-text/50 dark:text-white/50 font-inter mb-4">
+              <p className="text-sm text-navy/50 dark:text-white/50 font-inter mb-4">
                 Add your Google Maps API key to enable the interactive map.
                 Set <code className="text-gold">NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> in
                 your environment variables.
               </p>
               <div className="bg-navy/5 dark:bg-white/5 rounded-lg p-3 text-left">
-                <p className="text-xs font-mono text-text/60 dark:text-white/60">
+                <p className="text-xs font-mono text-navy/60 dark:text-white/60">
                   Features: Contact pins by track type, heatmap overlay,
                   zone drawing for targeted campaigns, contact detail cards.
                 </p>

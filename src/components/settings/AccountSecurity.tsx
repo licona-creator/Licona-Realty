@@ -232,15 +232,15 @@ export function AccountSecurity() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => alert('MFA re-verification required. After verifying, your 10 backup codes will be displayed. Save them in a secure location.')}>
               <Key size={14} className="mr-1.5" />
               View Backup Codes
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => { if (confirm('This will invalidate all existing backup codes. You will need to save the new codes immediately. Continue?')) alert('MFA re-verification required before regenerating backup codes.'); }}>
               <RefreshCw size={14} className="mr-1.5" />
               Regenerate Codes
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => { if (confirm('This will disable MFA on your current device. You will need to re-enroll with a new authenticator app. Continue?')) alert('MFA re-verification required before resetting your device.'); }}>
               <Smartphone size={14} className="mr-1.5" />
               Reset MFA Device
             </Button>
@@ -264,7 +264,7 @@ export function AccountSecurity() {
           {mockSessions.map((session, i) => (
             <div
               key={i}
-              className="flex items-center gap-4 p-3 rounded-[8px] border border-gold-15"
+              className="flex items-center gap-4 p-3 rounded-[8px] border border-gold/15"
             >
               <Monitor size={16} className="text-navy/30 dark:text-white/30 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -279,7 +279,7 @@ export function AccountSecurity() {
                 </p>
               </div>
               {!session.current && (
-                <Button size="sm" variant="ghost">
+                <Button size="sm" variant="ghost" onClick={() => { if (confirm('End this session? The device will be logged out immediately.')) alert('Session ended. The device has been logged out.'); }}>
                   <LogOut size={12} className="mr-1" />
                   End
                 </Button>
@@ -289,7 +289,7 @@ export function AccountSecurity() {
         </div>
 
         <div className="mt-4 flex items-center gap-4">
-          <Button size="sm" variant="danger">
+          <Button size="sm" variant="danger" onClick={() => { if (confirm('This will log out all other devices. Only your current session will remain active.')) alert('All other sessions have been terminated.'); }}>
             <LogOut size={12} className="mr-1.5" />
             End All Other Sessions
           </Button>
@@ -298,7 +298,7 @@ export function AccountSecurity() {
             <select
               value={sessionExpiry}
               onChange={(e) => setSessionExpiry(Number(e.target.value))}
-              className="text-xs font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-1.5"
+              className="text-xs font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-1.5"
             >
               <option value={4}>4 hours</option>
               <option value={8}>8 hours</option>
@@ -323,17 +323,17 @@ export function AccountSecurity() {
               placeholder="Search events..."
               value={auditFilter}
               onChange={(e) => setAuditFilter(e.target.value)}
-              className="w-full text-xs font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white pl-9 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-gold"
+              className="w-full text-xs font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white pl-9 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-gold"
             />
           </div>
-          <select className="text-xs font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-2">
+          <select className="text-xs font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-2">
             <option>All Events</option>
             <option>Logins</option>
             <option>Settings Changes</option>
             <option>Security Events</option>
             <option>Data Exports</option>
           </select>
-          <Button size="sm" variant="ghost">
+          <Button size="sm" variant="ghost" onClick={() => alert('MFA re-verification required before exporting audit log data.')}>
             <Download size={12} className="mr-1" />
             Export CSV
           </Button>
@@ -408,7 +408,7 @@ export function AccountSecurity() {
                 MFA verification required.
               </p>
             </div>
-            <Button size="sm" variant="ghost">
+            <Button size="sm" variant="ghost" onClick={() => alert('MFA re-verification required. After verifying, a JSON export of all your data will be prepared for download.')}>
               <Download size={12} className="mr-1.5" />
               Export Data
             </Button>
@@ -424,7 +424,7 @@ export function AccountSecurity() {
                   Requires MFA verification and typing "DELETE MY DATA" to confirm.
                 </p>
               </div>
-              <Button size="sm" variant="danger">
+              <Button size="sm" variant="danger" onClick={() => { if (confirm('WARNING: This action is permanent and cannot be undone. Are you sure you want to request data deletion?')) alert('MFA re-verification required. You will need to type "DELETE MY DATA" to confirm.'); }}>
                 <Trash2 size={12} className="mr-1.5" />
                 Delete Data
               </Button>

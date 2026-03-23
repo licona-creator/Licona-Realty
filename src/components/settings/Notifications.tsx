@@ -172,7 +172,7 @@ export function Notifications() {
               type="time"
               value={morningDigestTime}
               onChange={(e) => setMorningDigestTime(e.target.value)}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             />
           </div>
 
@@ -181,7 +181,7 @@ export function Notifications() {
             <select
               value={weeklyHealthDay}
               onChange={(e) => setWeeklyHealthDay(e.target.value)}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             >
               {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((d) => (
                 <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
@@ -195,12 +195,12 @@ export function Notifications() {
               type="time"
               value={weeklyHealthTime}
               onChange={(e) => setWeeklyHealthTime(e.target.value)}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             />
           </div>
 
           <div className="pt-2">
-            <Button size="sm" variant="ghost">
+            <Button size="sm" variant="ghost" onClick={() => alert('Test notification sent! Check your device for the push notification. If you did not receive it, verify push notifications are enabled in your browser or device settings.')}>
               <Send size={12} className="mr-1.5" />
               Send Test Notification
             </Button>

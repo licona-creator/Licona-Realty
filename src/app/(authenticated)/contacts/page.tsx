@@ -30,6 +30,9 @@ const trackTabs: Array<{ label: string; value: TrackType | 'sphere' | 'all' }> =
 
 export default function ContactsPage() {
   const [activeTrack, setActiveTrack] = useState<string>('all');
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
 
   return (
     <div className="p-4 lg:p-8 max-w-7xl mx-auto">
@@ -38,18 +41,18 @@ export default function ContactsPage() {
         <div className="flex items-center gap-3">
           <Users size={24} className="text-gold" />
           <h1
-            className="text-2xl font-semibold text-text dark:text-white"
+            className="text-2xl font-semibold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             Contacts
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={() => alert('Import contacts from CSV, Excel, or Google Contacts. Supported formats: .csv, .xlsx, .vcf')}>
             <Upload size={16} />
             Import
           </Button>
-          <Button variant="accent" size="sm">
+          <Button variant="accent" size="sm" onClick={() => alert('Add a new contact. You will be able to assign them to a track (Buyer, Seller, Landlord, Tenant, or Investor) and pipeline stage.')}>
             <Plus size={16} />
             Add Contact
           </Button>
@@ -59,13 +62,13 @@ export default function ContactsPage() {
       {/* Search and Filter Bar */}
       <div className="flex items-center gap-3 mb-4">
         <div className="flex-1 relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text/30" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/30 dark:text-white/30" />
           <Input
             placeholder="Search contacts..."
             className="!pl-10"
           />
         </div>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" onClick={() => setShowFilter(!showFilter)}>
           <Filter size={16} />
         </Button>
       </div>
@@ -82,7 +85,7 @@ export default function ContactsPage() {
               ${
                 activeTrack === tab.value
                   ? 'bg-navy text-gold'
-                  : 'bg-white dark:bg-dark-card text-text/60 dark:text-white/60 hover:bg-gold-20'
+                  : 'bg-white dark:bg-dark-card text-navy/60 dark:text-white/60 hover:bg-gold/20'
               }
             `}
           >
@@ -98,20 +101,20 @@ export default function ContactsPage() {
       >
         <Card className="!p-8 text-center">
           <Users size={40} className="text-gold mx-auto mb-4 opacity-50" />
-          <h2 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-2">
+          <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
             No Contacts Yet
           </h2>
-          <p className="text-sm text-text/50 dark:text-white/50 font-inter max-w-md mx-auto mb-6">
+          <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto mb-6">
             Add your first contact or import from CSV, Excel, or Google Contacts
             to get started. Each contact will be assigned to a track with
             tailored campaign options.
           </p>
           <div className="flex items-center justify-center gap-3">
-            <Button variant="ghost">
+            <Button variant="ghost" onClick={() => alert('Import contacts from CSV, Excel, or Google Contacts. Supported formats: .csv, .xlsx, .vcf')}>
               <Upload size={16} />
               Import Contacts
             </Button>
-            <Button variant="accent">
+            <Button variant="accent" onClick={() => alert('Add a new contact. You will be able to assign them to a track and pipeline stage.')}>
               <Plus size={16} />
               Add Contact
             </Button>

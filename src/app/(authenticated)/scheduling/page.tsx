@@ -62,7 +62,7 @@ export default function SchedulingPage() {
         <div className="flex items-center gap-3">
           <Calendar size={24} className="text-gold" />
           <h1
-            className="text-2xl font-semibold text-text dark:text-white"
+            className="text-2xl font-semibold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             Scheduling
@@ -89,20 +89,20 @@ export default function SchedulingPage() {
       {/* Date Navigation */}
       <div className="flex items-center justify-between mb-6">
         <button onClick={() => navigateDate(-1)} className="p-2 hover:bg-surface dark:hover:bg-navy/50 rounded-lg transition-colors">
-          <ChevronLeft size={20} className="text-text/60 dark:text-white/60" />
+          <ChevronLeft size={20} className="text-navy/60 dark:text-white/60" />
         </button>
         <div className="text-center">
-          <p className="text-lg font-montserrat font-semibold text-text dark:text-white">
+          <p className="text-lg font-montserrat font-semibold text-navy dark:text-white">
             {new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', {
               weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
             })}
           </p>
-          <p className="text-xs text-text/40 dark:text-white/40 font-inter">
+          <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
             {todayBookings.length} meeting{todayBookings.length !== 1 ? 's' : ''}
           </p>
         </div>
         <button onClick={() => navigateDate(1)} className="p-2 hover:bg-surface dark:hover:bg-navy/50 rounded-lg transition-colors">
-          <ChevronRight size={20} className="text-text/60 dark:text-white/60" />
+          <ChevronRight size={20} className="text-navy/60 dark:text-white/60" />
         </button>
       </div>
 
@@ -116,7 +116,7 @@ export default function SchedulingPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-montserrat font-bold text-text dark:text-white">
+                      <span className="text-sm font-montserrat font-bold text-navy dark:text-white">
                         {booking.scheduled_time}
                       </span>
                       <Badge variant="gold">{type.label}</Badge>
@@ -127,15 +127,15 @@ export default function SchedulingPage() {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-3 mt-2">
-                      <span className="text-sm font-inter text-text dark:text-white flex items-center gap-1">
+                      <span className="text-sm font-inter text-navy dark:text-white flex items-center gap-1">
                         <User size={12} /> {booking.visitor_name}
                       </span>
-                      <span className="text-xs text-text/50 dark:text-white/50 font-inter flex items-center gap-1">
+                      <span className="text-xs text-navy/50 dark:text-white/50 font-inter flex items-center gap-1">
                         <Clock size={10} /> {booking.duration_minutes}min
                       </span>
                     </div>
                     {booking.visitor_note && (
-                      <p className="text-xs text-text/40 dark:text-white/40 font-inter mt-1 italic">
+                      <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-1 italic">
                         &ldquo;{booking.visitor_note}&rdquo;
                       </p>
                     )}
@@ -147,14 +147,14 @@ export default function SchedulingPage() {
         </div>
       ) : (
         <Card className="!p-6 text-center mb-8">
-          <p className="text-sm text-text/50 dark:text-white/50 font-inter">
+          <p className="text-sm text-navy/50 dark:text-white/50 font-inter">
             No meetings scheduled for this date
           </p>
         </Card>
       )}
 
       {/* Upcoming Bookings */}
-      <h2 className="text-sm font-montserrat font-semibold text-text/60 dark:text-white/60 uppercase tracking-wider mb-4">
+      <h2 className="text-sm font-montserrat font-semibold text-navy/60 dark:text-white/60 uppercase tracking-wider mb-4">
         Upcoming Bookings
       </h2>
       {upcomingBookings.length > 0 ? (
@@ -169,10 +169,10 @@ export default function SchedulingPage() {
                     style={{ backgroundColor: type.color }}
                   />
                   <div>
-                    <p className="text-sm font-montserrat font-medium text-text dark:text-white">
+                    <p className="text-sm font-montserrat font-medium text-navy dark:text-white">
                       {booking.visitor_name}
                     </p>
-                    <p className="text-xs text-text/50 dark:text-white/50 font-inter">
+                    <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
                       {new Date(booking.scheduled_date + 'T12:00:00').toLocaleDateString()} at {booking.scheduled_time}
                     </p>
                   </div>
@@ -185,10 +185,10 @@ export default function SchedulingPage() {
       ) : (
         <Card className="!p-8 text-center">
           <Calendar size={40} className="text-gold mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-2">
+          <h3 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
             No Upcoming Bookings
           </h3>
-          <p className="text-sm text-text/50 dark:text-white/50 font-inter max-w-md mx-auto">
+          <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto">
             Share your booking page to let clients schedule consultations.
             All confirmations route through your approval queue.
           </p>

@@ -54,13 +54,13 @@ export default function CampaignsPage() {
         <div className="flex items-center gap-3">
           <Send size={24} className="text-gold" />
           <h1
-            className="text-2xl font-semibold text-text dark:text-white"
+            className="text-2xl font-semibold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             Campaigns
           </h1>
         </div>
-        <Button variant="accent" size="sm">
+        <Button variant="accent" size="sm" onClick={() => alert('Campaign builder coming soon. You will be able to create multi-step drip campaigns for each track type.')}>
           <Plus size={16} className="mr-1" />
           New Campaign
         </Button>
@@ -75,7 +75,7 @@ export default function CampaignsPage() {
             className={`px-4 py-1.5 rounded-full text-xs font-montserrat font-medium transition-colors whitespace-nowrap capitalize ${
               activeTrack === track
                 ? 'bg-navy text-white dark:bg-gold dark:text-navy'
-                : 'bg-surface dark:bg-navy/50 text-text/60'
+                : 'bg-surface dark:bg-navy/50 text-navy/60 dark:text-white/60'
             }`}
           >
             {track === 'all' ? 'All Tracks' : `${track}s`}
@@ -96,12 +96,12 @@ export default function CampaignsPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
-                      <h3 className="font-montserrat font-semibold text-text dark:text-white">
+                      <h3 className="font-montserrat font-semibold text-navy dark:text-white">
                         {campaign.name}
                       </h3>
                     </div>
                     {campaign.description && (
-                      <p className="text-xs text-text/50 dark:text-white/50 font-inter">
+                      <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
                         {campaign.description}
                       </p>
                     )}
@@ -110,18 +110,18 @@ export default function CampaignsPage() {
                     <Badge variant={campaign.is_active ? 'success' : 'navy'}>
                       {campaign.is_active ? 'Active' : 'Paused'}
                     </Badge>
-                    <ChevronRight size={16} className="text-text/30" />
+                    <ChevronRight size={16} className="text-navy/30 dark:text-white/30" />
                   </div>
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <span className="text-xs font-inter text-text/60 dark:text-white/60 flex items-center gap-1">
+                  <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1">
                     <Zap size={10} /> {stepCount} step{stepCount !== 1 ? 's' : ''}
                   </span>
-                  <span className="text-xs font-inter text-text/60 dark:text-white/60 flex items-center gap-1 capitalize">
+                  <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1 capitalize">
                     <Users size={10} /> {campaign.track_type}
                   </span>
-                  <span className="text-xs font-inter text-text/60 dark:text-white/60 flex items-center gap-1">
+                  <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1">
                     <BarChart3 size={10} /> {campaign.tone.replace(/_/g, ' ')}
                   </span>
                 </div>
@@ -138,12 +138,12 @@ export default function CampaignsPage() {
                           {i + 1}
                         </div>
                         {i < Math.min(stepCount, 6) - 1 && (
-                          <div className="w-3 h-0.5 bg-text/10 dark:bg-white/10" />
+                          <div className="w-3 h-0.5 bg-navy/10 dark:bg-white/10" />
                         )}
                       </div>
                     ))}
                     {stepCount > 6 && (
-                      <span className="text-[10px] text-text/40 dark:text-white/40 ml-1">
+                      <span className="text-[10px] text-navy/40 dark:text-white/40 ml-1">
                         +{stepCount - 6}
                       </span>
                     )}
@@ -156,14 +156,14 @@ export default function CampaignsPage() {
       ) : (
         <Card className="!p-8 text-center">
           <Send size={40} className="text-gold mx-auto mb-4 opacity-50" />
-          <h2 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-2">
+          <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
             Campaign Library
           </h2>
-          <p className="text-sm text-text/50 dark:text-white/50 font-inter max-w-md mx-auto mb-4">
+          <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto mb-4">
             Create drip campaign sequences with multiple tone variants for each track.
             Every message goes through the voice engine and approval queue.
           </p>
-          <Button variant="accent">
+          <Button variant="accent" onClick={() => alert('Campaign builder coming soon. You will be able to create multi-step drip campaigns for each track type.')}>
             <Plus size={16} className="mr-1" />
             Create Your First Campaign
           </Button>

@@ -48,7 +48,7 @@ export default function CanvaPage() {
         <div className="flex items-center gap-3">
           <Palette size={24} className="text-gold" />
           <h1
-            className="text-2xl font-semibold text-text dark:text-white"
+            className="text-2xl font-semibold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             Canva Studio
@@ -69,20 +69,20 @@ export default function CanvaPage() {
       {/* Search and View Toggle */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2 bg-surface dark:bg-navy/50 rounded-lg px-3 py-2 flex-1 max-w-md">
-          <Search size={16} className="text-text/40" />
+          <Search size={16} className="text-navy/40 dark:text-white/40" />
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search templates and designs..."
-            className="bg-transparent text-sm font-inter outline-none flex-1 text-text dark:text-white"
+            className="bg-transparent text-sm font-inter outline-none flex-1 text-navy dark:text-white"
           />
         </div>
         <div className="flex items-center gap-1 ml-4">
           <button
             onClick={() => setView('grid')}
             className={`p-2 rounded-lg transition-colors ${
-              view === 'grid' ? 'bg-navy text-white' : 'text-text/40 hover:bg-surface'
+              view === 'grid' ? 'bg-navy text-white' : 'text-navy/40 dark:text-white/40 hover:bg-surface dark:hover:bg-navy/50'
             }`}
           >
             <Grid size={16} />
@@ -90,7 +90,7 @@ export default function CanvaPage() {
           <button
             onClick={() => setView('list')}
             className={`p-2 rounded-lg transition-colors ${
-              view === 'list' ? 'bg-navy text-white' : 'text-text/40 hover:bg-surface'
+              view === 'list' ? 'bg-navy text-white' : 'text-navy/40 dark:text-white/40 hover:bg-surface dark:hover:bg-navy/50'
             }`}
           >
             <List size={16} />
@@ -100,7 +100,7 @@ export default function CanvaPage() {
 
       {/* Template Library */}
       <div className="mb-8">
-        <h2 className="text-sm font-montserrat font-semibold text-text/60 dark:text-white/60 uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-montserrat font-semibold text-navy/60 dark:text-white/60 uppercase tracking-wider mb-4">
           Template Library
         </h2>
         <div className={
@@ -121,10 +121,10 @@ export default function CanvaPage() {
                   <Icon size={32} className="text-gold/60 group-hover:text-gold transition-colors" />
                 </div>
                 <div className="p-3">
-                  <p className="text-sm font-montserrat font-semibold text-text dark:text-white">
+                  <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">
                     {label}
                   </p>
-                  <p className="text-[10px] text-text/40 dark:text-white/40 font-inter mt-1">
+                  <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-1">
                     Brand template
                   </p>
                 </div>
@@ -138,10 +138,10 @@ export default function CanvaPage() {
                   <Icon size={20} className="text-gold" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-montserrat font-semibold text-text dark:text-white">
+                  <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">
                     {label}
                   </p>
-                  <p className="text-xs text-text/40 dark:text-white/40 font-inter">
+                  <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
                     Auto-fill with contact data
                   </p>
                 </div>
@@ -156,15 +156,15 @@ export default function CanvaPage() {
 
       {/* Recent Designs */}
       <div>
-        <h2 className="text-sm font-montserrat font-semibold text-text/60 dark:text-white/60 uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-montserrat font-semibold text-navy/60 dark:text-white/60 uppercase tracking-wider mb-4">
           Recent Designs
         </h2>
         <Card className="!p-8 text-center">
           <Image size={40} className="text-gold mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-montserrat font-semibold text-text dark:text-white mb-2">
+          <h3 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
             No Designs Yet
           </h3>
-          <p className="text-sm text-text/50 dark:text-white/50 font-inter max-w-md mx-auto">
+          <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto">
             {isConnected
               ? 'Create your first design from a template above. Designs auto-fill with your brand colors and contact data.'
               : 'Connect your Canva account to start creating branded designs with auto-fill templates.'}

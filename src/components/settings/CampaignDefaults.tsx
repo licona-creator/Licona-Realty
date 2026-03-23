@@ -134,7 +134,7 @@ export function CampaignDefaults() {
               <select
                 value={languages[track]}
                 onChange={(e) => setLanguages({ ...languages, [track]: e.target.value })}
-                className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5 flex-1 max-w-xs"
+                className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5 flex-1 max-w-xs"
               >
                 <option value="english">English</option>
                 <option value="spanish">Spanish</option>
@@ -162,7 +162,7 @@ export function CampaignDefaults() {
               <select
                 value={tones[track]}
                 onChange={(e) => setTones({ ...tones, [track]: e.target.value })}
-                className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5 flex-1 max-w-xs"
+                className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5 flex-1 max-w-xs"
               >
                 {TONE_OPTIONS.map((tone) => (
                   <option key={tone} value={tone}>{tone}</option>
@@ -186,7 +186,7 @@ export function CampaignDefaults() {
               type="time"
               value={defaultSendTime}
               onChange={(e) => setDefaultSendTime(e.target.value)}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             />
             <span className="text-xs text-navy/40 dark:text-white/40 font-inter">local time</span>
           </div>
@@ -205,14 +205,14 @@ export function CampaignDefaults() {
                   type="time"
                   value={quietStart}
                   onChange={(e) => setQuietStart(e.target.value)}
-                  className="text-xs font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-1"
+                  className="text-xs font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-1"
                 />
                 <span className="text-xs text-navy/50 dark:text-white/50 font-inter">to</span>
                 <input
                   type="time"
                   value={quietEnd}
                   onChange={(e) => setQuietEnd(e.target.value)}
-                  className="text-xs font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-1"
+                  className="text-xs font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-1"
                 />
               </div>
             )}

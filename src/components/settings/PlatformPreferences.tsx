@@ -143,7 +143,7 @@ export function PlatformPreferences() {
           {/* Theme */}
           <div>
             <label className="text-sm text-navy/70 dark:text-white/70 font-inter block mb-2">Appearance</label>
-            <div className="flex rounded-[8px] border border-gold-15 overflow-hidden w-fit">
+            <div className="flex rounded-[8px] border border-gold/15 overflow-hidden w-fit">
               {themeOptions.map((opt) => (
                 <button
                   key={opt.value}
@@ -164,7 +164,7 @@ export function PlatformPreferences() {
           {/* Map View */}
           <div>
             <label className="text-sm text-navy/70 dark:text-white/70 font-inter block mb-2">Default map view</label>
-            <div className="flex rounded-[8px] border border-gold-15 overflow-hidden w-fit">
+            <div className="flex rounded-[8px] border border-gold/15 overflow-hidden w-fit">
               {mapOptions.map((opt) => (
                 <button
                   key={opt.value}
@@ -184,7 +184,7 @@ export function PlatformPreferences() {
           {/* Pipeline View */}
           <div>
             <label className="text-sm text-navy/70 dark:text-white/70 font-inter block mb-2">Default pipeline view</label>
-            <div className="flex rounded-[8px] border border-gold-15 overflow-hidden w-fit">
+            <div className="flex rounded-[8px] border border-gold/15 overflow-hidden w-fit">
               {pipelineOptions.map((opt) => (
                 <button
                   key={opt.value}
@@ -216,7 +216,7 @@ export function PlatformPreferences() {
             <select
               value={uiLanguage}
               onChange={(e) => setUiLanguage(e.target.value as 'en' | 'es')}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             >
               <option value="en">English</option>
               <option value="es">Spanish</option>
@@ -227,7 +227,7 @@ export function PlatformPreferences() {
             <select
               value={contentLanguage}
               onChange={(e) => setContentLanguage(e.target.value as 'en_first' | 'es_first' | 'match')}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             >
               <option value="en_first">English first</option>
               <option value="es_first">Spanish first</option>
@@ -249,7 +249,7 @@ export function PlatformPreferences() {
             <select
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             >
               <option value="America/Chicago">Central Time (CT) - Dallas/Fort Worth</option>
               <option value="America/New_York">Eastern Time (ET)</option>
@@ -259,7 +259,7 @@ export function PlatformPreferences() {
           </div>
           <div className="flex items-center gap-4">
             <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Date format:</label>
-            <div className="flex rounded-[8px] border border-gold-15 overflow-hidden">
+            <div className="flex rounded-[8px] border border-gold/15 overflow-hidden">
               <button
                 onClick={() => setDateFormat('MM/DD/YYYY')}
                 className={`px-3 py-1.5 text-xs font-montserrat font-medium transition-colors ${
@@ -280,7 +280,7 @@ export function PlatformPreferences() {
           </div>
           <div className="flex items-center gap-4">
             <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Time format:</label>
-            <div className="flex rounded-[8px] border border-gold-15 overflow-hidden">
+            <div className="flex rounded-[8px] border border-gold/15 overflow-hidden">
               <button
                 onClick={() => setTimeFormat('12')}
                 className={`px-3 py-1.5 text-xs font-montserrat font-medium transition-colors ${
@@ -333,7 +333,7 @@ export function PlatformPreferences() {
               <select
                 value={duplicateDetection}
                 onChange={(e) => setDuplicateDetection(e.target.value as 'strict' | 'moderate' | 'off')}
-                className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
+                className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
               >
                 <option value="strict">Strict (flag any matching phone or email)</option>
                 <option value="moderate">Moderate (flag exact matches only)</option>
