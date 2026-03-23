@@ -43,7 +43,7 @@ function Toggle({
         className={`
           relative w-10 h-5 rounded-full flex-shrink-0 mt-0.5
           transition-colors duration-200 cursor-pointer
-          ${enabled ? 'bg-gold' : 'bg-text/20'}
+          ${enabled ? 'bg-gold' : 'bg-navy/20 dark:bg-white/20'}
         `}
       >
         <div
@@ -55,9 +55,9 @@ function Toggle({
         />
       </button>
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-text font-inter">{label}</p>
+        <p className="text-sm text-navy dark:text-white font-inter">{label}</p>
         {description && (
-          <p className="text-xs text-text/40 font-inter mt-0.5">{description}</p>
+          <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{description}</p>
         )}
       </div>
     </div>
@@ -123,12 +123,12 @@ export function PlatformPreferences() {
       {/* Section Header */}
       <div>
         <h2
-          className="text-xl font-semibold text-text"
+          className="text-xl font-semibold text-navy dark:text-white"
           style={{ fontFamily: BRAND.fonts.playfair }}
         >
           Platform Preferences
         </h2>
-        <p className="text-sm text-text/50 font-inter mt-1">
+        <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
           Customize how the platform looks and behaves for you.
         </p>
       </div>
@@ -137,12 +137,12 @@ export function PlatformPreferences() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Monitor size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Display</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Display</h3>
         </div>
         <div className="space-y-5">
           {/* Theme */}
           <div>
-            <label className="text-sm text-text/70 font-inter block mb-2">Appearance</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter block mb-2">Appearance</label>
             <div className="flex rounded-[8px] border border-gold-15 overflow-hidden w-fit">
               {themeOptions.map((opt) => (
                 <button
@@ -151,7 +151,7 @@ export function PlatformPreferences() {
                   className={`
                     flex items-center gap-1.5 px-4 py-2 text-xs font-montserrat font-medium
                     transition-colors duration-200
-                    ${theme === opt.value ? 'bg-gold text-navy' : 'text-text/50 hover:bg-surface'}
+                    ${theme === opt.value ? 'bg-gold text-navy' : 'text-navy/50 dark:text-white/50 hover:bg-surface dark:hover:bg-white/5'}
                   `}
                 >
                   {opt.icon}
@@ -163,7 +163,7 @@ export function PlatformPreferences() {
 
           {/* Map View */}
           <div>
-            <label className="text-sm text-text/70 font-inter block mb-2">Default map view</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter block mb-2">Default map view</label>
             <div className="flex rounded-[8px] border border-gold-15 overflow-hidden w-fit">
               {mapOptions.map((opt) => (
                 <button
@@ -172,7 +172,7 @@ export function PlatformPreferences() {
                   className={`
                     flex items-center gap-1.5 px-4 py-2 text-xs font-montserrat font-medium
                     transition-colors duration-200
-                    ${mapView === opt.value ? 'bg-gold text-navy' : 'text-text/50 hover:bg-surface'}
+                    ${mapView === opt.value ? 'bg-gold text-navy' : 'text-navy/50 dark:text-white/50 hover:bg-surface dark:hover:bg-white/5'}
                   `}
                 >
                   {opt.label}
@@ -183,7 +183,7 @@ export function PlatformPreferences() {
 
           {/* Pipeline View */}
           <div>
-            <label className="text-sm text-text/70 font-inter block mb-2">Default pipeline view</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter block mb-2">Default pipeline view</label>
             <div className="flex rounded-[8px] border border-gold-15 overflow-hidden w-fit">
               {pipelineOptions.map((opt) => (
                 <button
@@ -192,7 +192,7 @@ export function PlatformPreferences() {
                   className={`
                     flex items-center gap-1.5 px-4 py-2 text-xs font-montserrat font-medium
                     transition-colors duration-200
-                    ${pipelineView === opt.value ? 'bg-gold text-navy' : 'text-text/50 hover:bg-surface'}
+                    ${pipelineView === opt.value ? 'bg-gold text-navy' : 'text-navy/50 dark:text-white/50 hover:bg-surface dark:hover:bg-white/5'}
                   `}
                 >
                   {opt.icon}
@@ -208,26 +208,26 @@ export function PlatformPreferences() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Globe size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Language</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Language</h3>
         </div>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <label className="text-sm text-text/70 font-inter w-52">Platform UI language:</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Platform UI language:</label>
             <select
               value={uiLanguage}
               onChange={(e) => setUiLanguage(e.target.value as 'en' | 'es')}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             >
               <option value="en">English</option>
               <option value="es">Spanish</option>
             </select>
           </div>
           <div className="flex items-center gap-4">
-            <label className="text-sm text-text/70 font-inter w-52">Default content language:</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Default content language:</label>
             <select
               value={contentLanguage}
               onChange={(e) => setContentLanguage(e.target.value as 'en_first' | 'es_first' | 'match')}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             >
               <option value="en_first">English first</option>
               <option value="es_first">Spanish first</option>
@@ -241,15 +241,15 @@ export function PlatformPreferences() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Clock size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Date & Time</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Date & Time</h3>
         </div>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <label className="text-sm text-text/70 font-inter w-52">Time zone:</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Time zone:</label>
             <select
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             >
               <option value="America/Chicago">Central Time (CT) - Dallas/Fort Worth</option>
               <option value="America/New_York">Eastern Time (ET)</option>
@@ -258,12 +258,12 @@ export function PlatformPreferences() {
             </select>
           </div>
           <div className="flex items-center gap-4">
-            <label className="text-sm text-text/70 font-inter w-52">Date format:</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Date format:</label>
             <div className="flex rounded-[8px] border border-gold-15 overflow-hidden">
               <button
                 onClick={() => setDateFormat('MM/DD/YYYY')}
                 className={`px-3 py-1.5 text-xs font-montserrat font-medium transition-colors ${
-                  dateFormat === 'MM/DD/YYYY' ? 'bg-gold text-navy' : 'text-text/50 hover:bg-surface'
+                  dateFormat === 'MM/DD/YYYY' ? 'bg-gold text-navy' : 'text-navy/50 dark:text-white/50 hover:bg-surface dark:hover:bg-white/5'
                 }`}
               >
                 MM/DD/YYYY
@@ -271,7 +271,7 @@ export function PlatformPreferences() {
               <button
                 onClick={() => setDateFormat('DD/MM/YYYY')}
                 className={`px-3 py-1.5 text-xs font-montserrat font-medium transition-colors ${
-                  dateFormat === 'DD/MM/YYYY' ? 'bg-gold text-navy' : 'text-text/50 hover:bg-surface'
+                  dateFormat === 'DD/MM/YYYY' ? 'bg-gold text-navy' : 'text-navy/50 dark:text-white/50 hover:bg-surface dark:hover:bg-white/5'
                 }`}
               >
                 DD/MM/YYYY
@@ -279,12 +279,12 @@ export function PlatformPreferences() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <label className="text-sm text-text/70 font-inter w-52">Time format:</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Time format:</label>
             <div className="flex rounded-[8px] border border-gold-15 overflow-hidden">
               <button
                 onClick={() => setTimeFormat('12')}
                 className={`px-3 py-1.5 text-xs font-montserrat font-medium transition-colors ${
-                  timeFormat === '12' ? 'bg-gold text-navy' : 'text-text/50 hover:bg-surface'
+                  timeFormat === '12' ? 'bg-gold text-navy' : 'text-navy/50 dark:text-white/50 hover:bg-surface dark:hover:bg-white/5'
                 }`}
               >
                 12-hour
@@ -292,7 +292,7 @@ export function PlatformPreferences() {
               <button
                 onClick={() => setTimeFormat('24')}
                 className={`px-3 py-1.5 text-xs font-montserrat font-medium transition-colors ${
-                  timeFormat === '24' ? 'bg-gold text-navy' : 'text-text/50 hover:bg-surface'
+                  timeFormat === '24' ? 'bg-gold text-navy' : 'text-navy/50 dark:text-white/50 hover:bg-surface dark:hover:bg-white/5'
                 }`}
               >
                 24-hour
@@ -306,12 +306,12 @@ export function PlatformPreferences() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Users size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Lead & Contact Preferences</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Lead & Contact Preferences</h3>
         </div>
         <div className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm text-text/70 font-inter">Default lead expiry (days of inactivity)</label>
+              <label className="text-sm text-navy/70 dark:text-white/70 font-inter">Default lead expiry (days of inactivity)</label>
               <span className="text-sm font-montserrat font-semibold text-gold">{leadExpiryDays} days</span>
             </div>
             <input
@@ -322,18 +322,18 @@ export function PlatformPreferences() {
               onChange={(e) => setLeadExpiryDays(Number(e.target.value))}
               className="w-full accent-gold"
             />
-            <p className="text-xs text-text/40 font-inter mt-1">
+            <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-1">
               Leads with no activity for this many days are surfaced as stale lead alerts.
             </p>
           </div>
 
-          <div className="border-t border-gold-15 pt-4">
+          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
             <div className="flex items-center gap-4">
-              <label className="text-sm text-text/70 font-inter w-52">Duplicate detection:</label>
+              <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Duplicate detection:</label>
               <select
                 value={duplicateDetection}
                 onChange={(e) => setDuplicateDetection(e.target.value as 'strict' | 'moderate' | 'off')}
-                className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface px-3 py-1.5"
+                className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
               >
                 <option value="strict">Strict (flag any matching phone or email)</option>
                 <option value="moderate">Moderate (flag exact matches only)</option>
@@ -342,7 +342,7 @@ export function PlatformPreferences() {
             </div>
           </div>
 
-          <div className="border-t border-gold-15 pt-4">
+          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
             <Toggle
               label="Auto-geocode new contacts"
               description="Automatically geocode contact addresses when added to the CRM"

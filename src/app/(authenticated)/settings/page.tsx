@@ -68,17 +68,17 @@ export default function SettingsPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="min-h-screen"
+      className="min-h-screen bg-surface dark:bg-navy"
     >
       {/* Page Header */}
       <div className="px-6 lg:px-8 pt-6 pb-4">
         <h1
-          className="text-2xl lg:text-3xl font-semibold text-text"
+          className="text-2xl lg:text-3xl font-semibold text-navy dark:text-white"
           style={{ fontFamily: BRAND.fonts.playfair }}
         >
           Settings
         </h1>
-        <p className="text-sm text-text/50 font-inter mt-1">
+        <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
           Manage your platform, integrations, and brand assets
         </p>
       </div>
@@ -96,21 +96,15 @@ export default function SettingsPage() {
                 onClick={() => setActiveSection(section.id)}
                 className={`
                   flex items-center gap-2 px-4 py-2.5 rounded-[8px] whitespace-nowrap
-                  font-montserrat text-xs font-medium transition-all duration-200
+                  font-montserrat text-xs font-medium transition-all duration-200 relative
                   ${isActive
                     ? 'bg-gold/15 text-gold'
-                    : 'text-text/50 hover:text-text hover:bg-surface'
+                    : 'text-navy/50 dark:text-white/50 hover:text-navy dark:hover:text-white hover:bg-white/80 dark:hover:bg-white/5'
                   }
                 `}
               >
                 <Icon size={14} />
                 <span>{section.label}</span>
-                {isActive && (
-                  <motion.div
-                    layoutId="settings-tab-indicator"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold rounded-full"
-                  />
-                )}
               </button>
             );
           })}

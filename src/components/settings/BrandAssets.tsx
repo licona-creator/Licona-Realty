@@ -224,8 +224,8 @@ export function BrandAssets() {
     return (
       <div className="space-y-3">
         <div>
-          <h4 className="text-sm font-montserrat font-semibold text-text">{slot.label}</h4>
-          <p className="text-xs text-text/50 font-inter mt-0.5">{slot.description}</p>
+          <h4 className="text-sm font-montserrat font-semibold text-navy dark:text-white">{slot.label}</h4>
+          <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-0.5">{slot.description}</p>
         </div>
 
         {slot.currentPreview ? (
@@ -254,7 +254,7 @@ export function BrandAssets() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-text/50 font-inter flex-1 truncate">
+              <span className="text-xs text-navy/50 dark:text-white/50 font-inter flex-1 truncate">
                 {slot.file?.name}
               </span>
               <button
@@ -271,11 +271,11 @@ export function BrandAssets() {
             className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gold/30 rounded-[8px] py-6 px-4 cursor-pointer hover:border-gold/60 hover:bg-gold/5 transition-all duration-200"
           >
             <Upload size={20} className="text-gold/50" />
-            <span className="text-xs text-text/40 font-inter">
+            <span className="text-xs text-navy/40 dark:text-white/40 font-inter">
               Click to upload or drag and drop
             </span>
             {slot.minDimensions && (
-              <span className="text-[10px] text-text/30 font-inter">
+              <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">
                 Minimum: {slot.minDimensions}
               </span>
             )}
@@ -299,12 +299,12 @@ export function BrandAssets() {
       {/* Section Header */}
       <div>
         <h2
-          className="text-xl font-semibold text-text"
+          className="text-xl font-semibold text-navy dark:text-white"
           style={{ fontFamily: BRAND.fonts.playfair }}
         >
           Brand & Assets
         </h2>
-        <p className="text-sm text-text/50 font-inter mt-1">
+        <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
           Upload your real Licona Realty assets to replace auto-generated placeholders.
           Changes apply across every screen, template, and public page.
         </p>
@@ -314,13 +314,13 @@ export function BrandAssets() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Image size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Logo Upload</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Logo Upload</h3>
         </div>
         <div className="space-y-6">
           {renderUploadSlot(primaryLogo, setPrimaryLogo, 'primary-logo')}
-          <div className="border-t border-gold-15" />
+          <div className="border-t border-gold/15 dark:border-white/10" />
           {renderUploadSlot(monogramMark, setMonogramMark, 'monogram-mark')}
-          <div className="border-t border-gold-15" />
+          <div className="border-t border-gold/15 dark:border-white/10" />
           {renderUploadSlot(favicon, setFavicon, 'favicon')}
         </div>
       </Card>
@@ -329,17 +329,17 @@ export function BrandAssets() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Image size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Header & Banner Images</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Header & Banner Images</h3>
         </div>
         <div className="space-y-6">
           {renderUploadSlot(dashboardHeader, setDashboardHeader, 'dashboard-header')}
-          <div className="border-t border-gold-15" />
+          <div className="border-t border-gold/15 dark:border-white/10" />
           {renderUploadSlot(profileHero, setProfileHero, 'profile-hero')}
-          <div className="border-t border-gold-15" />
+          <div className="border-t border-gold/15 dark:border-white/10" />
           {renderUploadSlot(emailHeader, setEmailHeader, 'email-header')}
-          <div className="border-t border-gold-15" />
+          <div className="border-t border-gold/15 dark:border-white/10" />
           {renderUploadSlot(socialPhoto, setSocialPhoto, 'social-photo')}
-          <div className="border-t border-gold-15" />
+          <div className="border-t border-gold/15 dark:border-white/10" />
           {renderUploadSlot(openHouseHeader, setOpenHouseHeader, 'open-house-header')}
         </div>
       </Card>
@@ -348,9 +348,9 @@ export function BrandAssets() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Palette size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Brand Colors</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Brand Colors</h3>
         </div>
-        <p className="text-xs text-text/50 font-inter mb-4">
+        <p className="text-xs text-navy/50 dark:text-white/50 font-inter mb-4">
           Verify your brand colors are correct. Changes propagate across all Tailwind CSS
           theme variables and Canva brand kit references.
         </p>
@@ -362,8 +362,8 @@ export function BrandAssets() {
                 style={{ backgroundColor: color.editing ? color.tempHex : color.hex }}
               />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-montserrat font-semibold text-text">{color.name}</p>
-                <p className="text-xs text-text/40 font-inter">{color.role}</p>
+                <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">{color.name}</p>
+                <p className="text-xs text-navy/40 dark:text-white/40 font-inter">{color.role}</p>
               </div>
               {color.editing ? (
                 <div className="flex items-center gap-2">
@@ -414,7 +414,7 @@ export function BrandAssets() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <code className="text-xs text-text/60 font-mono">{color.hex}</code>
+                  <code className="text-xs text-navy/60 dark:text-white/60 font-mono">{color.hex}</code>
                   <button
                     onClick={() => {
                       const updated = [...colors];
@@ -447,9 +447,9 @@ export function BrandAssets() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Type size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Typography</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Typography</h3>
         </div>
-        <p className="text-xs text-text/50 font-inter mb-4">
+        <p className="text-xs text-navy/50 dark:text-white/50 font-inter mb-4">
           Verify all brand fonts are loading correctly.
         </p>
         <div className="space-y-4">
@@ -457,8 +457,8 @@ export function BrandAssets() {
             <div key={font.name} className="border border-gold-15 rounded-[8px] p-4">
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-sm font-montserrat font-semibold text-text">{font.name}</p>
-                  <p className="text-xs text-text/40 font-inter">{font.role}</p>
+                  <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">{font.name}</p>
+                  <p className="text-xs text-navy/40 dark:text-white/40 font-inter">{font.role}</p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-green-500" />
@@ -466,7 +466,7 @@ export function BrandAssets() {
                 </div>
               </div>
               <p
-                className="text-lg text-text mt-2"
+                className="text-lg text-navy dark:text-white mt-2"
                 style={{
                   fontFamily:
                     font.name === 'Playfair Display' ? BRAND.fonts.playfair :
@@ -487,9 +487,9 @@ export function BrandAssets() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <User size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Agent Information</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Agent Information</h3>
         </div>
-        <p className="text-xs text-text/50 font-inter mb-4">
+        <p className="text-xs text-navy/50 dark:text-white/50 font-inter mb-4">
           These fields appear throughout the platform: email signatures, Canva template footers,
           public SEO pages, the agent profile page, and the scheduling booking page.
         </p>
@@ -548,7 +548,7 @@ export function BrandAssets() {
         </div>
         <div className="mt-4 flex items-start gap-2 p-3 rounded-[8px] bg-gold/5 border border-gold/20">
           <AlertTriangle size={14} className="text-gold flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-text/60 font-inter">
+          <p className="text-xs text-navy/60 dark:text-white/60 font-inter">
             Saving changes will update your information across all templates and public pages.
           </p>
         </div>
@@ -558,9 +558,9 @@ export function BrandAssets() {
       <Card>
         <div className="flex items-center gap-2 mb-3">
           <RefreshCw size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Canva Brand Kit Sync</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Canva Brand Kit Sync</h3>
         </div>
-        <p className="text-xs text-text/50 font-inter mb-4">
+        <p className="text-xs text-navy/50 dark:text-white/50 font-inter mb-4">
           Push your current colors, fonts, and uploaded logo to the connected Canva brand kit.
         </p>
         <div className="flex items-center gap-4">
@@ -590,18 +590,18 @@ export function BrandAssets() {
           <Card variant="elevated">
             <div className="flex items-center gap-2 mb-3">
               <Check size={18} className="text-green-500" />
-              <h3 className="text-base font-montserrat font-semibold text-text">
+              <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">
                 Logo Propagation Complete
               </h3>
             </div>
-            <p className="text-xs text-text/50 font-inter mb-3">
+            <p className="text-xs text-navy/50 dark:text-white/50 font-inter mb-3">
               Your logo has been updated in the following locations:
             </p>
             <ul className="space-y-1.5">
               {propagationResults.map((point) => (
                 <li key={point} className="flex items-center gap-2">
                   <Check size={12} className="text-green-500 flex-shrink-0" />
-                  <span className="text-sm text-text/70 font-inter">{point}</span>
+                  <span className="text-sm text-navy/70 dark:text-white/70 font-inter">{point}</span>
                 </li>
               ))}
             </ul>

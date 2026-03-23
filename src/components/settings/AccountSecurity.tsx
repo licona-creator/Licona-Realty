@@ -53,7 +53,7 @@ function Toggle({
           relative w-10 h-5 rounded-full flex-shrink-0 mt-0.5
           transition-colors duration-200
           ${locked ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
-          ${enabled ? 'bg-gold' : 'bg-text/20'}
+          ${enabled ? 'bg-gold' : 'bg-navy/20 dark:bg-white/20'}
         `}
       >
         <div
@@ -65,12 +65,12 @@ function Toggle({
         />
       </button>
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-text font-inter">
+        <p className="text-sm text-navy dark:text-white font-inter">
           {label}
-          {locked && <span className="text-xs text-text/40 ml-2">(always on)</span>}
+          {locked && <span className="text-xs text-navy/40 dark:text-white/40 ml-2">(always on)</span>}
         </p>
         {description && (
-          <p className="text-xs text-text/40 font-inter mt-0.5">{description}</p>
+          <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{description}</p>
         )}
       </div>
     </div>
@@ -127,12 +127,12 @@ export function AccountSecurity() {
       {/* Section Header */}
       <div>
         <h2
-          className="text-xl font-semibold text-text"
+          className="text-xl font-semibold text-navy dark:text-white"
           style={{ fontFamily: BRAND.fonts.playfair }}
         >
           Account & Security
         </h2>
-        <p className="text-sm text-text/50 font-inter mt-1">
+        <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
           Manage your profile, MFA, sessions, and security settings.
           Sensitive changes require MFA verification.
         </p>
@@ -142,7 +142,7 @@ export function AccountSecurity() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <User size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Profile</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Profile</h3>
         </div>
         <div className="space-y-4">
           {/* Photo */}
@@ -151,7 +151,7 @@ export function AccountSecurity() {
               {profilePhoto ? (
                 <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <User size={24} className="text-text/30" />
+                <User size={24} className="text-navy/30 dark:text-white/30" />
               )}
             </div>
             <div>
@@ -174,7 +174,7 @@ export function AccountSecurity() {
                   }}
                 />
               </label>
-              <p className="text-[10px] text-text/30 font-inter mt-1">JPG or PNG, used as your platform avatar</p>
+              <p className="text-[10px] text-navy/30 dark:text-white/30 font-inter mt-1">JPG or PNG, used as your platform avatar</p>
             </div>
           </div>
 
@@ -193,8 +193,8 @@ export function AccountSecurity() {
             />
           </div>
 
-          <div className="border-t border-gold-15 pt-4">
-            <h4 className="text-sm font-montserrat font-semibold text-text mb-3">Change Password</h4>
+          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
+            <h4 className="text-sm font-montserrat font-semibold text-navy dark:text-white mb-3">Change Password</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 label="Current Password"
@@ -220,7 +220,7 @@ export function AccountSecurity() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Shield size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Two-Factor Authentication</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Two-Factor Authentication</h3>
         </div>
         <div className="space-y-4">
           <div className="flex items-center gap-3">
@@ -228,7 +228,7 @@ export function AccountSecurity() {
               <div className="w-2 h-2 rounded-full bg-green-500" />
               <span className="text-sm text-green-600 font-inter font-medium">TOTP Active</span>
             </div>
-            <span className="text-xs text-text/30 font-inter">via Authenticator App</span>
+            <span className="text-xs text-navy/30 dark:text-white/30 font-inter">via Authenticator App</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -246,7 +246,7 @@ export function AccountSecurity() {
             </Button>
           </div>
 
-          <p className="text-xs text-text/40 font-inter">
+          <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
             All MFA actions require re-verification. Backup codes are shown only once per
             generation. MFA is required for this account and cannot be disabled.
             This protects the sensitive client information stored in your platform.
@@ -258,7 +258,7 @@ export function AccountSecurity() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Monitor size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Active Sessions</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Active Sessions</h3>
         </div>
         <div className="space-y-3">
           {mockSessions.map((session, i) => (
@@ -266,15 +266,15 @@ export function AccountSecurity() {
               key={i}
               className="flex items-center gap-4 p-3 rounded-[8px] border border-gold-15"
             >
-              <Monitor size={16} className="text-text/30 flex-shrink-0" />
+              <Monitor size={16} className="text-navy/30 dark:text-white/30 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-text font-inter">
+                <p className="text-sm text-navy dark:text-white font-inter">
                   {session.device} / {session.browser}
                   {session.current && (
                     <span className="text-xs text-green-600 ml-2">(this session)</span>
                   )}
                 </p>
-                <p className="text-xs text-text/40 font-inter">
+                <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
                   {session.location} / {session.ip} / {session.time}
                 </p>
               </div>
@@ -294,11 +294,11 @@ export function AccountSecurity() {
             End All Other Sessions
           </Button>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-text/50 font-inter">Session timeout:</span>
+            <span className="text-xs text-navy/50 dark:text-white/50 font-inter">Session timeout:</span>
             <select
               value={sessionExpiry}
               onChange={(e) => setSessionExpiry(Number(e.target.value))}
-              className="text-xs font-inter rounded-[8px] border border-gold-15 bg-surface px-2 py-1.5"
+              className="text-xs font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-1.5"
             >
               <option value={4}>4 hours</option>
               <option value={8}>8 hours</option>
@@ -313,20 +313,20 @@ export function AccountSecurity() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <ScrollText size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Audit Log</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Audit Log</h3>
         </div>
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text/30" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/30 dark:text-white/30" />
             <input
               type="text"
               placeholder="Search events..."
               value={auditFilter}
               onChange={(e) => setAuditFilter(e.target.value)}
-              className="w-full text-xs font-inter rounded-[8px] border border-gold-15 bg-surface pl-9 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-gold"
+              className="w-full text-xs font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white pl-9 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-gold"
             />
           </div>
-          <select className="text-xs font-inter rounded-[8px] border border-gold-15 bg-surface px-2 py-2">
+          <select className="text-xs font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-2">
             <option>All Events</option>
             <option>Logins</option>
             <option>Settings Changes</option>
@@ -348,21 +348,21 @@ export function AccountSecurity() {
             .map((log, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 py-2 px-3 rounded-[8px] hover:bg-surface/50 transition-colors"
+                className="flex items-center gap-3 py-2 px-3 rounded-[8px] hover:bg-navy/5 dark:hover:bg-white/5 transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-montserrat font-semibold text-text">{log.event}</span>
-                    <span className="text-xs text-text/50 font-inter">{log.detail}</span>
+                    <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{log.event}</span>
+                    <span className="text-xs text-navy/50 dark:text-white/50 font-inter">{log.detail}</span>
                   </div>
                 </div>
-                <span className="text-[10px] text-text/30 font-inter flex-shrink-0">{log.time}</span>
-                <span className="text-[10px] text-text/20 font-mono flex-shrink-0">{log.ip}</span>
+                <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter flex-shrink-0">{log.time}</span>
+                <span className="text-[10px] text-navy/20 dark:text-white/20 font-mono flex-shrink-0">{log.ip}</span>
               </div>
             ))}
         </div>
 
-        <p className="text-[10px] text-text/30 font-inter mt-4">
+        <p className="text-[10px] text-navy/30 dark:text-white/30 font-inter mt-4">
           Audit logs are retained for 2 years in compliance with security best practices.
         </p>
       </Card>
@@ -371,7 +371,7 @@ export function AccountSecurity() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Bell size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Login Notifications</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Login Notifications</h3>
         </div>
         <div className="space-y-4">
           <Toggle
@@ -397,13 +397,13 @@ export function AccountSecurity() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Database size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Data & Privacy</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Data & Privacy</h3>
         </div>
         <div className="space-y-4">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <p className="text-sm text-text font-inter">Export all my data</p>
-              <p className="text-xs text-text/40 font-inter mt-0.5">
+              <p className="text-sm text-navy dark:text-white font-inter">Export all my data</p>
+              <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">
                 Download all contacts, transactions, campaigns, and documents as JSON.
                 MFA verification required.
               </p>
@@ -414,11 +414,11 @@ export function AccountSecurity() {
             </Button>
           </div>
 
-          <div className="border-t border-gold-15 pt-4">
+          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
             <div className="flex items-start gap-3">
               <div className="flex-1">
                 <p className="text-sm text-red-600 font-inter font-medium">Request Data Deletion</p>
-                <p className="text-xs text-text/40 font-inter mt-0.5">
+                <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">
                   This permanently deletes all your data including contacts, transactions,
                   campaigns, documents, and audit logs. This action cannot be undone.
                   Requires MFA verification and typing "DELETE MY DATA" to confirm.

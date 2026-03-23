@@ -3,6 +3,7 @@
  *
  * Displays integration status with honest indicators,
  * configuration panel, test buttons, and setup instructions.
+ * Entire card header is clickable to expand/collapse.
  */
 
 'use client';
@@ -11,10 +12,8 @@ import { useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { BRAND } from '@/lib/brand';
 import {
   ChevronDown,
-  ChevronUp,
   ExternalLink,
   Loader2,
 } from 'lucide-react';
@@ -64,7 +63,8 @@ export function IntegrationCard({
   const [testing, setTesting] = useState(false);
   const config = STATUS_CONFIG[status];
 
-  async function handleTest() {
+  async function handleTest(e: React.MouseEvent) {
+    e.stopPropagation();
     if (!onTest) return;
     setTesting(true);
     try {
@@ -76,20 +76,23 @@ export function IntegrationCard({
 
   return (
     <Card>
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-[8px] bg-navy/5 flex items-center justify-center flex-shrink-0">
+      {/* Clickable Header */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center gap-4 text-left cursor-pointer group"
+      >
+        <div className="w-10 h-10 rounded-[8px] bg-gold/10 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
           {icon}
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-montserrat font-semibold text-text">{name}</h4>
+          <h4 className="text-sm font-montserrat font-semibold text-navy dark:text-white">{name}</h4>
           <div className="flex items-center gap-2 mt-0.5">
             <div className={`w-2 h-2 rounded-full ${config.dotClass}`} />
             <span className="text-xs font-inter" style={{ color: config.color }}>
               {config.label}
             </span>
             {lastVerified && (
-              <span className="text-[10px] text-text/30 font-inter">
+              <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">
                 Last verified: {lastVerified}
               </span>
             )}
@@ -98,58 +101,70 @@ export function IntegrationCard({
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {onTest && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleTest}
-              disabled={testing}
-            >
-              {testing ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                'Test Connection'
-              )}
-            </Button>
+          {!expanded && (
+            <span className="text-xs text-gold font-montserrat font-medium hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              Configure
+            </span>
           )}
-          {docsUrl && (
-            <a
-              href={docsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text/30 hover:text-gold transition-colors p-1"
-              title="View Documentation"
-            >
-              <ExternalLink size={14} />
-            </a>
-          )}
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="text-text/40 hover:text-gold transition-colors p-1"
+          <motion.div
+            animate={{ rotate: expanded ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="text-navy/40 dark:text-white/40 group-hover:text-gold transition-colors p-1"
           >
-            {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </button>
+            <ChevronDown size={18} />
+          </motion.div>
         </div>
+      </button>
+
+      {/* Action buttons row (outside the clickable header) */}
+      <div className="flex items-center gap-2 mt-2 ml-14">
+        {onTest && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleTest}
+            disabled={testing}
+          >
+            {testing ? (
+              <>
+                <Loader2 size={12} className="animate-spin mr-1.5" />
+                Testing...
+              </>
+            ) : (
+              'Test Connection'
+            )}
+          </Button>
+        )}
+        {docsUrl && (
+          <a
+            href={docsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-gold hover:underline font-inter px-2 py-1"
+          >
+            Docs <ExternalLink size={10} />
+          </a>
+        )}
       </div>
 
       {/* Error Message */}
       {status === 'error' && errorMessage && (
         <div className="mt-3 p-3 rounded-[8px] bg-red-500/10 border border-red-500/20">
-          <p className="text-xs text-red-600 font-inter">{errorMessage}</p>
+          <p className="text-xs text-red-600 dark:text-red-400 font-inter">{errorMessage}</p>
         </div>
       )}
 
       {/* Expandable Configuration Panel */}
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {expanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            style={{ overflow: 'hidden' }}
           >
-            <div className="mt-4 pt-4 border-t border-gold-15">
+            <div className="mt-4 pt-4 border-t border-gold/15 dark:border-white/10">
               {children}
             </div>
           </motion.div>

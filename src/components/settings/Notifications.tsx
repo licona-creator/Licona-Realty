@@ -40,7 +40,7 @@ function Toggle({
           relative w-10 h-5 rounded-full flex-shrink-0 mt-0.5
           transition-colors duration-200
           ${locked ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
-          ${enabled ? 'bg-gold' : 'bg-text/20'}
+          ${enabled ? 'bg-gold' : 'bg-navy/20 dark:bg-white/20'}
         `}
       >
         <div
@@ -52,12 +52,12 @@ function Toggle({
         />
       </button>
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-text font-inter">
+        <p className="text-sm text-navy dark:text-white font-inter">
           {label}
-          {locked && <span className="text-xs text-text/40 ml-2">(always on)</span>}
+          {locked && <span className="text-xs text-navy/40 dark:text-white/40 ml-2">(always on)</span>}
         </p>
         {description && (
-          <p className="text-xs text-text/40 font-inter mt-0.5">{description}</p>
+          <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{description}</p>
         )}
       </div>
     </div>
@@ -108,12 +108,12 @@ export function Notifications() {
       {/* Section Header */}
       <div>
         <h2
-          className="text-xl font-semibold text-text"
+          className="text-xl font-semibold text-navy dark:text-white"
           style={{ fontFamily: BRAND.fonts.playfair }}
         >
           Notifications
         </h2>
-        <p className="text-sm text-text/50 font-inter mt-1">
+        <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
           Control which push and email notifications you receive.
           Critical security and approval alerts cannot be disabled.
         </p>
@@ -123,7 +123,7 @@ export function Notifications() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Bell size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Push Notifications</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Push Notifications</h3>
         </div>
         <div className="space-y-4">
           <Toggle label="New lead captured from any source" enabled={pushNewLead} onChange={setPushNewLead} />
@@ -149,7 +149,7 @@ export function Notifications() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Mail size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Email Notifications</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Email Notifications</h3>
         </div>
         <div className="space-y-4">
           <Toggle label="Weekly system health report" enabled={emailWeeklyHealth} onChange={setEmailWeeklyHealth} />
@@ -163,25 +163,25 @@ export function Notifications() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Clock size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-text">Morning Briefing Configuration</h3>
+          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Morning Briefing Configuration</h3>
         </div>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <label className="text-sm text-text/70 font-inter w-52">Approval digest notification:</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Approval digest notification:</label>
             <input
               type="time"
               value={morningDigestTime}
               onChange={(e) => setMorningDigestTime(e.target.value)}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             />
           </div>
 
           <div className="flex items-center gap-4">
-            <label className="text-sm text-text/70 font-inter w-52">Weekly health report day:</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Weekly health report day:</label>
             <select
               value={weeklyHealthDay}
               onChange={(e) => setWeeklyHealthDay(e.target.value)}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             >
               {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((d) => (
                 <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
@@ -190,12 +190,12 @@ export function Notifications() {
           </div>
 
           <div className="flex items-center gap-4">
-            <label className="text-sm text-text/70 font-inter w-52">Weekly health report time:</label>
+            <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Weekly health report time:</label>
             <input
               type="time"
               value={weeklyHealthTime}
               onChange={(e) => setWeeklyHealthTime(e.target.value)}
-              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold-15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             />
           </div>
 
@@ -204,7 +204,7 @@ export function Notifications() {
               <Send size={12} className="mr-1.5" />
               Send Test Notification
             </Button>
-            <p className="text-xs text-text/40 font-inter mt-1.5">
+            <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-1.5">
               Fires a test push notification immediately to verify push is working on your device.
             </p>
           </div>
