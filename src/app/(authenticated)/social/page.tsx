@@ -451,17 +451,18 @@ export default function SocialPage() {
                 try {
                   const supabase = createClient();
                   const { data: { user } } = await supabase.auth.getUser();
+                  if (!user) throw new Error('Not authenticated');
+                  const pillarLabel = selectedPillar ? CONTENT_PILLARS[selectedPillar]?.label || selectedPillar : '';
                   const { error: insertError } = await supabase
                     .from('approval_queue')
                     .insert({
-                      type: 'social_post',
-                      platform: selectedPlatform,
-                      content_pillar: selectedPillar,
-                      caption: caption.trim(),
-                      scheduled_time: null,
-                      status: 'pending',
-                      created_at: new Date().toISOString(),
-                      agent_id: user?.id || null,
+                      user_id: user.id,
+                      item_type: 'social_post',
+                      subject: `${selectedPlatform} - ${pillarLabel}`,
+                      content: caption.trim(),
+                      trigger_source: `social_${selectedPlatform}_${selectedPillar}`,
+                      tone_mode: 'casual_friend',
+                      urgency_level: 3,
                     });
                   if (insertError) throw insertError;
                   success('Post Queued', 'Post added to your approval queue.');

@@ -45,17 +45,17 @@ export default function NotFound() {
 
       {/* Footer */}
       <footer className="mt-16 space-y-1">
-        <p
-          className="font-inter text-xs tracking-wide"
-          style={{ color: BRAND.colors.gold }}
-        >
-          {BRAND.tagline}
+        <p className="font-inter text-xs" style={{ color: BRAND.colors.white }}>
+          {BRAND.agent.name} &middot; Realtor &middot; {BRAND.agent.phone} &middot; {BRAND.agent.email}
+        </p>
+        <p className="font-inter text-xs" style={{ color: 'rgba(244, 244, 244, 0.8)' }}>
+          {BRAND.agent.brokerage} &middot; {BRAND.agent.license}
         </p>
         <p
-          className="font-inter text-xs"
-          style={{ color: 'rgba(255, 255, 255, 0.4)' }}
+          className="font-inter text-xs italic"
+          style={{ fontFamily: BRAND.fonts.playfair, color: BRAND.colors.gold }}
         >
-          {BRAND.agent.brokerage} &middot; {BRAND.agent.license}
+          {BRAND.tagline}
         </p>
       </footer>
     </div>

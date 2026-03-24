@@ -35,10 +35,16 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Refresh session - this is critical for keeping the JWT valid
+  // Refresh session - validate both session and user for robust auth
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const isAuthenticated = !!(session && user);
 
   // Public routes that don't require authentication
   const publicPaths = [
@@ -46,14 +52,13 @@ export async function updateSession(request: NextRequest) {
     '/auth/register',
     '/auth/reset-password',
     '/auth/callback',
-    '/mortgage',        // Public mortgage calculator
-    '/scheduling/book', // Public booking page
-    '/testimonials',    // Public testimonials page
-    '/about',           // Public agent profile page
-    '/agent',           // Public agent alias
-    '/booking',         // Public booking alias
-    '/seo',            // Public SEO pages
-    '/api/webhooks',   // Webhook endpoints (validated by signature)
+    '/mortgage',
+    '/scheduling/book',
+    '/testimonials',
+    '/about',
+    '/agent',
+    '/booking',
+    '/api/webhooks',
     '/api/testimonials',
     '/api/mortgage',
     '/api/bookings',
@@ -64,7 +69,7 @@ export async function updateSession(request: NextRequest) {
   );
 
   // If not authenticated and not on a public path, redirect to login
-  if (!user && !isPublicPath) {
+  if (!isAuthenticated && !isPublicPath) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
     return NextResponse.redirect(url);

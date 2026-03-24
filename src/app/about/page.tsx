@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { BRAND } from '@/lib/brand';
 import { LRMonogram } from '@/components/ui/LRMonogram';
 import {
-  User,
   Home,
   DollarSign,
   TrendingUp,
@@ -88,18 +87,27 @@ export default function AboutPage() {
           {BRAND.tagline}
         </p>
 
-        {/* Headshot placeholder */}
-        <div
-          className="flex items-center justify-center mt-8"
-          style={{
-            width: '160px',
-            height: '160px',
-            borderRadius: '50%',
-            backgroundColor: BRAND.colors.darkCard,
-            border: `3px solid ${BRAND.colors.gold}`,
-          }}
-        >
-          <User size={64} color={BRAND.colors.gold} strokeWidth={1.5} />
+        {/* Headshot placeholder with LR monogram */}
+        <div className="flex flex-col items-center mt-8">
+          <div
+            className="flex items-center justify-center"
+            style={{
+              width: '160px',
+              height: '160px',
+              borderRadius: '50%',
+              backgroundColor: BRAND.colors.darkCard,
+              border: `3px solid ${BRAND.colors.gold}`,
+            }}
+          >
+            <LRMonogram size="xl" />
+          </div>
+          <a
+            href="/settings"
+            className="mt-3 text-xs font-inter transition-opacity hover:opacity-80"
+            style={{ color: 'rgba(244,244,244,0.6)' }}
+          >
+            Upload your photo in Settings - Brand and Assets
+          </a>
         </div>
       </section>
 

@@ -1,9 +1,9 @@
 -- ============================================
--- Licona Realty Platform — Initial Database Schema
+-- Licona Realty Platform - Initial Database Schema
 -- ============================================
 -- All tables have Row Level Security (RLS) ENABLED.
 -- PII fields use pgcrypto for encryption at rest where applicable.
--- Audit log table is immutable — no DELETE policy.
+-- Audit log table is immutable - no DELETE policy.
 -- MLS and SMS placeholder fields included from day one.
 -- ============================================
 
@@ -674,7 +674,7 @@ CREATE POLICY "Users can manage own bookings"
   ON bookings FOR ALL USING (auth.uid() = user_id);
 
 -- ============================================
--- AUDIT LOG TABLE — IMMUTABLE
+-- AUDIT LOG TABLE - IMMUTABLE
 -- Records every login, data access, export, document send, approval action.
 -- Cannot be deleted. Retained for 2 years.
 -- ============================================
@@ -696,7 +696,7 @@ CREATE INDEX idx_audit_logs_action ON audit_logs(action, timestamp DESC);
 
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 
--- Users can only read their own audit logs — no updates, no deletes
+-- Users can only read their own audit logs - no updates, no deletes
 CREATE POLICY "Users can view own audit logs"
   ON audit_logs FOR SELECT USING (auth.uid() = user_id);
 
@@ -705,7 +705,7 @@ CREATE POLICY "Service role inserts audit logs"
   ON audit_logs FOR INSERT
   WITH CHECK (TRUE);
 
--- NO UPDATE OR DELETE POLICIES — audit logs are immutable
+-- NO UPDATE OR DELETE POLICIES - audit logs are immutable
 
 -- ============================================
 -- HELPER: Auto-purge audit logs older than 2 years

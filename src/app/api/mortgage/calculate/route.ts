@@ -47,12 +47,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Name, email, and annual income are required' }, { status: 400 });
   }
 
-  if (!validateEmail(body.visitor_email)) {
+  const emailResult = validateEmail(body.visitor_email);
+  if (!emailResult.valid) {
     return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
   }
 
-  if (body.visitor_phone && !validatePhone(body.visitor_phone)) {
-    return NextResponse.json({ error: 'Invalid phone number' }, { status: 400 });
+  if (body.visitor_phone) {
+    const phoneResult = validatePhone(body.visitor_phone);
+    if (!phoneResult.valid) {
+      return NextResponse.json({ error: 'Invalid phone number' }, { status: 400 });
+    }
   }
 
   if (body.annual_income <= 0 || body.annual_income > 10000000) {

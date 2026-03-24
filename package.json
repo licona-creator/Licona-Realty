@@ -1,7 +1,7 @@
 {
   "name": "licona-realty",
   "version": "1.0.0",
-  "description": "Licona Realty Platform — Smart Moves. Simple Decisions.",
+  "description": "Licona Realty Platform - Smart Moves. Simple Decisions.",
   "private": true,
   "scripts": {
     "dev": "next dev",

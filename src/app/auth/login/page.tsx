@@ -225,7 +225,8 @@ export default function LoginPage() {
         <div className="mt-6 text-center space-y-2">
           <Link
             href="/auth/reset-password"
-            className="text-sm text-white/40 hover:text-gold transition-colors duration-200 font-inter"
+            className="text-sm hover:underline transition-colors duration-200 font-inter"
+            style={{ color: BRAND.colors.accent }}
           >
             Forgot your password?
           </Link>

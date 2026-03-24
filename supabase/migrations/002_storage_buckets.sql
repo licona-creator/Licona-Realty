@@ -1,7 +1,7 @@
 -- ============================================
--- Licona Realty Platform — Storage Buckets
+-- Licona Realty Platform - Storage Buckets
 -- ============================================
--- All buckets are PRIVATE — no public URLs for documents containing PII.
+-- All buckets are PRIVATE - no public URLs for documents containing PII.
 -- Access controlled by RLS policies on storage.objects.
 -- ============================================
 
