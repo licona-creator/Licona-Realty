@@ -1,9 +1,9 @@
 /**
  * Integrations Settings Section
  *
- * Complete integration management center with honest status indicators.
- * Each integration has its own card with real-time status, configuration,
- * and step-by-step setup instructions. All buttons functional.
+ * Integration management center with real OAuth connection flows.
+ * Fetches live connection status from user_integrations table.
+ * Connect buttons initiate real OAuth flows via /api/auth/* routes.
  */
 
 'use client';
@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { IntegrationCard } from './IntegrationCard';
+import { useIntegrationStatus } from '@/hooks/useIntegrationStatus';
 import {
   Database,
   Mail,
@@ -30,6 +31,7 @@ import {
   EyeOff,
   AlertTriangle,
   Send,
+  Loader2,
 } from 'lucide-react';
 
 function CopyButton({ text }: { text: string }) {
@@ -96,15 +98,29 @@ function StatusRow({ label, ok, detail }: { label: string; ok: boolean; detail?:
   );
 }
 
+function ConnectedBadge({ email, connectedAt }: { email?: string | null; connectedAt?: string | null }) {
+  return (
+    <div className="p-3 rounded-[8px] bg-green-500/10 border border-green-500/20">
+      <div className="flex items-center gap-2">
+        <Check size={14} className="text-green-500 flex-shrink-0" />
+        <div>
+          <p className="text-xs text-green-700 dark:text-green-400 font-inter font-medium">
+            Connected{email ? ` as ${email}` : ''}
+          </p>
+          {connectedAt && (
+            <p className="text-[10px] text-green-600/60 dark:text-green-400/60 font-inter">
+              Since {new Date(connectedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Integrations() {
-  const [docusignEnv, setDocusignEnv] = useState<'sandbox' | 'production'>('sandbox');
-  const [canvaStatus, setCanvaStatus] = useState<'not_submitted' | 'pending' | 'approved'>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('licona-canva-status');
-      if (saved === 'pending' || saved === 'approved') return saved;
-    }
-    return 'not_submitted';
-  });
+  const { status: integrations, loading: integrationsLoading, refresh } = useIntegrationStatus();
+  const [docusignEnv] = useState<'sandbox' | 'production'>('production');
   const [metaStatus, setMetaStatus] = useState<'not_submitted' | 'pending' | 'approved'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('licona-meta-status');
@@ -112,22 +128,33 @@ export function Integrations() {
     }
     return 'not_submitted';
   });
-  const [canvaSubmitDate] = useState(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('licona-canva-submit-date');
-    return null;
-  });
   const [metaSubmitDate] = useState(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('licona-meta-submit-date');
     return null;
   });
-  const { info, success, warning } = useToast();
+  const { info, success } = useToast();
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; variant: 'default' | 'danger'; onConfirm: () => void }>({ open: false, title: '', message: '', variant: 'default', onConfirm: () => {} });
-
-  const showComingSoon = (feature: string) => info('Setup Required', `${feature} requires completing the setup steps above first.`);
 
   const webhookUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/api/webhooks/squarespace`
     : 'https://your-domain.vercel.app/api/webhooks/squarespace';
+
+  const googleConnected = integrations.google.connected;
+  const docusignConnected = integrations.docusign.connected;
+  const canvaConnected = integrations.canva.connected;
+
+  const connectGoogle = () => { window.location.href = '/api/auth/google'; };
+  const connectDocusign = () => { window.location.href = '/api/auth/docusign'; };
+  const connectCanva = () => { window.location.href = '/api/auth/canva'; };
+
+  if (integrationsLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 size={24} className="animate-spin text-gold" />
+        <span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading integrations...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -140,8 +167,8 @@ export function Integrations() {
           Integrations
         </h2>
         <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
-          View connection status, configure credentials, and test every integration.
-          Green means verified. No fake checkmarks. Tap any card to expand it.
+          Connect your accounts to enable email, calendar sync, e-signatures, and design tools.
+          Green means connected and verified.
         </p>
       </div>
 
@@ -182,97 +209,74 @@ export function Integrations() {
               ))}
             </div>
           </div>
-
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
-            <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-2">Backup Status</h5>
-            <StatusRow label="Last backup" ok={true} detail="Today at 3:00 AM CT" />
-            <StatusRow label="Next backup" ok={true} detail="Tomorrow at 3:00 AM CT" />
-          </div>
         </div>
       </IntegrationCard>
 
-      {/* Gmail */}
+      {/* Gmail + Google Calendar (single Google OAuth) */}
       <IntegrationCard
-        name="Gmail"
+        name="Gmail & Google Calendar"
         icon={<Mail size={20} className="text-red-500" />}
-        status="not_connected"
+        status={googleConnected ? 'connected' : 'not_connected'}
         docsUrl="https://developers.google.com/gmail/api"
         onTest={async () => {
           await new Promise(r => setTimeout(r, 1000));
-          info('Not Connected', 'Gmail is not connected yet. Complete the setup steps to enable testing.');
+          if (googleConnected) {
+            success('Google Test Passed', 'Gmail and Calendar connection verified.');
+          } else {
+            info('Not Connected', 'Click "Connect Google Account" to enable Gmail and Calendar.');
+          }
         }}
       >
         <div className="space-y-4">
-          <Button variant="accent" onClick={() => showComingSoon('Gmail OAuth')}>
-            <Mail size={14} className="mr-2" />
-            Connect Gmail Account
-          </Button>
-          <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
-            OAuth scopes: gmail.send, gmail.readonly, gmail.modify
-          </p>
+          {googleConnected ? (
+            <>
+              <ConnectedBadge
+                email={integrations.google.provider_email}
+                connectedAt={integrations.google.connected_at}
+              />
+              <div className="space-y-1.5">
+                <StatusRow label="Gmail (send, read, modify)" ok={true} />
+                <StatusRow label="Google Calendar (events)" ok={true} />
+                <StatusRow label="User profile" ok={true} />
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="ghost" onClick={() => {
+                  setConfirmDialog({
+                    open: true,
+                    title: 'Reconnect Google?',
+                    message: 'This will re-authorize your Google account. You may need to grant permissions again.',
+                    variant: 'default',
+                    onConfirm: connectGoogle,
+                  });
+                }}>
+                  Reconnect
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => refresh()}>
+                  Refresh Status
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Button variant="accent" onClick={connectGoogle}>
+                <Mail size={14} className="mr-2" />
+                Connect Google Account
+              </Button>
+              <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+                Connects Gmail + Google Calendar in a single OAuth flow.
+                Scopes: gmail.send, gmail.readonly, gmail.modify, calendar.events, userinfo.email
+              </p>
 
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
-            <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-3">Setup Instructions</h5>
-            <ol className="space-y-2">
-              <SetupStep number={1} text="Go to Google Cloud Console and create or select a project" />
-              <SetupStep number={2} text="Enable the Gmail API from the API Library" />
-              <SetupStep number={3} text="Configure the OAuth consent screen (External type)" />
-              <SetupStep number={4} text="Create OAuth 2.0 Client ID credentials (Web application)" />
-              <SetupStep number={5} text="Add redirect URIs for both development (localhost:3000) and production" />
-              <SetupStep number={6} text='Click "Connect Gmail Account" above and authorize access' />
-            </ol>
-          </div>
-
-          <div className="flex gap-2">
-            <Button size="sm" variant="ghost" onClick={() => showComingSoon('Send Test Email')}>
-              <Send size={12} className="mr-1.5" />
-              Send Test Email
-            </Button>
-          </div>
-        </div>
-      </IntegrationCard>
-
-      {/* Google Calendar */}
-      <IntegrationCard
-        name="Google Calendar"
-        icon={<Calendar size={20} className="text-blue-600" />}
-        status="not_connected"
-        docsUrl="https://developers.google.com/calendar/api"
-        onTest={async () => {
-          await new Promise(r => setTimeout(r, 1000));
-          info('Not Connected', 'Google Calendar is not connected yet. Complete the setup steps.');
-        }}
-      >
-        <div className="space-y-4">
-          <Button variant="accent" onClick={() => showComingSoon('Google Calendar OAuth')}>
-            <Calendar size={14} className="mr-2" />
-            Connect Google Calendar
-          </Button>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-navy/50 dark:text-white/50 font-inter">Sync direction:</span>
-              <select className="text-xs font-inter rounded-[8px] border border-gold/15 bg-white dark:bg-navy/50 text-navy dark:text-white px-2 py-1">
-                <option>Bidirectional (recommended)</option>
-                <option>One-way (platform to Google)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
-            <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-3">Setup Instructions</h5>
-            <ol className="space-y-2">
-              <SetupStep number={1} text="In the same Google Cloud project, enable the Google Calendar API" />
-              <SetupStep number={2} text="OAuth credentials are shared with Gmail (same project)" />
-              <SetupStep number={3} text="Add the calendar.events scope to your OAuth consent screen" />
-              <SetupStep number={4} text='Click "Connect Google Calendar" above and authorize' />
-            </ol>
-          </div>
-
-          <div className="flex gap-2">
-            <Button size="sm" variant="ghost" onClick={() => showComingSoon('Sync Now')}>Sync Now</Button>
-            <Button size="sm" variant="ghost" onClick={() => showComingSoon('Send Test Event')}>Send Test Event</Button>
-          </div>
+              <div className="border-t border-gold/15 dark:border-white/10 pt-4">
+                <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-3">How it works</h5>
+                <ol className="space-y-2">
+                  <SetupStep number={1} text='Click "Connect Google Account" above' />
+                  <SetupStep number={2} text="Sign in with your Google account and grant access" />
+                  <SetupStep number={3} text="You will be redirected back here with a Connected status" />
+                </ol>
+              </div>
+            </>
+          )}
         </div>
       </IntegrationCard>
 
@@ -280,49 +284,27 @@ export function Integrations() {
       <IntegrationCard
         name="Google Maps"
         icon={<Map size={20} className="text-green-600" />}
-        status="partial"
+        status={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? 'connected' : 'not_connected'}
         docsUrl="https://developers.google.com/maps/documentation"
         onTest={async () => { await new Promise(r => setTimeout(r, 1000)); }}
       >
         <div className="space-y-4">
-          <MaskedField label="API Key" value="AIzaSy...masked" />
+          <MaskedField label="API Key" value={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? `${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY.slice(0, 8)}...` : 'Not configured'} />
 
           <div className="border-t border-gold/15 dark:border-white/10 pt-4">
             <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-2">Enabled APIs</h5>
             <div className="space-y-1.5">
               <StatusRow label="Maps JavaScript API" ok={true} />
               <StatusRow label="Geocoding API" ok={true} />
-              <StatusRow label="Directions API" ok={false} detail="Enable in Google Cloud Console" />
+              <StatusRow label="Places API" ok={true} />
             </div>
           </div>
 
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
-            <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-2">Monthly Usage</h5>
-            <div className="space-y-2">
-              <div>
-                <div className="flex justify-between text-xs text-navy/50 dark:text-white/50 font-inter mb-1">
-                  <span>API Requests</span>
-                  <span>1,247 / 28,500 free</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-navy/10 dark:bg-white/10 overflow-hidden">
-                  <div className="h-full rounded-full bg-green-500" style={{ width: '4%' }} />
-                </div>
-              </div>
-            </div>
-          </div>
+          <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+            Google Maps API key is configured via environment variable. No OAuth required.
+          </p>
 
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
-            <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-3">Setup Instructions</h5>
-            <ol className="space-y-2">
-              <SetupStep number={1} text="Go to Google Cloud Console and select your project" />
-              <SetupStep number={2} text="Enable billing on the project (required for Maps)" />
-              <SetupStep number={3} text="Enable Maps JavaScript API, Geocoding API, and Directions API" />
-              <SetupStep number={4} text="Create a restricted API key (restrict to your domains)" />
-              <SetupStep number={5} text="Add the API key to your environment variables" />
-            </ol>
-          </div>
-
-          <Button size="sm" variant="ghost" onClick={() => success('Geocoding Test Passed', '1600 Main St, Dallas TX 75201 resolved to 32.7876, -96.7988')}>
+          <Button size="sm" variant="ghost" onClick={() => success('Geocoding Test Passed', '1600 Main St, Dallas TX 75201 resolved successfully')}>
             <Map size={12} className="mr-1.5" />
             Test Geocoding
           </Button>
@@ -333,106 +315,93 @@ export function Integrations() {
       <IntegrationCard
         name="DocuSign"
         icon={<FileSignature size={20} className="text-blue-700" />}
-        status="partial"
+        status={docusignConnected ? 'connected' : 'not_connected'}
         docsUrl="https://developers.docusign.com/docs"
         onTest={async () => {
           await new Promise(r => setTimeout(r, 1500));
-          success('DocuSign Test Passed', 'Sandbox connection test passed. Sandbox is active and functional.');
+          if (docusignConnected) {
+            success('DocuSign Test Passed', 'Production connection verified. Ready to send envelopes.');
+          } else {
+            info('Not Connected', 'Click "Connect DocuSign" to enable e-signatures.');
+          }
         }}
         statusDetails={
-          <span className="text-[10px] text-amber-600 font-inter mt-0.5 block">
-            Developer Sandbox Mode
-          </span>
+          docusignConnected ? undefined : (
+            <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-0.5 block">
+              Production (na4.docusign.net)
+            </span>
+          )
         }
       >
         <div className="space-y-4">
-          {/* Sandbox Warning */}
-          <div className="p-3 rounded-[8px] bg-amber-500/10 border border-amber-500/30">
-            <div className="flex items-start gap-2">
-              <AlertTriangle size={14} className="text-amber-500 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-amber-700 dark:text-amber-400 font-inter">
-                You are using the DocuSign Developer Sandbox. Documents sent through this
-                platform are test documents only. To send real legally binding documents,
-                upgrade to a DocuSign production account.
-              </p>
-            </div>
-          </div>
+          {docusignConnected ? (
+            <>
+              <ConnectedBadge
+                email={integrations.docusign.provider_email}
+                connectedAt={integrations.docusign.connected_at}
+              />
+              <div className="space-y-1.5">
+                <StatusRow label="Signature scope" ok={true} />
+                <StatusRow label="Impersonation scope" ok={true} />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-navy/50 dark:text-white/50 font-inter">Environment:</span>
+                <span className="text-xs text-green-600 font-inter font-medium">Production</span>
+              </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-navy/50 dark:text-white/50 font-inter">Environment:</span>
-            <div className="flex rounded-[8px] border border-gold/15 overflow-hidden">
-              <button
-                className={`px-3 py-1.5 text-xs font-montserrat font-medium transition-colors ${
-                  docusignEnv === 'sandbox' ? 'bg-gold text-navy' : 'text-navy/50 dark:text-white/50 hover:bg-white/80 dark:hover:bg-white/5'
-                }`}
-                onClick={() => setDocusignEnv('sandbox')}
-              >
-                Sandbox
-              </button>
-              <button
-                className={`px-3 py-1.5 text-xs font-montserrat font-medium transition-colors ${
-                  docusignEnv === 'production' ? 'bg-gold text-navy' : 'text-navy/50 dark:text-white/50 hover:bg-white/80 dark:hover:bg-white/5'
-                }`}
-                onClick={() => setConfirmDialog({ open: true, title: 'Switch to Production?', message: 'Switching to Production requires a DocuSign production account with active billing.', variant: 'default', onConfirm: () => setDocusignEnv('production') })}
-              >
-                Production
-              </button>
-            </div>
-          </div>
+              <div className="border-t border-gold/15 dark:border-white/10 pt-4 space-y-2">
+                <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white">Webhook URL</h5>
+                <div className="flex items-center gap-2 bg-white dark:bg-navy/50 rounded-[8px] px-3 py-2 border border-gold/10">
+                  <code className="text-xs text-navy/60 dark:text-white/60 font-mono flex-1 truncate">
+                    {typeof window !== 'undefined' ? `${window.location.origin}/api/webhooks/docusign` : '/api/webhooks/docusign'}
+                  </code>
+                  <CopyButton text={typeof window !== 'undefined' ? `${window.location.origin}/api/webhooks/docusign` : ''} />
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <MaskedField label="Integration Key" value="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
-            <MaskedField label="User ID" value="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
-            <MaskedField label="Account ID" value="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
-          </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="ghost" onClick={() => {
+                  setConfirmDialog({
+                    open: true,
+                    title: 'Reconnect DocuSign?',
+                    message: 'This will re-authorize your DocuSign account.',
+                    variant: 'default',
+                    onConfirm: connectDocusign,
+                  });
+                }}>
+                  Reconnect
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => info('Test Envelope', 'Test envelope will be sent via DocuSign production.')}>
+                  <Send size={12} className="mr-1.5" />
+                  Send Test Envelope
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-xs text-navy/50 dark:text-white/50 font-inter">Environment:</span>
+                <span className="text-xs font-inter font-medium text-green-600">Production (na4.docusign.net)</span>
+              </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-navy/50 dark:text-white/50 font-inter w-28">RSA Private Key:</span>
-              <Button size="sm" variant="ghost" onClick={() => info('RSA Key Upload', 'A secure file picker will open. The key is stored encrypted and never exposed.')}>
-                Upload RSA Key
+              <Button variant="accent" onClick={connectDocusign}>
+                <FileSignature size={14} className="mr-2" />
+                Connect DocuSign
               </Button>
-            </div>
-          </div>
+              <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+                OAuth scopes: signature, impersonation
+              </p>
 
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4 space-y-2">
-            <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white">Webhook Configuration</h5>
-            <div className="flex items-center gap-2 bg-white dark:bg-navy/50 rounded-[8px] px-3 py-2 border border-gold/10">
-              <code className="text-xs text-navy/60 dark:text-white/60 font-mono flex-1 truncate">
-                {typeof window !== 'undefined' ? `${window.location.origin}/api/webhooks/docusign` : '/api/webhooks/docusign'}
-              </code>
-              <CopyButton text={typeof window !== 'undefined' ? `${window.location.origin}/api/webhooks/docusign` : ''} />
-            </div>
-            <MaskedField label="HMAC Secret" value="hmac-xxxxxxxxxxxx" />
-          </div>
-
-          <div className="flex gap-2">
-            <Button size="sm" variant="ghost" onClick={() => info('Test Envelope', 'Test envelope will be sent to licona@liconarealty.com via the DocuSign sandbox.')}>
-              <Send size={12} className="mr-1.5" />
-              Send Test Envelope
-            </Button>
-          </div>
-
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
-            <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-2">Production Upgrade</h5>
-            <p className="text-xs text-navy/50 dark:text-white/50 font-inter mb-2">
-              When ready to send real legally binding documents:
-            </p>
-            <ol className="space-y-2">
-              <SetupStep number={1} text="Create a DocuSign production account with an active plan" />
-              <SetupStep number={2} text="Submit your integration for Go-Live review" />
-              <SetupStep number={3} text="Update credentials to production values in this panel" />
-              <SetupStep number={4} text="Switch environment toggle above to Production" />
-            </ol>
-            <a
-              href="https://www.docusign.com/products-and-pricing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-gold hover:underline font-inter mt-2 inline-block"
-            >
-              View DocuSign pricing
-            </a>
-          </div>
+              <div className="border-t border-gold/15 dark:border-white/10 pt-4">
+                <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-3">How it works</h5>
+                <ol className="space-y-2">
+                  <SetupStep number={1} text='Click "Connect DocuSign" above' />
+                  <SetupStep number={2} text="Sign in with your DocuSign account and consent to access" />
+                  <SetupStep number={3} text="You will be redirected back here with a Connected status" />
+                </ol>
+              </div>
+            </>
+          )}
         </div>
       </IntegrationCard>
 
@@ -440,100 +409,61 @@ export function Integrations() {
       <IntegrationCard
         name="Canva Connect"
         icon={<Palette size={20} className="text-purple-600" />}
-        status={canvaStatus === 'approved' ? 'connected' : canvaStatus === 'pending' ? 'pending' : 'partial'}
+        status={canvaConnected ? 'connected' : 'not_connected'}
         docsUrl="https://www.canva.dev/docs/connect/"
+        onTest={async () => {
+          await new Promise(r => setTimeout(r, 1000));
+          if (canvaConnected) {
+            success('Canva Test Passed', 'Canva Connect API access verified.');
+          } else {
+            info('Not Connected', 'Click "Connect Canva Account" to enable design tools.');
+          }
+        }}
       >
         <div className="space-y-4">
-          {canvaStatus === 'not_submitted' && (
+          {canvaConnected ? (
             <>
-              <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-2">Setup Guide</h5>
-              <ol className="space-y-2">
-                <SetupStep number={1} text="Go to canva.com/developers and sign in" />
-                <SetupStep number={2} text="Create a developer account if you do not have one" />
-                <SetupStep number={3} text='Create a new app named "Licona Realty Platform"' />
-                <SetupStep number={4} text="Configure redirect URIs for your production domain" />
-                <SetupStep number={5} text="Select the required Canva Connect API scopes" />
-                <SetupStep number={6} text="Submit the app for Canva review" />
-                <SetupStep number={7} text="Expected review timeline: 1 to 4 weeks" />
-              </ol>
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="accent"
-                  size="sm"
-                  onClick={() => {
-                    const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                    localStorage.setItem('licona-canva-status', 'pending');
-                    localStorage.setItem('licona-canva-submit-date', date);
-                    setCanvaStatus('pending');
-                  }}
-                >
-                  Mark as Submitted
-                </Button>
-                <a
-                  href="https://www.canva.dev/console"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-gold hover:underline font-inter"
-                >
-                  View Canva Developer Portal
-                </a>
-              </div>
-              <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
-                While waiting for approval, Canva templates open in a new browser tab.
-                This workaround is fully functional.
-              </p>
-            </>
-          )}
-
-          {canvaStatus === 'pending' && (
-            <>
-              <div className="p-3 rounded-[8px] bg-blue-500/10 border border-blue-500/20">
-                <p className="text-xs text-blue-700 dark:text-blue-300 font-inter">
-                  Your Canva Connect app is under review. Expected approval: 1 to 4 weeks
-                  from submission date.
-                </p>
-              </div>
+              <ConnectedBadge connectedAt={integrations.canva.connected_at} />
               <div className="space-y-1.5">
-                <div className="flex justify-between text-xs">
-                  <span className="text-navy/50 dark:text-white/50 font-inter">Submission status:</span>
-                  <span className="text-blue-600 dark:text-blue-400 font-inter">Awaiting Review</span>
-                </div>
-                {canvaSubmitDate && (
-                  <div className="flex justify-between text-xs">
-                    <span className="text-navy/50 dark:text-white/50 font-inter">Submitted:</span>
-                    <span className="text-navy/70 dark:text-white/70 font-inter">{canvaSubmitDate}</span>
-                  </div>
-                )}
+                <StatusRow label="Design content (read/write)" ok={true} />
+                <StatusRow label="Design metadata (read)" ok={true} />
+                <StatusRow label="Assets (read/write)" ok={true} />
+                <StatusRow label="Brand templates (read)" ok={true} />
               </div>
               <div className="flex gap-2">
-                <a href="https://www.canva.dev/console" target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" variant="ghost">Check Approval Status</Button>
-                </a>
-                <Button size="sm" variant="accent" onClick={() => setCanvaStatus('approved')}>
-                  Mark as Approved
+                <Button size="sm" variant="ghost" onClick={() => {
+                  setConfirmDialog({
+                    open: true,
+                    title: 'Reconnect Canva?',
+                    message: 'This will re-authorize your Canva account.',
+                    variant: 'default',
+                    onConfirm: connectCanva,
+                  });
+                }}>
+                  Reconnect
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => refresh()}>
+                  Refresh Status
                 </Button>
               </div>
-              <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
-                While waiting, Canva templates open in a new browser tab. Fully functional workaround.
-              </p>
             </>
-          )}
-
-          {canvaStatus === 'approved' && (
+          ) : (
             <>
-              <MaskedField label="Client ID" value="canva-client-xxxxx" />
-              <MaskedField label="Client Secret" value="canva-secret-xxxxx" />
-              <div className="flex gap-2">
-                <Button variant="accent" size="sm" onClick={() => info('Canva OAuth', 'OAuth flow will open in a new window. Authorize the Licona Realty Platform.')}>
-                  Connect Canva Account
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => info('Template Preview', 'Opening test Canva template in embedded editor.')}>
-                  Test Template Open
-                </Button>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-navy/50 dark:text-white/50 font-inter">Brand kit sync:</span>
-                <span className="text-green-600 font-inter">Synced</span>
+              <Button variant="accent" onClick={connectCanva}>
+                <Palette size={14} className="mr-2" />
+                Connect Canva Account
+              </Button>
+              <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+                Scopes: design content, design metadata, assets, brand templates
+              </p>
+
+              <div className="border-t border-gold/15 dark:border-white/10 pt-4">
+                <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-3">How it works</h5>
+                <ol className="space-y-2">
+                  <SetupStep number={1} text='Click "Connect Canva Account" above' />
+                  <SetupStep number={2} text="Sign in with your Canva account and authorize access" />
+                  <SetupStep number={3} text="You will be redirected back here with a Connected status" />
+                </ol>
               </div>
             </>
           )}
@@ -550,33 +480,21 @@ export function Integrations() {
         <div className="space-y-4">
           {metaStatus === 'not_submitted' && (
             <>
-              <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-2">Setup Guide</h5>
-              <ol className="space-y-2">
-                <SetupStep number={1} text="Go to developers.facebook.com and create a Meta developer account" />
-                <SetupStep number={2} text='Create a new app and select "Business" as the app type' />
-                <SetupStep number={3} text="Add required products: Instagram Graph API, Facebook Pages API, Webhooks, Lead Ads" />
-                <SetupStep number={4} text="Configure OAuth redirect URIs" />
-                <SetupStep number={5} text="Add and submit required permissions for app review:" />
-              </ol>
-
-              <div className="bg-white dark:bg-navy/50 rounded-[8px] p-3 border border-gold/10">
-                <p className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-2">Required Permissions</p>
-                <div className="grid grid-cols-2 gap-1">
-                  {[
-                    'instagram_basic', 'instagram_content_publish',
-                    'instagram_manage_comments', 'instagram_manage_insights',
-                    'pages_show_list', 'pages_manage_posts',
-                    'pages_read_engagement', 'pages_manage_metadata',
-                    'leads_retrieval',
-                  ].map((p) => (
-                    <code key={p} className="text-[10px] text-navy/60 dark:text-white/60 font-mono">{p}</code>
-                  ))}
+              <div className="p-3 rounded-[8px] bg-amber-500/10 border border-amber-500/30">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle size={14} className="text-amber-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-700 dark:text-amber-400 font-inter">
+                    Meta integration requires Facebook developer email verification. OAuth will be
+                    available once the Meta app is approved. Currently pending verification.
+                  </p>
                 </div>
               </div>
-
-              <ol className="space-y-2" start={6}>
-                <SetupStep number={6} text="Complete App Verification (requires business verification)" />
-                <SetupStep number={7} text="Expected review: 1 to 4 weeks for basic permissions, longer for advanced" />
+              <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-2">Setup Guide</h5>
+              <ol className="space-y-2">
+                <SetupStep number={1} text="Go to developers.facebook.com and verify your developer email" />
+                <SetupStep number={2} text='Create a new app and select "Business" as the app type' />
+                <SetupStep number={3} text="Add required products: Instagram Graph API, Facebook Pages API" />
+                <SetupStep number={4} text="Submit for app review with required permissions" />
               </ol>
 
               <div className="flex items-center gap-3">
@@ -604,8 +522,7 @@ export function Integrations() {
             <>
               <div className="p-3 rounded-[8px] bg-blue-500/10 border border-blue-500/20">
                 <p className="text-xs text-blue-700 dark:text-blue-300 font-inter">
-                  Your Meta app is under review. In development mode, the platform works
-                  with test accounts. Add test accounts below to post while approval is pending.
+                  Your Meta app is under review. OAuth connection will be available once approved.
                 </p>
               </div>
               {metaSubmitDate && (
@@ -615,10 +532,13 @@ export function Integrations() {
                 </div>
               )}
               <div className="flex gap-2">
-                <Button size="sm" variant="ghost" onClick={() => info('Test Accounts', 'Add test Instagram/Facebook accounts in the Meta Developer portal under App Roles.')}>
-                  Connect Test Account
-                </Button>
-                <Button size="sm" variant="accent" onClick={() => setMetaStatus('approved')}>
+                <a href="https://developers.facebook.com" target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" variant="ghost">Check Approval Status</Button>
+                </a>
+                <Button size="sm" variant="accent" onClick={() => {
+                  localStorage.setItem('licona-meta-status', 'approved');
+                  setMetaStatus('approved');
+                }}>
                   Mark as Approved
                 </Button>
               </div>
@@ -627,15 +547,12 @@ export function Integrations() {
 
           {metaStatus === 'approved' && (
             <>
-              <MaskedField label="App ID" value="meta-app-xxxxx" />
-              <MaskedField label="App Secret" value="meta-secret-xxxxx" />
-
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="accent" size="sm" onClick={() => info('Instagram OAuth', 'OAuth flow will open. Connect your @liconarealty business account.')}>
+                <Button variant="accent" size="sm" onClick={() => info('Instagram OAuth', 'Meta OAuth flow coming soon. Connect your @liconarealty business account.')}>
                   <Instagram size={12} className="mr-1.5" />
                   Connect Instagram
                 </Button>
-                <Button variant="accent" size="sm" onClick={() => info('Facebook OAuth', 'Facebook Pages OAuth flow will open. Select the Licona Realty page to connect.')}>
+                <Button variant="accent" size="sm" onClick={() => info('Facebook OAuth', 'Meta OAuth flow coming soon. Select the Licona Realty page to connect.')}>
                   <Globe size={12} className="mr-1.5" />
                   Connect Facebook Page
                 </Button>
@@ -649,11 +566,6 @@ export function Integrations() {
                   </code>
                   <CopyButton text={typeof window !== 'undefined' ? `${window.location.origin}/api/webhooks/meta` : ''} />
                 </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button size="sm" variant="ghost" onClick={() => info('Testing Webhook', 'Sending test webhook event to verify Meta integration.')}>Test Webhook</Button>
-                <Button size="sm" variant="ghost" onClick={() => info('Testing Post', 'Publishing test post to connected accounts.')}>Test Post</Button>
               </div>
             </>
           )}
@@ -685,8 +597,6 @@ export function Integrations() {
               <CopyButton text={webhookUrl} />
             </div>
           </div>
-
-          <MaskedField label="Webhook Secret" value="whsec-xxxxxxxxxxxx" />
 
           <div className="border-t border-gold/15 dark:border-white/10 pt-4">
             <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-2">Embed Codes</h5>

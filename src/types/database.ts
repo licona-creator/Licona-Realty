@@ -510,3 +510,24 @@ export interface AuditLog {
   user_agent: string | null;
   timestamp: string;
 }
+
+// ============================================
+// User Integrations
+// ============================================
+
+export type IntegrationProvider = 'google' | 'docusign' | 'canva' | 'meta';
+
+export interface UserIntegration {
+  id: string;
+  user_id: string;
+  provider: IntegrationProvider;
+  access_token: string;
+  refresh_token: string | null;
+  token_expires_at: string | null;
+  scopes: string[] | null;
+  provider_account_id: string | null;
+  provider_email: string | null;
+  metadata: Record<string, unknown>;
+  connected_at: string;
+  updated_at: string;
+}

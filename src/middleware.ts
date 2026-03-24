@@ -71,6 +71,9 @@ export async function middleware(request: NextRequest) {
     '/api/testimonials',
     '/api/mortgage',
     '/api/bookings',
+    '/api/auth/google',
+    '/api/auth/docusign',
+    '/api/auth/canva',
     '/setup',
   ];
 
