@@ -82,7 +82,7 @@ export function Sidebar({ approvalCount = 0 }: SidebarProps) {
 
             return (
               <li key={item.href}>
-                <Link href={item.href}>
+                <Link href={item.href} {...('badge' in item && item.badge ? { 'data-testid': 'sidebar-approval-badge' } : {})}>
                   <motion.div
                     whileHover={{ x: 4 }}
                     className={`

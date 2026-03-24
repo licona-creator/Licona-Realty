@@ -36,6 +36,7 @@ export function MobileNav({ approvalCount = 0 }: MobileNavProps) {
 
   return (
     <nav
+      data-testid="bottom-tab-bar"
       className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-navy border-t border-white/10 pb-[env(safe-area-inset-bottom)]"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >

@@ -1,0 +1,16 @@
+import { test, expect } from '@playwright/test';
+import { assertNoEmDashes } from '../helpers/utils';
+
+test.describe('Map Page', () => {
+  test('map route is protected', async ({ page }) => {
+    await page.goto('/map');
+    await page.waitForLoadState('networkidle');
+    expect(page.url()).toContain('/auth/login');
+  });
+
+  test('map redirect page has no em dashes', async ({ page }) => {
+    await page.goto('/map');
+    await page.waitForLoadState('networkidle');
+    await assertNoEmDashes(page);
+  });
+});

@@ -101,7 +101,7 @@ export default function ContactsPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <Card className="!p-8 text-center">
+        <Card data-testid="contact-card" className="!p-8 text-center">
           <Users size={40} className="text-gold mx-auto mb-4 opacity-50" />
           <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
             No Contacts Yet

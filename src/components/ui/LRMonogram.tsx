@@ -25,6 +25,7 @@ export function LRMonogram({ size = 'md', className = '' }: LRMonogramProps) {
 
   return (
     <div
+      data-testid="lr-monogram"
       className={`flex items-center justify-center font-montserrat font-bold ${className}`}
       style={{
         width: s.width,

@@ -250,7 +250,7 @@ export default function MapPage() {
       </div>
 
       {/* Track Type Filters */}
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-gold/10 overflow-x-auto scrollbar-hide" style={{ backgroundColor: BRAND.colors.primary }}>
+      <div data-testid="track-filter-bar" className="flex items-center gap-2 px-4 py-2 border-b border-gold/10 overflow-x-auto scrollbar-hide" style={{ backgroundColor: BRAND.colors.primary }}>
         {TRACK_FILTERS.map(f => (
           <button
             key={f.value}

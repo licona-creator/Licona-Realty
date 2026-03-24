@@ -91,7 +91,7 @@ export function IntegrationCard({
   }
 
   return (
-    <Card>
+    <Card data-testid="integration-card">
       {/* Clickable Header */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -140,6 +140,7 @@ export function IntegrationCard({
             variant="ghost"
             onClick={handleTest}
             disabled={testing}
+            data-testid="test-connection-btn"
           >
             {testing ? (
               <>

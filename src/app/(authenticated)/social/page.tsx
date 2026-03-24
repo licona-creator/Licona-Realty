@@ -102,7 +102,7 @@ export default function SocialPage() {
   };
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto">
+    <div data-testid="social-page" className="p-4 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -418,7 +418,7 @@ export default function SocialPage() {
             )}
 
             <div className="flex items-center gap-3">
-              <Button variant="accent" loading={generating} onClick={async () => {
+              <Button data-testid="generate-ai-btn" variant="accent" loading={generating} onClick={async () => {
                 setFormErrors({});
                 if (!selectedPillar) {
                   setFormErrors(prev => ({ ...prev, pillar: 'Select a content pillar first.' }));
@@ -437,7 +437,7 @@ export default function SocialPage() {
                 <Sparkles size={14} className="mr-1.5" />
                 Generate with AI
               </Button>
-              <Button variant="primary" loading={submitting} onClick={async () => {
+              <Button data-testid="send-approval-btn" variant="primary" loading={submitting} onClick={async () => {
                 const errors: { caption?: string; platform?: string; pillar?: string } = {};
                 if (!caption.trim()) errors.caption = 'Add a caption before sending to the queue.';
                 if (!selectedPlatform) errors.platform = 'Select a platform before sending to the queue.';

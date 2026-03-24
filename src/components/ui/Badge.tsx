@@ -37,6 +37,7 @@ export function Badge({ count, variant = 'gold', label, children, className = ''
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         exit={{ scale: 0 }}
+        data-testid={pulse ? 'approval-queue-badge' : undefined}
         className={`
           inline-flex items-center justify-center
           min-w-[20px] h-5 px-1.5

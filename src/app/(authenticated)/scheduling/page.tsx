@@ -318,6 +318,7 @@ export default function SchedulingPage() {
           {/* Calendar Grid */}
           <div className="overflow-x-auto rounded-xl" style={{ border: BRAND.design.cardBorder }}>
             <div
+              data-testid="calendar-grid"
               className="grid min-w-[800px]"
               style={{ gridTemplateColumns: '72px repeat(7, 1fr)' }}
             >

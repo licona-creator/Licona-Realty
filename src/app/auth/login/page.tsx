@@ -152,13 +152,14 @@ export default function LoginPage() {
         </p>
 
         {/* Login Form */}
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} data-testid="login-form" className="space-y-4">
           <div>
             <label className="block text-sm font-montserrat font-medium mb-1.5" style={{ color: BRAND.colors.surface }}>
               Email
             </label>
             <input
               type="email"
+              data-testid="email-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="licona@liconarealty.com"
@@ -180,6 +181,7 @@ export default function LoginPage() {
             </label>
             <input
               type="password"
+              data-testid="password-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
@@ -213,6 +215,7 @@ export default function LoginPage() {
             size="lg"
             loading={loading}
             className="w-full"
+            data-testid="login-button"
           >
             Sign In
           </Button>

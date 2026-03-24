@@ -68,6 +68,7 @@ export default function SettingsPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
+      data-testid="settings-page"
       className="min-h-screen bg-surface dark:bg-navy"
     >
       {/* Page Header */}
