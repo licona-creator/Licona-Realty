@@ -579,11 +579,17 @@ export function Integrations() {
         status="not_connected"
         docsUrl="https://developers.squarespace.com/docs"
         onTest={async () => {
-          await new Promise(r => setTimeout(r, 1000));
-          info('Not Configured', 'No webhooks configured yet. Follow the setup instructions to connect your Squarespace forms.');
+          info('Not Configured', 'Squarespace webhooks are not configured yet. Follow the setup instructions below to connect.');
         }}
       >
         <div className="space-y-4">
+          <div className="p-3 rounded-[8px] bg-gray-500/10 border border-gray-500/20">
+            <p className="text-xs text-navy/60 dark:text-white/60 font-inter">
+              Squarespace integration uses webhooks to receive form submissions from LiconaRealty.com.
+              No API credentials are needed -- just configure the webhook URL in your Squarespace dashboard.
+            </p>
+          </div>
+
           <div>
             <h5 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-2">Webhook URL</h5>
             <p className="text-xs text-navy/50 dark:text-white/50 font-inter mb-2">
@@ -632,11 +638,6 @@ export function Integrations() {
               <SetupStep number={5} text='Click "Test Connection" above to verify it is working' />
             </ol>
           </div>
-
-          <Button size="sm" variant="ghost" onClick={() => info('Testing Webhook', 'Sending test webhook payload to verify Squarespace integration.')}>
-            <Send size={12} className="mr-1.5" />
-            Test Webhook
-          </Button>
         </div>
       </IntegrationCard>
 
