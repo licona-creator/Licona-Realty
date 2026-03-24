@@ -2,7 +2,7 @@
  * Supabase Middleware Client
  *
  * Handles session refresh on every request via Next.js middleware.
- * Ensures JWT tokens in httpOnly cookies are refreshed before they expire.
+ * Uses ONLY getUser() for auth verification per Supabase docs.
  */
 
 import { createServerClient } from '@supabase/ssr';
@@ -35,16 +35,10 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Refresh session - validate both session and user for robust auth
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
+  // ONLY getUser() - never getSession() for server-side auth verification
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const isAuthenticated = !!(session && user);
 
   // Public routes that don't require authentication
   const publicPaths = [
@@ -69,7 +63,7 @@ export async function updateSession(request: NextRequest) {
   );
 
   // If not authenticated and not on a public path, redirect to login
-  if (!isAuthenticated && !isPublicPath) {
+  if (!user && !isPublicPath) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
     return NextResponse.redirect(url);

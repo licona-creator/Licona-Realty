@@ -2,12 +2,14 @@
  * Next.js Middleware
  *
  * Runs on every request to handle:
- * 1. Supabase session refresh (JWT in httpOnly cookies)
+ * 1. Supabase session refresh via cookie handler
  * 2. Authentication redirect for protected routes
- * 3. MFA enforcement - redirect to MFA setup/verify if needed
- * 4. Rate limiting on API routes
- * 5. CSRF token injection
- * 6. Security response headers
+ * 3. CSRF token injection
+ *
+ * Auth approach: uses ONLY getUser() per Supabase docs.
+ * getUser() sends the JWT to the Supabase Auth server for verification.
+ * getSession() only reads cookies locally and can return stale sessions.
+ * See: https://supabase.com/docs/guides/auth/server-side/nextjs
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
@@ -42,24 +44,16 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session - check both session and user for robust auth validation
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  // Double-check with getUser() which validates the JWT server-side
+  // IMPORTANT: Use ONLY getUser() - never getSession() in middleware.
+  // getUser() verifies the JWT with the Supabase Auth server.
+  // getSession() only reads cookies locally and can return stale/invalid sessions.
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // A user is only truly authenticated if both session and user exist
-  const isAuthenticated = !!(session && user);
-
   // =============================================
-  // 2. Define route access rules
+  // 2. Define public routes (no auth required)
   // =============================================
-
-  // Public routes - no auth required
   const publicPaths = [
     '/auth/login',
     '/auth/register',
@@ -80,71 +74,37 @@ export async function middleware(request: NextRequest) {
     '/setup',
   ];
 
-  // MFA flow routes - require auth but not MFA completion
-  const mfaPaths = ['/auth/mfa-setup', '/auth/mfa-verify'];
-
   const isPublicPath = publicPaths.some((p) => pathname.startsWith(p));
-  const isMFAPath = mfaPaths.some((p) => pathname.startsWith(p));
-  const isAPIRoute = pathname.startsWith('/api/');
 
   // =============================================
   // 3. Auth enforcement
   // =============================================
 
-  if (!isAuthenticated && !isPublicPath) {
+  // No user and not a public route: redirect to login
+  if (!user && !isPublicPath) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from login page to dashboard
-  if (isAuthenticated && pathname === '/auth/login') {
+  // Authenticated user on login page: redirect to dashboard
+  if (user && pathname === '/auth/login') {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     return NextResponse.redirect(url);
   }
 
   // =============================================
-  // 4. MFA enforcement - currently optional, uncomment to enforce
+  // 4. CSRF token injection
   // =============================================
-
-  // if (isAuthenticated && !isPublicPath && !isMFAPath && !isAPIRoute) {
-  //   const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  //
-  //   if (aal) {
-  //     // If MFA is enrolled but not yet verified in this session
-  //     if (aal.nextLevel === 'aal2' && aal.currentLevel === 'aal1') {
-  //       const url = request.nextUrl.clone();
-  //       url.pathname = '/auth/mfa-verify';
-  //       return NextResponse.redirect(url);
-  //     }
-  //
-  //     // If no MFA enrolled at all - force setup
-  //     const { data: factors } = await supabase.auth.mfa.listFactors();
-  //     const hasVerifiedFactor = factors?.totp?.some(
-  //       (f) => f.status === 'verified'
-  //     );
-  //
-  //     if (!hasVerifiedFactor && !isMFAPath) {
-  //       const url = request.nextUrl.clone();
-  //       url.pathname = '/auth/mfa-setup';
-  //       return NextResponse.redirect(url);
-  //     }
-  //   }
-  // }
-
-  // =============================================
-  // 5. CSRF token injection (set cookie on every response)
-  // =============================================
-
   if (!request.cookies.get('licona_csrf')) {
     const csrfToken = crypto.randomUUID();
     supabaseResponse.cookies.set('licona_csrf', csrfToken, {
-      httpOnly: false, // Client needs to read this to send in header
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
-      maxAge: 60 * 60 * 8, // 8 hours matching session expiry
+      maxAge: 60 * 60 * 8,
     });
   }
 
