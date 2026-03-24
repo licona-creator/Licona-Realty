@@ -418,24 +418,20 @@ export default function SocialPage() {
             )}
 
             <div className="flex items-center gap-3">
-              <Button data-testid="generate-ai-btn" variant="accent" loading={generating} onClick={async () => {
+              <Button data-testid="generate-ai-btn" variant="accent" loading={generating} onClick={() => {
                 setFormErrors({});
                 if (!selectedPillar) {
                   setFormErrors(prev => ({ ...prev, pillar: 'Select a content pillar first.' }));
                   return;
                 }
-                setGenerating(true);
-                // Simulate brief AI generation delay
-                await new Promise(r => setTimeout(r, 800));
                 const captions = PILLAR_CAPTIONS[selectedPillar];
                 const randomCaption = captions[Math.floor(Math.random() * captions.length)];
                 setCaption(randomCaption);
                 setCaptionGenerated(true);
-                setGenerating(false);
-                success('Caption Generated', 'AI-generated caption is ready for review.');
+                success('Caption Suggested', 'Template caption loaded. Edit it to match your voice before sending.');
               }}>
                 <Sparkles size={14} className="mr-1.5" />
-                Generate with AI
+                Suggest Caption
               </Button>
               <Button data-testid="send-approval-btn" variant="primary" loading={submitting} onClick={async () => {
                 const errors: { caption?: string; platform?: string; pillar?: string } = {};
@@ -485,21 +481,18 @@ export default function SocialPage() {
             {captionGenerated && caption && (
               <div className="flex items-center gap-4">
                 <button
-                  onClick={async () => {
+                  onClick={() => {
                     if (!selectedPillar) return;
-                    setGenerating(true);
-                    await new Promise(r => setTimeout(r, 600));
                     const captions = PILLAR_CAPTIONS[selectedPillar];
                     const randomCaption = captions[Math.floor(Math.random() * captions.length)];
                     setCaption(randomCaption);
-                    setGenerating(false);
                   }}
                   className="text-xs text-gold hover:underline font-inter flex items-center gap-1"
                 >
-                  <RefreshCw size={10} /> Regenerate
+                  <RefreshCw size={10} /> Try Another Template
                 </button>
                 <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter">
-                  Voice: Casual Friend - tap to change
+                  Template-based - edit to match your voice
                 </span>
               </div>
             )}

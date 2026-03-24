@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { LRMonogram } from '@/components/ui/LRMonogram';
 import { BRAND } from '@/lib/brand';
+import { useAgentSettings } from '@/hooks/useAgentSettings';
 import {
   CheckCircle, Users, FileText, TrendingUp,
   Calendar, Star, Shield, Zap, AlertTriangle,
@@ -83,6 +84,8 @@ function formatItemType(type: string): string {
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { settings } = useAgentSettings();
+  const displayName = settings?.profile_name || BRAND.agent.name;
 
   const fetchDashboard = useCallback(async () => {
     try {
@@ -115,7 +118,7 @@ export default function DashboardPage() {
             className="text-2xl lg:text-3xl font-semibold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
-            {getGreeting()}, Anthony
+            {getGreeting()}, {displayName.split(' ')[0]}
           </h1>
           <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
             {new Date().toLocaleDateString('en-US', {

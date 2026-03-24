@@ -8,12 +8,13 @@
 
 'use client';
 
-import { useState, useRef, type ChangeEvent } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
+import { useAgentSettings } from '@/hooks/useAgentSettings';
 import { BRAND } from '@/lib/brand';
 import {
   Upload,
@@ -66,7 +67,8 @@ const FONT_ASSIGNMENTS = [
 ];
 
 export function BrandAssets() {
-  const { error: showError } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
+  const { settings, saving, save } = useAgentSettings();
 
   // Logo upload state
   const [primaryLogo, setPrimaryLogo] = useState<UploadSlot>({
@@ -157,13 +159,36 @@ export function BrandAssets() {
   });
 
   // Save states
-  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [propagationResults, setPropagationResults] = useState<string[] | null>(null);
   const [canvaSyncNeeded, setCanvaSyncNeeded] = useState(false);
   const [canvaSyncing, setCanvaSyncing] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load saved agent info from database
+  useEffect(() => {
+    if (settings) {
+      setAgentInfo({
+        name: settings.profile_name || BRAND.agent.name,
+        title: settings.profile_title || BRAND.agent.title,
+        phone: settings.profile_phone || BRAND.agent.phone,
+        email: settings.profile_email || BRAND.agent.email,
+        website: settings.profile_website || BRAND.agent.website,
+        brokerage: settings.profile_brokerage || BRAND.agent.brokerage,
+        license: settings.profile_license || BRAND.agent.license,
+        bilingual: BRAND.agent.bilingual,
+        tagline: settings.profile_tagline || BRAND.tagline,
+        instagram: settings.profile_instagram || BRAND.agent.instagram,
+      });
+      if (settings.brand_logo_url) {
+        setPrimaryLogo(prev => ({ ...prev, currentPreview: settings.brand_logo_url! }));
+      }
+      if (settings.brand_headshot_url) {
+        setProfileHero(prev => ({ ...prev, currentPreview: settings.brand_headshot_url! }));
+      }
+    }
+  }, [settings]);
 
   function handleFileSelect(
     e: ChangeEvent<HTMLInputElement>,
@@ -195,26 +220,77 @@ export function BrandAssets() {
   }
 
   async function handleSave() {
-    setSaving(true);
     setSaved(false);
     setPropagationResults(null);
 
-    // Simulate upload and propagation
-    await new Promise((r) => setTimeout(r, 1500));
-
-    // Show propagation results if any logo was uploaded
-    if (primaryLogo.file || monogramMark.file || favicon.file) {
-      setPropagationResults(PROPAGATION_POINTS);
+    // Upload logo file if selected
+    if (primaryLogo.file) {
+      const formData = new FormData();
+      formData.append('file', primaryLogo.file);
+      formData.append('asset_type', 'logo');
+      try {
+        const res = await fetch('/api/upload/brand-asset', { method: 'POST', body: formData });
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({}));
+          showError('Logo Upload Failed', json.error || 'Could not upload logo.');
+          return;
+        }
+      } catch (err) {
+        console.error('[BrandAssets:logoUpload]', err);
+        showError('Logo Upload Failed', 'Network error during upload.');
+        return;
+      }
     }
 
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    // Upload headshot/profile hero if selected
+    if (profileHero.file) {
+      const formData = new FormData();
+      formData.append('file', profileHero.file);
+      formData.append('asset_type', 'headshot');
+      try {
+        const res = await fetch('/api/upload/brand-asset', { method: 'POST', body: formData });
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({}));
+          showError('Headshot Upload Failed', json.error || 'Could not upload headshot.');
+          return;
+        }
+      } catch (err) {
+        console.error('[BrandAssets:headshotUpload]', err);
+        showError('Headshot Upload Failed', 'Network error during upload.');
+        return;
+      }
+    }
+
+    // Save agent info to database
+    const ok = await save({
+      profile_name: agentInfo.name,
+      profile_title: agentInfo.title,
+      profile_phone: agentInfo.phone,
+      profile_email: agentInfo.email,
+      profile_website: agentInfo.website,
+      profile_brokerage: agentInfo.brokerage,
+      profile_license: agentInfo.license,
+      profile_tagline: agentInfo.tagline,
+      profile_instagram: agentInfo.instagram,
+    });
+
+    if (ok) {
+      // Show propagation results if logo was uploaded
+      if (primaryLogo.file || monogramMark.file || favicon.file) {
+        setPropagationResults(PROPAGATION_POINTS);
+      }
+      setSaved(true);
+      showSuccess('Brand Settings Saved', 'Your brand assets and agent info have been saved to the database.');
+      setTimeout(() => setSaved(false), 3000);
+    } else {
+      showError('Save Failed', 'Could not save brand settings. Please try again.');
+    }
   }
 
   async function handleCanvaSync() {
     setCanvaSyncing(true);
-    await new Promise((r) => setTimeout(r, 2000));
+    // Canva sync is informational only until Canva API integration is wired
+    showSuccess('Sync Noted', 'Canva brand kit sync will apply when the Canva Connect API is fully integrated.');
     setCanvaSyncing(false);
     setCanvaSyncNeeded(false);
   }

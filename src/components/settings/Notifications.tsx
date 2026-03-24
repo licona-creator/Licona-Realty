@@ -7,10 +7,11 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
+import { useAgentSettings } from '@/hooks/useAgentSettings';
 import { BRAND } from '@/lib/brand';
 import {
   Bell,
@@ -66,7 +67,8 @@ function Toggle({
 }
 
 export function Notifications() {
-  const { success } = useToast();
+  const { success, error: showError } = useToast();
+  const { settings, saving, save } = useAgentSettings();
 
   // Push notifications
   const [pushNewLead, setPushNewLead] = useState(true);
@@ -95,15 +97,53 @@ export function Notifications() {
   const [weeklyHealthTime, setWeeklyHealthTime] = useState('09:00');
 
   // Save
-  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Load saved notification preferences
+  useEffect(() => {
+    if (settings?.notification_preferences) {
+      const p = settings.notification_preferences as Record<string, unknown>;
+      if (p.pushNewLead !== undefined) setPushNewLead(p.pushNewLead as boolean);
+      if (p.pushCampaignReply !== undefined) setPushCampaignReply(p.pushCampaignReply as boolean);
+      if (p.pushApprovalDigest !== undefined) setPushApprovalDigest(p.pushApprovalDigest as boolean);
+      if (p.pushDocusign !== undefined) setPushDocusign(p.pushDocusign as boolean);
+      if (p.pushDeadline !== undefined) setPushDeadline(p.pushDeadline as boolean);
+      if (p.pushSocialDM !== undefined) setPushSocialDM(p.pushSocialDM as boolean);
+      if (p.pushBirthday !== undefined) setPushBirthday(p.pushBirthday as boolean);
+      if (p.pushHoliday !== undefined) setPushHoliday(p.pushHoliday as boolean);
+      if (p.pushReview !== undefined) setPushReview(p.pushReview as boolean);
+      if (p.pushTestimonial !== undefined) setPushTestimonial(p.pushTestimonial as boolean);
+      if (p.pushSEO !== undefined) setPushSEO(p.pushSEO as boolean);
+      if (p.pushFormSubmission !== undefined) setPushFormSubmission(p.pushFormSubmission as boolean);
+      if (p.pushIntelligence !== undefined) setPushIntelligence(p.pushIntelligence as boolean);
+      if (p.pushWeeklyHealth !== undefined) setPushWeeklyHealth(p.pushWeeklyHealth as boolean);
+      if (p.emailWeeklyHealth !== undefined) setEmailWeeklyHealth(p.emailWeeklyHealth as boolean);
+      if (p.emailLeadSummary !== undefined) setEmailLeadSummary(p.emailLeadSummary as boolean);
+      if (p.emailTransactionMilestone !== undefined) setEmailTransactionMilestone(p.emailTransactionMilestone as boolean);
+      if (p.morningDigestTime) setMorningDigestTime(p.morningDigestTime as string);
+      if (p.weeklyHealthDay) setWeeklyHealthDay(p.weeklyHealthDay as string);
+      if (p.weeklyHealthTime) setWeeklyHealthTime(p.weeklyHealthTime as string);
+    }
+  }, [settings]);
+
   async function handleSave() {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    const ok = await save({
+      notification_preferences: {
+        pushNewLead, pushCampaignReply, pushApprovalDigest, pushDocusign,
+        pushDeadline, pushSocialDM, pushBirthday, pushHoliday,
+        pushReview, pushTestimonial, pushSEO, pushFormSubmission,
+        pushIntelligence, pushWeeklyHealth,
+        emailWeeklyHealth, emailLeadSummary, emailTransactionMilestone,
+        morningDigestTime, weeklyHealthDay, weeklyHealthTime,
+      },
+    });
+    if (ok) {
+      setSaved(true);
+      success('Notifications Saved', 'Your notification preferences have been saved to the database.');
+      setTimeout(() => setSaved(false), 3000);
+    } else {
+      showError('Save Failed', 'Could not save notification preferences. Please try again.');
+    }
   }
 
   return (

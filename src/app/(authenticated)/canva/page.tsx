@@ -54,6 +54,10 @@ export default function CanvaPage() {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [isConnected] = useState(false);
+
+  const handleConnect = () => {
+    window.location.href = '/api/auth/canva';
+  };
   const [selectedTemplate, setSelectedTemplate] = useState<CanvaTemplateType | null>(null);
 
   const templateEntries = Object.entries(CANVA_TEMPLATE_TYPES) as [CanvaTemplateType, string][];
@@ -75,7 +79,7 @@ export default function CanvaPage() {
           {isConnected ? (
             <Badge variant="success">Connected</Badge>
           ) : (
-            <Button variant="accent" size="sm">
+            <Button variant="accent" size="sm" onClick={handleConnect}>
               <ExternalLink size={14} className="mr-1.5" />
               Connect Canva
             </Button>
@@ -247,11 +251,9 @@ export default function CanvaPage() {
                   Open in Canva
                 </Button>
               </a>
-              <a href="/settings?section=integrations">
-                <Button variant="accent">
-                  Coming Soon - Connect Canva in Settings
-                </Button>
-              </a>
+              <Button variant="accent" onClick={handleConnect}>
+                Connect Canva Account
+              </Button>
             </div>
           </div>
         </Modal>

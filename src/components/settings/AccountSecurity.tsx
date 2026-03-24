@@ -8,7 +8,8 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAgentSettings } from '@/hooks/useAgentSettings';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -80,15 +81,17 @@ function Toggle({
 }
 
 export function AccountSecurity() {
-  const { info, success, warning } = useToast();
+  const { info, success, warning, error: showError } = useToast();
+  const { settings, saving, save } = useAgentSettings();
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; variant: 'default' | 'danger'; onConfirm: () => void }>({ open: false, title: '', message: '', variant: 'default', onConfirm: () => {} });
 
   // Profile
-  const [displayName, setDisplayName] = useState<string>(BRAND.agent.name);
-  const [loginEmail, setLoginEmail] = useState<string>(BRAND.agent.email);
+  const [displayName, setDisplayName] = useState<string>('');
+  const [loginEmail, setLoginEmail] = useState<string>('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   // Session
   const [sessionExpiry, setSessionExpiry] = useState(8);
@@ -99,11 +102,19 @@ export function AccountSecurity() {
   const [notifyFailedLogin, setNotifyFailedLogin] = useState(true);
 
   // Save
-  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   // Audit log
   const [auditFilter, setAuditFilter] = useState('');
+
+  // Load saved settings
+  useEffect(() => {
+    if (settings) {
+      setDisplayName(settings.profile_name || BRAND.agent.name);
+      setLoginEmail(settings.profile_email || BRAND.agent.email);
+      setProfilePhoto(settings.brand_headshot_url || null);
+    }
+  }, [settings]);
 
   const mockSessions = [
     { device: 'iPhone 15 Pro', browser: 'Safari', location: 'Dallas, TX', ip: '192.168.•••.•••', time: 'Active now', current: true },
@@ -119,12 +130,41 @@ export function AccountSecurity() {
     { event: 'Document Sent', detail: 'DocuSign envelope to buyer', time: 'Mar 18, 2026 2:15 PM', ip: '192.168.•••.•••' },
   ];
 
+  async function handlePhotoUpload(file: File) {
+    setUploadingPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('asset_type', 'headshot');
+      const res = await fetch('/api/upload/brand-asset', { method: 'POST', body: formData });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error || 'Upload failed');
+      }
+      const json = await res.json();
+      setProfilePhoto(json.url);
+      success('Photo Uploaded', 'Your profile photo has been saved.');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Upload failed';
+      console.error('[AccountSecurity:photoUpload]', msg);
+      showError('Upload Failed', msg);
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
+
   async function handleSave() {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    const ok = await save({
+      profile_name: displayName,
+      profile_email: loginEmail,
+    });
+    if (ok) {
+      setSaved(true);
+      success('Settings Saved', 'Your profile changes have been saved to the database.');
+      setTimeout(() => setSaved(false), 3000);
+    } else {
+      showError('Save Failed', 'Could not save profile settings. Please try again.');
+    }
   }
 
   return (
@@ -161,21 +201,17 @@ export function AccountSecurity() {
             </div>
             <div>
               <label className="cursor-pointer">
-                <Button size="sm" variant="ghost" className="pointer-events-none">
+                <Button size="sm" variant="ghost" className="pointer-events-none" loading={uploadingPhoto}>
                   <Upload size={12} className="mr-1.5" />
-                  Upload Photo
+                  {uploadingPhoto ? 'Uploading...' : 'Upload Photo'}
                 </Button>
                 <input
                   type="file"
-                  accept=".jpg,.jpeg,.png"
+                  accept=".jpg,.jpeg,.png,.webp"
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => setProfilePhoto(ev.target?.result as string);
-                      reader.readAsDataURL(file);
-                    }
+                    if (file) handlePhotoUpload(file);
                   }}
                 />
               </label>

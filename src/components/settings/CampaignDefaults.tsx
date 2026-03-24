@@ -7,9 +7,11 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
+import { useAgentSettings } from '@/hooks/useAgentSettings';
 import { BRAND } from '@/lib/brand';
 import {
   Languages,
@@ -71,6 +73,9 @@ function Toggle({
 }
 
 export function CampaignDefaults() {
+  const { success, error: showError } = useToast();
+  const { settings, saving, save } = useAgentSettings();
+
   // Language defaults per track
   const [languages, setLanguages] = useState<Record<string, string>>(
     Object.fromEntries(TRACKS.map((t) => [t, 'english']))
@@ -94,15 +99,40 @@ export function CampaignDefaults() {
   const [monthlyVoiceReport, setMonthlyVoiceReport] = useState(true);
 
   // Save
-  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Load saved campaign preferences
+  useEffect(() => {
+    if (settings?.campaign_preferences) {
+      const prefs = settings.campaign_preferences as Record<string, unknown>;
+      if (prefs.languages) setLanguages(prefs.languages as Record<string, string>);
+      if (prefs.tones) setTones(prefs.tones as Record<string, string>);
+      if (prefs.defaultSendTime) setDefaultSendTime(prefs.defaultSendTime as string);
+      if (prefs.respectQuietHours !== undefined) setRespectQuietHours(prefs.respectQuietHours as boolean);
+      if (prefs.quietStart) setQuietStart(prefs.quietStart as string);
+      if (prefs.quietEnd) setQuietEnd(prefs.quietEnd as string);
+      if (prefs.weekendSending !== undefined) setWeekendSending(prefs.weekendSending as boolean);
+      if (prefs.voiceThreshold !== undefined) setVoiceThreshold(prefs.voiceThreshold as number);
+      if (prefs.autoApplyEdits !== undefined) setAutoApplyEdits(prefs.autoApplyEdits as boolean);
+      if (prefs.monthlyVoiceReport !== undefined) setMonthlyVoiceReport(prefs.monthlyVoiceReport as boolean);
+    }
+  }, [settings]);
+
   async function handleSave() {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    const ok = await save({
+      campaign_preferences: {
+        languages, tones, defaultSendTime, respectQuietHours,
+        quietStart, quietEnd, weekendSending,
+        voiceThreshold, autoApplyEdits, monthlyVoiceReport,
+      },
+    });
+    if (ok) {
+      setSaved(true);
+      success('Campaign Defaults Saved', 'Your campaign preferences have been saved to the database.');
+      setTimeout(() => setSaved(false), 3000);
+    } else {
+      showError('Save Failed', 'Could not save campaign defaults. Please try again.');
+    }
   }
 
   return (

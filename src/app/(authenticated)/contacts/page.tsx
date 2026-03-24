@@ -3,24 +3,38 @@
  *
  * Five lead entity tracks: Buyers, Sellers, Landlords, Tenants, Investors.
  * Plus Sphere and Referral track - completely separate.
- * Each contact: full profile, pipeline stage, activity timeline,
- * campaign enrollment, lead score, and more.
+ * Fetches real contacts from /api/contacts and displays them.
  */
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
-import { Users, Plus, Search, Upload, Filter } from 'lucide-react';
+import { Users, Plus, Search, Upload, Filter, Phone, Mail, Trash2, Edit3 } from 'lucide-react';
 import { AddContactModal } from '@/components/modals/AddContactModal';
 import { ImportContactsModal } from '@/components/modals/ImportContactsModal';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { TrackType } from '@/types/database';
 
-const trackTabs: Array<{ label: string; value: TrackType | 'sphere' | 'all' }> = [
+interface Contact {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string | null;
+  phone: string | null;
+  track_type: TrackType;
+  pipeline_stage: string;
+  language: string | null;
+  lead_source: string | null;
+  created_at: string;
+}
+
+const trackTabs: Array<{ label: string; value: TrackType | 'all' }> = [
   { label: 'All', value: 'all' },
   { label: 'Buyers', value: 'buyer' },
   { label: 'Sellers', value: 'seller' },
@@ -35,6 +49,60 @@ export default function ContactsPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<Contact | null>(null);
+  const { success, error: showError } = useToast();
+
+  const fetchContacts = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (activeTrack !== 'all') params.set('track_type', activeTrack);
+      const res = await fetch(`/api/contacts?${params}`);
+      if (res.ok) {
+        const json = await res.json();
+        setContacts(json.contacts || []);
+      }
+    } catch (err) {
+      console.error('[ContactsPage:fetch]', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTrack]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchContacts();
+  }, [fetchContacts]);
+
+  async function handleDelete(contact: Contact) {
+    try {
+      const res = await fetch(`/api/contacts/${contact.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        success('Contact Deleted', `${contact.first_name} ${contact.last_name} has been removed.`);
+        fetchContacts();
+      } else {
+        const json = await res.json().catch(() => ({}));
+        showError('Delete Failed', json.error || 'Could not delete contact.');
+      }
+    } catch (err) {
+      console.error('[ContactsPage:delete]', err);
+      showError('Delete Failed', 'Network error. Please try again.');
+    }
+    setDeleteTarget(null);
+  }
+
+  const filtered = contacts.filter((c) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      c.first_name.toLowerCase().includes(q) ||
+      c.last_name.toLowerCase().includes(q) ||
+      (c.email && c.email.toLowerCase().includes(q)) ||
+      (c.phone && c.phone.includes(q))
+    );
+  });
 
   return (
     <div className="p-4 lg:p-8 max-w-7xl mx-auto">
@@ -48,6 +116,11 @@ export default function ContactsPage() {
           >
             Contacts
           </h1>
+          {contacts.length > 0 && (
+            <span className="text-sm text-navy/40 dark:text-white/40 font-inter">
+              ({contacts.length})
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <Button variant="ghost" size="sm" onClick={() => setShowImportModal(true)} className="whitespace-nowrap">
@@ -68,6 +141,8 @@ export default function ContactsPage() {
           <Input
             placeholder="Search contacts..."
             className="!pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <Button variant="ghost" size="sm" onClick={() => setShowFilter(!showFilter)}>
@@ -96,41 +171,122 @@ export default function ContactsPage() {
         ))}
       </div>
 
-      {/* Empty State */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <Card data-testid="contact-card" className="!p-8 text-center">
-          <Users size={40} className="text-gold mx-auto mb-4 opacity-50" />
-          <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
-            No Contacts Yet
-          </h2>
-          <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto mb-6">
-            Add your first contact or import from CSV, Excel, or Google Contacts
-            to get started. Each contact will be assigned to a track with
-            tailored campaign options.
-          </p>
-          <div className="flex items-center justify-center gap-3">
-            <Button variant="ghost" onClick={() => setShowImportModal(true)}>
-              <Upload size={16} />
-              Import Contacts
-            </Button>
-            <Button variant="accent" onClick={() => setShowAddModal(true)}>
-              <Plus size={16} />
-              Add Contact
-            </Button>
-          </div>
-        </Card>
-      </motion.div>
+      {/* Contacts List or Empty State */}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+          <span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading contacts...</span>
+        </div>
+      ) : filtered.length > 0 ? (
+        <div className="space-y-2">
+          {filtered.map((contact) => (
+            <motion.div
+              key={contact.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <Card className="!p-4">
+                <div className="flex items-center gap-4">
+                  {/* Avatar */}
+                  <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-montserrat font-semibold text-gold">
+                      {contact.first_name[0]}{contact.last_name[0]}
+                    </span>
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">
+                      {contact.first_name} {contact.last_name}
+                    </p>
+                    <div className="flex items-center gap-3 mt-0.5">
+                      {contact.email && (
+                        <span className="flex items-center gap-1 text-xs text-navy/50 dark:text-white/50 font-inter truncate">
+                          <Mail size={10} className="flex-shrink-0" />
+                          {contact.email}
+                        </span>
+                      )}
+                      {contact.phone && (
+                        <span className="flex items-center gap-1 text-xs text-navy/50 dark:text-white/50 font-inter">
+                          <Phone size={10} className="flex-shrink-0" />
+                          {contact.phone}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Track badge */}
+                  <span className="text-[10px] font-montserrat font-semibold uppercase px-2 py-1 rounded-full bg-gold/10 text-gold flex-shrink-0">
+                    {contact.track_type}
+                  </span>
+
+                  {/* Stage */}
+                  <span className="text-xs text-navy/40 dark:text-white/40 font-inter hidden sm:block flex-shrink-0">
+                    {contact.pipeline_stage?.replace(/_/g, ' ')}
+                  </span>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => setDeleteTarget(contact)}
+                      className="p-1.5 rounded hover:bg-red-500/10 text-navy/30 dark:text-white/30 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <Card data-testid="contact-card" className="!p-8 text-center">
+            <Users size={40} className="text-gold mx-auto mb-4 opacity-50" />
+            <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
+              {searchQuery ? 'No Matching Contacts' : 'No Contacts Yet'}
+            </h2>
+            <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto mb-6">
+              {searchQuery
+                ? `No contacts match "${searchQuery}". Try a different search.`
+                : 'Add your first contact or import from CSV, Excel, or Google Contacts to get started. Each contact will be assigned to a track with tailored campaign options.'}
+            </p>
+            {!searchQuery && (
+              <div className="flex items-center justify-center gap-3">
+                <Button variant="ghost" onClick={() => setShowImportModal(true)}>
+                  <Upload size={16} />
+                  Import Contacts
+                </Button>
+                <Button variant="accent" onClick={() => setShowAddModal(true)}>
+                  <Plus size={16} />
+                  Add Contact
+                </Button>
+              </div>
+            )}
+          </Card>
+        </motion.div>
+      )}
 
       <AddContactModal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
+        onSuccess={fetchContacts}
       />
       <ImportContactsModal
         open={showImportModal}
         onClose={() => setShowImportModal(false)}
+        onSuccess={fetchContacts}
+      />
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
+        title="Delete Contact?"
+        message={deleteTarget ? `Are you sure you want to delete ${deleteTarget.first_name} ${deleteTarget.last_name}? This action cannot be undone.` : ''}
+        variant="danger"
       />
     </div>
   );

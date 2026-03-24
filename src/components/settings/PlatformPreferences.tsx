@@ -6,9 +6,11 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
+import { useAgentSettings } from '@/hooks/useAgentSettings';
 import { BRAND } from '@/lib/brand';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import {
@@ -70,6 +72,9 @@ type MapView = 'satellite' | 'roadmap' | 'terrain';
 type PipelineView = 'kanban' | 'list' | 'table';
 
 export function PlatformPreferences() {
+  const { success, error: showError } = useToast();
+  const { settings, saving, save } = useAgentSettings();
+
   // Display - wired to ThemeProvider
   const { theme, setTheme } = useTheme();
   const [mapView, setMapView] = useState<MapView>('roadmap');
@@ -90,15 +95,40 @@ export function PlatformPreferences() {
   const [autoGeocode, setAutoGeocode] = useState(true);
 
   // Save
-  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Load saved platform preferences
+  useEffect(() => {
+    if (settings?.platform_preferences) {
+      const p = settings.platform_preferences as Record<string, unknown>;
+      if (p.mapView) setMapView(p.mapView as MapView);
+      if (p.pipelineView) setPipelineView(p.pipelineView as PipelineView);
+      if (p.uiLanguage) setUiLanguage(p.uiLanguage as 'en' | 'es');
+      if (p.contentLanguage) setContentLanguage(p.contentLanguage as 'en_first' | 'es_first' | 'match');
+      if (p.timezone) setTimezone(p.timezone as string);
+      if (p.dateFormat) setDateFormat(p.dateFormat as 'MM/DD/YYYY' | 'DD/MM/YYYY');
+      if (p.timeFormat) setTimeFormat(p.timeFormat as '12' | '24');
+      if (p.leadExpiryDays !== undefined) setLeadExpiryDays(p.leadExpiryDays as number);
+      if (p.duplicateDetection) setDuplicateDetection(p.duplicateDetection as 'strict' | 'moderate' | 'off');
+      if (p.autoGeocode !== undefined) setAutoGeocode(p.autoGeocode as boolean);
+    }
+  }, [settings]);
+
   async function handleSave() {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    const ok = await save({
+      platform_preferences: {
+        mapView, pipelineView, uiLanguage, contentLanguage,
+        timezone, dateFormat, timeFormat,
+        leadExpiryDays, duplicateDetection, autoGeocode,
+      },
+    });
+    if (ok) {
+      setSaved(true);
+      success('Preferences Saved', 'Your platform preferences have been saved to the database.');
+      setTimeout(() => setSaved(false), 3000);
+    } else {
+      showError('Save Failed', 'Could not save platform preferences. Please try again.');
+    }
   }
 
   const themeOptions: { value: ThemeOption; label: string; icon: React.ReactNode }[] = [

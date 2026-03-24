@@ -179,7 +179,7 @@ export function Integrations() {
         status="connected"
         lastVerified="Just now"
         docsUrl="https://supabase.com/docs"
-        onTest={async () => { await new Promise(r => setTimeout(r, 1000)); }}
+        onTest={async () => { /* Supabase is always connected via env vars */ }}
         statusDetails={
           <div className="flex items-center gap-3 mt-1">
             <StatusRow label="Database" ok={true} />
@@ -219,7 +219,6 @@ export function Integrations() {
         status={googleConnected ? 'connected' : 'not_connected'}
         docsUrl="https://developers.google.com/gmail/api"
         onTest={async () => {
-          await new Promise(r => setTimeout(r, 1000));
           if (googleConnected) {
             success('Google Test Passed', 'Gmail and Calendar connection verified.');
           } else {
@@ -286,7 +285,7 @@ export function Integrations() {
         icon={<Map size={20} className="text-green-600" />}
         status={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? 'connected' : 'not_connected'}
         docsUrl="https://developers.google.com/maps/documentation"
-        onTest={async () => { await new Promise(r => setTimeout(r, 1000)); }}
+        onTest={async () => { /* Google Maps uses API key from env, no dynamic test needed */ }}
       >
         <div className="space-y-4">
           <MaskedField label="API Key" value={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? `${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY.slice(0, 8)}...` : 'Not configured'} />
@@ -318,7 +317,6 @@ export function Integrations() {
         status={docusignConnected ? 'connected' : 'not_connected'}
         docsUrl="https://developers.docusign.com/docs"
         onTest={async () => {
-          await new Promise(r => setTimeout(r, 1500));
           if (docusignConnected) {
             success('DocuSign Test Passed', 'Production connection verified. Ready to send envelopes.');
           } else {
@@ -412,7 +410,6 @@ export function Integrations() {
         status={canvaConnected ? 'connected' : 'not_connected'}
         docsUrl="https://www.canva.dev/docs/connect/"
         onTest={async () => {
-          await new Promise(r => setTimeout(r, 1000));
           if (canvaConnected) {
             success('Canva Test Passed', 'Canva Connect API access verified.');
           } else {
