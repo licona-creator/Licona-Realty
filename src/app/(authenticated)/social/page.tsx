@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
 import { CONTENT_PILLARS, OPTIMAL_POST_TIMES } from '@/lib/social/meta-client';
 import type { ContentPillar, SocialPlatform } from '@/types/database';
@@ -37,6 +38,12 @@ export default function SocialPage() {
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [activePillar, setActivePillar] = useState<ContentPillar | 'all'>('all');
   const [activePlatform, setActivePlatform] = useState<SocialPlatform | 'all'>('all');
+  const [selectedPlatform, setSelectedPlatform] = useState<SocialPlatform | null>(null);
+  const [selectedPillar, setSelectedPillar] = useState<ContentPillar | null>(null);
+  const [caption, setCaption] = useState('');
+  const [generating, setGenerating] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const { success, info, error: showError } = useToast();
 
   // Fetch posts
   const fetchPosts = useCallback(async () => {
@@ -245,10 +252,10 @@ export default function SocialPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Total Reach', value: '—', icon: Eye },
-              { label: 'Engagement Rate', value: '—', icon: Heart },
-              { label: 'Profile Visits', value: '—', icon: TrendingUp },
-              { label: 'Lead Captures', value: '—', icon: Sparkles },
+              { label: 'Total Reach', value: '-', icon: Eye },
+              { label: 'Engagement Rate', value: '-', icon: Heart },
+              { label: 'Profile Visits', value: '-', icon: TrendingUp },
+              { label: 'Lead Captures', value: '-', icon: Sparkles },
             ].map(stat => (
               <Card key={stat.label} className="!p-4">
                 <div className="flex items-center justify-between mb-2">
@@ -312,10 +319,20 @@ export default function SocialPage() {
                 Platform
               </label>
               <div className="flex gap-2">
-                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gold/20 hover:border-gold text-sm font-montserrat transition-colors text-navy dark:text-white">
+                <button
+                  onClick={() => setSelectedPlatform(selectedPlatform === 'instagram' ? null : 'instagram')}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-montserrat transition-colors text-navy dark:text-white ${
+                    selectedPlatform === 'instagram' ? 'border-gold bg-gold/10' : 'border-gold/20 hover:border-gold'
+                  }`}
+                >
                   <Instagram size={16} className="text-pink-500" /> Instagram
                 </button>
-                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gold/20 hover:border-gold text-sm font-montserrat transition-colors text-navy dark:text-white">
+                <button
+                  onClick={() => setSelectedPlatform(selectedPlatform === 'facebook' ? null : 'facebook')}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-montserrat transition-colors text-navy dark:text-white ${
+                    selectedPlatform === 'facebook' ? 'border-gold bg-gold/10' : 'border-gold/20 hover:border-gold'
+                  }`}
+                >
                   <Facebook size={16} className="text-blue-600" /> Facebook
                 </button>
               </div>
@@ -329,7 +346,10 @@ export default function SocialPage() {
                 {pillarEntries.map(([key, pillar]) => (
                   <button
                     key={key}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gold/10 hover:border-gold text-left transition-colors"
+                    onClick={() => setSelectedPillar(selectedPillar === key ? null : key)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left transition-colors ${
+                      selectedPillar === key ? 'border-gold bg-gold/10' : 'border-gold/10 hover:border-gold'
+                    }`}
                   >
                     <span
                       className="w-2.5 h-2.5 rounded-full flex-shrink-0"
@@ -349,17 +369,79 @@ export default function SocialPage() {
               </label>
               <textarea
                 rows={4}
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-white dark:bg-navy focus:border-gold focus:ring-1 focus:ring-gold/30 text-sm font-inter text-navy dark:text-white outline-none resize-none"
                 placeholder="Write your caption or let the AI voice engine generate one..."
               />
             </div>
 
             <div className="flex items-center gap-3">
-              <Button variant="accent">
+              <Button variant="accent" loading={generating} onClick={async () => {
+                if (!selectedPlatform || !selectedPillar) {
+                  info('Select Options', 'Choose a platform and content pillar first.');
+                  return;
+                }
+                setGenerating(true);
+                try {
+                  const res = await fetch('/api/social/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ platform: selectedPlatform, pillar: selectedPillar }),
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    setCaption(data.caption || '');
+                    success('Caption Generated', 'AI-generated caption is ready for review.');
+                  } else {
+                    showError('Generation Failed', 'Could not generate caption. Try again.');
+                  }
+                } catch {
+                  showError('Generation Failed', 'Could not generate caption. Try again.');
+                } finally {
+                  setGenerating(false);
+                }
+              }}>
                 <Sparkles size={14} className="mr-1.5" />
                 Generate with AI
               </Button>
-              <Button variant="primary">
+              <Button variant="primary" loading={submitting} onClick={async () => {
+                if (!caption.trim()) {
+                  info('Caption Required', 'Write or generate a caption before submitting.');
+                  return;
+                }
+                if (!selectedPlatform) {
+                  info('Platform Required', 'Select a platform before submitting.');
+                  return;
+                }
+                setSubmitting(true);
+                try {
+                  const res = await fetch('/api/social/posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      platform: selectedPlatform,
+                      pillar: selectedPillar || 'personal_brand',
+                      caption,
+                      status: 'pending_approval',
+                    }),
+                  });
+                  if (res.ok) {
+                    success('Sent to Approval', 'Your post has been submitted to the approval queue.');
+                    setCaption('');
+                    setSelectedPlatform(null);
+                    setSelectedPillar(null);
+                    setActiveTab('calendar');
+                    fetchPosts();
+                  } else {
+                    showError('Submission Failed', 'Could not submit post. Try again.');
+                  }
+                } catch {
+                  showError('Submission Failed', 'Could not submit post. Try again.');
+                } finally {
+                  setSubmitting(false);
+                }
+              }}>
                 Send to Approval Queue
               </Button>
             </div>

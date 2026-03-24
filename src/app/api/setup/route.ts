@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       try {
         const { error } = await admin.rpc('exec_sql', { sql_string: statement + ';' });
         if (error) {
-          // Check if it's a "already exists" error — that's fine
+          // Check if it's a "already exists" error - that's fine
           if (error.message?.includes('already exists') || error.message?.includes('duplicate')) {
             results.push(`SKIP (already exists): ${statement.slice(0, 60)}...`);
           } else {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
           results.push(`OK: ${statement.slice(0, 60)}...`);
         }
       } catch (err) {
-        errors.push(`Exception: ${(err as Error).message} — ${statement.slice(0, 60)}...`);
+        errors.push(`Exception: ${(err as Error).message} - ${statement.slice(0, 60)}...`);
       }
     }
   }

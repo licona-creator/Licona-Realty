@@ -2,7 +2,7 @@
  * Contacts Page
  *
  * Five lead entity tracks: Buyers, Sellers, Landlords, Tenants, Investors.
- * Plus Sphere and Referral track — completely separate.
+ * Plus Sphere and Referral track - completely separate.
  * Each contact: full profile, pipeline stage, activity timeline,
  * campaign enrollment, lead score, and more.
  */
@@ -16,6 +16,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { BRAND } from '@/lib/brand';
 import { Users, Plus, Search, Upload, Filter } from 'lucide-react';
+import { AddContactModal } from '@/components/modals/AddContactModal';
+import { ImportContactsModal } from '@/components/modals/ImportContactsModal';
 import type { TrackType } from '@/types/database';
 
 const trackTabs: Array<{ label: string; value: TrackType | 'sphere' | 'all' }> = [
@@ -47,14 +49,14 @@ export default function ContactsPage() {
             Contacts
           </h1>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => alert('Import contacts from CSV, Excel, or Google Contacts. Supported formats: .csv, .xlsx, .vcf')}>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Button variant="ghost" size="sm" onClick={() => setShowImportModal(true)} className="whitespace-nowrap">
             <Upload size={16} />
-            Import
+            <span className="hidden sm:inline">Import</span>
           </Button>
-          <Button variant="accent" size="sm" onClick={() => alert('Add a new contact. You will be able to assign them to a track (Buyer, Seller, Landlord, Tenant, or Investor) and pipeline stage.')}>
+          <Button variant="accent" size="sm" onClick={() => setShowAddModal(true)} className="whitespace-nowrap">
             <Plus size={16} />
-            Add Contact
+            <span className="hidden sm:inline">Add Contact</span>
           </Button>
         </div>
       </div>
@@ -74,7 +76,7 @@ export default function ContactsPage() {
       </div>
 
       {/* Track Tabs */}
-      <div className="flex gap-1 overflow-x-auto pb-2 mb-6 scrollbar-hide">
+      <div className="flex gap-1 overflow-x-auto pb-2 mb-6 min-w-0 scrollbar-hide [&]:[-webkit-overflow-scrolling:touch]">
         {trackTabs.map((tab) => (
           <button
             key={tab.value}
@@ -110,17 +112,26 @@ export default function ContactsPage() {
             tailored campaign options.
           </p>
           <div className="flex items-center justify-center gap-3">
-            <Button variant="ghost" onClick={() => alert('Import contacts from CSV, Excel, or Google Contacts. Supported formats: .csv, .xlsx, .vcf')}>
+            <Button variant="ghost" onClick={() => setShowImportModal(true)}>
               <Upload size={16} />
               Import Contacts
             </Button>
-            <Button variant="accent" onClick={() => alert('Add a new contact. You will be able to assign them to a track and pipeline stage.')}>
+            <Button variant="accent" onClick={() => setShowAddModal(true)}>
               <Plus size={16} />
               Add Contact
             </Button>
           </div>
         </Card>
       </motion.div>
+
+      <AddContactModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+      />
+      <ImportContactsModal
+        open={showImportModal}
+        onClose={() => setShowImportModal(false)}
+      />
     </div>
   );
 }

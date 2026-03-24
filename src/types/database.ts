@@ -1,5 +1,5 @@
 /**
- * Licona Realty Platform — Supabase Database Types
+ * Licona Realty Platform - Supabase Database Types
  *
  * Complete type definitions for every table in the platform.
  * All PII fields are marked for encryption at rest.
@@ -34,7 +34,7 @@ export interface Contact {
   updated_at: string;
   user_id: string; // RLS: agent who owns this contact
 
-  // PII Fields — encrypted at rest
+  // PII Fields - encrypted at rest
   first_name: string;
   last_name: string;
   email: string | null;
@@ -238,7 +238,7 @@ export interface Transaction {
   user_id: string;
   contact_id: string;
   track_type: TrackType;
-  property_address: string;         // PII — encrypted
+  property_address: string;         // PII - encrypted
   property_city: string | null;
   property_state: string | null;
   property_zip: string | null;
@@ -299,7 +299,7 @@ export interface Document {
   file_name: string;
   file_type: string;
   file_size: number;
-  storage_path: string;          // Supabase Storage path — private access only
+  storage_path: string;          // Supabase Storage path - private access only
   category: 'contract' | 'disclosure' | 'inspection' | 'identification' | 'correspondence' | 'photo' | 'other';
   docusign_envelope_id: string | null;
   docusign_status: DocuSignStatus | null;
@@ -423,7 +423,7 @@ export interface MortgageSubmission {
   user_id: string;
   contact_id: string;
 
-  // Financial PII — encrypted at rest, never logged in plaintext
+  // Financial PII - encrypted at rest, never logged in plaintext
   annual_income_encrypted: string;
   monthly_debts_encrypted: string;
   down_payment_encrypted: string;
@@ -496,7 +496,7 @@ export interface Booking {
 }
 
 // ============================================
-// Audit Log — Immutable, cannot be deleted
+// Audit Log - Immutable, cannot be deleted
 // ============================================
 
 export interface AuditLog {

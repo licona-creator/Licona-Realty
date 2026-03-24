@@ -1,7 +1,7 @@
 /**
  * Testimonials Page
  *
- * PUBLIC PAGE — SEO optimized with Review schema.
+ * PUBLIC PAGE - SEO optimized with Review schema.
  * Live data from testimonials API. Styled in Licona Realty brand.
  * Filters by transaction type.
  */
@@ -144,7 +144,7 @@ export default function TestimonialsPage() {
                     </p>
                     <div className="flex items-center justify-between">
                       <p className="text-xs text-gold font-montserrat font-medium">
-                        {t.client_first_name} — {t.client_city}
+                        {t.client_first_name} - {t.client_city}
                       </p>
                       <span className="text-[10px] text-white/30 font-inter capitalize">
                         {t.transaction_type}

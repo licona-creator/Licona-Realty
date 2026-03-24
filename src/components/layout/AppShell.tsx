@@ -1,5 +1,5 @@
 /**
- * App Shell — Main Layout Wrapper
+ * App Shell - Main Layout Wrapper
  *
  * Combines sidebar (desktop) and bottom tab bar (mobile)
  * with the main content area. Approval queue badge visible everywhere.

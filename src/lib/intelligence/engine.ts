@@ -63,7 +63,7 @@ export function detectStaleContacts(
     if (daysSinceContact > threshold && !['closed', 'lost'].includes(contact.pipelineStage)) {
       alerts.push({
         category: 'stale_contact',
-        message: `${contact.firstName} ${contact.lastName} (${contact.trackType}) — ${daysSinceContact} days since last contact`,
+        message: `${contact.firstName} ${contact.lastName} (${contact.trackType}) - ${daysSinceContact} days since last contact`,
         severity: daysSinceContact > threshold * 2 ? 'urgent' : 'warning',
         actionPath: `/contacts?id=${contact.id}`,
         metadata: { daysSinceContact, threshold },
@@ -94,7 +94,7 @@ export function analyzeApprovalPatterns(
   if (discardRate > 0.3) {
     alerts.push({
       category: 'voice_quality',
-      message: `High discard rate (${(discardRate * 100).toFixed(0)}%) — voice engine may need tone adjustment`,
+      message: `High discard rate (${(discardRate * 100).toFixed(0)}%) - voice engine may need tone adjustment`,
       severity: 'warning',
       actionPath: '/approval-queue',
     });
@@ -103,7 +103,7 @@ export function analyzeApprovalPatterns(
   if (heavyEditRate > 0.4) {
     alerts.push({
       category: 'voice_quality',
-      message: `${(heavyEditRate * 100).toFixed(0)}% of approved content needed heavy edits — reviewing voice patterns`,
+      message: `${(heavyEditRate * 100).toFixed(0)}% of approved content needed heavy edits - reviewing voice patterns`,
       severity: 'info',
       actionPath: '/approval-queue',
     });
@@ -136,7 +136,7 @@ export function checkTransactionTimelines(
       if (daysUntilClose < 0) {
         alerts.push({
           category: 'transaction_timeline',
-          message: `${tx.propertyAddress} — closing date was ${Math.abs(daysUntilClose)} days ago`,
+          message: `${tx.propertyAddress} - closing date was ${Math.abs(daysUntilClose)} days ago`,
           severity: 'urgent',
           actionPath: `/transactions?id=${tx.id}`,
         });
@@ -145,7 +145,7 @@ export function checkTransactionTimelines(
         if (incomplete > 0) {
           alerts.push({
             category: 'transaction_timeline',
-            message: `${tx.propertyAddress} — ${daysUntilClose} days to close, ${incomplete} items incomplete`,
+            message: `${tx.propertyAddress} - ${daysUntilClose} days to close, ${incomplete} items incomplete`,
             severity: 'urgent',
             actionPath: `/transactions?id=${tx.id}`,
           });
@@ -153,7 +153,7 @@ export function checkTransactionTimelines(
       } else if (daysUntilClose <= 14) {
         alerts.push({
           category: 'transaction_timeline',
-          message: `${tx.propertyAddress} — ${daysUntilClose} days to close`,
+          message: `${tx.propertyAddress} - ${daysUntilClose} days to close`,
           severity: 'warning',
           actionPath: `/transactions?id=${tx.id}`,
         });
@@ -169,7 +169,7 @@ export function checkTransactionTimelines(
         if (daysOverdue > 0) {
           alerts.push({
             category: 'checklist_overdue',
-            message: `"${item.label}" overdue by ${daysOverdue} days — ${tx.propertyAddress}`,
+            message: `"${item.label}" overdue by ${daysOverdue} days - ${tx.propertyAddress}`,
             severity: daysOverdue > 3 ? 'urgent' : 'warning',
             actionPath: `/transactions?id=${tx.id}`,
           });
@@ -194,7 +194,7 @@ export function generateSmartSuggestions(context: {
   if (context.pendingApprovals > 5) {
     suggestions.push({
       category: 'productivity',
-      message: `${context.pendingApprovals} items awaiting approval — clear your queue to keep campaigns on schedule`,
+      message: `${context.pendingApprovals} items awaiting approval - clear your queue to keep campaigns on schedule`,
       severity: context.pendingApprovals > 10 ? 'urgent' : 'warning',
       actionPath: '/approval-queue',
     });

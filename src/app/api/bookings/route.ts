@@ -33,7 +33,7 @@ const MEETING_DURATIONS: Record<string, number> = {
 };
 
 /**
- * GET /api/bookings — List upcoming bookings (authenticated)
+ * GET /api/bookings - List upcoming bookings (authenticated)
  */
 export async function GET() {
   try {
@@ -67,7 +67,7 @@ export async function GET() {
 }
 
 /**
- * POST /api/bookings — Create a new booking (public endpoint)
+ * POST /api/bookings - Create a new booking (public endpoint)
  *
  * Rate limited. Input validated. PII stored securely.
  * Creates a contact in CRM, queues confirmation for approval,

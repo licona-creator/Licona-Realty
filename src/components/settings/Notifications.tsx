@@ -10,6 +10,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
 import {
   Bell,
@@ -65,6 +66,8 @@ function Toggle({
 }
 
 export function Notifications() {
+  const { success } = useToast();
+
   // Push notifications
   const [pushNewLead, setPushNewLead] = useState(true);
   const [pushCampaignReply, setPushCampaignReply] = useState(true);
@@ -200,7 +203,7 @@ export function Notifications() {
           </div>
 
           <div className="pt-2">
-            <Button size="sm" variant="ghost" onClick={() => alert('Test notification sent! Check your device for the push notification. If you did not receive it, verify push notifications are enabled in your browser or device settings.')}>
+            <Button size="sm" variant="ghost" onClick={() => success('Test Notification Sent', 'Check your device for the push notification. If not received, verify push notifications are enabled in your browser settings.')}>
               <Send size={12} className="mr-1.5" />
               Send Test Notification
             </Button>

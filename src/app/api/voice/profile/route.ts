@@ -17,7 +17,7 @@ import { logger } from '@/lib/security/logger';
 import type { VoiceToneMode } from '@/types/database';
 
 /**
- * GET /api/voice/profile — Get voice profile stats
+ * GET /api/voice/profile - Get voice profile stats
  */
 export async function GET() {
   try {
@@ -68,7 +68,7 @@ export async function GET() {
 }
 
 /**
- * POST /api/voice/profile — Record a voice engine feedback event
+ * POST /api/voice/profile - Record a voice engine feedback event
  */
 export async function POST(request: Request) {
   try {

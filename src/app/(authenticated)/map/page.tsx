@@ -62,7 +62,7 @@ export default function MapPage() {
         setContacts(data.contacts);
       }
     } catch {
-      // Silently handle — map shows empty
+      // Silently handle - map shows empty
     }
   }, []);
 
@@ -368,19 +368,18 @@ export default function MapPage() {
           </>
         ) : (
           /* Placeholder when no API key */
-          <div className="w-full h-full flex items-center justify-center bg-surface dark:bg-navy">
+          <div className="w-full h-full flex items-center justify-center bg-surface dark:bg-navy px-4">
             <Card className="!p-8 text-center max-w-md">
               <MapPin size={40} className="text-gold mx-auto mb-4 opacity-50" />
               <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
                 DFW Contact Map
               </h2>
-              <p className="text-sm text-navy/50 dark:text-white/50 font-inter mb-4">
-                Add your Google Maps API key to enable the interactive map.
-                Set <code className="text-gold">NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> in
-                your environment variables.
+              <p className="text-sm text-navy/50 dark:text-white/50 font-inter mb-4 break-words [overflow-wrap:anywhere]">
+                The interactive map requires configuration. Contact your administrator
+                or visit Settings &gt; Integrations &gt; Google Maps to complete setup.
               </p>
-              <div className="bg-navy/5 dark:bg-white/5 rounded-lg p-3 text-left">
-                <p className="text-xs font-mono text-navy/60 dark:text-white/60">
+              <div className="bg-navy/5 dark:bg-white/5 rounded-[8px] p-3 text-left">
+                <p className="text-xs font-mono text-navy/60 dark:text-white/60 break-words [overflow-wrap:anywhere]">
                   Features: Contact pins by track type, heatmap overlay,
                   zone drawing for targeted campaigns, contact detail cards.
                 </p>

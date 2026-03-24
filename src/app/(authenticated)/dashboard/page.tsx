@@ -1,5 +1,5 @@
 /**
- * Dashboard — Premium Morning Briefing
+ * Dashboard - Premium Morning Briefing
  *
  * First screen the agent sees. Full Licona Realty brand.
  * Approval queue module first and most prominent.
@@ -127,7 +127,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-        {/* Approval Queue — First and Most Prominent */}
+        {/* Approval Queue - First and Most Prominent */}
         <div className="md:col-span-2 xl:col-span-3">
           <Card variant="approval" className="!p-6">
             <div className="flex items-center justify-between mb-4">

@@ -1,7 +1,7 @@
 /**
  * Approval Queue Item Actions API
  *
- * PATCH /api/approval-queue/[id] — Approve, Edit+Approve, or Discard an item
+ * PATCH /api/approval-queue/[id] - Approve, Edit+Approve, or Discard an item
  *
  * Hardcoded rules:
  * - Nothing external ever sends without approved status

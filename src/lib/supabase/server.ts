@@ -3,7 +3,7 @@
  *
  * Used for server-side operations (API routes, Server Components, middleware).
  * Uses cookie-based session management for httpOnly secure JWT storage.
- * Service role client available for admin operations — NEVER exposed to frontend.
+ * Service role client available for admin operations - NEVER exposed to frontend.
  */
 
 import { createServerClient } from '@supabase/ssr';

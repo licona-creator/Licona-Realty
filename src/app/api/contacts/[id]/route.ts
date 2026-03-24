@@ -1,5 +1,5 @@
 /**
- * Contact Detail API — Get, Update, Delete single contact
+ * Contact Detail API - Get, Update, Delete single contact
  *
  * All operations validated, audited, and RLS-protected.
  * UUID format validation on ID parameter.
@@ -25,7 +25,7 @@ const VALID_PIPELINE_STAGES = [
 const VALID_LANGUAGES = ['en', 'es', 'bilingual'];
 
 /**
- * GET /api/contacts/[id] — Get single contact
+ * GET /api/contacts/[id] - Get single contact
  */
 export async function GET(
   request: Request,
@@ -64,7 +64,7 @@ export async function GET(
 }
 
 /**
- * PATCH /api/contacts/[id] — Update contact
+ * PATCH /api/contacts/[id] - Update contact
  */
 export async function PATCH(
   request: Request,
@@ -185,7 +185,7 @@ export async function PATCH(
 }
 
 /**
- * DELETE /api/contacts/[id] — Soft delete contact
+ * DELETE /api/contacts/[id] - Soft delete contact
  *
  * MFA re-prompt required for deletion (enforced on client side).
  * Marks as deleted. Purged by scheduled function within 24 hours.

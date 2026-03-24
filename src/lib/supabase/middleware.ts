@@ -35,7 +35,7 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Refresh session — this is critical for keeping the JWT valid
+  // Refresh session - this is critical for keeping the JWT valid
   const {
     data: { user },
   } = await supabase.auth.getUser();

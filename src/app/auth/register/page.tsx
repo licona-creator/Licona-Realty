@@ -103,7 +103,7 @@ export default function RegisterPage() {
         return;
       }
 
-      // Redirect to dashboard — MFA setup is optional for now
+      // Redirect to dashboard - MFA setup is optional for now
       router.push('/dashboard');
     } catch {
       setError('An unexpected error occurred. Please try again.');

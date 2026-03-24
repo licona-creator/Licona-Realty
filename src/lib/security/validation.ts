@@ -2,7 +2,7 @@
  * Input Validation and Sanitization
  *
  * Server-side validation for all input fields. Client-side validation
- * is a UX convenience only — this is the security boundary.
+ * is a UX convenience only - this is the security boundary.
  *
  * All inputs validated before database writes.
  * SQL injection protected via Supabase parameterized queries.

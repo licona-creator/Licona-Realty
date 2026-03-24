@@ -10,8 +10,8 @@
  * - Audit logging of import operations
  *
  * Two-step process:
- * 1. POST /api/contacts/import/preview — Parse file and return preview
- * 2. POST /api/contacts/import — Confirm and import contacts
+ * 1. POST /api/contacts/import/preview - Parse file and return preview
+ * 2. POST /api/contacts/import - Confirm and import contacts
  */
 
 import { NextResponse } from 'next/server';
@@ -64,7 +64,7 @@ function autoMapColumns(headers: string[]): Record<string, string> {
 }
 
 /**
- * POST /api/contacts/import — Parse and import contacts from CSV
+ * POST /api/contacts/import - Parse and import contacts from CSV
  *
  * Request body: FormData with 'file' (CSV/Excel) and optional 'track_type', 'lead_source'
  */
@@ -146,7 +146,7 @@ export async function POST(request: Request) {
     const columnMapping = autoMapColumns(headers);
 
     // =============================================
-    // PREVIEW MODE — return parsed data with mapping
+    // PREVIEW MODE - return parsed data with mapping
     // =============================================
 
     if (mode === 'preview') {
@@ -182,7 +182,7 @@ export async function POST(request: Request) {
     }
 
     // =============================================
-    // IMPORT MODE — validate and insert contacts
+    // IMPORT MODE - validate and insert contacts
     // =============================================
 
     const imported: string[] = [];

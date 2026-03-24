@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   const isPublic = searchParams.get('public') === 'true';
 
   if (isPublic) {
-    // Public endpoint — only published testimonials
+    // Public endpoint - only published testimonials
     const admin = createAdminClient();
     const { data, error } = await admin
       .from('testimonials')
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ testimonials: data || [] });
   }
 
-  // Authenticated endpoint — all testimonials
+  // Authenticated endpoint - all testimonials
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { BRAND } from '@/lib/brand';
+import { NewCampaignModal } from '@/components/modals/NewCampaignModal';
 import type { Campaign, TrackType } from '@/types/database';
 import {
   Send, Plus, Users, Clock, ChevronRight,
@@ -29,6 +30,7 @@ const TRACK_COLORS: Record<TrackType, string> = {
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [activeTrack, setActiveTrack] = useState<TrackType | 'all'>('all');
+  const [showNewCampaign, setShowNewCampaign] = useState(false);
 
   const fetchCampaigns = useCallback(async () => {
     try {
@@ -60,7 +62,7 @@ export default function CampaignsPage() {
             Campaigns
           </h1>
         </div>
-        <Button variant="accent" size="sm" onClick={() => alert('Campaign builder coming soon. You will be able to create multi-step drip campaigns for each track type.')}>
+        <Button variant="accent" size="sm" onClick={() => setShowNewCampaign(true)}>
           <Plus size={16} className="mr-1" />
           New Campaign
         </Button>
@@ -163,12 +165,18 @@ export default function CampaignsPage() {
             Create drip campaign sequences with multiple tone variants for each track.
             Every message goes through the voice engine and approval queue.
           </p>
-          <Button variant="accent" onClick={() => alert('Campaign builder coming soon. You will be able to create multi-step drip campaigns for each track type.')}>
+          <Button variant="accent" onClick={() => setShowNewCampaign(true)}>
             <Plus size={16} className="mr-1" />
             Create Your First Campaign
           </Button>
         </Card>
       )}
+
+      <NewCampaignModal
+        open={showNewCampaign}
+        onClose={() => setShowNewCampaign(false)}
+        onSuccess={fetchCampaigns}
+      />
     </div>
   );
 }

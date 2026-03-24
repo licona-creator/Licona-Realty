@@ -19,7 +19,7 @@ const VALID_RELATIONSHIP_TYPES = [
 const VALID_TIERS = ['tier_1', 'tier_2', 'tier_3'];
 
 /**
- * GET /api/sphere — List sphere contacts with relationship data
+ * GET /api/sphere - List sphere contacts with relationship data
  */
 export async function GET(request: Request) {
   try {
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST /api/sphere — Add a contact to the sphere track
+ * POST /api/sphere - Add a contact to the sphere track
  */
 export async function POST(request: Request) {
   const ip = getClientIP(request);

@@ -1,5 +1,5 @@
 /**
- * Content Editor — Voice Engine Active
+ * Content Editor - Voice Engine Active
  *
  * Used in the approval queue for editing drafts before approval.
  * Features:

@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
 import {
   Upload,
@@ -65,6 +66,8 @@ const FONT_ASSIGNMENTS = [
 ];
 
 export function BrandAssets() {
+  const { error: showError } = useToast();
+
   // Logo upload state
   const [primaryLogo, setPrimaryLogo] = useState<UploadSlot>({
     label: 'Full Horizontal Logo Lockup',
@@ -171,7 +174,7 @@ export function BrandAssets() {
 
     // Validate size (10MB max)
     if (file.size > 10 * 1024 * 1024) {
-      alert('File size must be under 10MB.');
+      showError('File Too Large', 'File size must be under 10MB.');
       return;
     }
 

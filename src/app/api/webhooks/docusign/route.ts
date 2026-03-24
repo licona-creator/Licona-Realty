@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
-    // Signature valid — process the webhook payload
+    // Signature valid - process the webhook payload
     const payload = JSON.parse(body);
     logger.info('DocuSign webhook received', {
       event: payload.event,

@@ -1,15 +1,17 @@
 /**
- * More Page — Mobile navigation overflow
+ * More Page - Mobile navigation overflow
  *
  * Shows all navigation items not visible in the mobile bottom tab bar.
  */
 
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { BRAND, NAV_ITEMS } from '@/lib/brand';
 import { LRMonogram } from '@/components/ui/LRMonogram';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import {
   Send, Share2, MapPin, Calendar, Palette,
   TrendingUp, Star, Calculator, Settings, LogOut,
@@ -32,6 +34,8 @@ const moreItems = NAV_ITEMS.filter(
 );
 
 export default function MorePage() {
+  const [showSignOut, setShowSignOut] = useState(false);
+
   return (
     <div className="p-4 lg:p-8 max-w-lg mx-auto">
       <div className="flex items-center gap-3 mb-6">
@@ -81,13 +85,23 @@ export default function MorePage() {
           </span>
         </Link>
 
-        <button onClick={() => { if (confirm('Are you sure you want to sign out?')) window.location.href = '/auth/login'; }} className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full">
+        <button onClick={() => setShowSignOut(true)} className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full">
           <LogOut size={20} className="text-red-500/60" />
           <span className="font-montserrat text-sm font-medium text-red-500/60">
             Sign Out
           </span>
         </button>
       </div>
+
+      <ConfirmDialog
+        open={showSignOut}
+        onClose={() => setShowSignOut(false)}
+        onConfirm={() => { window.location.href = '/auth/login'; }}
+        title="Sign Out?"
+        message="Are you sure you want to sign out of the Licona Realty Platform?"
+        confirmLabel="Sign Out"
+        variant="danger"
+      />
 
       <div className="mt-8 text-center">
         <p className="text-[10px] text-navy/30 dark:text-white/30 font-inter">

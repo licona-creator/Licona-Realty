@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
   await supabase.from('approval_queue').insert({
     user_id: user.id,
     item_type: 'social_post',
-    subject: `${platform} — ${content_pillar.replace('_', ' ')}`,
+    subject: `${platform} - ${content_pillar.replace('_', ' ')}`,
     content: sanitizedCaption,
     tone_mode: 'casual_friend',
     status: 'pending',

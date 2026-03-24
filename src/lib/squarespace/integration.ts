@@ -28,7 +28,7 @@ export function generateSEOMeta(page: string): Record<string, string> {
 
   const pages: Record<string, Record<string, string>> = {
     home: {
-      title: `${BRAND.agent.name} — ${BRAND.agent.title} | ${BRAND.tagline}`,
+      title: `${BRAND.agent.name} | ${BRAND.agent.title} | ${BRAND.tagline}`,
       description: `Bilingual North Texas realtor specializing in DFW residential real estate. ${BRAND.agent.bilingual}. Smart Moves. Simple Decisions.`,
       keywords: 'DFW realtor, North Texas real estate, bilingual realtor Dallas, Spanish speaking agent DFW, buy home Dallas',
     },

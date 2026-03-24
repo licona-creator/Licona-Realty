@@ -13,7 +13,7 @@ import { validateUUID } from '@/lib/security/validation';
 import { logger } from '@/lib/security/logger';
 
 /**
- * GET /api/referrals — List all referrals with stats
+ * GET /api/referrals - List all referrals with stats
  */
 export async function GET() {
   try {
@@ -84,7 +84,7 @@ export async function GET() {
 }
 
 /**
- * POST /api/referrals — Record a new referral
+ * POST /api/referrals - Record a new referral
  */
 export async function POST(request: Request) {
   const ip = getClientIP(request);

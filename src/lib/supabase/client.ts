@@ -2,7 +2,7 @@
  * Supabase Browser Client
  *
  * Used for client-side operations in the authenticated CRM.
- * Uses the anon key only — service role key is NEVER exposed to the frontend.
+ * Uses the anon key only - service role key is NEVER exposed to the frontend.
  * Cookie-based session storage for secure JWT management.
  */
 

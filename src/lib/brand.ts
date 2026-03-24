@@ -7,7 +7,7 @@
  */
 
 export const BRAND = {
-  // Agent Identity — hardcoded into all templates and public pages
+  // Agent Identity - hardcoded into all templates and public pages
   agent: {
     name: 'Anthony Licona',
     title: 'North Texas Realtor',
@@ -27,7 +27,7 @@ export const BRAND = {
   tagline: 'Smart Moves. Simple Decisions.',
   logoTagline: 'SELL • BUY • INVEST',
 
-  // Brand Colors — exact hex values, no substitutions
+  // Brand Colors - exact hex values, no substitutions
   colors: {
     primary: '#132236',      // Deep navy
     navy: '#132236',          // Alias for primary
@@ -49,7 +49,7 @@ export const BRAND = {
     heroGradient: 'linear-gradient(135deg, #132236, #1a2d47)',
   },
 
-  // Brand Typography — all from Google Fonts
+  // Brand Typography - all from Google Fonts
   fonts: {
     playfair: "'Playfair Display', serif",     // Display headings, hero text
     montserrat: "'Montserrat', sans-serif",    // Navigation, buttons, labels
@@ -80,7 +80,7 @@ export const BRAND = {
     monogramPosition: 'top-right',
     footerBar: {
       background: '#132236',
-      text: 'Anthony Licona — Realtor — (469) 968-7688 — licona@liconarealty.com',
+      text: 'Anthony Licona | Realtor | (469) 968-7688 | licona@liconarealty.com',
       license: 'TREC Lic. 0821484-SA',
     },
   },
@@ -104,7 +104,7 @@ export const BRAND = {
 } as const;
 
 // Social post footer text for templates
-export const SOCIAL_FOOTER = `${BRAND.agent.name} — Realtor — ${BRAND.agent.phone} — ${BRAND.agent.email}`;
+export const SOCIAL_FOOTER = `${BRAND.agent.name} | Realtor | ${BRAND.agent.phone} | ${BRAND.agent.email}`;
 
 // SEO footer text for public pages
 export const SEO_FOOTER = `${BRAND.agent.name} | ${BRAND.agent.title} | ${BRAND.agent.brokerage} | ${BRAND.agent.license}`;

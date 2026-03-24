@@ -22,7 +22,7 @@ const VALID_TONES = [
 ];
 
 /**
- * GET /api/campaigns — List campaigns with optional filtering
+ * GET /api/campaigns - List campaigns with optional filtering
  */
 export async function GET(request: Request) {
   try {
@@ -68,7 +68,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST /api/campaigns — Create a new campaign
+ * POST /api/campaigns - Create a new campaign
  */
 export async function POST(request: Request) {
   const ip = getClientIP(request);

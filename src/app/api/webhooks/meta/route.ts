@@ -8,7 +8,7 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/security/logger';
 
-// Webhook verification (GET) — Meta sends a challenge to verify the endpoint
+// Webhook verification (GET) - Meta sends a challenge to verify the endpoint
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const mode = searchParams.get('hub.mode');
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   return NextResponse.json({ error: 'Verification failed' }, { status: 403 });
 }
 
-// Webhook events (POST) — Meta sends event notifications
+// Webhook events (POST) - Meta sends event notifications
 export async function POST(request: Request) {
   try {
     const appSecret = process.env.META_APP_SECRET;

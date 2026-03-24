@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { BRAND } from '@/lib/brand';
+import { NewTransactionModal } from '@/components/modals/NewTransactionModal';
 import type { Transaction } from '@/types/database';
 import {
   FileText, Plus, DollarSign, CalendarDays, CheckSquare,
@@ -35,6 +36,7 @@ export default function TransactionsPage() {
   const [pipelineValue, setPipelineValue] = useState(0);
   const [closedValue, setClosedValue] = useState(0);
   const [filter, setFilter] = useState<string>('active');
+  const [showNewTransaction, setShowNewTransaction] = useState(false);
 
   const fetchTransactions = useCallback(async () => {
     try {
@@ -75,7 +77,7 @@ export default function TransactionsPage() {
             Transactions
           </h1>
         </div>
-        <Button variant="accent" size="sm" onClick={() => alert('Create a new transaction by entering the property address, contract price, and closing date. The deal will be added to your pipeline.')}>
+        <Button variant="accent" size="sm" onClick={() => setShowNewTransaction(true)}>
           <Plus size={16} className="mr-1" />
           New Transaction
         </Button>
@@ -209,12 +211,18 @@ export default function TransactionsPage() {
             Create your first transaction to start tracking deadlines, documents,
             checklists, and commissions.
           </p>
-          <Button variant="accent" onClick={() => alert('Create a new transaction by entering the property address, contract price, and closing date. The deal will be added to your pipeline.')}>
+          <Button variant="accent" onClick={() => setShowNewTransaction(true)}>
             <Plus size={16} className="mr-1" />
             Create Transaction
           </Button>
         </Card>
       )}
+
+      <NewTransactionModal
+        open={showNewTransaction}
+        onClose={() => setShowNewTransaction(false)}
+        onSuccess={fetchTransactions}
+      />
     </div>
   );
 }

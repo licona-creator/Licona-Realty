@@ -1,7 +1,7 @@
 /**
  * Licona Realty Voice and Tone Engine
  *
- * Anthony's voice profile — hardcoded baseline, continuously refined.
+ * Anthony's voice profile - hardcoded baseline, continuously refined.
  * Every AI-generated client-facing content runs through this engine
  * before reaching the approval queue.
  *
@@ -11,7 +11,7 @@
 import type { VoiceToneMode, LanguagePreference } from '@/types/database';
 
 // ============================================
-// Banned Phrases — hardcoded, NEVER used anywhere
+// Banned Phrases - hardcoded, NEVER used anywhere
 // ============================================
 
 export const BANNED_PHRASES: string[] = [
@@ -35,7 +35,7 @@ const BANNED_PATTERNS: RegExp[] = [
   /I\s+wanted\s+to\s+follow\s+up\s+with\s+you\s+regarding/i,
   /As\s+a\s+real\s+estate\s+professional/i,
   /Please\s+let\s+me\s+know\s+if\s+you\s+have\s+any\s+questions\.?\s*$/i,
-  /—/g, // Em dashes banned everywhere
+  /\u2014/g, // Em dashes banned everywhere
 ];
 
 // ============================================
@@ -55,9 +55,9 @@ export const VOICE_TONE_PROFILES: Record<VoiceToneMode, VoiceToneProfile> = {
     label: 'Casual Friend',
     description: 'Warm, genuine, like texting a friend. For sphere contacts, warm leads, post-closing check-ins.',
     guidelines: [
-      'Short punchy sentences — no paragraph walls',
+      'Short punchy sentences - no paragraph walls',
       'Sounds like a real person texting, not a script',
-      'Warm and genuine — relationship first, business second',
+      'Warm and genuine - relationship first, business second',
       'Occasional humor and personality encouraged',
       'Never mentions real estate unless naturally relevant',
       'No formal greetings or sign-offs',
@@ -70,7 +70,7 @@ export const VOICE_TONE_PROFILES: Record<VoiceToneMode, VoiceToneProfile> = {
     guidelines: [
       'Professional tone but never stiff or robotic',
       'Still sounds like Anthony, just more buttoned up',
-      'Clear and direct — gets to the point',
+      'Clear and direct - gets to the point',
       'Warm opening, value-driven middle, clear next step',
       'Uses proper grammar but keeps it conversational',
     ],
@@ -80,7 +80,7 @@ export const VOICE_TONE_PROFILES: Record<VoiceToneMode, VoiceToneProfile> = {
     label: 'Bilingual Casual',
     description: 'English and Spanish mixed naturally. Like a bilingual DFW agent would actually talk.',
     guidelines: [
-      'Natural code-switching — not forced translation',
+      'Natural code-switching - not forced translation',
       'Spanish written the way a bilingual DFW agent would actually say it',
       'Mix of English and Spanish in the same message when natural',
       'Cultural warmth and genuineness',
@@ -103,7 +103,7 @@ export const VOICE_TONE_PROFILES: Record<VoiceToneMode, VoiceToneProfile> = {
     label: 'Celebratory',
     description: 'Excitement and genuine happiness. For under contract, just closed, milestones.',
     guidelines: [
-      'Genuine excitement — celebrating the client, not the agent',
+      'Genuine excitement - celebrating the client, not the agent',
       'Humble and warm, never boastful',
       'Short and energetic',
       'Focus on what this means for the client',
@@ -130,7 +130,7 @@ export const VOICE_TONE_PROFILES: Record<VoiceToneMode, VoiceToneProfile> = {
     guidelines: [
       'Lead with numbers and data',
       'Clear ROI and market analysis',
-      'Still personal — this is Anthony sharing insights, not a report',
+      'Still personal - this is Anthony sharing insights, not a report',
       'Direct and efficient',
       'Include specific DFW market data when relevant',
     ],
@@ -176,7 +176,7 @@ export function checkBannedPhrases(content: string): string[] {
   // Check pattern-based bans
   for (const pattern of BANNED_PATTERNS) {
     if (pattern.test(content)) {
-      const patternName = pattern.source.includes('—')
+      const patternName = pattern.source.includes('\u2014')
         ? 'Em dash detected (banned in all platform content)'
         : `Banned pattern matched: ${pattern.source}`;
       if (!violations.includes(patternName)) {
@@ -219,10 +219,10 @@ export function recommendToneMode(context: {
 
 /**
  * Format the social media post footer bar.
- * Every post includes this — it's a business card.
+ * Every post includes this - it's a business card.
  */
 export function getSocialPostFooter(includeLicense = true): string {
-  const footer = 'Anthony Licona — Realtor — (469) 968-7688 — licona@liconarealty.com';
+  const footer = 'Anthony Licona | Realtor | (469) 968-7688 | licona@liconarealty.com';
   return includeLicense ? `${footer}\nTREC Lic. 0821484-SA` : footer;
 }
 

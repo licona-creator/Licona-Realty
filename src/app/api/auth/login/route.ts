@@ -99,7 +99,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Successful login — reset lockout counter
+    // Successful login - reset lockout counter
     recordSuccessfulLogin(sanitizedEmail);
 
     await writeAuditLog({

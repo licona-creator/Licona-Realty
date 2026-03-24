@@ -33,7 +33,7 @@ interface MortgageResult {
   max_loan_amount: number;
 }
 
-// Public endpoint — no auth required (lead capture)
+// Public endpoint - no auth required (lead capture)
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
   if (!checkRateLimit(ip, 'public')) {
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
       user_id: agentId,
       item_type: 'mortgage_results_email',
       recipient_contact_id: contactId,
-      subject: `Mortgage Calculator Results — ${sanitizePlainText(body.visitor_name)}`,
+      subject: `Mortgage Calculator Results - ${sanitizePlainText(body.visitor_name)}`,
       content: formatResultsEmail(body, result),
       tone_mode: body.language === 'es' ? 'bilingual_professional' : 'professional_personal',
       status: 'pending',
@@ -228,7 +228,7 @@ function calculateMortgage(input: MortgageInput): MortgageResult {
 }
 
 function encrypt(data: string, key: string): string {
-  // Simple encoding for dev — in production, use pgcrypto or KMS
+  // Simple encoding for dev - in production, use pgcrypto or KMS
   return Buffer.from(`${key}:${data}`).toString('base64');
 }
 

@@ -1,5 +1,5 @@
 /**
- * MFA Verify Page — Post-Login
+ * MFA Verify Page - Post-Login
  *
  * After email/password login, if MFA is enrolled, user is
  * redirected here to complete the second factor.

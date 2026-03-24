@@ -180,7 +180,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Audit log — no PII
+    // Audit log - no PII
     await writeAuditLog({
       userId: user.id,
       action: 'record_create',

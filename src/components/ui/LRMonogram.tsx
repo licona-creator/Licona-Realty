@@ -1,5 +1,5 @@
 /**
- * LR Monogram — Primary Brand Mark
+ * LR Monogram - Primary Brand Mark
  *
  * The L and R stacked monogram in #d3a971 gold.
  * Non-negotiable on every social post, Canva template,

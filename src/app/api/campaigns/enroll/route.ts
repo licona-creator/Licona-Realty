@@ -16,7 +16,7 @@ import { validateUUID } from '@/lib/security/validation';
 import { logger } from '@/lib/security/logger';
 
 /**
- * POST /api/campaigns/enroll — Enroll a contact in a campaign
+ * POST /api/campaigns/enroll - Enroll a contact in a campaign
  */
 export async function POST(request: Request) {
   const ip = getClientIP(request);

@@ -1,8 +1,8 @@
 /**
  * MFA Setup Page
  *
- * ENFORCED on first login — agent cannot access any CRM data until MFA is configured.
- * TOTP only — no SMS MFA (vulnerable to SIM swapping attacks).
+ * ENFORCED on first login - agent cannot access any CRM data until MFA is configured.
+ * TOTP only - no SMS MFA (vulnerable to SIM swapping attacks).
  * Compatible with Google Authenticator, Authy, and similar apps.
  *
  * Steps:
@@ -126,7 +126,7 @@ export default function MFASetupPage() {
             'Save these codes somewhere safe. Each code can only be used once.'}
         </p>
 
-        {/* Step 1: Enroll — Show QR Code */}
+        {/* Step 1: Enroll - Show QR Code */}
         {step === 'enroll' && (
           <div className="space-y-6">
             {qrCode ? (

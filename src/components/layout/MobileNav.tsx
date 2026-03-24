@@ -36,10 +36,10 @@ export function MobileNav({ approvalCount = 0 }: MobileNavProps) {
 
   return (
     <nav
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-navy border-t border-white/10"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-navy border-t border-white/10 pb-[env(safe-area-inset-bottom)]"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <ul className="flex items-center justify-around px-2 py-2">
+      <ul className="flex items-center justify-evenly px-2 py-2">
         {mobileNavItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;

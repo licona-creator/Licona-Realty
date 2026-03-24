@@ -12,6 +12,8 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { BRAND } from '@/lib/brand';
 import {
   User,
@@ -78,6 +80,9 @@ function Toggle({
 }
 
 export function AccountSecurity() {
+  const { info, success, warning } = useToast();
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; variant: 'default' | 'danger'; onConfirm: () => void }>({ open: false, title: '', message: '', variant: 'default', onConfirm: () => {} });
+
   // Profile
   const [displayName, setDisplayName] = useState<string>(BRAND.agent.name);
   const [loginEmail, setLoginEmail] = useState<string>(BRAND.agent.email);
@@ -232,15 +237,15 @@ export function AccountSecurity() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Button variant="ghost" size="sm" onClick={() => alert('MFA re-verification required. After verifying, your 10 backup codes will be displayed. Save them in a secure location.')}>
+            <Button variant="ghost" size="sm" onClick={() => info('MFA Verification Required', 'After verifying, your 10 backup codes will be displayed. Save them in a secure location.')}>
               <Key size={14} className="mr-1.5" />
               View Backup Codes
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => { if (confirm('This will invalidate all existing backup codes. You will need to save the new codes immediately. Continue?')) alert('MFA re-verification required before regenerating backup codes.'); }}>
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDialog({ open: true, title: 'Regenerate Backup Codes?', message: 'This will invalidate all existing backup codes. You will need to save the new codes immediately.', variant: 'danger', onConfirm: () => info('MFA Verification Required', 'Re-verification required before regenerating backup codes.') })}>
               <RefreshCw size={14} className="mr-1.5" />
               Regenerate Codes
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => { if (confirm('This will disable MFA on your current device. You will need to re-enroll with a new authenticator app. Continue?')) alert('MFA re-verification required before resetting your device.'); }}>
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDialog({ open: true, title: 'Reset MFA Device?', message: 'This will disable MFA on your current device. You will need to re-enroll with a new authenticator app.', variant: 'danger', onConfirm: () => info('MFA Verification Required', 'Re-verification required before resetting your device.') })}>
               <Smartphone size={14} className="mr-1.5" />
               Reset MFA Device
             </Button>
@@ -279,7 +284,7 @@ export function AccountSecurity() {
                 </p>
               </div>
               {!session.current && (
-                <Button size="sm" variant="ghost" onClick={() => { if (confirm('End this session? The device will be logged out immediately.')) alert('Session ended. The device has been logged out.'); }}>
+                <Button size="sm" variant="ghost" onClick={() => setConfirmDialog({ open: true, title: 'End Session?', message: 'The device will be logged out immediately.', variant: 'default', onConfirm: () => success('Session Ended', 'The device has been logged out.') })}>
                   <LogOut size={12} className="mr-1" />
                   End
                 </Button>
@@ -289,7 +294,7 @@ export function AccountSecurity() {
         </div>
 
         <div className="mt-4 flex items-center gap-4">
-          <Button size="sm" variant="danger" onClick={() => { if (confirm('This will log out all other devices. Only your current session will remain active.')) alert('All other sessions have been terminated.'); }}>
+          <Button size="sm" variant="danger" onClick={() => setConfirmDialog({ open: true, title: 'End All Other Sessions?', message: 'This will log out all other devices. Only your current session will remain active.', variant: 'danger', onConfirm: () => success('Sessions Terminated', 'All other sessions have been terminated.') })}>
             <LogOut size={12} className="mr-1.5" />
             End All Other Sessions
           </Button>
@@ -333,7 +338,7 @@ export function AccountSecurity() {
             <option>Security Events</option>
             <option>Data Exports</option>
           </select>
-          <Button size="sm" variant="ghost" onClick={() => alert('MFA re-verification required before exporting audit log data.')}>
+          <Button size="sm" variant="ghost" onClick={() => info('MFA Verification Required', 'Re-verification required before exporting audit log data.')}>
             <Download size={12} className="mr-1" />
             Export CSV
           </Button>
@@ -408,7 +413,7 @@ export function AccountSecurity() {
                 MFA verification required.
               </p>
             </div>
-            <Button size="sm" variant="ghost" onClick={() => alert('MFA re-verification required. After verifying, a JSON export of all your data will be prepared for download.')}>
+            <Button size="sm" variant="ghost" onClick={() => info('MFA Verification Required', 'After verifying, a JSON export of all your data will be prepared for download.')}>
               <Download size={12} className="mr-1.5" />
               Export Data
             </Button>
@@ -424,7 +429,7 @@ export function AccountSecurity() {
                   Requires MFA verification and typing "DELETE MY DATA" to confirm.
                 </p>
               </div>
-              <Button size="sm" variant="danger" onClick={() => { if (confirm('WARNING: This action is permanent and cannot be undone. Are you sure you want to request data deletion?')) alert('MFA re-verification required. You will need to type "DELETE MY DATA" to confirm.'); }}>
+              <Button size="sm" variant="danger" onClick={() => setConfirmDialog({ open: true, title: 'Request Data Deletion?', message: 'WARNING: This action is permanent and cannot be undone. All contacts, transactions, campaigns, documents, and audit logs will be deleted.', variant: 'danger', onConfirm: () => warning('MFA Verification Required', 'You will need to type "DELETE MY DATA" to confirm.') })}>
                 <Trash2 size={12} className="mr-1.5" />
                 Delete Data
               </Button>
@@ -446,6 +451,15 @@ export function AccountSecurity() {
           )}
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onClose={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+        onConfirm={confirmDialog.onConfirm}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        variant={confirmDialog.variant}
+      />
     </div>
   );
 }

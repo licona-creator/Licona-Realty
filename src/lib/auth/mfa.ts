@@ -2,7 +2,7 @@
  * MFA (Multi-Factor Authentication) Utilities
  *
  * TOTP-based MFA using Supabase Auth MFA.
- * MFA is REQUIRED — not optional — enforced on first login.
+ * MFA is REQUIRED - not optional - enforced on first login.
  * No SMS-based MFA (vulnerable to SIM swapping).
  *
  * MFA re-prompt required for high-risk actions:

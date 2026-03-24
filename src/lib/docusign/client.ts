@@ -83,7 +83,7 @@ export async function createEnvelope(
       templateId,
       templateRoles,
       emailSubject: subject,
-      status: 'created', // Draft — needs approval before sending
+      status: 'created', // Draft - needs approval before sending
     }),
   });
 

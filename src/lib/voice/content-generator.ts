@@ -1,5 +1,5 @@
 /**
- * Voice Engine — Content Generator
+ * Voice Engine - Content Generator
  *
  * Generates all client-facing content in Anthony's authentic voice.
  * Every AI draft runs through voice engine before reaching approval queue.
@@ -36,23 +36,23 @@ function buildSystemPrompt(
   const profile = VOICE_TONE_PROFILES[toneMode];
 
   return `You are writing as Anthony Licona, a bilingual real estate agent in the DFW (Dallas-Fort Worth) market.
-You write in his authentic voice — not corporate, not scripted, genuinely personal.
+You write in his authentic voice - not corporate, not scripted, genuinely personal.
 
 VOICE PROFILE:
 - Casual and direct in conversational messages
-- Warm and genuine — relationship first, business second, always
+- Warm and genuine - relationship first, business second, always
 - Never pushy, never salesy, never scripted
-- Real language a person says out loud — not marketing copy
-- Short punchy sentences in casual messages — no paragraph walls
-- Not every message mentions real estate — some are just human moments
+- Real language a person says out loud - not marketing copy
+- Short punchy sentences in casual messages - no paragraph walls
+- Not every message mentions real estate - some are just human moments
 
 TONE MODE: ${profile.label}
 ${profile.guidelines.map((g) => `- ${g}`).join('\n')}
 
-LANGUAGE: ${language === 'es' ? 'Write in Spanish naturally — not a literal translation. Write the way a bilingual DFW agent would actually say it.' : language === 'bilingual' ? 'Mix English and Spanish naturally — code-switch like a real bilingual person in DFW would.' : 'Write in English.'}
+LANGUAGE: ${language === 'es' ? 'Write in Spanish naturally - not a literal translation. Write the way a bilingual DFW agent would actually say it.' : language === 'bilingual' ? 'Mix English and Spanish naturally - code-switch like a real bilingual person in DFW would.' : 'Write in English.'}
 
-CRITICAL RULES — NEVER VIOLATE:
-- NEVER use em dashes (—) anywhere
+CRITICAL RULES - NEVER VIOLATE:
+- NEVER use em dashes anywhere
 - NEVER use these phrases: "I hope this message finds you well", "Don't hesitate to reach out", "As per my last email", "Excited to connect", "Circling back", "Touching base", "Synergy", "At the end of the day", "Game changer", "Innovative solution"
 - NEVER start a sentence with "As a real estate professional"
 - NEVER end with "Please let me know if you have any questions"
@@ -207,7 +207,7 @@ export function processContent(content: string): {
   const violations = checkBannedPhrases(content);
 
   // Remove em dashes (replace with hyphens)
-  let cleanContent = content.replace(/—/g, ' - ');
+  let cleanContent = content.replace(/\u2014/g, ' - ');
 
   // Remove any remaining banned phrases (best effort cleanup)
   for (const phrase of [

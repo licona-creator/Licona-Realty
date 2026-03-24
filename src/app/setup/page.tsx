@@ -92,7 +92,7 @@ export default function SetupPage() {
             Licona Realty Platform Setup
           </h1>
           <p className="text-gray-500" style={{ fontFamily: BRAND.fonts.inter }}>
-            One-time database setup — takes about 2 minutes
+            One-time database setup - takes about 2 minutes
           </p>
         </div>
 

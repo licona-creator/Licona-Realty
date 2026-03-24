@@ -4,7 +4,7 @@
  * Runs on every request to handle:
  * 1. Supabase session refresh (JWT in httpOnly cookies)
  * 2. Authentication redirect for protected routes
- * 3. MFA enforcement — redirect to MFA setup/verify if needed
+ * 3. MFA enforcement - redirect to MFA setup/verify if needed
  * 4. Rate limiting on API routes
  * 5. CSRF token injection
  * 6. Security response headers
@@ -51,7 +51,7 @@ export async function middleware(request: NextRequest) {
   // 2. Define route access rules
   // =============================================
 
-  // Public routes — no auth required
+  // Public routes - no auth required
   const publicPaths = [
     '/auth/login',
     '/auth/register',
@@ -66,7 +66,7 @@ export async function middleware(request: NextRequest) {
     '/setup',
   ];
 
-  // MFA flow routes — require auth but not MFA completion
+  // MFA flow routes - require auth but not MFA completion
   const mfaPaths = ['/auth/mfa-setup', '/auth/mfa-verify'];
 
   const isPublicPath = publicPaths.some((p) => pathname.startsWith(p));
@@ -84,7 +84,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // =============================================
-  // 4. MFA enforcement — currently optional, uncomment to enforce
+  // 4. MFA enforcement - currently optional, uncomment to enforce
   // =============================================
 
   // if (user && !isPublicPath && !isMFAPath && !isAPIRoute) {
@@ -98,7 +98,7 @@ export async function middleware(request: NextRequest) {
   //       return NextResponse.redirect(url);
   //     }
   //
-  //     // If no MFA enrolled at all — force setup
+  //     // If no MFA enrolled at all - force setup
   //     const { data: factors } = await supabase.auth.mfa.listFactors();
   //     const hasVerifiedFactor = factors?.totp?.some(
   //       (f) => f.status === 'verified'

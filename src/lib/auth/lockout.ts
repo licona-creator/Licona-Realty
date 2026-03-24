@@ -43,7 +43,7 @@ export function isAccountLocked(email: string): {
     return { locked: true, remainingMs: lockedUntil - now };
   }
 
-  // Lockout expired — reset
+  // Lockout expired - reset
   record.failedAttempts = 0;
   record.lockedUntil = null;
   return { locked: false, remainingMs: 0 };
@@ -83,7 +83,7 @@ export function recordFailedAttempt(email: string): {
 }
 
 /**
- * Record a successful login — resets the failed attempt counter.
+ * Record a successful login - resets the failed attempt counter.
  */
 export function recordSuccessfulLogin(email: string): void {
   const key = email.toLowerCase();

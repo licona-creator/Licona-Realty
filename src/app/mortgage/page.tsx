@@ -1,7 +1,7 @@
 /**
  * Mortgage and Affordability Calculator
  *
- * PUBLIC PAGE — accessible without authentication.
+ * PUBLIC PAGE - accessible without authentication.
  * Collects sensitive financial PII (income, debts).
  * All data encrypted in transit (HTTPS) and at rest.
  * Lead capture: name, email, phone required for full results.
@@ -158,7 +158,7 @@ export default function MortgageCalculatorPage() {
               className="!bg-white/10 !border-white/20 !text-white !placeholder:text-white/30"
             />
             <div>
-              <label className="block text-xs font-montserrat font-medium text-white/60 mb-1.5">
+              <label className="block text-xs font-montserrat font-medium text-white/80 mb-1.5">
                 {isEnglish ? 'Credit Score Range' : 'Rango de Puntaje de Crédito'}
               </label>
               <select
@@ -188,7 +188,7 @@ export default function MortgageCalculatorPage() {
 
         {step === 'capture' && (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <p className="text-white/60 text-sm font-inter mb-2 text-center">
+            <p className="text-white/80 text-sm font-inter mb-2 text-center">
               {isEnglish
                 ? 'Enter your contact info to see your full results'
                 : 'Ingresa tu información para ver tus resultados completos'}
@@ -286,7 +286,7 @@ export default function MortgageCalculatorPage() {
               </div>
             </div>
 
-            <p className="text-sm text-white/60 font-inter">
+            <p className="text-sm text-white/80 font-inter">
               {isEnglish
                 ? "Anthony will reach out with personalized next steps for your DFW home search."
                 : 'Anthony se comunicará contigo con los próximos pasos personalizados.'}

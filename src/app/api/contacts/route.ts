@@ -1,11 +1,11 @@
 /**
- * Contacts API — CRUD Operations
+ * Contacts API - CRUD Operations
  *
  * All operations protected by authentication middleware.
  * All inputs validated and sanitized server-side.
  * All mutations logged to the audit table.
  * RLS ensures users can only access their own contacts.
- * No PII in URL query parameters — lookups use POST where needed.
+ * No PII in URL query parameters - lookups use POST where needed.
  */
 
 import { NextResponse } from 'next/server';
@@ -30,7 +30,7 @@ const VALID_PIPELINE_STAGES = [
 const VALID_LANGUAGES = ['en', 'es', 'bilingual'];
 
 /**
- * GET /api/contacts — List contacts with optional filters
+ * GET /api/contacts - List contacts with optional filters
  */
 export async function GET(request: Request) {
   const ip = getClientIP(request);
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST /api/contacts — Create a new contact
+ * POST /api/contacts - Create a new contact
  */
 export async function POST(request: Request) {
   const ip = getClientIP(request);
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     // =============================================
-    // Server-side validation — this is the security boundary
+    // Server-side validation - this is the security boundary
     // =============================================
 
     // Required fields
@@ -265,7 +265,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Audit log — no PII in details
+    // Audit log - no PII in details
     await writeAuditLog({
       userId: user.id,
       action: 'record_create',

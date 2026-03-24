@@ -14,7 +14,7 @@ import { writeAuditLog, getClientIP, getUserAgent } from '@/lib/security/audit';
 import { logger } from '@/lib/security/logger';
 
 /**
- * GET /api/approval-queue — List pending approval items
+ * GET /api/approval-queue - List pending approval items
  * Sorted by urgency: DocuSign first (1), campaigns (2), social (3), relationship (4)
  */
 export async function GET() {
@@ -66,7 +66,7 @@ export async function GET() {
 }
 
 /**
- * POST /api/approval-queue — Create an approval queue item
+ * POST /api/approval-queue - Create an approval queue item
  * Only called internally by campaign engine, voice engine, scheduling, etc.
  */
 export async function POST(request: Request) {

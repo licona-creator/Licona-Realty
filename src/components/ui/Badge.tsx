@@ -2,7 +2,7 @@
  * Brand Badge Component
  *
  * Used for approval queue count, status indicators, and labels.
- * Gold badge for approval queue — visible on every screen.
+ * Gold badge for approval queue - visible on every screen.
  */
 
 'use client';

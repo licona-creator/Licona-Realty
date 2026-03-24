@@ -11,6 +11,8 @@
 import { useState } from 'react';
 import { BRAND } from '@/lib/brand';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/Toast';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { IntegrationCard } from './IntegrationCard';
 import {
   Database,
@@ -94,14 +96,14 @@ function StatusRow({ label, ok, detail }: { label: string; ok: boolean; detail?:
   );
 }
 
-function showComingSoon(feature: string) {
-  alert(`${feature} requires completing the setup steps above first. Follow the instructions to configure this integration.`);
-}
-
 export function Integrations() {
   const [docusignEnv, setDocusignEnv] = useState<'sandbox' | 'production'>('sandbox');
   const [canvaStatus, setCanvaStatus] = useState<'not_submitted' | 'pending' | 'approved'>('not_submitted');
   const [metaStatus, setMetaStatus] = useState<'not_submitted' | 'pending' | 'approved'>('not_submitted');
+  const { info, success, warning } = useToast();
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; variant: 'default' | 'danger'; onConfirm: () => void }>({ open: false, title: '', message: '', variant: 'default', onConfirm: () => {} });
+
+  const showComingSoon = (feature: string) => info('Setup Required', `${feature} requires completing the setup steps above first.`);
 
   const webhookUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/api/webhooks/squarespace`
@@ -177,7 +179,7 @@ export function Integrations() {
         docsUrl="https://developers.google.com/gmail/api"
         onTest={async () => {
           await new Promise(r => setTimeout(r, 1000));
-          alert('Gmail is not connected yet. Complete the setup steps to enable testing.');
+          info('Not Connected', 'Gmail is not connected yet. Complete the setup steps to enable testing.');
         }}
       >
         <div className="space-y-4">
@@ -218,7 +220,7 @@ export function Integrations() {
         docsUrl="https://developers.google.com/calendar/api"
         onTest={async () => {
           await new Promise(r => setTimeout(r, 1000));
-          alert('Google Calendar is not connected yet. Complete the setup steps.');
+          info('Not Connected', 'Google Calendar is not connected yet. Complete the setup steps.');
         }}
       >
         <div className="space-y-4">
@@ -300,7 +302,7 @@ export function Integrations() {
             </ol>
           </div>
 
-          <Button size="sm" variant="ghost" onClick={() => alert('Geocoding test: 1600 Main St, Dallas TX 75201 resolved successfully to 32.7876, -96.7988')}>
+          <Button size="sm" variant="ghost" onClick={() => success('Geocoding Test Passed', '1600 Main St, Dallas TX 75201 resolved to 32.7876, -96.7988')}>
             <Map size={12} className="mr-1.5" />
             Test Geocoding
           </Button>
@@ -315,7 +317,7 @@ export function Integrations() {
         docsUrl="https://developers.docusign.com/docs"
         onTest={async () => {
           await new Promise(r => setTimeout(r, 1500));
-          alert('DocuSign sandbox connection test passed. Sandbox is active and functional.');
+          success('DocuSign Test Passed', 'Sandbox connection test passed. Sandbox is active and functional.');
         }}
         statusDetails={
           <span className="text-[10px] text-amber-600 font-inter mt-0.5 block">
@@ -351,11 +353,7 @@ export function Integrations() {
                 className={`px-3 py-1.5 text-xs font-montserrat font-medium transition-colors ${
                   docusignEnv === 'production' ? 'bg-gold text-navy' : 'text-navy/50 dark:text-white/50 hover:bg-white/80 dark:hover:bg-white/5'
                 }`}
-                onClick={() => {
-                  if (confirm('Switching to Production requires a DocuSign production account with active billing. Proceed?')) {
-                    setDocusignEnv('production');
-                  }
-                }}
+                onClick={() => setConfirmDialog({ open: true, title: 'Switch to Production?', message: 'Switching to Production requires a DocuSign production account with active billing.', variant: 'default', onConfirm: () => setDocusignEnv('production') })}
               >
                 Production
               </button>
@@ -371,7 +369,7 @@ export function Integrations() {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="text-xs text-navy/50 dark:text-white/50 font-inter w-28">RSA Private Key:</span>
-              <Button size="sm" variant="ghost" onClick={() => alert('RSA key upload will open a secure file picker. This key is stored encrypted and never exposed.')}>
+              <Button size="sm" variant="ghost" onClick={() => info('RSA Key Upload', 'A secure file picker will open. The key is stored encrypted and never exposed.')}>
                 Upload RSA Key
               </Button>
             </div>
@@ -389,7 +387,7 @@ export function Integrations() {
           </div>
 
           <div className="flex gap-2">
-            <Button size="sm" variant="ghost" onClick={() => alert('Test envelope will be sent to licona@liconarealty.com via the DocuSign sandbox. Check your email for the test document.')}>
+            <Button size="sm" variant="ghost" onClick={() => info('Test Envelope', 'Test envelope will be sent to licona@liconarealty.com via the DocuSign sandbox.')}>
               <Send size={12} className="mr-1.5" />
               Send Test Envelope
             </Button>
@@ -485,10 +483,10 @@ export function Integrations() {
               <MaskedField label="Client ID" value="canva-client-xxxxx" />
               <MaskedField label="Client Secret" value="canva-secret-xxxxx" />
               <div className="flex gap-2">
-                <Button variant="accent" size="sm" onClick={() => alert('Canva OAuth flow will open in a new window. Authorize the Licona Realty Platform to access your Canva account.')}>
+                <Button variant="accent" size="sm" onClick={() => info('Canva OAuth', 'OAuth flow will open in a new window. Authorize the Licona Realty Platform.')}>
                   Connect Canva Account
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => alert('Opening test Canva template in embedded editor...')}>
+                <Button size="sm" variant="ghost" onClick={() => info('Template Preview', 'Opening test Canva template in embedded editor.')}>
                   Test Template Open
                 </Button>
               </div>
@@ -555,7 +553,7 @@ export function Integrations() {
                 </p>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" variant="ghost" onClick={() => alert('Add test Instagram/Facebook accounts in the Meta Developer portal under App Roles > Test Users.')}>
+                <Button size="sm" variant="ghost" onClick={() => info('Test Accounts', 'Add test Instagram/Facebook accounts in the Meta Developer portal under App Roles.')}>
                   Connect Test Account
                 </Button>
                 <Button size="sm" variant="accent" onClick={() => setMetaStatus('approved')}>
@@ -571,11 +569,11 @@ export function Integrations() {
               <MaskedField label="App Secret" value="meta-secret-xxxxx" />
 
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="accent" size="sm" onClick={() => alert('Instagram OAuth flow will open. Connect your @liconarealty business account.')}>
+                <Button variant="accent" size="sm" onClick={() => info('Instagram OAuth', 'OAuth flow will open. Connect your @liconarealty business account.')}>
                   <Instagram size={12} className="mr-1.5" />
                   Connect Instagram
                 </Button>
-                <Button variant="accent" size="sm" onClick={() => alert('Facebook Pages OAuth flow will open. Select the Licona Realty page to connect.')}>
+                <Button variant="accent" size="sm" onClick={() => info('Facebook OAuth', 'Facebook Pages OAuth flow will open. Select the Licona Realty page to connect.')}>
                   <Globe size={12} className="mr-1.5" />
                   Connect Facebook Page
                 </Button>
@@ -592,8 +590,8 @@ export function Integrations() {
               </div>
 
               <div className="flex gap-2">
-                <Button size="sm" variant="ghost" onClick={() => alert('Sending test webhook event to verify Meta integration...')}>Test Webhook</Button>
-                <Button size="sm" variant="ghost" onClick={() => alert('Publishing test post to connected accounts...')}>Test Post</Button>
+                <Button size="sm" variant="ghost" onClick={() => info('Testing Webhook', 'Sending test webhook event to verify Meta integration.')}>Test Webhook</Button>
+                <Button size="sm" variant="ghost" onClick={() => info('Testing Post', 'Publishing test post to connected accounts.')}>Test Post</Button>
               </div>
             </>
           )}
@@ -608,7 +606,7 @@ export function Integrations() {
         docsUrl="https://developers.squarespace.com/docs"
         onTest={async () => {
           await new Promise(r => setTimeout(r, 1000));
-          alert('Squarespace webhook test: No webhooks configured yet. Follow the setup instructions to connect your Squarespace forms.');
+          info('Not Configured', 'No webhooks configured yet. Follow the setup instructions to connect your Squarespace forms.');
         }}
       >
         <div className="space-y-4">
@@ -663,12 +661,21 @@ export function Integrations() {
             </ol>
           </div>
 
-          <Button size="sm" variant="ghost" onClick={() => alert('Sending test webhook payload to verify Squarespace integration...')}>
+          <Button size="sm" variant="ghost" onClick={() => info('Testing Webhook', 'Sending test webhook payload to verify Squarespace integration.')}>
             <Send size={12} className="mr-1.5" />
             Test Webhook
           </Button>
         </div>
       </IntegrationCard>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onClose={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+        onConfirm={confirmDialog.onConfirm}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        variant={confirmDialog.variant}
+      />
     </div>
   );
 }
