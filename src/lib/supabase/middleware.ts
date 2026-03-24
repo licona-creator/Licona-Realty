@@ -49,8 +49,14 @@ export async function updateSession(request: NextRequest) {
     '/mortgage',        // Public mortgage calculator
     '/scheduling/book', // Public booking page
     '/testimonials',    // Public testimonials page
+    '/about',           // Public agent profile page
+    '/agent',           // Public agent alias
+    '/booking',         // Public booking alias
     '/seo',            // Public SEO pages
     '/api/webhooks',   // Webhook endpoints (validated by signature)
+    '/api/testimonials',
+    '/api/mortgage',
+    '/api/bookings',
   ];
 
   const isPublicPath = publicPaths.some((path) =>

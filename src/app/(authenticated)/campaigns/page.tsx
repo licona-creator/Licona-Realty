@@ -25,6 +25,7 @@ const TRACK_COLORS: Record<TrackType, string> = {
   landlord: '#A855F7',
   tenant: '#F97316',
   investor: BRAND.colors.accent,
+  sphere: '#9CA3AF',
 };
 
 export default function CampaignsPage() {
@@ -69,8 +70,8 @@ export default function CampaignsPage() {
       </div>
 
       {/* Track Filters */}
-      <div className="flex items-center gap-2 mb-6 overflow-x-auto">
-        {(['all', 'buyer', 'seller', 'landlord', 'tenant', 'investor'] as const).map(track => (
+      <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-hide [&]:[-webkit-overflow-scrolling:touch]">
+        {(['all', 'buyer', 'seller', 'landlord', 'tenant', 'investor', 'sphere'] as const).map(track => (
           <button
             key={track}
             onClick={() => setActiveTrack(track)}

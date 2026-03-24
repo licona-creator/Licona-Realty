@@ -19,6 +19,7 @@ const TRACK_TYPE_OPTIONS: { value: TrackType; label: string }[] = [
   { value: 'landlord', label: 'Landlord' },
   { value: 'tenant', label: 'Tenant' },
   { value: 'investor', label: 'Investor' },
+  { value: 'sphere', label: 'Sphere' },
 ];
 
 const PIPELINE_STAGES_BY_TRACK: Record<TrackType, { value: PipelineStage; label: string }[]> = {
@@ -77,6 +78,13 @@ const PIPELINE_STAGES_BY_TRACK: Record<TrackType, { value: PipelineStage; label:
     { value: 'closing', label: 'Closing' },
     { value: 'closed', label: 'Closed' },
     { value: 'lost', label: 'Lost' },
+    { value: 'on_hold', label: 'On Hold' },
+  ],
+  sphere: [
+    { value: 'new', label: 'New' },
+    { value: 'contacted', label: 'Contacted' },
+    { value: 'nurturing', label: 'Nurturing' },
+    { value: 'closed', label: 'Closed' },
     { value: 'on_hold', label: 'On Hold' },
   ],
 };

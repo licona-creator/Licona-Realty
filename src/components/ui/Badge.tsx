@@ -27,7 +27,7 @@ const variantStyles = {
 };
 
 export function Badge({ count, variant = 'gold', label, children, className = '', pulse = false }: BadgeProps) {
-  const displayValue = children || label || (count !== undefined ? String(count) : '');
+  const displayValue = children || label || (count !== undefined ? (count >= 10 ? '9+' : String(count)) : '');
 
   if (count !== undefined && count <= 0) return null;
 

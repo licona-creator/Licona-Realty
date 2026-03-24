@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { BRAND } from '@/lib/brand';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import {
   Monitor,
   Globe,
@@ -69,8 +70,8 @@ type MapView = 'satellite' | 'roadmap' | 'terrain';
 type PipelineView = 'kanban' | 'list' | 'table';
 
 export function PlatformPreferences() {
-  // Display
-  const [theme, setTheme] = useState<ThemeOption>('light');
+  // Display - wired to ThemeProvider
+  const { theme, setTheme } = useTheme();
   const [mapView, setMapView] = useState<MapView>('roadmap');
   const [pipelineView, setPipelineView] = useState<PipelineView>('kanban');
 

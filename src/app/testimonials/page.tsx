@@ -169,14 +169,20 @@ export default function TestimonialsPage() {
         )}
 
         {/* Footer */}
-        <div className="mt-12 text-center">
-          <p className="text-xs text-white/30 font-inter">
-            {BRAND.agent.name} &middot; {BRAND.agent.title} &middot; {BRAND.agent.brokerage}
+        <footer className="mt-12 py-8 text-center" style={{ backgroundColor: BRAND.colors.primary }}>
+          <p className="text-xs text-white font-inter">
+            {BRAND.agent.name} &middot; Realtor &middot; {BRAND.agent.phone} &middot; {BRAND.agent.email}
           </p>
-          <p className="text-xs text-white/20 font-inter mt-1">
-            {BRAND.agent.license}
+          <p className="text-xs font-inter mt-1" style={{ color: 'rgba(244,244,244,0.8)' }}>
+            {BRAND.agent.brokerage} &middot; {BRAND.agent.license}
           </p>
-        </div>
+          <p
+            className="text-xs mt-2 italic"
+            style={{ fontFamily: BRAND.fonts.playfair, color: BRAND.colors.accent }}
+          >
+            {BRAND.tagline}
+          </p>
+        </footer>
       </div>
 
       {/* JSON-LD for SEO */}

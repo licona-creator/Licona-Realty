@@ -538,11 +538,13 @@ export function BrandAssets() {
             value={agentInfo.bilingual}
             onChange={(e) => setAgentInfo({ ...agentInfo, bilingual: e.target.value })}
           />
-          <Input
-            label="Brand Tagline"
-            value={agentInfo.tagline}
-            onChange={(e) => setAgentInfo({ ...agentInfo, tagline: e.target.value })}
-          />
+          <div className="md:col-span-2">
+            <Input
+              label="Brand Tagline"
+              value={agentInfo.tagline}
+              onChange={(e) => setAgentInfo({ ...agentInfo, tagline: e.target.value })}
+            />
+          </div>
           <Input
             label="Instagram Handle"
             value={agentInfo.instagram}

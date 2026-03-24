@@ -39,25 +39,25 @@ export function MobileNav({ approvalCount = 0 }: MobileNavProps) {
       className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-navy border-t border-white/10 pb-[env(safe-area-inset-bottom)]"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <ul className="flex items-center justify-evenly px-2 py-2">
+      <ul className="flex w-full">
         {mobileNavItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
 
           return (
-            <li key={item.href}>
+            <li key={item.href} className="flex-1 min-w-0">
               <Link
                 href={item.href}
-                className="flex flex-col items-center gap-0.5 px-3 py-1 relative"
+                className="flex flex-col items-center justify-center gap-0.5 py-2 min-h-[48px] relative"
               >
                 {isActive && (
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-gold" />
+                  <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-gold" />
                 )}
                 <div className="relative">
                   <Icon
-                    size={22}
+                    size={20}
                     className={`transition-colors duration-200 ${
-                      isActive ? 'text-gold' : 'text-white/50'
+                      isActive ? 'text-gold' : 'text-white/70'
                     }`}
                   />
                   {item.badge && approvalCount > 0 && (
@@ -69,8 +69,8 @@ export function MobileNav({ approvalCount = 0 }: MobileNavProps) {
                   )}
                 </div>
                 <span
-                  className={`text-[10px] font-montserrat font-medium ${
-                    isActive ? 'text-gold' : 'text-white/40'
+                  className={`text-[9px] font-montserrat font-medium ${
+                    isActive ? 'text-gold' : 'text-white/70'
                   }`}
                 >
                   {item.label}

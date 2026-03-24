@@ -10,7 +10,7 @@
 // Enums
 // ============================================
 
-export type TrackType = 'buyer' | 'seller' | 'landlord' | 'tenant' | 'investor';
+export type TrackType = 'buyer' | 'seller' | 'landlord' | 'tenant' | 'investor' | 'sphere';
 export type SphereRelationshipType = 'personal_friend' | 'past_client' | 'family' | 'professional_connection' | 'referral_partner';
 export type RelationshipTier = 'tier_1' | 'tier_2' | 'tier_3';
 export type LanguagePreference = 'en' | 'es' | 'bilingual';

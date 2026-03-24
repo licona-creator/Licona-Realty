@@ -35,6 +35,7 @@ const TRACK_FILTERS: { value: TrackType | 'all'; label: string; color: string }[
   { value: 'landlord', label: 'Landlords', color: '#A855F7' },
   { value: 'tenant', label: 'Tenants', color: '#F97316' },
   { value: 'investor', label: 'Investors', color: BRAND.colors.accent },
+  { value: 'sphere', label: 'Sphere', color: '#9CA3AF' },
 ];
 
 export default function MapPage() {
@@ -249,27 +250,35 @@ export default function MapPage() {
       </div>
 
       {/* Track Type Filters */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-navy-dark border-b border-gold/10 overflow-x-auto">
-        {TRACK_FILTERS.map(filter => (
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-gold/10 overflow-x-auto scrollbar-hide" style={{ backgroundColor: BRAND.colors.primary }}>
+        {TRACK_FILTERS.map(f => (
           <button
-            key={filter.value}
-            onClick={() => setActiveFilter(filter.value)}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-montserrat font-medium transition-all whitespace-nowrap ${
-              activeFilter === filter.value
-                ? 'text-white shadow-sm'
-                : 'text-navy/60 dark:text-white/60 hover:bg-surface dark:hover:bg-navy/50'
-            }`}
+            key={f.value}
+            onClick={() => setActiveFilter(f.value)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-montserrat font-medium transition-all whitespace-nowrap"
             style={
-              activeFilter === filter.value
-                ? { backgroundColor: filter.color }
-                : undefined
+              activeFilter === f.value
+                ? { backgroundColor: BRAND.colors.accent, color: BRAND.colors.primary }
+                : { backgroundColor: 'transparent', color: BRAND.colors.surface, border: '1px solid rgba(211,169,113,0.3)' }
             }
+            onMouseEnter={e => {
+              if (activeFilter !== f.value) {
+                (e.target as HTMLElement).style.backgroundColor = 'rgba(211,169,113,0.1)';
+                (e.target as HTMLElement).style.color = BRAND.colors.accent;
+              }
+            }}
+            onMouseLeave={e => {
+              if (activeFilter !== f.value) {
+                (e.target as HTMLElement).style.backgroundColor = 'transparent';
+                (e.target as HTMLElement).style.color = BRAND.colors.surface;
+              }
+            }}
           >
             <span
-              className="w-2 h-2 rounded-full"
-              style={{ backgroundColor: filter.color }}
+              className="w-2 h-2 rounded-full flex-shrink-0"
+              style={{ backgroundColor: f.color }}
             />
-            {filter.label}
+            {f.label}
           </button>
         ))}
       </div>

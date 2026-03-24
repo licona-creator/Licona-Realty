@@ -60,9 +60,15 @@ export async function middleware(request: NextRequest) {
     '/mortgage',
     '/scheduling/book',
     '/testimonials',
+    '/about',
+    '/agent',
+    '/booking',
     '/api/health',
     '/api/webhooks',
     '/api/setup',
+    '/api/testimonials',
+    '/api/mortgage',
+    '/api/bookings',
     '/setup',
   ];
 
@@ -80,6 +86,13 @@ export async function middleware(request: NextRequest) {
   if (!user && !isPublicPath) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
+    return NextResponse.redirect(url);
+  }
+
+  // Redirect authenticated users away from login page to dashboard
+  if (user && pathname === '/auth/login') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/dashboard';
     return NextResponse.redirect(url);
   }
 

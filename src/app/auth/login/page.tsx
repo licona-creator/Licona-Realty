@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useMemo, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LRMonogram } from '@/components/ui/LRMonogram';
@@ -19,6 +19,40 @@ import { validateEmail } from '@/lib/security/validation';
 import { BRAND } from '@/lib/brand';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+
+function PasswordStrength({ password }: { password: string }) {
+  const { level, label, segments } = useMemo(() => {
+    if (!password) return { level: 0, label: '', segments: 0 };
+    const len = password.length;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    if (len >= 12 && hasUpper && hasNumber && hasSpecial) return { level: 4, label: 'Strong', segments: 4 };
+    if ((len >= 9) || (hasUpper && hasNumber)) return { level: 3, label: 'Good', segments: 3 };
+    if (len >= 6) return { level: 2, label: 'Fair', segments: 2 };
+    return { level: 1, label: 'Weak', segments: 1 };
+  }, [password]);
+
+  if (!password) return null;
+
+  const colors = ['', '#ef4444', '#f59e0b', '#d3a971', '#10b981'];
+  const color = colors[level];
+
+  return (
+    <div className="mt-1.5">
+      <div className="flex gap-1">
+        {[1, 2, 3, 4].map(i => (
+          <div
+            key={i}
+            className="flex-1 h-1 rounded-full transition-colors duration-200"
+            style={{ backgroundColor: i <= segments ? color : '#1a2535' }}
+          />
+        ))}
+      </div>
+      <p className="text-[11px] mt-1 font-inter" style={{ color }}>{label}</p>
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -53,12 +87,32 @@ export default function LoginPage() {
       });
 
       if (authError) {
-        // Generic error message to prevent user enumeration
-        setError('Invalid email or password. Please try again.');
+        const msg = authError.message?.toLowerCase() || '';
+        if (msg.includes('email not confirmed')) {
+          setError('Please verify your email address before signing in.');
+        } else if (msg.includes('too many requests') || msg.includes('rate limit')) {
+          setError('Too many login attempts. Please wait a few minutes and try again.');
+        } else if (msg.includes('network') || msg.includes('fetch')) {
+          setError('Connection issue. Please check your internet and try again.');
+        } else {
+          setError('Incorrect email or password. Please try again.');
+        }
         return;
       }
 
-      router.push('/dashboard');
+      // Check if MFA is enrolled
+      const { data: factorsData } = await supabase.auth.mfa.listFactors();
+      const hasVerifiedFactor = factorsData?.totp?.some(
+        (f: { status: string }) => f.status === 'verified'
+      );
+
+      if (hasVerifiedFactor) {
+        // MFA enrolled - redirect to verify
+        router.push('/auth/mfa-verify');
+      } else {
+        // No MFA - go to dashboard
+        router.push('/dashboard');
+      }
       router.refresh();
     } catch {
       setError('An unexpected error occurred. Please try again.');
@@ -91,34 +145,57 @@ export default function LoginPage() {
           Welcome Back
         </h1>
         <p
-          className="text-center text-sm mb-8"
-          style={{ fontFamily: BRAND.fonts.inter, color: 'rgba(255,255,255,0.5)' }}
+          className="text-center text-sm mb-8 italic"
+          style={{ fontFamily: BRAND.fonts.playfair, color: BRAND.colors.accent }}
         >
           {BRAND.tagline}
         </p>
 
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="licona@liconarealty.com"
-            autoComplete="email"
-            required
-            className="!bg-white/10 !border-white/20 !text-white !placeholder:text-white/30"
-          />
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            autoComplete="current-password"
-            required
-            className="!bg-white/10 !border-white/20 !text-white !placeholder:text-white/30"
-          />
+          <div>
+            <label className="block text-sm font-montserrat font-medium mb-1.5" style={{ color: BRAND.colors.surface }}>
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="licona@liconarealty.com"
+              autoComplete="email"
+              required
+              className="w-full px-4 py-2.5 rounded-[8px] text-sm font-inter outline-none transition-all duration-200"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                color: '#ffffff',
+              }}
+              onFocus={e => { e.target.style.borderColor = BRAND.colors.accent; }}
+              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.3)'; }}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-montserrat font-medium mb-1.5" style={{ color: BRAND.colors.surface }}>
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              required
+              className="w-full px-4 py-2.5 rounded-[8px] text-sm font-inter outline-none transition-all duration-200"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                color: '#ffffff',
+              }}
+              onFocus={e => { e.target.style.borderColor = BRAND.colors.accent; }}
+              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.3)'; }}
+            />
+            <PasswordStrength password={password} />
+          </div>
 
           {error && (
             <motion.p

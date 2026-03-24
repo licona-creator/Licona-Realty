@@ -98,8 +98,28 @@ function StatusRow({ label, ok, detail }: { label: string; ok: boolean; detail?:
 
 export function Integrations() {
   const [docusignEnv, setDocusignEnv] = useState<'sandbox' | 'production'>('sandbox');
-  const [canvaStatus, setCanvaStatus] = useState<'not_submitted' | 'pending' | 'approved'>('not_submitted');
-  const [metaStatus, setMetaStatus] = useState<'not_submitted' | 'pending' | 'approved'>('not_submitted');
+  const [canvaStatus, setCanvaStatus] = useState<'not_submitted' | 'pending' | 'approved'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('licona-canva-status');
+      if (saved === 'pending' || saved === 'approved') return saved;
+    }
+    return 'not_submitted';
+  });
+  const [metaStatus, setMetaStatus] = useState<'not_submitted' | 'pending' | 'approved'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('licona-meta-status');
+      if (saved === 'pending' || saved === 'approved') return saved;
+    }
+    return 'not_submitted';
+  });
+  const [canvaSubmitDate] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('licona-canva-submit-date');
+    return null;
+  });
+  const [metaSubmitDate] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('licona-meta-submit-date');
+    return null;
+  });
   const { info, success, warning } = useToast();
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; variant: 'default' | 'danger'; onConfirm: () => void }>({ open: false, title: '', message: '', variant: 'default', onConfirm: () => {} });
 
@@ -420,7 +440,7 @@ export function Integrations() {
       <IntegrationCard
         name="Canva Connect"
         icon={<Palette size={20} className="text-purple-600" />}
-        status={canvaStatus === 'approved' ? 'connected' : canvaStatus === 'pending' ? 'pending' : 'not_connected'}
+        status={canvaStatus === 'approved' ? 'connected' : canvaStatus === 'pending' ? 'pending' : 'partial'}
         docsUrl="https://www.canva.dev/docs/connect/"
       >
         <div className="space-y-4">
@@ -436,13 +456,28 @@ export function Integrations() {
                 <SetupStep number={6} text="Submit the app for Canva review" />
                 <SetupStep number={7} text="Expected review timeline: 1 to 4 weeks" />
               </ol>
-              <Button
-                variant="accent"
-                size="sm"
-                onClick={() => setCanvaStatus('pending')}
-              >
-                Mark as Submitted
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="accent"
+                  size="sm"
+                  onClick={() => {
+                    const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                    localStorage.setItem('licona-canva-status', 'pending');
+                    localStorage.setItem('licona-canva-submit-date', date);
+                    setCanvaStatus('pending');
+                  }}
+                >
+                  Mark as Submitted
+                </Button>
+                <a
+                  href="https://www.canva.dev/console"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-gold hover:underline font-inter"
+                >
+                  View Canva Developer Portal
+                </a>
+              </div>
               <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
                 While waiting for approval, Canva templates open in a new browser tab.
                 This workaround is fully functional.
@@ -461,8 +496,14 @@ export function Integrations() {
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs">
                   <span className="text-navy/50 dark:text-white/50 font-inter">Submission status:</span>
-                  <span className="text-blue-600 dark:text-blue-400 font-inter">Under Review</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-inter">Awaiting Review</span>
                 </div>
+                {canvaSubmitDate && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-navy/50 dark:text-white/50 font-inter">Submitted:</span>
+                    <span className="text-navy/70 dark:text-white/70 font-inter">{canvaSubmitDate}</span>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <a href="https://www.canva.dev/console" target="_blank" rel="noopener noreferrer">
@@ -503,7 +544,7 @@ export function Integrations() {
       <IntegrationCard
         name="Instagram & Facebook (Meta)"
         icon={<Instagram size={20} className="text-pink-600" />}
-        status={metaStatus === 'approved' ? 'connected' : metaStatus === 'pending' ? 'pending' : 'not_connected'}
+        status={metaStatus === 'approved' ? 'connected' : metaStatus === 'pending' ? 'pending' : 'partial'}
         docsUrl="https://developers.facebook.com/docs/"
       >
         <div className="space-y-4">
@@ -538,9 +579,24 @@ export function Integrations() {
                 <SetupStep number={7} text="Expected review: 1 to 4 weeks for basic permissions, longer for advanced" />
               </ol>
 
-              <Button variant="accent" size="sm" onClick={() => setMetaStatus('pending')}>
-                Mark as Submitted
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button variant="accent" size="sm" onClick={() => {
+                  const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                  localStorage.setItem('licona-meta-status', 'pending');
+                  localStorage.setItem('licona-meta-submit-date', date);
+                  setMetaStatus('pending');
+                }}>
+                  Mark as Submitted
+                </Button>
+                <a
+                  href="https://developers.facebook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-gold hover:underline font-inter"
+                >
+                  View Meta Developer Portal
+                </a>
+              </div>
             </>
           )}
 
@@ -552,6 +608,12 @@ export function Integrations() {
                   with test accounts. Add test accounts below to post while approval is pending.
                 </p>
               </div>
+              {metaSubmitDate && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-navy/50 dark:text-white/50 font-inter">Submitted:</span>
+                  <span className="text-navy/70 dark:text-white/70 font-inter">{metaSubmitDate}</span>
+                </div>
+              )}
               <div className="flex gap-2">
                 <Button size="sm" variant="ghost" onClick={() => info('Test Accounts', 'Add test Instagram/Facebook accounts in the Meta Developer portal under App Roles.')}>
                   Connect Test Account

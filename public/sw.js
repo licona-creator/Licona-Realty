@@ -1,5 +1,5 @@
 /**
- * Licona Realty Platform — Service Worker
+ * Licona Realty Platform  -  Service Worker
  *
  * Handles:
  * 1. Caching critical assets for offline fallback
@@ -44,7 +44,7 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Never cache API requests or Supabase calls — security requirement
+  // Never cache API requests or Supabase calls  -  security requirement
   if (
     url.pathname.startsWith('/api/') ||
     url.hostname.includes('supabase') ||

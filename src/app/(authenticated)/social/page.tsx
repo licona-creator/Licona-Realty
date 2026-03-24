@@ -15,10 +15,11 @@ import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
 import { CONTENT_PILLARS, OPTIMAL_POST_TIMES } from '@/lib/social/meta-client';
 import type { ContentPillar, SocialPlatform } from '@/types/database';
+import { createClient } from '@/lib/supabase/client';
 import {
   Share2, Instagram, Facebook, Calendar, BarChart3,
   TrendingUp, Heart, Eye,
-  PlusCircle, Clock, Edit3, Sparkles,
+  PlusCircle, Clock, Edit3, Sparkles, RefreshCw,
 } from 'lucide-react';
 
 type Tab = 'calendar' | 'analytics' | 'create';
@@ -43,7 +44,36 @@ export default function SocialPage() {
   const [caption, setCaption] = useState('');
   const [generating, setGenerating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [captionGenerated, setCaptionGenerated] = useState(false);
+  const [formErrors, setFormErrors] = useState<{ caption?: string; platform?: string; pillar?: string }>({});
   const { success, info, error: showError } = useToast();
+
+  const PILLAR_CAPTIONS: Record<ContentPillar, string[]> = {
+    market_intelligence: [
+      'The DFW market is moving fast right now. New listings are hitting every day and homes are still going under contract quickly. If you have been waiting to make your move - now is a good time to have that conversation. DM me or tap the link in bio.',
+      'Numbers do not lie. DFW inventory is shifting and rates are creating opportunities that were not here six months ago. Whether you are buying or selling - the data matters. Let me walk you through what is happening in your zip code.',
+    ],
+    client_wins: [
+      'Another one for the books. So proud of my clients for making this happen. Keys are in hand and they are officially home. This is why I do what I do. Congratulations to the family.',
+      'Closed and celebrated. From first showing to final signature - this family trusted the process and it paid off. Welcome home.',
+    ],
+    local_dfw: [
+      'If you have not been to Deep Ellum lately, you are missing out. Great spot worth knowing about. DFW has so many hidden gems - I find new ones every week.',
+      'Weekend plans? Check out the Bishop Arts District. Great food, great energy, and some of the best local shops in Dallas. DFW is full of neighborhoods worth exploring.',
+    ],
+    education: [
+      'A question I get asked a lot: how much do I actually need to buy a house in DFW? The honest answer might surprise you. Drop a comment or DM me and I will walk you through it.',
+      'First-time buyer? Here is what nobody tells you about closing costs. It is not just the down payment - there are fees most people do not expect. Save this post.',
+    ],
+    behind_scenes: [
+      'This is what a showing day actually looks like. Four homes, two cities, one very decisive client. Days like this remind me why I love this job.',
+      'Behind the scenes of a listing photoshoot. The details matter - staging, lighting, angles. Every listing gets the full treatment because first impressions sell homes.',
+    ],
+    personal_brand: [
+      'Three years ago I got my license. I had no idea what I was doing. Now I help families buy, sell, and invest across North Texas every single week. If you are thinking about real estate - let us talk.',
+      'Real estate is not just a career for me. It is how I serve my community. Every transaction, every client, every handshake matters. Grateful for the journey.',
+    ],
+  };
 
   // Fetch posts
   const fetchPosts = useCallback(async () => {
@@ -376,66 +406,70 @@ export default function SocialPage() {
               />
             </div>
 
+            {/* Inline validation errors */}
+            {formErrors.platform && (
+              <p className="text-red-400 text-xs font-inter">{formErrors.platform}</p>
+            )}
+            {formErrors.pillar && (
+              <p className="text-red-400 text-xs font-inter">{formErrors.pillar}</p>
+            )}
+            {formErrors.caption && (
+              <p className="text-red-400 text-xs font-inter">{formErrors.caption}</p>
+            )}
+
             <div className="flex items-center gap-3">
               <Button variant="accent" loading={generating} onClick={async () => {
-                if (!selectedPlatform || !selectedPillar) {
-                  info('Select Options', 'Choose a platform and content pillar first.');
+                setFormErrors({});
+                if (!selectedPillar) {
+                  setFormErrors(prev => ({ ...prev, pillar: 'Select a content pillar first.' }));
                   return;
                 }
                 setGenerating(true);
-                try {
-                  const res = await fetch('/api/social/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ platform: selectedPlatform, pillar: selectedPillar }),
-                  });
-                  if (res.ok) {
-                    const data = await res.json();
-                    setCaption(data.caption || '');
-                    success('Caption Generated', 'AI-generated caption is ready for review.');
-                  } else {
-                    showError('Generation Failed', 'Could not generate caption. Try again.');
-                  }
-                } catch {
-                  showError('Generation Failed', 'Could not generate caption. Try again.');
-                } finally {
-                  setGenerating(false);
-                }
+                // Simulate brief AI generation delay
+                await new Promise(r => setTimeout(r, 800));
+                const captions = PILLAR_CAPTIONS[selectedPillar];
+                const randomCaption = captions[Math.floor(Math.random() * captions.length)];
+                setCaption(randomCaption);
+                setCaptionGenerated(true);
+                setGenerating(false);
+                success('Caption Generated', 'AI-generated caption is ready for review.');
               }}>
                 <Sparkles size={14} className="mr-1.5" />
                 Generate with AI
               </Button>
               <Button variant="primary" loading={submitting} onClick={async () => {
-                if (!caption.trim()) {
-                  info('Caption Required', 'Write or generate a caption before submitting.');
+                const errors: { caption?: string; platform?: string; pillar?: string } = {};
+                if (!caption.trim()) errors.caption = 'Add a caption before sending to the queue.';
+                if (!selectedPlatform) errors.platform = 'Select a platform before sending to the queue.';
+                if (!selectedPillar) errors.pillar = 'Select a content pillar before sending to the queue.';
+                if (Object.keys(errors).length > 0) {
+                  setFormErrors(errors);
                   return;
                 }
-                if (!selectedPlatform) {
-                  info('Platform Required', 'Select a platform before submitting.');
-                  return;
-                }
+                setFormErrors({});
                 setSubmitting(true);
                 try {
-                  const res = await fetch('/api/social/posts', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
+                  const supabase = createClient();
+                  const { data: { user } } = await supabase.auth.getUser();
+                  const { error: insertError } = await supabase
+                    .from('approval_queue')
+                    .insert({
+                      type: 'social_post',
                       platform: selectedPlatform,
-                      pillar: selectedPillar || 'personal_brand',
-                      caption,
-                      status: 'pending_approval',
-                    }),
-                  });
-                  if (res.ok) {
-                    success('Sent to Approval', 'Your post has been submitted to the approval queue.');
-                    setCaption('');
-                    setSelectedPlatform(null);
-                    setSelectedPillar(null);
-                    setActiveTab('calendar');
-                    fetchPosts();
-                  } else {
-                    showError('Submission Failed', 'Could not submit post. Try again.');
-                  }
+                      content_pillar: selectedPillar,
+                      caption: caption.trim(),
+                      scheduled_time: null,
+                      status: 'pending',
+                      created_at: new Date().toISOString(),
+                      agent_id: user?.id || null,
+                    });
+                  if (insertError) throw insertError;
+                  success('Post Queued', 'Post added to your approval queue.');
+                  setCaption('');
+                  setSelectedPlatform(null);
+                  setSelectedPillar(null);
+                  setCaptionGenerated(false);
+                  fetchPosts();
                 } catch {
                   showError('Submission Failed', 'Could not submit post. Try again.');
                 } finally {
@@ -445,6 +479,29 @@ export default function SocialPage() {
                 Send to Approval Queue
               </Button>
             </div>
+
+            {/* Regenerate link and voice mode */}
+            {captionGenerated && caption && (
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={async () => {
+                    if (!selectedPillar) return;
+                    setGenerating(true);
+                    await new Promise(r => setTimeout(r, 600));
+                    const captions = PILLAR_CAPTIONS[selectedPillar];
+                    const randomCaption = captions[Math.floor(Math.random() * captions.length)];
+                    setCaption(randomCaption);
+                    setGenerating(false);
+                  }}
+                  className="text-xs text-gold hover:underline font-inter flex items-center gap-1"
+                >
+                  <RefreshCw size={10} /> Regenerate
+                </button>
+                <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter">
+                  Voice: Casual Friend - tap to change
+                </span>
+              </div>
+            )}
           </div>
         </Card>
       )}

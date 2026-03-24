@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import '@/styles/globals.css';
 import { ToastProviderWrapper } from '@/components/providers/ToastProviderWrapper';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'Licona Realty Platform',
@@ -59,7 +60,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-inter antialiased">
-        <ToastProviderWrapper>{children}</ToastProviderWrapper>
+        <ThemeProvider>
+          <ToastProviderWrapper>{children}</ToastProviderWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

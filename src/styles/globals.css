@@ -7,7 +7,7 @@
    ============================================ */
 
 @theme {
-  /* Brand Colors — exact hex values, no substitutions */
+  /* Brand Colors  -  exact hex values, no substitutions */
   --color-navy: #132236;
   --color-navy-80: rgba(19, 34, 54, 0.80);
   --color-navy-light: #1a2d47;
@@ -27,13 +27,13 @@
   --font-dm-serif: 'DM Serif Display', serif;
   --font-sacramento: 'Sacramento', cursive;
 
-  /* Border Radius — Brand Standards */
+  /* Border Radius  -  Brand Standards */
   --radius-card: 12px;
   --radius-button: 8px;
   --radius-input: 8px;
   --radius-modal: 16px;
 
-  /* Box Shadows — Brand Standards */
+  /* Box Shadows  -  Brand Standards */
   --shadow-card: 0 2px 12px rgba(19, 34, 54, 0.08);
   --shadow-card-dark: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
@@ -52,12 +52,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dark mode */
+/* Dark mode - default via prefers-color-scheme */
 @media (prefers-color-scheme: dark) {
   body {
     background-color: var(--color-navy);
     color: var(--color-white);
   }
+}
+
+/* Theme class overrides */
+.theme-dark body, .theme-dark {
+  background-color: var(--color-navy);
+  color: var(--color-white);
+}
+
+.theme-light body, .theme-light {
+  background-color: var(--color-surface);
+  color: var(--color-text);
 }
 
 /* PWA safe areas for iPhone notch */
@@ -96,4 +107,30 @@ body {
 ::selection {
   background-color: var(--color-gold-20);
   color: var(--color-navy);
+}
+
+/* Hide scrollbar utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Theme classes for light/dark mode */
+.theme-light body,
+.theme-light {
+  --bg-page: var(--color-surface);
+  --bg-card: #ffffff;
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-navy);
+}
+
+.theme-dark body,
+.theme-dark {
+  --bg-page: var(--color-navy);
+  --bg-card: var(--color-dark-card);
+  --text-primary: var(--color-white);
+  --text-secondary: var(--color-white);
 }

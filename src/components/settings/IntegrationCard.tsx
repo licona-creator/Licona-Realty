@@ -15,7 +15,8 @@ import { Button } from '@/components/ui/Button';
 import {
   ChevronDown,
   ExternalLink,
-  Loader2,
+  Check,
+  X,
 } from 'lucide-react';
 
 export type IntegrationStatus =
@@ -61,16 +62,31 @@ export function IntegrationCard({
 }: IntegrationCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{ ok: boolean; message: string; responseMs?: number } | null>(null);
   const config = STATUS_CONFIG[status];
 
   async function handleTest(e: React.MouseEvent) {
     e.stopPropagation();
     if (!onTest) return;
     setTesting(true);
+    setTestResult(null);
+    const start = Date.now();
     try {
       await onTest();
+      const elapsed = Date.now() - start;
+      if (status === 'connected') {
+        setTestResult({ ok: true, message: `Connection verified - response: ${elapsed}ms`, responseMs: elapsed });
+      } else if (status === 'not_connected') {
+        setTestResult({ ok: false, message: 'Not configured - add API key in Settings to connect' });
+      } else {
+        setTestResult({ ok: true, message: 'Connection verified' });
+      }
+    } catch {
+      setTestResult({ ok: false, message: 'Connection failed - check credentials and try again' });
     } finally {
       setTesting(false);
+      // Auto-restore button after 4 seconds
+      setTimeout(() => setTestResult(null), 4000);
     }
   }
 
@@ -117,8 +133,8 @@ export function IntegrationCard({
       </button>
 
       {/* Action buttons row (outside the clickable header) */}
-      <div className="flex items-center gap-2 mt-2 ml-14">
-        {onTest && (
+      <div className="flex items-center gap-2 mt-2 ml-14 flex-wrap">
+        {onTest && !testResult && (
           <Button
             size="sm"
             variant="ghost"
@@ -127,13 +143,28 @@ export function IntegrationCard({
           >
             {testing ? (
               <>
-                <Loader2 size={12} className="animate-spin mr-1.5" />
+                <div className="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin mr-1.5" />
                 Testing...
               </>
             ) : (
               'Test Connection'
             )}
           </Button>
+        )}
+        {testResult && (
+          <div className="flex items-center gap-1.5 px-2 py-1">
+            {testResult.ok ? (
+              <Check size={16} className="text-green-500 flex-shrink-0" />
+            ) : (
+              <X size={16} className="text-red-500 flex-shrink-0" />
+            )}
+            <span
+              className="text-xs font-inter"
+              style={{ color: testResult.ok ? '#10b981' : '#ef4444' }}
+            >
+              {testResult.message}
+            </span>
+          </div>
         )}
         {docsUrl && (
           <a
