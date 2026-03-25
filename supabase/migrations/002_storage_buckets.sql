@@ -23,7 +23,7 @@ VALUES ('social-media', 'social-media', false);
 
 -- Profile assets: agent profile photos, logos (can be public for SEO pages)
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('profile-assets', 'profile-assets', true);
+VALUES ('brand-assets', 'brand-assets', true);
 
 -- ============================================
 -- Storage RLS Policies
@@ -87,12 +87,12 @@ CREATE POLICY "Users can view own social media assets"
 CREATE POLICY "Anyone can view profile assets"
   ON storage.objects FOR SELECT
   TO public
-  USING (bucket_id = 'profile-assets');
+  USING (bucket_id = 'brand-assets');
 
 CREATE POLICY "Authenticated users can upload profile assets"
   ON storage.objects FOR INSERT
   TO authenticated
-  WITH CHECK (bucket_id = 'profile-assets');
+  WITH CHECK (bucket_id = 'brand-assets');
 
 -- File size limits enforced at the application layer (25MB max)
 -- File type validation enforced at the application layer (magic bytes)

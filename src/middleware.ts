@@ -74,6 +74,7 @@ export async function middleware(request: NextRequest) {
     '/api/auth/google',
     '/api/auth/docusign',
     '/api/auth/canva',
+    '/api/auth/meta',
     '/setup',
   ];
 

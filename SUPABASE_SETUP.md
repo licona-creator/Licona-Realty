@@ -49,7 +49,7 @@ The setup SQL also creates the following storage buckets:
 | imports | private |
 | canva-assets | private |
 | social-media | private |
-| profile-assets | public |
+| brand-assets | public |
 
 No manual bucket creation is needed if you ran the full setup script.
 

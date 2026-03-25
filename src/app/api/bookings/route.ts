@@ -213,6 +213,7 @@ export async function POST(request: Request) {
       scheduled_time: new Date().toISOString(),
       trigger_source: 'Booking Page',
       tone_mode: 'professional_personal',
+      urgency_level: 2,
     });
 
     // Audit log

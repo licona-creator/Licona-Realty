@@ -110,6 +110,7 @@ export async function POST(request: Request) {
         scheduled_time: nextDue,
         trigger_source: `Campaign: ${campaign.name} (Step 1)`,
         tone_mode: firstStep.tone_mode,
+        urgency_level: 2,
       });
     }
 
