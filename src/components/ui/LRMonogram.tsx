@@ -1,12 +1,15 @@
 /**
  * LR Monogram - Primary Brand Mark
  *
- * The L and R stacked monogram in #d3a971 gold.
- * Non-negotiable on every social post, Canva template,
- * and at the top of the sidebar navigation.
+ * Renders the real Licona Realty logo image when available,
+ * falls back to SVG at /logo.svg.
+ *
+ * Priority: NEXT_PUBLIC_LOGO_URL env var > /logo.svg
  */
 
 'use client';
+
+import Image from 'next/image';
 
 interface LRMonogramProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -14,31 +17,26 @@ interface LRMonogramProps {
 }
 
 const sizeMap = {
-  sm: { width: 32, height: 32, fontSize: '14px', letterSpacing: '1px' },
-  md: { width: 44, height: 44, fontSize: '18px', letterSpacing: '2px' },
-  lg: { width: 64, height: 64, fontSize: '26px', letterSpacing: '3px' },
-  xl: { width: 96, height: 96, fontSize: '40px', letterSpacing: '4px' },
+  sm: 32,
+  md: 44,
+  lg: 64,
+  xl: 96,
 };
 
+const logoSrc = process.env.NEXT_PUBLIC_LOGO_URL || '/logo.svg';
+
 export function LRMonogram({ size = 'md', className = '' }: LRMonogramProps) {
-  const s = sizeMap[size];
+  const px = sizeMap[size];
 
   return (
-    <div
+    <Image
+      src={logoSrc}
+      alt="Licona Realty"
+      width={px}
+      height={px}
+      className={`object-contain ${className}`}
       data-testid="lr-monogram"
-      className={`flex items-center justify-center font-montserrat font-bold ${className}`}
-      style={{
-        width: s.width,
-        height: s.height,
-        color: '#d3a971',
-        fontSize: s.fontSize,
-        letterSpacing: s.letterSpacing,
-        lineHeight: 1,
-        userSelect: 'none',
-      }}
-      aria-label="Licona Realty"
-    >
-      LR
-    </div>
+      priority={size === 'xl'}
+    />
   );
 }
