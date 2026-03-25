@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
       .select('*, contacts(first_name, last_name, email, phone)')
       .order('closing_date', { ascending: true });
 
-    if (status) query = query.eq('status', status);
-    if (trackType) query = query.eq('track_type', trackType);
+    if (status) query = query.eq('status', status.toLowerCase());
+    if (trackType) query = query.eq('track_type', trackType.toLowerCase());
 
     const { data, error } = await query;
 
@@ -119,14 +119,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Default checklist based on track type
-    const defaultChecklist = getDefaultChecklist(track_type);
+    const normalizedTrackType = track_type.toLowerCase();
+    const defaultChecklist = getDefaultChecklist(normalizedTrackType);
 
     const { data, error } = await supabase
       .from('transactions')
       .insert({
         user_id: user.id,
         contact_id,
-        track_type,
+        track_type: normalizedTrackType,
         property_address: sanitizePlainText(property_address),
         property_city: property_city ? sanitizePlainText(property_city) : null,
         property_state: property_state || null,

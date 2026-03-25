@@ -100,11 +100,13 @@ export async function POST(request: Request) {
       review_response: 4,
     };
 
+    const normalizedItemType = (body.item_type || '').toLowerCase();
+
     const { data, error } = await supabase
       .from('approval_queue')
       .insert({
         user_id: user.id,
-        item_type: body.item_type,
+        item_type: normalizedItemType,
         recipient_contact_id: body.recipient_contact_id || null,
         subject: body.subject || null,
         content: body.content,
@@ -112,7 +114,7 @@ export async function POST(request: Request) {
         scheduled_time: body.scheduled_time || null,
         trigger_source: body.trigger_source || null,
         tone_mode: body.tone_mode || 'professional_personal',
-        urgency_level: urgencyMap[body.item_type] || 4,
+        urgency_level: urgencyMap[normalizedItemType] || 4,
       })
       .select()
       .single();

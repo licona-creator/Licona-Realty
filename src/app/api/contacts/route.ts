@@ -169,7 +169,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!body.track_type || !VALID_TRACK_TYPES.includes(body.track_type)) {
+    if (!body.track_type || !VALID_TRACK_TYPES.includes(body.track_type.toLowerCase())) {
       return NextResponse.json(
         { error: 'Valid track type is required.' },
         { status: 400 }
@@ -213,7 +213,7 @@ export async function POST(request: Request) {
     }
 
     // Validate pipeline stage
-    const pipelineStage = body.pipeline_stage || 'new';
+    const pipelineStage = (body.pipeline_stage || 'new').toLowerCase();
     if (!VALID_PIPELINE_STAGES.includes(pipelineStage)) {
       return NextResponse.json(
         { error: 'Invalid pipeline stage.' },
@@ -222,7 +222,7 @@ export async function POST(request: Request) {
     }
 
     // Validate language preference
-    const language = body.language_preference || 'en';
+    const language = (body.language_preference || 'en').toLowerCase();
     if (!VALID_LANGUAGES.includes(language)) {
       return NextResponse.json(
         { error: 'Invalid language preference.' },
@@ -259,7 +259,7 @@ export async function POST(request: Request) {
       city: body.city ? sanitizeInput(body.city, 100) : null,
       state: body.state ? sanitizeInput(body.state, 50) : null,
       zip_code: body.zip_code ? sanitizeInput(body.zip_code, 10) : null,
-      track_type: body.track_type,
+      track_type: body.track_type.toLowerCase(),
       pipeline_stage: pipelineStage,
       lead_source: body.lead_source ? sanitizeInput(body.lead_source, 100) : null,
       lead_score: leadScore,
