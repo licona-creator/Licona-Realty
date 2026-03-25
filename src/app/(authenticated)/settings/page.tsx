@@ -8,7 +8,8 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BRAND } from '@/lib/brand';
 import {
@@ -41,8 +42,19 @@ const SETTINGS_SECTIONS = [
 
 type SectionId = (typeof SETTINGS_SECTIONS)[number]['id'];
 
+const VALID_SECTION_IDS = SETTINGS_SECTIONS.map(s => s.id) as readonly string[];
+
 export default function SettingsPage() {
+  const searchParams = useSearchParams();
   const [activeSection, setActiveSection] = useState<SectionId>('brand');
+
+  // Read ?tab= from URL on mount and when it changes (e.g. OAuth callback redirects)
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && VALID_SECTION_IDS.includes(tab)) {
+      setActiveSection(tab as SectionId);
+    }
+  }, [searchParams]);
 
   const renderSection = () => {
     switch (activeSection) {

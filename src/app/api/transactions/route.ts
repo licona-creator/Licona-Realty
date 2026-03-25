@@ -17,46 +17,57 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const trackType = searchParams.get('track_type');
+
+    let query = supabase
+      .from('transactions')
+      .select('*, contacts(first_name, last_name, email, phone)')
+      .order('closing_date', { ascending: true });
+
+    if (status) query = query.eq('status', status);
+    if (trackType) query = query.eq('track_type', trackType);
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('[transactions:GET]', error);
+      return NextResponse.json(
+        { error: error.message, details: error.details, hint: error.hint, code: error.code },
+        { status: 500 }
+      );
+    }
+
+    // Calculate pipeline value
+    const pipelineValue = (data || [])
+      .filter(t => !['closed', 'lost'].includes(t.status))
+      .reduce((sum, t) => sum + (t.contract_price || 0), 0);
+
+    const closedValue = (data || [])
+      .filter(t => t.status === 'closed')
+      .reduce((sum, t) => sum + (t.commission_net || 0), 0);
+
+    return NextResponse.json({
+      transactions: data || [],
+      pipelineValue,
+      closedValue,
+      count: (data || []).length,
+    });
+  } catch (err) {
+    console.error('[transactions:GET] Unexpected error:', err);
+    return NextResponse.json(
+      { error: 'Unexpected server error' },
+      { status: 500 }
+    );
   }
-
-  const { searchParams } = new URL(request.url);
-  const status = searchParams.get('status');
-  const trackType = searchParams.get('track_type');
-
-  let query = supabase
-    .from('transactions')
-    .select('*, contacts(first_name, last_name, email, phone)')
-    .order('closing_date', { ascending: true });
-
-  if (status) query = query.eq('status', status);
-  if (trackType) query = query.eq('track_type', trackType);
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error('[transactions:GET]', error);
-    return NextResponse.json({ error: 'Failed to fetch transactions. Please try again.' }, { status: 500 });
-  }
-
-  // Calculate pipeline value
-  const pipelineValue = (data || [])
-    .filter(t => !['closed', 'lost'].includes(t.status))
-    .reduce((sum, t) => sum + (t.contract_price || 0), 0);
-
-  const closedValue = (data || [])
-    .filter(t => t.status === 'closed')
-    .reduce((sum, t) => sum + (t.commission_net || 0), 0);
-
-  return NextResponse.json({
-    transactions: data || [],
-    pipelineValue,
-    closedValue,
-    count: (data || []).length,
-  });
 }
 
 export async function POST(request: NextRequest) {
@@ -66,56 +77,67 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const {
+      contact_id, track_type, property_address, property_city,
+      property_state, property_zip, deal_type, contract_price,
+      closing_date, parties, notes,
+    } = body;
+
+    if (!contact_id || !validateUUID(contact_id)) {
+      return NextResponse.json({ error: 'Valid contact ID required' }, { status: 400 });
+    }
+    if (!property_address || !track_type) {
+      return NextResponse.json({ error: 'Property address and track type required' }, { status: 400 });
+    }
+
+    // Default checklist based on track type
+    const defaultChecklist = getDefaultChecklist(track_type);
+
+    const { data, error } = await supabase
+      .from('transactions')
+      .insert({
+        user_id: user.id,
+        contact_id,
+        track_type,
+        property_address: sanitizePlainText(property_address),
+        property_city: property_city ? sanitizePlainText(property_city) : null,
+        property_state: property_state || null,
+        property_zip: property_zip || null,
+        deal_type: deal_type || null,
+        status: 'active',
+        contract_price: contract_price || null,
+        closing_date: closing_date || null,
+        checklist: defaultChecklist,
+        parties: parties || [],
+        notes: notes ? [{ id: crypto.randomUUID(), content: sanitizePlainText(notes), created_at: new Date().toISOString() }] : [],
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[transactions:POST]', error);
+      return NextResponse.json(
+        { error: error.message, details: error.details, hint: error.hint, code: error.code },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ transaction: data }, { status: 201 });
+  } catch (err) {
+    console.error('[transactions:POST] Unexpected error:', err);
+    return NextResponse.json(
+      { error: 'Unexpected server error' },
+      { status: 500 }
+    );
   }
-
-  const body = await request.json();
-  const {
-    contact_id, track_type, property_address, property_city,
-    property_state, property_zip, deal_type, contract_price,
-    closing_date, parties, notes,
-  } = body;
-
-  if (!contact_id || !validateUUID(contact_id)) {
-    return NextResponse.json({ error: 'Valid contact ID required' }, { status: 400 });
-  }
-  if (!property_address || !track_type) {
-    return NextResponse.json({ error: 'Property address and track type required' }, { status: 400 });
-  }
-
-  // Default checklist based on track type
-  const defaultChecklist = getDefaultChecklist(track_type);
-
-  const { data, error } = await supabase
-    .from('transactions')
-    .insert({
-      user_id: user.id,
-      contact_id,
-      track_type,
-      property_address: sanitizePlainText(property_address),
-      property_city: property_city ? sanitizePlainText(property_city) : null,
-      property_state: property_state || null,
-      property_zip: property_zip || null,
-      deal_type: deal_type || null,
-      status: 'new',
-      contract_price: contract_price || null,
-      closing_date: closing_date || null,
-      checklist: defaultChecklist,
-      parties: parties || [],
-      notes: notes ? [{ id: crypto.randomUUID(), content: sanitizePlainText(notes), created_at: new Date().toISOString() }] : [],
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error('[transactions:POST]', error);
-    return NextResponse.json({ error: 'Failed to create transaction. Please try again.' }, { status: 500 });
-  }
-
-  return NextResponse.json({ transaction: data }, { status: 201 });
 }
 
 function getDefaultChecklist(trackType: string) {

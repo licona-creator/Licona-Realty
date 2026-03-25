@@ -748,7 +748,7 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('documents', 'documents',
 INSERT INTO storage.buckets (id, name, public) VALUES ('imports', 'imports', false) ON CONFLICT (id) DO NOTHING;
 INSERT INTO storage.buckets (id, name, public) VALUES ('canva-assets', 'canva-assets', false) ON CONFLICT (id) DO NOTHING;
 INSERT INTO storage.buckets (id, name, public) VALUES ('social-media', 'social-media', false) ON CONFLICT (id) DO NOTHING;
-INSERT INTO storage.buckets (id, name, public) VALUES ('profile-assets', 'profile-assets', true) ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('brand-assets', 'brand-assets', true) ON CONFLICT (id) DO NOTHING;
 
 -- Storage RLS policies (wrapped in exception handlers for idempotency)
 DO $$ BEGIN
@@ -802,13 +802,13 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
-  CREATE POLICY "Anyone can view profile assets" ON storage.objects FOR SELECT TO public
-    USING (bucket_id = 'profile-assets');
+  CREATE POLICY "Anyone can view brand assets" ON storage.objects FOR SELECT TO public
+    USING (bucket_id = 'brand-assets');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
-  CREATE POLICY "Authenticated users can upload profile assets" ON storage.objects FOR INSERT TO authenticated
-    WITH CHECK (bucket_id = 'profile-assets');
+  CREATE POLICY "Authenticated users can upload brand assets" ON storage.objects FOR INSERT TO authenticated
+    WITH CHECK (bucket_id = 'brand-assets');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- Auto-purge function for audit logs

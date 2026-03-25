@@ -90,7 +90,7 @@ export async function GET(request: Request) {
     if (error) {
       logger.error('Failed to fetch contacts', { error: error.message });
       return NextResponse.json(
-        { error: 'Failed to fetch contacts.' },
+        { error: error.message, details: error.details, hint: error.hint, code: error.code },
         { status: 500 }
       );
     }
@@ -260,7 +260,7 @@ export async function POST(request: Request) {
     if (error) {
       logger.error('Failed to create contact', { error: error.message });
       return NextResponse.json(
-        { error: 'Failed to create contact.' },
+        { error: error.message, details: error.details, hint: error.hint, code: error.code },
         { status: 500 }
       );
     }

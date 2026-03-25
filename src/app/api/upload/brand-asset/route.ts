@@ -14,7 +14,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
-const BUCKET = 'profile-assets';
+const BUCKET = 'brand-assets';
 
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -64,7 +64,10 @@ export async function POST(request: NextRequest) {
 
   if (uploadError) {
     console.error('[upload:brand-asset]', uploadError);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    return NextResponse.json(
+      { error: uploadError.message || 'Upload failed' },
+      { status: 500 }
+    );
   }
 
   // Get public URL
@@ -83,7 +86,10 @@ export async function POST(request: NextRequest) {
 
   if (saveError) {
     console.error('[upload:brand-asset:save]', saveError);
-    return NextResponse.json({ error: 'Upload succeeded but failed to save URL' }, { status: 500 });
+    return NextResponse.json(
+      { error: saveError.message || 'Upload succeeded but failed to save URL', details: saveError.details, hint: saveError.hint },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ url: publicUrl, asset_type: assetType });

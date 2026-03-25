@@ -41,13 +41,18 @@ export async function writeAuditLog(entry: AuditLogEntry) {
   try {
     const supabase = createAdminClient();
 
+    // ip_address column is INET type - only pass valid IPs, not 'unknown'
+    const ipValue = entry.ipAddress && entry.ipAddress !== 'unknown'
+      ? entry.ipAddress
+      : null;
+
     const { error } = await supabase.from('audit_logs').insert({
       user_id: entry.userId,
       action: entry.action,
       resource_type: entry.resourceType || null,
       resource_id: entry.resourceId || null,
       details: entry.details || null,
-      ip_address: entry.ipAddress || null,
+      ip_address: ipValue,
       user_agent: entry.userAgent || null,
     });
 

@@ -53,7 +53,10 @@ export async function GET(request: Request) {
 
     if (error) {
       logger.error('Failed to fetch sphere contacts', { error: error.message });
-      return NextResponse.json({ error: 'Failed to fetch sphere contacts.' }, { status: 500 });
+      return NextResponse.json(
+        { error: error.message, details: error.details, hint: error.hint, code: error.code },
+        { status: 500 }
+      );
     }
 
     // Calculate referral stats

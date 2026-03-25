@@ -116,7 +116,7 @@ export async function PATCH(
     if (updateError) {
       logger.error('Failed to update approval item', { error: updateError.message });
       return NextResponse.json(
-        { error: 'Failed to update item.' },
+        { error: updateError.message, details: updateError.details, hint: updateError.hint, code: updateError.code },
         { status: 500 }
       );
     }

@@ -55,9 +55,9 @@ export async function GET() {
   // Test storage bucket
   try {
     const { data, error } = await supabase.storage.listBuckets();
-    const hasBucket = data?.some(b => b.name === 'profile-assets');
+    const hasBucket = data?.some(b => b.name === 'brand-assets');
     checks.storage = { ok: !error, detail: error ? error.message : `${data?.length ?? 0} buckets` };
-    checks.profile_assets_bucket = { ok: !!hasBucket, detail: hasBucket ? 'exists' : 'missing' };
+    checks.brand_assets_bucket = { ok: !!hasBucket, detail: hasBucket ? 'exists' : 'missing' };
   } catch {
     checks.storage = { ok: false, detail: 'unreachable' };
   }

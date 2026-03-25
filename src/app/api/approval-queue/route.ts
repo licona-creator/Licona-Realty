@@ -38,7 +38,7 @@ export async function GET() {
     if (error) {
       logger.error('Failed to fetch approval queue', { error: error.message });
       return NextResponse.json(
-        { error: 'Failed to fetch approval queue.' },
+        { error: error.message, details: error.details, hint: error.hint, code: error.code },
         { status: 500 }
       );
     }
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
     if (error) {
       logger.error('Failed to create approval item', { error: error.message });
       return NextResponse.json(
-        { error: 'Failed to create approval item.' },
+        { error: error.message, details: error.details, hint: error.hint, code: error.code },
         { status: 500 }
       );
     }
