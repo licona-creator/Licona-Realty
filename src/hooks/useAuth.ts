@@ -36,9 +36,16 @@ export function useAuth() {
 
   async function signOut() {
     const supabase = createClient();
-    await supabase.auth.signOut();
-    setUser(null);
-    window.location.href = '/auth/login';
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      setUser(null);
+      window.location.href = '/auth/login';
+    } else {
+      console.error('[signOut] Failed:', error.message);
+      // Force redirect even on error to clear stale state
+      setUser(null);
+      window.location.href = '/auth/login';
+    }
   }
 
   return { user, loading, signOut };

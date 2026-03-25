@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import { BRAND, NAV_ITEMS } from '@/lib/brand';
 import { LRMonogram } from '@/components/ui/LRMonogram';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Send, Share2, MapPin, Calendar, Palette,
   TrendingUp, Star, Calculator, Settings, LogOut,
@@ -35,6 +36,7 @@ const moreItems = NAV_ITEMS.filter(
 
 export default function MorePage() {
   const [showSignOut, setShowSignOut] = useState(false);
+  const { signOut } = useAuth();
 
   return (
     <div className="p-4 lg:p-8 max-w-lg mx-auto">
@@ -96,7 +98,7 @@ export default function MorePage() {
       <ConfirmDialog
         open={showSignOut}
         onClose={() => setShowSignOut(false)}
-        onConfirm={() => { window.location.href = '/auth/login'; }}
+        onConfirm={() => { signOut(); }}
         title="Sign Out?"
         message="Are you sure you want to sign out of the Licona Realty Platform?"
         confirmLabel="Sign Out"
