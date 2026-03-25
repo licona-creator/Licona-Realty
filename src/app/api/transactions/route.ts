@@ -12,7 +12,8 @@ import { validateUUID, sanitizePlainText } from '@/lib/security/validation';
 
 export async function GET(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
-  if (!checkRateLimit(ip, 'api')) {
+  const rateCheck = checkRateLimit(ip, 'api');
+  if (!rateCheck.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 
@@ -37,7 +38,8 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query;
 
   if (error) {
-    return NextResponse.json({ error: 'Failed to fetch transactions' }, { status: 500 });
+    console.error('[transactions:GET]', error);
+    return NextResponse.json({ error: 'Failed to fetch transactions. Please try again.' }, { status: 500 });
   }
 
   // Calculate pipeline value
@@ -59,7 +61,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
-  if (!checkRateLimit(ip, 'api')) {
+  const rateCheckPost = checkRateLimit(ip, 'api');
+  if (!rateCheckPost.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 
@@ -108,7 +111,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: 'Failed to create transaction' }, { status: 500 });
+    console.error('[transactions:POST]', error);
+    return NextResponse.json({ error: 'Failed to create transaction. Please try again.' }, { status: 500 });
   }
 
   return NextResponse.json({ transaction: data }, { status: 201 });

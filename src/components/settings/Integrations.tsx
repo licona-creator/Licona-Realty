@@ -179,7 +179,23 @@ export function Integrations() {
         status="connected"
         lastVerified="Just now"
         docsUrl="https://supabase.com/docs"
-        onTest={async () => { /* Supabase is always connected via env vars */ }}
+        onTest={async () => {
+          try {
+            const res = await fetch('/api/health');
+            const json = await res.json();
+            if (json.status === 'healthy') {
+              success('Supabase Healthy', 'Database, tables, and storage are all reachable.');
+            } else {
+              const failing = Object.entries(json.checks || {})
+                .filter(([, v]) => !(v as { ok: boolean }).ok)
+                .map(([k]) => k)
+                .join(', ');
+              info('Supabase Degraded', `Issues detected: ${failing || 'unknown'}`);
+            }
+          } catch {
+            info('Health Check Failed', 'Could not reach the health endpoint.');
+          }
+        }}
         statusDetails={
           <div className="flex items-center gap-3 mt-1">
             <StatusRow label="Database" ok={true} />

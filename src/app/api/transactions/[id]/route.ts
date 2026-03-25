@@ -17,7 +17,8 @@ export async function GET(
 ) {
   const { id } = await params;
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
-  if (!checkRateLimit(ip, 'api')) {
+  const rateCheck = checkRateLimit(ip, 'api');
+  if (!rateCheck.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
   if (!validateUUID(id)) {
@@ -49,7 +50,8 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
-  if (!checkRateLimit(ip, 'api')) {
+  const rateCheckPatch = checkRateLimit(ip, 'api');
+  if (!rateCheckPatch.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
   if (!validateUUID(id)) {

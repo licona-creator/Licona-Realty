@@ -53,9 +53,11 @@ export default function ContactsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Contact | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const { success, error: showError } = useToast();
 
   const fetchContacts = useCallback(async () => {
+    setFetchError(null);
     try {
       const params = new URLSearchParams();
       if (activeTrack !== 'all') params.set('track_type', activeTrack);
@@ -63,9 +65,13 @@ export default function ContactsPage() {
       if (res.ok) {
         const json = await res.json();
         setContacts(json.contacts || []);
+      } else {
+        const json = await res.json().catch(() => ({}));
+        setFetchError(json.error || `Failed to load contacts (${res.status})`);
       }
     } catch (err) {
       console.error('[ContactsPage:fetch]', err);
+      setFetchError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -170,6 +176,19 @@ export default function ContactsPage() {
           </button>
         ))}
       </div>
+
+      {/* Error State */}
+      {fetchError && (
+        <div className="mb-4 p-4 rounded-[8px] bg-red-500/10 border border-red-500/20">
+          <p className="text-sm text-red-600 dark:text-red-400 font-inter">{fetchError}</p>
+          <button
+            onClick={() => { setLoading(true); fetchContacts(); }}
+            className="text-xs text-red-500 hover:underline font-inter mt-1"
+          >
+            Try again
+          </button>
+        </div>
+      )}
 
       {/* Contacts List or Empty State */}
       {loading ? (

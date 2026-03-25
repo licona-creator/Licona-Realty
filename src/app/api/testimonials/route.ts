@@ -13,7 +13,8 @@ import { validateUUID, sanitizePlainText } from '@/lib/security/validation';
 // Public GET for testimonials page (no auth required)
 export async function GET(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
-  if (!checkRateLimit(ip, 'public')) {
+  const rateCheck = checkRateLimit(ip, 'public');
+  if (!rateCheck.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 
@@ -59,7 +60,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
-  if (!checkRateLimit(ip, 'api')) {
+  const rateCheckPost = checkRateLimit(ip, 'api');
+  if (!rateCheckPost.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 

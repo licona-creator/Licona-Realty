@@ -11,7 +11,8 @@ import { checkRateLimit } from '@/lib/security/rate-limit';
 
 export async function GET(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
-  if (!checkRateLimit(ip, 'api')) {
+  const rateCheck = checkRateLimit(ip, 'api');
+  if (!rateCheck.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 

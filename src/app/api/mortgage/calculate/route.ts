@@ -36,7 +36,8 @@ interface MortgageResult {
 // Public endpoint - no auth required (lead capture)
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
-  if (!checkRateLimit(ip, 'public')) {
+  const rateCheck = checkRateLimit(ip, 'public');
+  if (!rateCheck.allowed) {
     return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 

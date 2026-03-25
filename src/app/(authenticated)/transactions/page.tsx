@@ -37,8 +37,10 @@ export default function TransactionsPage() {
   const [closedValue, setClosedValue] = useState(0);
   const [filter, setFilter] = useState<string>('active');
   const [showNewTransaction, setShowNewTransaction] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchTransactions = useCallback(async () => {
+    setFetchError(null);
     try {
       const res = await fetch('/api/transactions');
       if (res.ok) {
@@ -46,9 +48,12 @@ export default function TransactionsPage() {
         setTransactions(data.transactions || []);
         setPipelineValue(data.pipelineValue || 0);
         setClosedValue(data.closedValue || 0);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setFetchError(data.error || `Failed to load transactions (${res.status})`);
       }
     } catch {
-      // Empty state
+      setFetchError('Network error. Please check your connection and try again.');
     }
   }, []);
 
@@ -143,6 +148,19 @@ export default function TransactionsPage() {
           </button>
         ))}
       </div>
+
+      {/* Error State */}
+      {fetchError && (
+        <div className="mb-4 p-4 rounded-[8px] bg-red-500/10 border border-red-500/20">
+          <p className="text-sm text-red-600 dark:text-red-400 font-inter">{fetchError}</p>
+          <button
+            onClick={fetchTransactions}
+            className="text-xs text-red-500 hover:underline font-inter mt-1"
+          >
+            Try again
+          </button>
+        </div>
+      )}
 
       {/* Transaction List */}
       {filtered.length > 0 ? (

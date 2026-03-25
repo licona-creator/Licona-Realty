@@ -36,13 +36,22 @@ export function useAgentSettings() {
   const load = useCallback(async () => {
     try {
       const res = await fetch('/api/settings');
+      if (res.status === 401) {
+        setError('Please sign in to access settings');
+        setSettings({});
+        return;
+      }
+      if (res.status === 503 || res.status === 500) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error || 'Database unavailable. Check Supabase connection.');
+      }
       if (!res.ok) throw new Error('Failed to load settings');
       const json = await res.json();
       setSettings(json.settings || {});
       setError(null);
     } catch (err) {
       console.error('[useAgentSettings:load]', err);
-      setError('Failed to load settings');
+      setError(err instanceof Error ? err.message : 'Failed to load settings');
     } finally {
       setLoading(false);
     }
@@ -63,6 +72,7 @@ export function useAgentSettings() {
       }
       const json = await res.json();
       setSettings(json.settings);
+      await load();
       return true;
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to save settings';
