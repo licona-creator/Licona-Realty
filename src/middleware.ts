@@ -66,6 +66,7 @@ export async function middleware(request: NextRequest) {
     '/agent',
     '/booking',
     '/api/health',
+    '/api/debug',
     '/api/webhooks',
     '/api/setup',
     '/api/testimonials',

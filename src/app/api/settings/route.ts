@@ -11,10 +11,19 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 export async function GET() {
   try {
     const supabase = await createServerSupabaseClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    console.log('[DEBUG settings:GET] Auth result:', {
+      userId: user?.id,
+      email: user?.email,
+      error: authError?.message,
+    });
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Not authenticated', authError: authError?.message },
+        { status: 401 }
+      );
     }
 
     const { data, error } = await supabase
@@ -44,10 +53,19 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    console.log('[DEBUG settings:PUT] Auth result:', {
+      userId: user?.id,
+      email: user?.email,
+      error: authError?.message,
+    });
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Not authenticated', authError: authError?.message },
+        { status: 401 }
+      );
     }
 
     let body: Record<string, unknown>;
