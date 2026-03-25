@@ -22,7 +22,7 @@ export async function GET() {
   }
 
   const oauthBase = process.env.DOCUSIGN_OAUTH_URL || 'https://account.docusign.com';
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://licona-realty-i1st.vercel.app';
+  const appUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://licona-realty-i1st.vercel.app';
   const redirectUri = `${appUrl}/api/auth/docusign/callback`;
 
   const params = new URLSearchParams({

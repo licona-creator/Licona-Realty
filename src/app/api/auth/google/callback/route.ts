@@ -16,8 +16,7 @@ export async function GET(request: NextRequest) {
   const state = request.nextUrl.searchParams.get('state');
   const error = request.nextUrl.searchParams.get('error');
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL
-    || process.env.NEXT_PUBLIC_SITE_URL
+  const appUrl = process.env.NEXT_PUBLIC_SITE_URL
     || 'https://licona-realty-i1st.vercel.app';
 
   if (error || !code || !state) {

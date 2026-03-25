@@ -38,8 +38,7 @@ export async function GET() {
     }, { status: 500 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL
-    || process.env.NEXT_PUBLIC_SITE_URL
+  const appUrl = process.env.NEXT_PUBLIC_SITE_URL
     || 'https://licona-realty-i1st.vercel.app';
   const redirectUri = `${appUrl}/api/auth/google/callback`;
 
