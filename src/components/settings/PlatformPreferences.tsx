@@ -73,7 +73,7 @@ type PipelineView = 'kanban' | 'list' | 'table';
 
 export function PlatformPreferences() {
   const { success, error: showError } = useToast();
-  const { settings, saving, save } = useAgentSettings();
+  const { settings, saving, save, error: settingsError } = useAgentSettings();
 
   // Display - wired to ThemeProvider
   const { theme, setTheme } = useTheme();
@@ -127,7 +127,7 @@ export function PlatformPreferences() {
       success('Preferences Saved', 'Your platform preferences have been saved to the database.');
       setTimeout(() => setSaved(false), 3000);
     } else {
-      showError('Save Failed', 'Could not save platform preferences. Please try again.');
+      showError('Save Failed', settingsError || 'Could not save platform preferences. Please try again.');
     }
   }
 

@@ -18,9 +18,14 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const clientId = process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CALENDAR_CLIENT_ID;
+  const clientId = process.env.GOOGLE_CLIENT_ID
+    || process.env.GOOGLE_CALENDAR_CLIENT_ID
+    || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
   if (!clientId) {
-    return NextResponse.json({ error: 'Google OAuth not configured' }, { status: 500 });
+    console.error('[google-oauth] Missing GOOGLE_CLIENT_ID env var. Available env keys:', Object.keys(process.env).filter(k => k.includes('GOOGLE')).join(', ') || 'none');
+    return NextResponse.json({
+      error: 'Google OAuth not configured. Set GOOGLE_CLIENT_ID in Vercel environment variables and redeploy.',
+    }, { status: 500 });
   }
 
   const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://licona-realty-i1st.vercel.app'}/api/auth/google/callback`;
@@ -33,6 +38,7 @@ export async function GET() {
       'https://www.googleapis.com/auth/gmail.send',
       'https://www.googleapis.com/auth/gmail.readonly',
       'https://www.googleapis.com/auth/gmail.modify',
+      'https://www.googleapis.com/auth/calendar',
       'https://www.googleapis.com/auth/calendar.events',
       'https://www.googleapis.com/auth/userinfo.email',
     ].join(' '),

@@ -82,7 +82,7 @@ function Toggle({
 
 export function AccountSecurity() {
   const { info, success, warning, error: showError } = useToast();
-  const { settings, saving, save } = useAgentSettings();
+  const { settings, saving, save, error: settingsError } = useAgentSettings();
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; variant: 'default' | 'danger'; onConfirm: () => void }>({ open: false, title: '', message: '', variant: 'default', onConfirm: () => {} });
 
   // Profile
@@ -163,7 +163,7 @@ export function AccountSecurity() {
       success('Settings Saved', 'Your profile changes have been saved to the database.');
       setTimeout(() => setSaved(false), 3000);
     } else {
-      showError('Save Failed', 'Could not save profile settings. Please try again.');
+      showError('Save Failed', settingsError || 'Could not save profile settings. Please try again.');
     }
   }
 

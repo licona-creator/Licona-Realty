@@ -74,7 +74,7 @@ function Toggle({
 
 export function CampaignDefaults() {
   const { success, error: showError } = useToast();
-  const { settings, saving, save } = useAgentSettings();
+  const { settings, saving, save, error: settingsError } = useAgentSettings();
 
   // Language defaults per track
   const [languages, setLanguages] = useState<Record<string, string>>(
@@ -131,7 +131,7 @@ export function CampaignDefaults() {
       success('Campaign Defaults Saved', 'Your campaign preferences have been saved to the database.');
       setTimeout(() => setSaved(false), 3000);
     } else {
-      showError('Save Failed', 'Could not save campaign defaults. Please try again.');
+      showError('Save Failed', settingsError || 'Could not save campaign defaults. Please try again.');
     }
   }
 

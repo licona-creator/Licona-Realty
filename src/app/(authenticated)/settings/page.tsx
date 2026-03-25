@@ -72,7 +72,7 @@ export default function SettingsPage() {
       className="min-h-screen bg-surface dark:bg-navy"
     >
       {/* Page Header */}
-      <div className="px-6 lg:px-8 pt-6 pb-4">
+      <div className="px-3 sm:px-6 lg:px-8 pt-6 pb-4">
         <h1
           className="text-2xl lg:text-3xl font-semibold text-navy dark:text-white"
           style={{ fontFamily: BRAND.fonts.playfair }}
@@ -85,8 +85,8 @@ export default function SettingsPage() {
       </div>
 
       {/* Mobile Tab Bar */}
-      <div className="lg:hidden px-4 pb-4">
-        <div className="flex overflow-x-auto gap-1 pb-2 scrollbar-hide">
+      <div className="lg:hidden px-2 sm:px-4 pb-4">
+        <div className="flex overflow-x-auto gap-1 pb-2 scrollbar-hide -mx-1">
           {SETTINGS_SECTIONS.map((section) => {
             const Icon = section.icon;
             const isActive = activeSection === section.id;
@@ -96,15 +96,15 @@ export default function SettingsPage() {
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
                 className={`
-                  flex items-center gap-2 px-4 py-2.5 rounded-[8px] whitespace-nowrap
-                  font-montserrat text-xs font-medium transition-all duration-200 relative
+                  flex items-center gap-1.5 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-[8px] whitespace-nowrap
+                  font-montserrat text-[11px] sm:text-xs font-medium transition-all duration-200 relative flex-shrink-0
                   ${isActive
                     ? 'bg-gold/15 text-gold'
                     : 'text-navy/50 dark:text-white/50 hover:text-navy dark:hover:text-white hover:bg-white/80 dark:hover:bg-white/5'
                   }
                 `}
               >
-                <Icon size={14} />
+                <Icon size={13} className="flex-shrink-0" />
                 <span>{section.label}</span>
               </button>
             );
@@ -113,7 +113,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Desktop: Sidebar + Content */}
-      <div className="flex px-4 lg:px-8 gap-6 pb-8">
+      <div className="flex flex-col lg:flex-row px-2 sm:px-4 lg:px-8 gap-4 lg:gap-6 pb-8">
         {/* Desktop Settings Sidebar */}
         <div
           className="hidden lg:block w-56 flex-shrink-0 rounded-[12px] overflow-hidden self-start sticky top-6"
@@ -156,7 +156,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 w-full lg:w-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}

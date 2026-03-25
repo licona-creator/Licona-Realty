@@ -68,7 +68,7 @@ function Toggle({
 
 export function Notifications() {
   const { success, error: showError } = useToast();
-  const { settings, saving, save } = useAgentSettings();
+  const { settings, saving, save, error: settingsError } = useAgentSettings();
 
   // Push notifications
   const [pushNewLead, setPushNewLead] = useState(true);
@@ -142,7 +142,7 @@ export function Notifications() {
       success('Notifications Saved', 'Your notification preferences have been saved to the database.');
       setTimeout(() => setSaved(false), 3000);
     } else {
-      showError('Save Failed', 'Could not save notification preferences. Please try again.');
+      showError('Save Failed', settingsError || 'Could not save notification preferences. Please try again.');
     }
   }
 

@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { LRMonogram } from '@/components/ui/LRMonogram';
 import { ContentEditor } from '@/components/approval/ContentEditor';
+import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
 import { VOICE_TONE_PROFILES } from '@/lib/voice/engine';
 import type { ApprovalQueueItem } from '@/types/database';
@@ -69,6 +70,8 @@ export default function ApprovalQueuePage() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>('all');
+  const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
+  const { success, error: showError } = useToast();
 
   const fetchItems = useCallback(async () => {
     try {
@@ -76,49 +79,85 @@ export default function ApprovalQueuePage() {
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showError('Load Failed', data.error || 'Could not load approval queue.');
       }
     } catch {
-      // Silently fail - will show empty state
+      showError('Network Error', 'Could not reach the server. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showError]);
 
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
 
   async function handleApprove(id: string) {
-    const res = await fetch(`/api/approval-queue/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'approve' }),
-    });
-    if (res.ok) {
-      setItems((prev) => prev.filter((item) => item.id !== id));
+    setProcessingIds(prev => new Set(prev).add(id));
+    try {
+      const res = await fetch(`/api/approval-queue/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'approve' }),
+      });
+      if (res.ok) {
+        setItems((prev) => prev.filter((item) => item.id !== id));
+        success('Post Approved', 'The item has been approved and will be sent.');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showError('Approve Failed', data.error || 'Could not approve this item.');
+      }
+    } catch {
+      showError('Network Error', 'Could not reach the server.');
+    } finally {
+      setProcessingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   }
 
   async function handleEditApprove(id: string, content: string, toneMode: string) {
-    const res = await fetch(`/api/approval-queue/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'edit_approve', content, tone_mode: toneMode }),
-    });
-    if (res.ok) {
-      setItems((prev) => prev.filter((item) => item.id !== id));
-      setEditingId(null);
+    setProcessingIds(prev => new Set(prev).add(id));
+    try {
+      const res = await fetch(`/api/approval-queue/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'edit_approve', content, tone_mode: toneMode }),
+      });
+      if (res.ok) {
+        setItems((prev) => prev.filter((item) => item.id !== id));
+        setEditingId(null);
+        success('Post Approved', 'Edited version has been approved and will be sent.');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showError('Approve Failed', data.error || 'Could not save and approve.');
+      }
+    } catch {
+      showError('Network Error', 'Could not reach the server.');
+    } finally {
+      setProcessingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   }
 
   async function handleDiscard(id: string) {
-    const res = await fetch(`/api/approval-queue/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'discard' }),
-    });
-    if (res.ok) {
-      setItems((prev) => prev.filter((item) => item.id !== id));
+    setProcessingIds(prev => new Set(prev).add(id));
+    try {
+      const res = await fetch(`/api/approval-queue/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'discard' }),
+      });
+      if (res.ok) {
+        setItems((prev) => prev.filter((item) => item.id !== id));
+        success('Item Discarded', 'The item has been removed from the queue.');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showError('Discard Failed', data.error || 'Could not discard this item.');
+      }
+    } catch {
+      showError('Network Error', 'Could not reach the server.');
+    } finally {
+      setProcessingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   }
 
@@ -247,14 +286,17 @@ export default function ApprovalQueuePage() {
                         variant="accent"
                         size="sm"
                         onClick={() => handleApprove(item.id)}
+                        loading={processingIds.has(item.id)}
+                        disabled={processingIds.has(item.id)}
                       >
                         <Check size={14} />
-                        Approve
+                        {processingIds.has(item.id) ? 'Approving...' : 'Approve'}
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setEditingId(item.id)}
+                        disabled={processingIds.has(item.id)}
                       >
                         <Edit2 size={14} />
                         Edit
@@ -263,6 +305,7 @@ export default function ApprovalQueuePage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDiscard(item.id)}
+                        disabled={processingIds.has(item.id)}
                         className="!text-red-500/60 hover:!text-red-500"
                       >
                         <Trash2 size={14} />

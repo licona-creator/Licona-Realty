@@ -68,7 +68,7 @@ const FONT_ASSIGNMENTS = [
 
 export function BrandAssets() {
   const { error: showError, success: showSuccess } = useToast();
-  const { settings, saving, save } = useAgentSettings();
+  const { settings, saving, save, error: settingsError } = useAgentSettings();
 
   // Logo upload state
   const [primaryLogo, setPrimaryLogo] = useState<UploadSlot>({
@@ -283,7 +283,7 @@ export function BrandAssets() {
       showSuccess('Brand Settings Saved', 'Your brand assets and agent info have been saved to the database.');
       setTimeout(() => setSaved(false), 3000);
     } else {
-      showError('Save Failed', 'Could not save brand settings. Please try again.');
+      showError('Save Failed', settingsError || 'Could not save brand settings. Please try again.');
     }
   }
 
