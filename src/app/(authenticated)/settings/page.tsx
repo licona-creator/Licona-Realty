@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BRAND } from '@/lib/brand';
@@ -44,7 +44,7 @@ type SectionId = (typeof SETTINGS_SECTIONS)[number]['id'];
 
 const VALID_SECTION_IDS = SETTINGS_SECTIONS.map(s => s.id) as readonly string[];
 
-export default function SettingsPage() {
+function SettingsContent() {
   const searchParams = useSearchParams();
   const [activeSection, setActiveSection] = useState<SectionId>('brand');
 
@@ -183,5 +183,19 @@ export default function SettingsPage() {
         </div>
       </div>
     </motion.div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-surface dark:bg-navy flex items-center justify-center">
+          <div className="text-navy/50 dark:text-white/50 font-inter text-sm">Loading settings...</div>
+        </div>
+      }
+    >
+      <SettingsContent />
+    </Suspense>
   );
 }
