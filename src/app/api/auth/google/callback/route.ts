@@ -3,6 +3,7 @@
  *
  * Exchanges auth code for tokens and stores in user_integrations.
  * Handles Gmail + Calendar in a single Google OAuth flow.
+ * Env vars: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET (set in Vercel)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -15,10 +16,20 @@ export async function GET(request: NextRequest) {
   const state = request.nextUrl.searchParams.get('state');
   const error = request.nextUrl.searchParams.get('error');
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://licona-realty-i1st.vercel.app';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL
+    || process.env.NEXT_PUBLIC_SITE_URL
+    || 'https://licona-realty-i1st.vercel.app';
 
   if (error || !code || !state) {
     return NextResponse.redirect(`${appUrl}/settings?tab=integrations&error=google_auth_failed`);
+  }
+
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    console.error('[google-callback] Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET');
+    return NextResponse.redirect(`${appUrl}/settings?tab=integrations&error=google_not_configured`);
   }
 
   const redirectUri = `${appUrl}/api/auth/google/callback`;
@@ -30,8 +41,8 @@ export async function GET(request: NextRequest) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         code,
-        client_id: (process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CALENDAR_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID)!,
-        client_secret: (process.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CALENDAR_CLIENT_SECRET)!,
+        client_id: clientId,
+        client_secret: clientSecret,
         redirect_uri: redirectUri,
         grant_type: 'authorization_code',
       }),

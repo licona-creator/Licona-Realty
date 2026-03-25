@@ -70,8 +70,7 @@ export function useAgentSettings() {
         const json = await res.json().catch(() => ({}));
         throw new Error(json.error || 'Failed to save settings');
       }
-      const json = await res.json();
-      setSettings(json.settings);
+      // Re-fetch to get the canonical server state
       await load();
       return true;
     } catch (err) {
@@ -82,7 +81,7 @@ export function useAgentSettings() {
     } finally {
       setSaving(false);
     }
-  }, []);
+  }, [load]);
 
   useEffect(() => { load(); }, [load]);
 
