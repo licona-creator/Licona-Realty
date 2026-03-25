@@ -105,7 +105,28 @@ auth.uid() = user_id
 
 Do not disable RLS in production. If you need admin access for debugging, use the service role key server-side.
 
-## 7. Troubleshooting
+## 7. Required Migrations
+
+After running the initial setup SQL, also run these migrations in the Supabase SQL Editor:
+
+**Migration 005 — Drop duplicate RLS policies** (`supabase/migrations/005_drop_duplicate_rls_policies.sql`):
+```sql
+DROP POLICY IF EXISTS "Users can manage own approval items" ON approval_queue;
+DROP POLICY IF EXISTS "Users can insert own contacts" ON contacts;
+DROP POLICY IF EXISTS "Users can view own contacts" ON contacts;
+DROP POLICY IF EXISTS "Users can update own contacts" ON contacts;
+DROP POLICY IF EXISTS "Users can delete own contacts" ON contacts;
+```
+
+**Migration 006 — Add profile columns** (`supabase/migrations/006_add_profile_columns.sql`):
+```sql
+ALTER TABLE agent_settings ADD COLUMN IF NOT EXISTS profile_email text;
+ALTER TABLE agent_settings ADD COLUMN IF NOT EXISTS profile_website text;
+ALTER TABLE agent_settings ADD COLUMN IF NOT EXISTS profile_license text;
+ALTER TABLE agent_settings ADD COLUMN IF NOT EXISTS profile_brokerage text;
+```
+
+## 8. Troubleshooting
 
 **503 errors from Supabase**
 The database tables have not been created. Run `supabase/setup-all-tables.sql` in the SQL Editor.

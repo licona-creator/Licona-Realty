@@ -6,10 +6,10 @@
  *
  * All inputs validated before database writes.
  * SQL injection protected via Supabase parameterized queries.
- * XSS protected via DOMPurify sanitization.
+ * XSS protected via sanitize-html sanitization.
  */
 
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 
 // ============================================
 // Email Validation (RFC 5322 simplified)
@@ -88,14 +88,14 @@ export function validatePassword(password: string): PasswordValidation {
 // ============================================
 
 export function sanitizeHTML(input: string): string {
-  return DOMPurify.sanitize(input, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li'],
-    ALLOWED_ATTR: ['href', 'target', 'rel'],
+  return sanitizeHtml(input, {
+    allowedTags: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li'],
+    allowedAttributes: { a: ['href', 'target', 'rel'] },
   });
 }
 
 export function sanitizePlainText(input: string): string {
-  return DOMPurify.sanitize(input, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+  return sanitizeHtml(input, { allowedTags: [], allowedAttributes: {} });
 }
 
 // ============================================
