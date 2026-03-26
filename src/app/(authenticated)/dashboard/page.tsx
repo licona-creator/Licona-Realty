@@ -35,6 +35,7 @@ interface DashboardData {
   };
   contacts: {
     total: number;
+    activeLeads: number;
     byTrack: Record<string, number>;
     byStage: Record<string, number>;
   };
@@ -43,6 +44,13 @@ interface DashboardData {
     activeCount: number;
     urgentClosings: number;
     transactions: Array<{
+      id: string;
+      property_address: string;
+      status: string;
+      contract_price: number | null;
+      closing_date: string | null;
+    }>;
+    upcomingClosings: Array<{
       id: string;
       property_address: string;
       status: string;
@@ -217,7 +225,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 mb-3">
             <Users size={18} className="text-gold" />
             <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">
-              Active Contacts
+              Contacts
             </h3>
           </div>
           <p
@@ -225,6 +233,9 @@ export default function DashboardPage() {
             style={{ fontFamily: BRAND.fonts.dmSerif }}
           >
             {contactTotal}
+          </p>
+          <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-1">
+            {data?.contacts.activeLeads || 0} active leads
           </p>
           {data?.contacts.byTrack && Object.keys(data.contacts.byTrack).length > 0 ? (
             <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -330,6 +341,49 @@ export default function DashboardPage() {
             MFA active &middot; RLS enforced &middot; PII encrypted
           </p>
         </Card>
+
+        {/* Upcoming Closings */}
+        {data?.pipeline.upcomingClosings && data.pipeline.upcomingClosings.length > 0 && (
+          <div className="md:col-span-2 xl:col-span-3">
+            <Card>
+              <div className="flex items-center gap-2 mb-4">
+                <Calendar size={18} className="text-gold" />
+                <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">
+                  Upcoming Closings (Next 30 Days)
+                </h3>
+                <Badge count={data.pipeline.upcomingClosings.length} variant="gold" />
+              </div>
+              <div className="space-y-2">
+                {data.pipeline.upcomingClosings.map(tx => {
+                  const days = tx.closing_date
+                    ? Math.floor((new Date(tx.closing_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                    : null;
+                  return (
+                    <a
+                      key={tx.id}
+                      href={`/transactions/${tx.id}`}
+                      className="flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors"
+                    >
+                      <div>
+                        <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{tx.property_address}</p>
+                        <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+                          {tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'Price TBD'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {days !== null && days <= 7 && <AlertTriangle size={12} className="text-red-500" />}
+                        <span className={`text-xs font-inter ${days !== null && days <= 7 ? 'text-red-500 font-semibold' : days !== null && days <= 14 ? 'text-gold' : 'text-navy/60 dark:text-white/60'}`}>
+                          {days !== null ? `${days}d` : 'TBD'}
+                        </span>
+                        <ChevronRight size={14} className="text-navy/30 dark:text-white/30" />
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* Intelligence Alerts / Smart Suggestions */}
         <div className="md:col-span-2 xl:col-span-3">

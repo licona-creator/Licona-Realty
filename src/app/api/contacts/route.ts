@@ -22,7 +22,7 @@ import {
 import { logger } from '@/lib/security/logger';
 
 // Valid track types and pipeline stages for validation
-const VALID_TRACK_TYPES = ['buyer', 'seller', 'landlord', 'tenant', 'investor'];
+const VALID_TRACK_TYPES = ['buyer', 'seller', 'landlord', 'tenant', 'investor', 'sphere'];
 const VALID_PIPELINE_STAGES = [
   'new', 'contacted', 'qualifying', 'nurturing', 'showing',
   'offer', 'under_contract', 'closing', 'closed', 'lost', 'on_hold',
@@ -267,6 +267,9 @@ export async function POST(request: Request) {
       latitude: typeof body.latitude === 'number' ? body.latitude : null,
       longitude: typeof body.longitude === 'number' ? body.longitude : null,
       social_media_source: body.social_media_source ? sanitizeInput(body.social_media_source, 100) : null,
+      budget: body.budget ? sanitizeInput(body.budget, 200) : null,
+      location_preference: body.location_preference ? sanitizeInput(body.location_preference, 200) : null,
+      notes: body.notes ? sanitizeInput(body.notes, 2000) : null,
     };
 
     const { data, error } = await supabase

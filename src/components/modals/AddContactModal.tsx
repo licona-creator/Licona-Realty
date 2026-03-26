@@ -89,6 +89,22 @@ const PIPELINE_STAGES_BY_TRACK: Record<TrackType, { value: PipelineStage; label:
   ],
 };
 
+const LEAD_SOURCES = [
+  { value: '', label: 'Select source...' },
+  { value: 'qazzoo', label: 'Qazzoo' },
+  { value: 'referral', label: 'Referral' },
+  { value: 'social media', label: 'Social Media' },
+  { value: 'website', label: 'Website' },
+  { value: 'sphere', label: 'Sphere' },
+  { value: 'other', label: 'Other' },
+];
+
+const LANGUAGE_OPTIONS = [
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Spanish' },
+  { value: 'bilingual', label: 'Bilingual' },
+];
+
 interface FormData {
   first_name: string;
   last_name: string;
@@ -100,6 +116,10 @@ interface FormData {
   city: string;
   state: string;
   zip_code: string;
+  budget: string;
+  location_preference: string;
+  lead_source: string;
+  language_preference: string;
   notes: string;
 }
 
@@ -114,6 +134,10 @@ const INITIAL_FORM: FormData = {
   city: '',
   state: '',
   zip_code: '',
+  budget: '',
+  location_preference: '',
+  lead_source: '',
+  language_preference: 'en',
   notes: '',
 };
 
@@ -201,6 +225,10 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           city: form.city.trim() || null,
           state: form.state.trim() || null,
           zip_code: form.zip_code.trim() || null,
+          budget: form.budget.trim() || null,
+          location_preference: form.location_preference.trim() || null,
+          lead_source: form.lead_source || null,
+          language_preference: form.language_preference || 'en',
           notes: form.notes.trim() || null,
         }),
       });
@@ -309,6 +337,66 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Budget & Location Preference */}
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            label="Budget / Price Range"
+            placeholder="$300k - $450k"
+            value={form.budget}
+            onChange={e => updateField('budget', e.target.value)}
+            disabled={loading}
+          />
+          <Input
+            label="Location Preference"
+            placeholder="Denton County, Park Cities"
+            value={form.location_preference}
+            onChange={e => updateField('location_preference', e.target.value)}
+            disabled={loading}
+          />
+        </div>
+
+        {/* Lead Source & Language */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="w-full">
+            <label
+              htmlFor="lead-source"
+              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            >
+              Lead Source
+            </label>
+            <select
+              id="lead-source"
+              value={form.lead_source}
+              onChange={e => updateField('lead_source', e.target.value)}
+              className={selectClassName}
+              disabled={loading}
+            >
+              {LEAD_SOURCES.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="w-full">
+            <label
+              htmlFor="language-pref"
+              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            >
+              Language
+            </label>
+            <select
+              id="language-pref"
+              value={form.language_preference}
+              onChange={e => updateField('language_preference', e.target.value)}
+              className={selectClassName}
+              disabled={loading}
+            >
+              {LANGUAGE_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </div>

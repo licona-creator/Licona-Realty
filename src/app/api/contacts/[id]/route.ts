@@ -150,6 +150,16 @@ export async function PATCH(
     if (body.latitude !== undefined) updates.latitude = typeof body.latitude === 'number' ? body.latitude : null;
     if (body.longitude !== undefined) updates.longitude = typeof body.longitude === 'number' ? body.longitude : null;
     if (body.last_contacted_at !== undefined) updates.last_contacted_at = body.last_contacted_at;
+    if (body.budget !== undefined) updates.budget = body.budget ? sanitizeInput(body.budget, 200) : null;
+    if (body.location_preference !== undefined) updates.location_preference = body.location_preference ? sanitizeInput(body.location_preference, 200) : null;
+    if (body.notes !== undefined) updates.notes = body.notes ? sanitizeInput(body.notes, 2000) : null;
+    if (body.track_type !== undefined) {
+      const validTracks = ['buyer', 'seller', 'landlord', 'tenant', 'investor', 'sphere'];
+      if (!validTracks.includes(body.track_type.toLowerCase())) {
+        return NextResponse.json({ error: 'Invalid track type.' }, { status: 400 });
+      }
+      updates.track_type = body.track_type.toLowerCase();
+    }
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update.' }, { status: 400 });

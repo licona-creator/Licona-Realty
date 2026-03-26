@@ -14,9 +14,10 @@ import { Badge } from '@/components/ui/Badge';
 import { BRAND } from '@/lib/brand';
 import { NewTransactionModal } from '@/components/modals/NewTransactionModal';
 import type { Transaction } from '@/types/database';
+import { useRouter } from 'next/navigation';
 import {
   FileText, Plus, DollarSign, CalendarDays, CheckSquare,
-  Clock, AlertTriangle, ChevronRight, Users,
+  Clock, AlertTriangle, ChevronRight, User,
 } from 'lucide-react';
 
 const STAGE_LABELS: Record<string, { label: string; color: string }> = {
@@ -31,8 +32,13 @@ const STAGE_LABELS: Record<string, { label: string; color: string }> = {
   lost: { label: 'Lost', color: '#EF4444' },
 };
 
+type TransactionWithContact = Transaction & {
+  contacts?: { first_name: string; last_name: string; email: string | null; phone: string | null } | null;
+};
+
 export default function TransactionsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const router = useRouter();
+  const [transactions, setTransactions] = useState<TransactionWithContact[]>([]);
   const [pipelineValue, setPipelineValue] = useState(0);
   const [closedValue, setClosedValue] = useState(0);
   const [filter, setFilter] = useState<string>('active');
@@ -172,7 +178,7 @@ export default function TransactionsPage() {
             const totalItems = (tx.checklist || []).length;
 
             return (
-              <Card key={tx.id} className="!p-4 hover:shadow-md transition-shadow cursor-pointer">
+              <Card key={tx.id} className="!p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/transactions/${tx.id}`)}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -189,7 +195,13 @@ export default function TransactionsPage() {
                       {tx.property_city}{tx.property_state ? `, ${tx.property_state}` : ''} {tx.property_zip || ''}
                     </p>
 
-                    <div className="flex items-center gap-4 mt-2">
+                    <div className="flex items-center gap-4 mt-2 flex-wrap">
+                      {tx.contacts && (
+                        <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1">
+                          <User size={10} />
+                          {tx.contacts.first_name} {tx.contacts.last_name}
+                        </span>
+                      )}
                       {tx.contract_price && (
                         <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1">
                           <DollarSign size={10} />

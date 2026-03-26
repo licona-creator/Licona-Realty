@@ -28,7 +28,16 @@ interface FormData {
   property_zip: string;
   contract_price: string;
   closing_date: string;
+  option_expiry_date: string;
   track_type: TrackType;
+  status: string;
+  listing_agent_name: string;
+  listing_agent_email: string;
+  listing_agent_phone: string;
+  lender_name: string;
+  lender_contact: string;
+  title_company: string;
+  title_contact: string;
   notes: string;
 }
 
@@ -40,9 +49,28 @@ const INITIAL_FORM: FormData = {
   property_zip: '',
   contract_price: '',
   closing_date: '',
+  option_expiry_date: '',
   track_type: 'buyer',
+  status: 'active',
+  listing_agent_name: '',
+  listing_agent_email: '',
+  listing_agent_phone: '',
+  lender_name: '',
+  lender_contact: '',
+  title_company: '',
+  title_contact: '',
   notes: '',
 };
+
+const STATUS_OPTIONS = [
+  { value: 'active', label: 'Active' },
+  { value: 'option_period', label: 'Option Period' },
+  { value: 'inspection', label: 'Inspection' },
+  { value: 'appraisal', label: 'Appraisal' },
+  { value: 'clear_to_close', label: 'Clear to Close' },
+  { value: 'closed', label: 'Closed' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
 
 const selectClasses = `
   w-full px-4 py-2.5 rounded-[8px]
@@ -103,6 +131,39 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
     setLoading(true);
 
     try {
+      // Build parties array from form fields
+      const parties = [];
+      if (form.listing_agent_name.trim()) {
+        parties.push({
+          id: crypto.randomUUID(),
+          role: 'listing_agent',
+          name: form.listing_agent_name.trim(),
+          email: form.listing_agent_email.trim() || null,
+          phone: form.listing_agent_phone.trim() || null,
+          company: null,
+        });
+      }
+      if (form.lender_name.trim()) {
+        parties.push({
+          id: crypto.randomUUID(),
+          role: 'lender',
+          name: form.lender_name.trim(),
+          email: null,
+          phone: form.lender_contact.trim() || null,
+          company: null,
+        });
+      }
+      if (form.title_company.trim()) {
+        parties.push({
+          id: crypto.randomUUID(),
+          role: 'title',
+          name: form.title_company.trim(),
+          email: null,
+          phone: form.title_contact.trim() || null,
+          company: form.title_company.trim(),
+        });
+      }
+
       const payload = {
         contact_id: form.contact_id,
         track_type: form.track_type,
@@ -112,6 +173,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         property_zip: form.property_zip.trim() || null,
         contract_price: form.contract_price ? Number(form.contract_price) : null,
         closing_date: form.closing_date || null,
+        parties: parties.length > 0 ? parties : undefined,
         notes: form.notes.trim() || null,
       };
 
@@ -220,34 +282,86 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
           onChange={e => update('contract_price', e.target.value)}
         />
 
-        {/* Closing Date */}
-        <Input
-          label="Closing Date"
-          type="date"
-          value={form.closing_date}
-          onChange={e => update('closing_date', e.target.value)}
-        />
+        {/* Dates row */}
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            label="Closing Date"
+            type="date"
+            value={form.closing_date}
+            onChange={e => update('closing_date', e.target.value)}
+          />
+          <Input
+            label="Option Expiry Date"
+            type="date"
+            value={form.option_expiry_date}
+            onChange={e => update('option_expiry_date', e.target.value)}
+          />
+        </div>
 
-        {/* Track Type */}
-        <div className="w-full">
-          <label
-            htmlFor="transaction-track-type"
-            className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
-          >
-            Track Type
-          </label>
-          <select
-            id="transaction-track-type"
-            value={form.track_type}
-            onChange={e => update('track_type', e.target.value as TrackType)}
-            className={selectClasses}
-          >
-            <option value="buyer">Buyer</option>
-            <option value="seller">Seller</option>
-            <option value="landlord">Landlord</option>
-            <option value="tenant">Tenant</option>
-            <option value="investor">Investor</option>
-          </select>
+        {/* Track Type & Status */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="w-full">
+            <label
+              htmlFor="transaction-track-type"
+              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            >
+              Track Type
+            </label>
+            <select
+              id="transaction-track-type"
+              value={form.track_type}
+              onChange={e => update('track_type', e.target.value as TrackType)}
+              className={selectClasses}
+            >
+              <option value="buyer">Buyer</option>
+              <option value="seller">Seller</option>
+              <option value="landlord">Landlord</option>
+              <option value="tenant">Tenant</option>
+              <option value="investor">Investor</option>
+            </select>
+          </div>
+          <div className="w-full">
+            <label
+              htmlFor="transaction-status"
+              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            >
+              Status
+            </label>
+            <select
+              id="transaction-status"
+              value={form.status}
+              onChange={e => update('status', e.target.value)}
+              className={selectClasses}
+            >
+              {STATUS_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Listing Agent */}
+        <div className="border-t border-gold/10 pt-4">
+          <p className="text-xs font-montserrat font-semibold text-navy/50 dark:text-white/50 mb-3 uppercase tracking-wider">Listing Agent</p>
+          <div className="grid grid-cols-3 gap-3">
+            <Input label="Name" placeholder="Agent name" value={form.listing_agent_name} onChange={e => update('listing_agent_name', e.target.value)} />
+            <Input label="Email" type="email" placeholder="Email" value={form.listing_agent_email} onChange={e => update('listing_agent_email', e.target.value)} />
+            <Input label="Phone" type="tel" placeholder="Phone" value={form.listing_agent_phone} onChange={e => update('listing_agent_phone', e.target.value)} />
+          </div>
+        </div>
+
+        {/* Lender & Title */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="text-xs font-montserrat font-semibold text-navy/50 dark:text-white/50 mb-3 uppercase tracking-wider">Lender</p>
+            <Input label="Lender Name" placeholder="Lender name" value={form.lender_name} onChange={e => update('lender_name', e.target.value)} className="mb-3" />
+            <Input label="Lender Contact" placeholder="Phone or email" value={form.lender_contact} onChange={e => update('lender_contact', e.target.value)} />
+          </div>
+          <div>
+            <p className="text-xs font-montserrat font-semibold text-navy/50 dark:text-white/50 mb-3 uppercase tracking-wider">Title Company</p>
+            <Input label="Title Company" placeholder="Company name" value={form.title_company} onChange={e => update('title_company', e.target.value)} className="mb-3" />
+            <Input label="Title Contact" placeholder="Phone or email" value={form.title_contact} onChange={e => update('title_contact', e.target.value)} />
+          </div>
         </div>
 
         {/* Notes */}

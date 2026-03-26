@@ -98,6 +98,19 @@ export async function GET(request: NextRequest) {
       return days >= 0 && days <= 14;
     });
 
+    // Count active leads (not in nurturing/closed/lost/on_hold)
+    const inactiveStages = ['closed', 'lost', 'on_hold', 'nurturing'];
+    const activeLeads = contacts.filter(c => !inactiveStages.includes(c.pipeline_stage)).length;
+
+    // Upcoming closings (within 30 days)
+    const upcomingClosings = transactions.filter(t => {
+      if (!t.closing_date) return false;
+      const days = Math.floor(
+        (new Date(t.closing_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      );
+      return days >= 0 && days <= 30;
+    });
+
     return NextResponse.json({
       approvalQueue: {
         items: approvalRes.data || [],
@@ -106,6 +119,7 @@ export async function GET(request: NextRequest) {
       },
       contacts: {
         total: contacts.length,
+        activeLeads,
         byTrack: contactsByTrack,
         byStage: contactsByStage,
       },
@@ -114,6 +128,7 @@ export async function GET(request: NextRequest) {
         activeCount: transactions.length,
         urgentClosings: urgentClosings.length,
         transactions: transactions.slice(0, 5),
+        upcomingClosings: upcomingClosings.slice(0, 5),
       },
       schedule: {
         todayBookings: bookingsRes.data || [],

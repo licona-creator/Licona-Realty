@@ -51,6 +51,11 @@ export interface Contact {
   lead_source: string | null;
   lead_score: number;          // 1-100 continuous scale
 
+  // Extended CRM fields
+  budget: string | null;
+  location_preference: string | null;
+  notes: string | null;
+
   // Preferences
   language_preference: LanguagePreference;
 

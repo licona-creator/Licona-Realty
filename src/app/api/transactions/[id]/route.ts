@@ -68,17 +68,22 @@ export async function PATCH(
   const updates: Record<string, unknown> = {};
 
   // Allowed fields
-  if (body.status) updates.status = body.status;
+  if (body.status) updates.status = body.status.toLowerCase();
   if (body.contract_price !== undefined) updates.contract_price = body.contract_price;
   if (body.closing_date !== undefined) updates.closing_date = body.closing_date;
   if (body.property_address) updates.property_address = sanitizePlainText(body.property_address);
+  if (body.property_city !== undefined) updates.property_city = body.property_city ? sanitizePlainText(body.property_city) : null;
+  if (body.property_state !== undefined) updates.property_state = body.property_state || null;
+  if (body.property_zip !== undefined) updates.property_zip = body.property_zip || null;
+  if (body.track_type) updates.track_type = body.track_type.toLowerCase();
+  if (body.contact_id) updates.contact_id = body.contact_id;
   if (body.checklist) updates.checklist = body.checklist;
   if (body.parties) updates.parties = body.parties;
   if (body.key_dates) updates.key_dates = body.key_dates;
   if (body.commission_gross !== undefined) updates.commission_gross = body.commission_gross;
   if (body.commission_broker_split !== undefined) updates.commission_broker_split = body.commission_broker_split;
   if (body.commission_net !== undefined) updates.commission_net = body.commission_net;
-  if (body.notes) updates.notes = body.notes;
+  if (body.notes !== undefined) updates.notes = body.notes;
   if (body.docusign_envelope_ids) updates.docusign_envelope_ids = body.docusign_envelope_ids;
 
   if (Object.keys(updates).length === 0) {
@@ -109,4 +114,51 @@ export async function PATCH(
   });
 
   return NextResponse.json({ transaction: data });
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const ip = request.headers.get('x-forwarded-for') || 'unknown';
+  const rateCheckDel = checkRateLimit(ip, 'api');
+  if (!rateCheckDel.allowed) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+  }
+  if (!validateUUID(id)) {
+    return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+  }
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { error } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      return NextResponse.json({ error: 'Failed to delete transaction' }, { status: 500 });
+    }
+
+    await writeAuditLog({
+      userId: user.id,
+      action: 'record_delete',
+      resourceType: 'transaction',
+      resourceId: id,
+      details: 'Transaction deleted',
+      ipAddress: getClientIP(request),
+      userAgent: getUserAgent(request),
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('[transactions:DELETE]', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

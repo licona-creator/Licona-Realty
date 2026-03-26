@@ -15,7 +15,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
-import { Users, Plus, Search, Upload, Filter, Phone, Mail, Trash2, Edit3 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Users, Plus, Search, Upload, Filter, Phone, Mail, Trash2, ChevronRight } from 'lucide-react';
 import { AddContactModal } from '@/components/modals/AddContactModal';
 import { ImportContactsModal } from '@/components/modals/ImportContactsModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -29,10 +30,26 @@ interface Contact {
   phone: string | null;
   track_type: TrackType;
   pipeline_stage: string;
-  language: string | null;
+  language_preference: string | null;
   lead_source: string | null;
+  location_preference: string | null;
+  budget: string | null;
   created_at: string;
 }
+
+const STAGE_COLORS: Record<string, string> = {
+  new: 'bg-blue-500/10 text-blue-600',
+  contacted: 'bg-purple-500/10 text-purple-600',
+  qualifying: 'bg-amber-500/10 text-amber-600',
+  nurturing: 'bg-teal-500/10 text-teal-600',
+  showing: 'bg-orange-500/10 text-orange-600',
+  offer: 'bg-pink-500/10 text-pink-600',
+  under_contract: 'bg-green-500/10 text-green-600',
+  closing: 'bg-gold/10 text-gold',
+  closed: 'bg-emerald-500/10 text-emerald-600',
+  lost: 'bg-red-500/10 text-red-600',
+  on_hold: 'bg-gray-500/10 text-gray-600',
+};
 
 const trackTabs: Array<{ label: string; value: TrackType | 'all' }> = [
   { label: 'All', value: 'all' },
@@ -45,6 +62,7 @@ const trackTabs: Array<{ label: string; value: TrackType | 'all' }> = [
 ];
 
 export default function ContactsPage() {
+  const router = useRouter();
   const [activeTrack, setActiveTrack] = useState<string>('all');
   const [showImportModal, setShowImportModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -106,7 +124,8 @@ export default function ContactsPage() {
       c.first_name.toLowerCase().includes(q) ||
       c.last_name.toLowerCase().includes(q) ||
       (c.email && c.email.toLowerCase().includes(q)) ||
-      (c.phone && c.phone.includes(q))
+      (c.phone && c.phone.includes(q)) ||
+      (c.location_preference && c.location_preference.toLowerCase().includes(q))
     );
   });
 
@@ -145,7 +164,7 @@ export default function ContactsPage() {
         <div className="flex-1 relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/30 dark:text-white/30" />
           <Input
-            placeholder="Search contacts..."
+            placeholder="Search by name, email, phone, location..."
             className="!pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -204,7 +223,7 @@ export default function ContactsPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <Card className="!p-4">
+              <Card className="!p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/contacts/${contact.id}`)}>
                 <div className="flex items-center gap-4">
                   {/* Avatar */}
                   <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
@@ -218,7 +237,7 @@ export default function ContactsPage() {
                     <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">
                       {contact.first_name} {contact.last_name}
                     </p>
-                    <div className="flex items-center gap-3 mt-0.5">
+                    <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                       {contact.email && (
                         <span className="flex items-center gap-1 text-xs text-navy/50 dark:text-white/50 font-inter truncate">
                           <Mail size={10} className="flex-shrink-0" />
@@ -231,6 +250,11 @@ export default function ContactsPage() {
                           {contact.phone}
                         </span>
                       )}
+                      {contact.lead_source && (
+                        <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter hidden sm:inline">
+                          via {contact.lead_source}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -239,19 +263,20 @@ export default function ContactsPage() {
                     {contact.track_type}
                   </span>
 
-                  {/* Stage */}
-                  <span className="text-xs text-navy/40 dark:text-white/40 font-inter hidden sm:block flex-shrink-0">
+                  {/* Pipeline Stage Badge */}
+                  <span className={`text-[10px] font-montserrat font-semibold px-2 py-1 rounded-full hidden sm:block flex-shrink-0 capitalize ${STAGE_COLORS[contact.pipeline_stage] || STAGE_COLORS.new}`}>
                     {contact.pipeline_stage?.replace(/_/g, ' ')}
                   </span>
 
                   {/* Actions */}
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
-                      onClick={() => setDeleteTarget(contact)}
+                      onClick={(e) => { e.stopPropagation(); setDeleteTarget(contact); }}
                       className="p-1.5 rounded hover:bg-red-500/10 text-navy/30 dark:text-white/30 hover:text-red-500 transition-colors"
                     >
                       <Trash2 size={14} />
                     </button>
+                    <ChevronRight size={14} className="text-navy/20 dark:text-white/20" />
                   </div>
                 </div>
               </Card>
