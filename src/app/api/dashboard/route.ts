@@ -101,8 +101,8 @@ export async function GET(request: NextRequest) {
       // Referral partners
       supabase
         .from('referral_partners')
-        .select('id, first_name, last_name, total_leads_sent, total_closings, total_revenue_generated')
-        .order('total_revenue_generated', { ascending: false })
+        .select('id, first_name, last_name')
+        .order('created_at', { ascending: false })
         .limit(10),
     ]);
 
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
     const urgentClosings = transactions.filter(t => {
       if (!t.closing_date) return false;
       const days = Math.floor(
-        (new Date(t.closing_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        (new Date(t.closing_date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24)
       );
       return days >= 0 && days <= 14;
     });
@@ -134,10 +134,46 @@ export async function GET(request: NextRequest) {
     const upcomingClosings = transactions.filter(t => {
       if (!t.closing_date) return false;
       const days = Math.floor(
-        (new Date(t.closing_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        (new Date(t.closing_date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24)
       );
       return days >= 0 && days <= 30;
     });
+
+    // Calculate dynamic partner stats
+    const rawPartners = partnersRes.data || [];
+    const partnerIds = rawPartners.map(p => p.id);
+    let partnerContacts: Array<{ referral_partner_id: string; pipeline_stage: string; id: string }> = [];
+    if (partnerIds.length > 0) {
+      const { data: pcData } = await supabase
+        .from('contacts')
+        .select('id, referral_partner_id, pipeline_stage')
+        .in('referral_partner_id', partnerIds)
+        .eq('is_deleted', false);
+      partnerContacts = pcData || [];
+    }
+    const partnerContactIds = partnerContacts.map(c => c.id);
+    let partnerTransactions: Array<{ contact_id: string; contract_price: number | null }> = [];
+    if (partnerContactIds.length > 0) {
+      const { data: ptData } = await supabase
+        .from('transactions')
+        .select('contact_id, contract_price')
+        .in('contact_id', partnerContactIds);
+      partnerTransactions = ptData || [];
+    }
+    const partnersWithStats = rawPartners.map(partner => {
+      const pContacts = partnerContacts.filter(c => c.referral_partner_id === partner.id);
+      const pClosed = pContacts.filter(c => c.pipeline_stage === 'closed' || c.pipeline_stage === 'closing');
+      const pClosedIds = pClosed.map(c => c.id);
+      const pRevenue = partnerTransactions
+        .filter(tx => pClosedIds.includes(tx.contact_id))
+        .reduce((sum, tx) => sum + (tx.contract_price || 0), 0);
+      return {
+        ...partner,
+        total_leads_sent: pContacts.length,
+        total_closings: pClosed.length,
+        total_revenue_generated: pRevenue,
+      };
+    }).sort((a, b) => b.total_revenue_generated - a.total_revenue_generated);
 
     // Process follow-ups
     const followUpContacts = followUpRes.data || [];
@@ -153,7 +189,7 @@ export async function GET(request: NextRequest) {
         counts: { overdue: overdueFollowUps.length, today: todayFollowUps.length, upcoming: upcomingFollowUps.length },
       },
       recentActivities: activitiesRes.data || [],
-      partners: partnersRes.data || [],
+      partners: partnersWithStats,
       approvalQueue: {
         items: approvalRes.data || [],
         count: (approvalRes.data || []).length,
