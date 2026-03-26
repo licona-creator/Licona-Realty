@@ -92,6 +92,8 @@ export default function TransactionDetailPage() {
   const [saving, setSaving] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [checklistSaving, setChecklistSaving] = useState(false);
+  const [contacts, setContacts] = useState<Array<{ id: string; first_name: string; last_name: string }>>([]);
+  const [contactsLoading, setContactsLoading] = useState(false);
 
   const fetchTransaction = useCallback(async () => {
     try {
@@ -147,6 +149,7 @@ export default function TransactionDetailPage() {
   function startEdit() {
     if (!transaction) return;
     setEditForm({
+      contact_id: transaction.contact_id,
       property_address: transaction.property_address,
       property_city: transaction.property_city || '',
       property_state: transaction.property_state || '',
@@ -157,6 +160,13 @@ export default function TransactionDetailPage() {
       track_type: transaction.track_type,
     });
     setEditing(true);
+    // Fetch contacts for the dropdown
+    setContactsLoading(true);
+    fetch('/api/contacts?limit=100')
+      .then(res => res.json())
+      .then(data => setContacts(data.contacts || []))
+      .catch(() => setContacts([]))
+      .finally(() => setContactsLoading(false));
   }
 
   async function handleSave() {
@@ -166,6 +176,7 @@ export default function TransactionDetailPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          contact_id: editForm.contact_id,
           property_address: (editForm.property_address as string)?.trim(),
           property_city: (editForm.property_city as string)?.trim() || null,
           property_state: (editForm.property_state as string)?.trim() || null,
@@ -182,10 +193,10 @@ export default function TransactionDetailPage() {
         throw new Error(data.error || 'Failed to update transaction');
       }
 
-      const data = await res.json();
-      setTransaction(prev => prev ? { ...prev, ...data.transaction, contacts: prev.contacts } : data.transaction);
       setEditing(false);
       toast.success('Transaction Updated', 'Changes have been saved.');
+      // Re-fetch to get updated joined contact data
+      fetchTransaction();
     } catch (err) {
       toast.error('Update Failed', err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
@@ -514,6 +525,29 @@ export default function TransactionDetailPage() {
       {/* Edit Modal */}
       <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Transaction" size="lg">
         <div className="space-y-4">
+          {/* Linked Contact */}
+          <div>
+            <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Linked Contact</label>
+            <select
+              value={(editForm.contact_id as string) || ''}
+              onChange={e => setEditForm(prev => ({ ...prev, contact_id: e.target.value }))}
+              className={selectClassName}
+              disabled={saving || contactsLoading}
+            >
+              {contactsLoading ? (
+                <option value="">Loading contacts...</option>
+              ) : (
+                <>
+                  <option value="">Select a contact</option>
+                  {contacts.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.first_name} {c.last_name}
+                    </option>
+                  ))}
+                </>
+              )}
+            </select>
+          </div>
           <Input
             label="Property Address *"
             value={(editForm.property_address as string) || ''}
