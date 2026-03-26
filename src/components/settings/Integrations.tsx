@@ -342,7 +342,7 @@ export function Integrations() {
         statusDetails={
           docusignConnected ? undefined : (
             <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-0.5 block">
-              Production (na4.docusign.net)
+              Production (na2.docusign.net)
             </span>
           )
         }
@@ -395,7 +395,7 @@ export function Integrations() {
             <>
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-xs text-navy/50 dark:text-white/50 font-inter">Environment:</span>
-                <span className="text-xs font-inter font-medium text-green-600">Production (na4.docusign.net)</span>
+                <span className="text-xs font-inter font-medium text-green-600">Production (na2.docusign.net)</span>
               </div>
 
               <Button variant="accent" onClick={connectDocusign}>

@@ -6,7 +6,7 @@
  * Webhook events handled at /api/webhooks/docusign.
  */
 
-const DOCUSIGN_BASE = process.env.DOCUSIGN_BASE_URL || 'https://na4.docusign.net/restapi/v2.1';
+const DOCUSIGN_BASE = process.env.DOCUSIGN_BASE_URL || 'https://na2.docusign.net/restapi/v2.1';
 
 interface DocuSignTokens {
   accessToken: string;
