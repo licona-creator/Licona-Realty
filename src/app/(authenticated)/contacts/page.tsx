@@ -260,7 +260,7 @@ export default function ContactsPage() {
                   </div>
 
                   {/* Overdue indicator */}
-                  {contact.next_follow_up_date && new Date(contact.next_follow_up_date) < new Date(new Date().toISOString().split('T')[0]) && (
+                  {contact.next_follow_up_date && new Date(contact.next_follow_up_date + 'T00:00:00') < new Date(new Date().toISOString().split('T')[0] + 'T00:00:00') && (
                     <span className="flex-shrink-0" title="Overdue follow-up"><AlertCircle size={14} className="text-red-500" /></span>
                   )}
 
@@ -348,6 +348,16 @@ export default function ContactsPage() {
         message={deleteTarget ? `Are you sure you want to delete ${deleteTarget.first_name} ${deleteTarget.last_name}? This action cannot be undone.` : ''}
         variant="danger"
       />
+
+      {/* Mobile FAB */}
+      <button
+        onClick={() => setShowAddModal(true)}
+        className="lg:hidden fixed z-40 w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+        style={{ backgroundColor: BRAND.colors.gold, right: '20px', bottom: '80px' }}
+        aria-label="Add Contact"
+      >
+        <Plus size={24} color="#fff" />
+      </button>
     </div>
   );
 }

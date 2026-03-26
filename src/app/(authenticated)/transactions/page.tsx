@@ -73,7 +73,7 @@ export default function TransactionsPage() {
 
   const getDaysUntilClose = (date: string | null) => {
     if (!date) return null;
-    return Math.floor((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    return Math.floor((new Date(date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   };
 
   return (
@@ -253,6 +253,16 @@ export default function TransactionsPage() {
         onClose={() => setShowNewTransaction(false)}
         onSuccess={fetchTransactions}
       />
+
+      {/* Mobile FAB */}
+      <button
+        onClick={() => setShowNewTransaction(true)}
+        className="lg:hidden fixed z-40 w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+        style={{ backgroundColor: BRAND.colors.gold, right: '20px', bottom: '80px' }}
+        aria-label="New Transaction"
+      >
+        <Plus size={24} color="#fff" />
+      </button>
     </div>
   );
 }

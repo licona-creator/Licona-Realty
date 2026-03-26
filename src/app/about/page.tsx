@@ -87,7 +87,7 @@ export default function AboutPage() {
           {BRAND.tagline}
         </p>
 
-        {/* Headshot placeholder with LR monogram */}
+        {/* Agent photo / LR monogram fallback */}
         <div className="flex flex-col items-center mt-8">
           <div
             className="flex items-center justify-center"
@@ -101,13 +101,6 @@ export default function AboutPage() {
           >
             <LRMonogram size="xl" />
           </div>
-          <a
-            href="/settings"
-            className="mt-3 text-xs font-inter transition-opacity hover:opacity-80"
-            style={{ color: 'rgba(244,244,244,0.6)' }}
-          >
-            Upload your photo in Settings - Brand and Assets
-          </a>
         </div>
       </section>
 

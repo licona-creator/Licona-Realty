@@ -16,7 +16,7 @@ import {
   CheckCircle,
   Users,
   FileText,
-  Settings,
+  MoreHorizontal,
 } from 'lucide-react';
 
 interface MobileNavProps {
@@ -28,7 +28,7 @@ const mobileNavItems = [
   { label: 'Approval', href: '/approval-queue', icon: CheckCircle, badge: true },
   { label: 'Contacts', href: '/contacts', icon: Users },
   { label: 'Deals', href: '/transactions', icon: FileText },
-  { label: 'Settings', href: '/settings', icon: Settings },
+  { label: 'More', href: '/more', icon: MoreHorizontal },
 ];
 
 export function MobileNav({ approvalCount = 0 }: MobileNavProps) {
