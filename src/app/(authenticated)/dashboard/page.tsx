@@ -67,7 +67,7 @@ function formatItemType(type: string): string {
 }
 
 function daysOverdue(dateStr: string): number {
-  return Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
+  return Math.floor((Date.now() - new Date(dateStr + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24));
 }
 
 interface FollowUpsData {
@@ -198,7 +198,7 @@ export default function DashboardPage() {
                           <p className="text-sm font-inter text-navy/70 dark:text-white/70">{c.first_name} {c.last_name}</p>
                           {c.follow_up_notes && <p className="text-xs text-navy/40 dark:text-white/40 font-inter truncate">{c.follow_up_notes}</p>}
                         </div>
-                        <span className="text-xs font-inter text-navy/40 dark:text-white/40 flex-shrink-0 ml-2">{new Date(c.next_follow_up_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        <span className="text-xs font-inter text-navy/40 dark:text-white/40 flex-shrink-0 ml-2">{new Date(c.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                       </a>
                     ))}
                   </div>

@@ -244,7 +244,7 @@ export default function TransactionDetailPage() {
   const completedItems = (transaction.checklist || []).filter(c => c.is_completed).length;
   const totalItems = (transaction.checklist || []).length;
   const daysToClose = transaction.closing_date
-    ? Math.floor((new Date(transaction.closing_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    ? Math.floor((new Date(transaction.closing_date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     : null;
   const statusColor = STATUS_COLORS[transaction.status] || STATUS_COLORS.new;
   const contactName = transaction.contacts
@@ -309,7 +309,7 @@ export default function TransactionDetailPage() {
             <Card className="!p-4">
               <Calendar size={14} className="text-gold mb-1" />
               <p className="text-lg font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>
-                {transaction.closing_date ? new Date(transaction.closing_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBD'}
+                {transaction.closing_date ? new Date(transaction.closing_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBD'}
               </p>
               <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">Closing Date</p>
             </Card>
@@ -362,7 +362,7 @@ export default function TransactionDetailPage() {
                     </span>
                     {item.due_date && (
                       <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter ml-auto">
-                        {new Date(item.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        {new Date(item.due_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </span>
                     )}
                   </button>
@@ -493,7 +493,7 @@ export default function TransactionDetailPage() {
                   <div key={key} className="flex justify-between">
                     <span className="text-xs text-navy/40 dark:text-white/40 font-inter capitalize">{key.replace(/_/g, ' ')}</span>
                     <span className="text-xs font-inter text-navy dark:text-white">
-                      {new Date(val).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      {new Date(val + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>
                   </div>
                 ))}

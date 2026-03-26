@@ -49,7 +49,22 @@ export async function GET(
       transactions = txData || [];
     }
 
-    return NextResponse.json({ partner: data, contacts: contacts || [], transactions });
+    // Calculate dynamic stats
+    const partnerContacts = contacts || [];
+    const closedContacts = partnerContacts.filter(c => c.pipeline_stage === 'closed' || c.pipeline_stage === 'closing');
+    const closedContactIds = closedContacts.map(c => c.id);
+    const revenue = transactions
+      .filter(tx => closedContactIds.includes(tx.contact_id as string))
+      .reduce((sum, tx) => sum + ((tx.contract_price as number) || 0), 0);
+
+    const partnerWithStats = {
+      ...data,
+      total_leads_sent: partnerContacts.length,
+      total_closings: closedContacts.length,
+      total_revenue_generated: revenue,
+    };
+
+    return NextResponse.json({ partner: partnerWithStats, contacts: contacts || [], transactions });
   } catch (err) {
     console.error('[referral-partners:GET:id]', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

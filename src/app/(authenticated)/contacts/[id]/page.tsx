@@ -125,6 +125,7 @@ export default function ContactDetailPage() {
   const [activityForm, setActivityForm] = useState({ activity_type: 'call', direction: 'outbound', description: '', activity_date: '' });
   const [logSaving, setLogSaving] = useState(false);
   const [partners, setPartners] = useState<Array<{ id: string; first_name: string; last_name: string | null }>>([]);
+  const [deleteActivityTarget, setDeleteActivityTarget] = useState<Activity | null>(null);
 
   const fetchContact = useCallback(async () => {
     try {
@@ -239,6 +240,18 @@ export default function ContactDetailPage() {
     } finally { setLogSaving(false); }
   }
 
+  async function handleDeleteActivity(activity: Activity) {
+    try {
+      const res = await fetch(`/api/activities/${activity.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete activity');
+      toast.success('Activity Deleted', 'The activity has been removed.');
+      setActivities(prev => prev.filter(a => a.id !== activity.id));
+    } catch (err) {
+      toast.error('Error', err instanceof Error ? err.message : 'Something went wrong.');
+    }
+    setDeleteActivityTarget(null);
+  }
+
   if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" /><span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading contact...</span></div>;
   if (error || !contact) return <div className="p-4 lg:p-8 max-w-4xl mx-auto"><button onClick={() => router.push('/contacts')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline"><ArrowLeft size={16} /> Back to Contacts</button><Card className="!p-8 text-center"><p className="text-red-500 font-inter">{error || 'Contact not found'}</p></Card></div>;
 
@@ -307,7 +320,7 @@ export default function ContactDetailPage() {
                 {activities.map(activity => {
                   const Icon = ACTIVITY_ICONS[activity.activity_type] || Clock;
                   return (
-                    <div key={activity.id} className="flex gap-3 p-3 rounded-lg bg-surface dark:bg-navy/30">
+                    <div key={activity.id} className="group flex gap-3 p-3 rounded-lg bg-surface dark:bg-navy/30">
                       <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <Icon size={14} className="text-gold" />
                       </div>
@@ -325,6 +338,13 @@ export default function ContactDetailPage() {
                           {new Date(activity.activity_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(activity.activity_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                         </p>
                       </div>
+                      <button
+                        onClick={() => setDeleteActivityTarget(activity)}
+                        className="p-1.5 rounded hover:bg-red-500/10 text-navy/20 dark:text-white/20 hover:text-red-500 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex-shrink-0 self-start"
+                        title="Delete activity"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   );
                 })}
@@ -343,7 +363,7 @@ export default function ContactDetailPage() {
                   <button key={tx.id} onClick={() => router.push(`/transactions/${tx.id}`)} className="w-full flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors text-left">
                     <div>
                       <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{tx.property_address}</p>
-                      <p className="text-xs text-navy/40 dark:text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'No price set'}{tx.closing_date ? ` - Closes ${new Date(tx.closing_date).toLocaleDateString()}` : ''}</p>
+                      <p className="text-xs text-navy/40 dark:text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'No price set'}{tx.closing_date ? ` - Closes ${new Date(tx.closing_date + 'T00:00:00').toLocaleDateString()}` : ''}</p>
                     </div>
                     <Badge variant={tx.status === 'closed' ? 'success' : tx.status === 'lost' ? 'danger' : 'gold'}>{tx.status}</Badge>
                   </button>
@@ -357,12 +377,12 @@ export default function ContactDetailPage() {
         <div className="space-y-4">
           {/* Follow-up */}
           {contact.next_follow_up_date && (
-            <Card className={`!p-5 ${new Date(contact.next_follow_up_date) < new Date(new Date().toISOString().split('T')[0]) ? '!border-red-500/30 !bg-red-500/5' : ''}`}>
+            <Card className={`!p-5 ${new Date(contact.next_follow_up_date + 'T00:00:00') < new Date(new Date().toISOString().split('T')[0] + 'T00:00:00') ? '!border-red-500/30 !bg-red-500/5' : ''}`}>
               <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-2 flex items-center gap-2"><CalendarDays size={14} className="text-gold" />Follow-Up</h3>
-              <p className={`text-sm font-inter font-medium ${new Date(contact.next_follow_up_date) < new Date(new Date().toISOString().split('T')[0]) ? 'text-red-500' : 'text-navy dark:text-white'}`}>
-                {new Date(contact.next_follow_up_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              <p className={`text-sm font-inter font-medium ${new Date(contact.next_follow_up_date + 'T00:00:00') < new Date(new Date().toISOString().split('T')[0] + 'T00:00:00') ? 'text-red-500' : 'text-navy dark:text-white'}`}>
+                {new Date(contact.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
               </p>
-              {new Date(contact.next_follow_up_date) < new Date(new Date().toISOString().split('T')[0]) && (
+              {new Date(contact.next_follow_up_date + 'T00:00:00') < new Date(new Date().toISOString().split('T')[0] + 'T00:00:00') && (
                 <p className="text-xs text-red-500 font-inter mt-1">Overdue</p>
               )}
               {contact.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-2">{contact.follow_up_notes}</p>}
@@ -378,7 +398,7 @@ export default function ContactDetailPage() {
                 <p className="text-xs text-navy/40 dark:text-white/40 font-inter">Lead Score</p>
                 <div className="flex items-center gap-2"><div className="flex-1 h-2 bg-navy/10 dark:bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-gold rounded-full transition-all" style={{ width: `${contact.lead_score}%` }} /></div><span className="text-xs font-inter text-navy/60 dark:text-white/60">{contact.lead_score}</span></div>
               </div>
-              {contact.last_contact_date && <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Last Contact</p><p className="text-sm font-inter text-navy dark:text-white">{new Date(contact.last_contact_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p></div>}
+              {contact.last_contact_date && <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Last Contact</p><p className="text-sm font-inter text-navy dark:text-white">{new Date(contact.last_contact_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p></div>}
               <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Date Added</p><p className="text-sm font-inter text-navy dark:text-white">{new Date(contact.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p></div>
             </div>
           </Card>
@@ -454,6 +474,7 @@ export default function ContactDetailPage() {
       </Modal>
 
       <ConfirmDialog open={showDelete} onClose={() => setShowDelete(false)} onConfirm={handleDelete} title="Delete Contact?" message={`Are you sure you want to delete ${contact.first_name} ${contact.last_name}? This action cannot be undone.`} variant="danger" />
+      <ConfirmDialog open={!!deleteActivityTarget} onClose={() => setDeleteActivityTarget(null)} onConfirm={() => deleteActivityTarget && handleDeleteActivity(deleteActivityTarget)} title="Delete this activity?" message="This activity will be permanently removed." variant="danger" />
     </div>
   );
 }
