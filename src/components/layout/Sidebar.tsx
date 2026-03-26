@@ -27,12 +27,14 @@ import {
   Star,
   Calculator,
   Settings,
+  Handshake,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   home: Home,
   'check-circle': CheckCircle,
   users: Users,
+  handshake: Handshake,
   'file-text': FileText,
   send: Send,
   'share-2': Share2,

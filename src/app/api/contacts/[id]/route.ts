@@ -153,6 +153,10 @@ export async function PATCH(
     if (body.budget !== undefined) updates.budget = body.budget ? sanitizeInput(body.budget, 200) : null;
     if (body.location_preference !== undefined) updates.location_preference = body.location_preference ? sanitizeInput(body.location_preference, 200) : null;
     if (body.notes !== undefined) updates.notes = body.notes ? sanitizeInput(body.notes, 2000) : null;
+    if (body.next_follow_up_date !== undefined) updates.next_follow_up_date = body.next_follow_up_date || null;
+    if (body.last_contact_date !== undefined) updates.last_contact_date = body.last_contact_date || null;
+    if (body.follow_up_notes !== undefined) updates.follow_up_notes = body.follow_up_notes ? sanitizeInput(body.follow_up_notes, 500) : null;
+    if (body.referral_partner_id !== undefined) updates.referral_partner_id = body.referral_partner_id || null;
     if (body.track_type !== undefined) {
       const validTracks = ['buyer', 'seller', 'landlord', 'tenant', 'investor', 'sphere'];
       if (!validTracks.includes(body.track_type.toLowerCase())) {

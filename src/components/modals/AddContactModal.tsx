@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -120,6 +120,9 @@ interface FormData {
   location_preference: string;
   lead_source: string;
   language_preference: string;
+  next_follow_up_date: string;
+  follow_up_notes: string;
+  referral_partner_id: string;
   notes: string;
 }
 
@@ -138,6 +141,9 @@ const INITIAL_FORM: FormData = {
   location_preference: '',
   lead_source: '',
   language_preference: 'en',
+  next_follow_up_date: '',
+  follow_up_notes: '',
+  referral_partner_id: '',
   notes: '',
 };
 
@@ -158,6 +164,13 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [partners, setPartners] = useState<Array<{ id: string; first_name: string; last_name: string | null }>>([]);
+
+  useEffect(() => {
+    if (open) {
+      fetch('/api/referral-partners').then(r => r.json()).then(d => setPartners(d.partners || [])).catch(() => {});
+    }
+  }, [open]);
 
   const availableStages = PIPELINE_STAGES_BY_TRACK[form.track_type];
 
@@ -229,6 +242,9 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           location_preference: form.location_preference.trim() || null,
           lead_source: form.lead_source || null,
           language_preference: form.language_preference || 'en',
+          next_follow_up_date: form.next_follow_up_date || null,
+          follow_up_notes: form.follow_up_notes.trim() || null,
+          referral_partner_id: form.referral_partner_id || null,
           notes: form.notes.trim() || null,
         }),
       });
@@ -401,6 +417,44 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
             </select>
           </div>
         </div>
+
+        {/* Follow-Up & Referral Partner */}
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            label="Next Follow-Up Date"
+            type="date"
+            value={form.next_follow_up_date}
+            onChange={e => updateField('next_follow_up_date', e.target.value)}
+            disabled={loading}
+          />
+          <div className="w-full">
+            <label
+              htmlFor="referral-partner"
+              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            >
+              Referral Partner
+            </label>
+            <select
+              id="referral-partner"
+              value={form.referral_partner_id}
+              onChange={e => updateField('referral_partner_id', e.target.value)}
+              className={selectClassName}
+              disabled={loading}
+            >
+              <option value="">None</option>
+              {partners.map(p => (
+                <option key={p.id} value={p.id}>{p.first_name} {p.last_name || ''}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <Input
+          label="Follow-Up Notes"
+          placeholder="Reminder notes for follow-up..."
+          value={form.follow_up_notes}
+          onChange={e => updateField('follow_up_notes', e.target.value)}
+          disabled={loading}
+        />
 
         {/* Address */}
         <Input

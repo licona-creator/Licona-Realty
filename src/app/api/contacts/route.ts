@@ -270,6 +270,9 @@ export async function POST(request: Request) {
       budget: body.budget ? sanitizeInput(body.budget, 200) : null,
       location_preference: body.location_preference ? sanitizeInput(body.location_preference, 200) : null,
       notes: body.notes ? sanitizeInput(body.notes, 2000) : null,
+      next_follow_up_date: body.next_follow_up_date || null,
+      follow_up_notes: body.follow_up_notes ? sanitizeInput(body.follow_up_notes, 500) : null,
+      referral_partner_id: body.referral_partner_id || null,
     };
 
     const { data, error } = await supabase

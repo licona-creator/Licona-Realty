@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
 import { useRouter } from 'next/navigation';
-import { Users, Plus, Search, Upload, Filter, Phone, Mail, Trash2, ChevronRight } from 'lucide-react';
+import { Users, Plus, Search, Upload, Filter, Phone, Mail, Trash2, ChevronRight, MessageCircle, PhoneCall, AlertCircle } from 'lucide-react';
 import { AddContactModal } from '@/components/modals/AddContactModal';
 import { ImportContactsModal } from '@/components/modals/ImportContactsModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -34,6 +34,7 @@ interface Contact {
   lead_source: string | null;
   location_preference: string | null;
   budget: string | null;
+  next_follow_up_date: string | null;
   created_at: string;
 }
 
@@ -258,6 +259,11 @@ export default function ContactsPage() {
                     </div>
                   </div>
 
+                  {/* Overdue indicator */}
+                  {contact.next_follow_up_date && new Date(contact.next_follow_up_date) < new Date(new Date().toISOString().split('T')[0]) && (
+                    <span className="flex-shrink-0" title="Overdue follow-up"><AlertCircle size={14} className="text-red-500" /></span>
+                  )}
+
                   {/* Track badge */}
                   <span className="text-[10px] font-montserrat font-semibold uppercase px-2 py-1 rounded-full bg-gold/10 text-gold flex-shrink-0">
                     {contact.track_type}
@@ -268,8 +274,18 @@ export default function ContactsPage() {
                     {contact.pipeline_stage?.replace(/_/g, ' ')}
                   </span>
 
-                  {/* Actions */}
+                  {/* Quick Actions */}
                   <div className="flex items-center gap-1 flex-shrink-0">
+                    {contact.phone && (
+                      <a href={`tel:${contact.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded hover:bg-green-500/10 text-navy/30 dark:text-white/30 hover:text-green-600 transition-colors" title="Call">
+                        <PhoneCall size={14} />
+                      </a>
+                    )}
+                    {contact.phone && (
+                      <a href={`sms:${contact.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded hover:bg-blue-500/10 text-navy/30 dark:text-white/30 hover:text-blue-600 transition-colors" title="Text">
+                        <MessageCircle size={14} />
+                      </a>
+                    )}
                     <button
                       onClick={(e) => { e.stopPropagation(); setDeleteTarget(contact); }}
                       className="p-1.5 rounded hover:bg-red-500/10 text-navy/30 dark:text-white/30 hover:text-red-500 transition-colors"

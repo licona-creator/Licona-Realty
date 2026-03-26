@@ -24,6 +24,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const today = new Date().toISOString().split('T')[0];
+    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
     // Parallel data fetches
     const [
       approvalRes,
@@ -32,6 +35,9 @@ export async function GET(request: NextRequest) {
       bookingsRes,
       alertsRes,
       recentActivityRes,
+      followUpRes,
+      activitiesRes,
+      partnersRes,
     ] = await Promise.all([
       // Pending approvals
       supabase
@@ -70,11 +76,33 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false })
         .limit(5),
 
-      // Recent activity
+      // Recent audit activity
       supabase
         .from('audit_logs')
         .select('action, resource_type, details, timestamp')
         .order('timestamp', { ascending: false })
+        .limit(10),
+
+      // Follow-up contacts
+      supabase
+        .from('contacts')
+        .select('id, first_name, last_name, phone, email, next_follow_up_date, follow_up_notes, pipeline_stage, track_type')
+        .eq('is_deleted', false)
+        .not('next_follow_up_date', 'is', null)
+        .order('next_follow_up_date', { ascending: true }),
+
+      // Recent logged activities
+      supabase
+        .from('activities')
+        .select('id, activity_type, direction, description, activity_date, contacts(first_name, last_name)')
+        .order('activity_date', { ascending: false })
+        .limit(5),
+
+      // Referral partners
+      supabase
+        .from('referral_partners')
+        .select('id, first_name, last_name, total_leads_sent, total_closings, total_revenue_generated')
+        .order('total_revenue_generated', { ascending: false })
         .limit(10),
     ]);
 
@@ -111,7 +139,21 @@ export async function GET(request: NextRequest) {
       return days >= 0 && days <= 30;
     });
 
+    // Process follow-ups
+    const followUpContacts = followUpRes.data || [];
+    const overdueFollowUps = followUpContacts.filter(c => c.next_follow_up_date < today);
+    const todayFollowUps = followUpContacts.filter(c => c.next_follow_up_date === today);
+    const upcomingFollowUps = followUpContacts.filter(c => c.next_follow_up_date > today && c.next_follow_up_date <= nextWeek);
+
     return NextResponse.json({
+      followUps: {
+        overdue: overdueFollowUps,
+        today: todayFollowUps,
+        upcoming: upcomingFollowUps,
+        counts: { overdue: overdueFollowUps.length, today: todayFollowUps.length, upcoming: upcomingFollowUps.length },
+      },
+      recentActivities: activitiesRes.data || [],
+      partners: partnersRes.data || [],
       approvalQueue: {
         items: approvalRes.data || [],
         count: (approvalRes.data || []).length,

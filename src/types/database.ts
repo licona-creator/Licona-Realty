@@ -55,6 +55,10 @@ export interface Contact {
   budget: string | null;
   location_preference: string | null;
   notes: string | null;
+  referral_partner_id: string | null;
+  next_follow_up_date: string | null;
+  last_contact_date: string | null;
+  follow_up_notes: string | null;
 
   // Preferences
   language_preference: LanguagePreference;
