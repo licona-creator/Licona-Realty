@@ -92,15 +92,27 @@ export async function PATCH(
 
   updates.updated_at = new Date().toISOString();
 
+  // Support commission_rate and referral_fee
+  if (body.commission_rate !== undefined) updates.commission_rate = body.commission_rate;
+  if (body.referral_fee !== undefined) updates.referral_fee = body.referral_fee;
+
   const { data, error } = await supabase
     .from('transactions')
     .update(updates)
     .eq('id', id)
-    .select()
+    .select('*, contacts(first_name, last_name, email, phone)')
     .single();
 
   if (error) {
     return NextResponse.json({ error: 'Failed to update transaction' }, { status: 500 });
+  }
+
+  // Auto-update contact pipeline when transaction status changes to 'closed'
+  if (body.status === 'closed' && data?.contact_id) {
+    await supabase
+      .from('contacts')
+      .update({ pipeline_stage: 'closed', updated_at: new Date().toISOString() })
+      .eq('id', data.contact_id);
   }
 
   await writeAuditLog({

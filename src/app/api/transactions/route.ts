@@ -151,7 +151,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ transaction: data }, { status: 201 });
+    // Auto-update contact pipeline_stage to 'under_contract'
+    if (contact_id) {
+      await supabase
+        .from('contacts')
+        .update({ pipeline_stage: 'under_contract', updated_at: new Date().toISOString() })
+        .eq('id', contact_id);
+    }
+
+    return NextResponse.json({ transaction: data, pipeline_updated: true }, { status: 201 });
   } catch (err) {
     console.error('[transactions:POST] Unexpected error:', err);
     return NextResponse.json(

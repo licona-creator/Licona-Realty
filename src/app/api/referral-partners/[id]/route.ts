@@ -64,7 +64,18 @@ export async function GET(
       total_revenue_generated: revenue,
     };
 
-    return NextResponse.json({ partner: partnerWithStats, contacts: contacts || [], transactions });
+    // Calculate total referral fees paid to this partner
+    let totalReferralFees = 0;
+    if (contactIds.length > 0) {
+      const { data: feeData } = await supabase
+        .from('transactions')
+        .select('referral_fee')
+        .in('contact_id', contactIds)
+        .not('referral_fee', 'is', null);
+      totalReferralFees = (feeData || []).reduce((sum, t) => sum + (t.referral_fee || 0), 0);
+    }
+
+    return NextResponse.json({ partner: partnerWithStats, contacts: contacts || [], transactions, totalReferralFees });
   } catch (err) {
     console.error('[referral-partners:GET:id]', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

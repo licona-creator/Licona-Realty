@@ -14,17 +14,16 @@ import { LRMonogram } from '@/components/ui/LRMonogram';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useAuth } from '@/hooks/useAuth';
 import {
-  Send, Share2, MapPin, Calendar, Palette,
-  TrendingUp, Star, Calculator, Settings, LogOut,
+  Send, Megaphone, MapPin, Calendar, Palette,
+  Star, Calculator, Settings, LogOut,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   send: Send,
-  'share-2': Share2,
+  megaphone: Megaphone,
   'map-pin': MapPin,
   calendar: Calendar,
   palette: Palette,
-  'trending-up': TrendingUp,
   star: Star,
   calculator: Calculator,
 };

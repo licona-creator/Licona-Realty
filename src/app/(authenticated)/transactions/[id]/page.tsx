@@ -35,6 +35,8 @@ interface TransactionData {
   commission_gross: number | null;
   commission_broker_split: number | null;
   commission_net: number | null;
+  commission_rate: number | null;
+  referral_fee: number | null;
   notes: Array<{ id: string; content: string; created_at: string }> | null;
   created_at: string;
   updated_at: string;
@@ -452,35 +454,14 @@ export default function TransactionDetailPage() {
             </button>
           </Card>
 
-          {/* Commission */}
-          {(transaction.commission_gross || transaction.commission_net) && (
-            <Card className="!p-5">
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3 flex items-center gap-2">
-                <DollarSign size={14} className="text-gold" />
-                Commission
-              </h3>
-              <div className="space-y-2">
-                {transaction.commission_gross && (
-                  <div className="flex justify-between">
-                    <span className="text-xs text-navy/40 dark:text-white/40 font-inter">Gross</span>
-                    <span className="text-sm font-inter text-navy dark:text-white">${transaction.commission_gross.toLocaleString()}</span>
-                  </div>
-                )}
-                {transaction.commission_broker_split && (
-                  <div className="flex justify-between">
-                    <span className="text-xs text-navy/40 dark:text-white/40 font-inter">Broker Split</span>
-                    <span className="text-sm font-inter text-navy dark:text-white">${transaction.commission_broker_split.toLocaleString()}</span>
-                  </div>
-                )}
-                {transaction.commission_net && (
-                  <div className="flex justify-between border-t border-gold/10 pt-2">
-                    <span className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Net</span>
-                    <span className="text-sm font-montserrat font-bold text-gold">${transaction.commission_net.toLocaleString()}</span>
-                  </div>
-                )}
-              </div>
-            </Card>
-          )}
+          {/* Commission Tracker */}
+          <Card className="!p-5">
+            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3 flex items-center gap-2">
+              <DollarSign size={14} className="text-gold" />
+              Commission
+            </h3>
+            <CommissionSection transaction={transaction} onUpdate={fetchTransaction} />
+          </Card>
 
           {/* Key Dates */}
           {transaction.key_dates && Object.keys(transaction.key_dates).length > 0 && (
@@ -647,6 +628,83 @@ export default function TransactionDetailPage() {
         message={`Are you sure you want to delete the transaction for ${transaction.property_address}? This action cannot be undone.`}
         variant="danger"
       />
+    </div>
+  );
+}
+
+function CommissionSection({ transaction, onUpdate }: { transaction: TransactionData; onUpdate: () => void }) {
+  const toast = useToast();
+  const [rate, setRate] = useState(transaction.commission_rate?.toString() || '3.0');
+  const [fee, setFee] = useState(transaction.referral_fee?.toString() || '0');
+  const [saving, setSaving] = useState(false);
+
+  const price = transaction.contract_price || 0;
+  const commissionRate = parseFloat(rate) || 0;
+  const referralFee = parseFloat(fee) || 0;
+  const gross = Math.round(price * commissionRate / 100);
+  const net = gross - referralFee;
+
+  async function saveCommission() {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/transactions/${transaction.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          commission_rate: commissionRate,
+          referral_fee: referralFee,
+          commission_gross: gross,
+          commission_net: net,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+      toast.success('Commission Updated', 'Commission details saved.');
+      onUpdate();
+    } catch {
+      toast.error('Error', 'Failed to save commission.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="text-[10px] text-navy/40 dark:text-white/40 font-inter block mb-1">Commission Rate (%)</label>
+        <input
+          type="number"
+          step="0.1"
+          value={rate}
+          onChange={e => setRate(e.target.value)}
+          className="w-full px-3 py-1.5 rounded-[8px] border border-gold/15 bg-white dark:bg-dark-card text-sm font-inter text-navy dark:text-white focus:outline-none focus:ring-1 focus:ring-gold/50"
+        />
+      </div>
+      <div>
+        <label className="text-[10px] text-navy/40 dark:text-white/40 font-inter block mb-1">Referral Fee ($)</label>
+        <input
+          type="number"
+          value={fee}
+          onChange={e => setFee(e.target.value)}
+          className="w-full px-3 py-1.5 rounded-[8px] border border-gold/15 bg-white dark:bg-dark-card text-sm font-inter text-navy dark:text-white focus:outline-none focus:ring-1 focus:ring-gold/50"
+        />
+      </div>
+      <div className="pt-2 border-t border-gold/10 space-y-1.5">
+        <div className="flex justify-between">
+          <span className="text-xs text-navy/40 dark:text-white/40 font-inter">Gross Commission</span>
+          <span className="text-sm font-inter text-navy dark:text-white">${gross.toLocaleString()}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-xs text-navy/40 dark:text-white/40 font-inter">Referral Fee</span>
+          <span className="text-sm font-inter text-red-500">-${referralFee.toLocaleString()}</span>
+        </div>
+        <div className="flex justify-between border-t border-gold/10 pt-1.5">
+          <span className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Net Commission</span>
+          <span className="text-sm font-montserrat font-bold text-gold">${net.toLocaleString()}</span>
+        </div>
+      </div>
+      <Button variant="accent" size="sm" onClick={saveCommission} loading={saving} className="w-full">
+        {saving ? 'Saving...' : 'Save Commission'}
+      </Button>
     </div>
   );
 }

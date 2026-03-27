@@ -37,6 +37,7 @@ export default function PartnerDetailPage() {
   const [partner, setPartner] = useState<PartnerData | null>(null);
   const [contacts, setContacts] = useState<ReferredContact[]>([]);
   const [transactions, setTransactions] = useState<ReferredTransaction[]>([]);
+  const [totalReferralFees, setTotalReferralFees] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -52,6 +53,7 @@ export default function PartnerDetailPage() {
       setPartner(data.partner);
       setContacts(data.contacts || []);
       setTransactions(data.transactions || []);
+      setTotalReferralFees(data.totalReferralFees || 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load');
     } finally { setLoading(false); }
@@ -123,11 +125,22 @@ export default function PartnerDetailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card className="!p-4 text-center"><Users size={16} className="text-gold mx-auto mb-1" /><p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{partner.total_leads_sent}</p><p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">Leads Sent</p></Card>
         <Card className="!p-4 text-center"><TrendingUp size={16} className="text-green-500 mx-auto mb-1" /><p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{partner.total_closings}</p><p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">Closings</p></Card>
         <Card className="!p-4 text-center"><DollarSign size={16} className="text-gold mx-auto mb-1" /><p className="text-2xl font-bold text-gold" style={{ fontFamily: BRAND.fonts.dmSerif }}>${(partner.total_revenue_generated || 0).toLocaleString()}</p><p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">Revenue</p></Card>
+        <Card className="!p-4 text-center"><DollarSign size={16} className="text-blue-500 mx-auto mb-1" /><p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{partner.total_revenue_generated > 0 && totalReferralFees > 0 ? `${Math.round(partner.total_revenue_generated / totalReferralFees)}x` : 'N/A'}</p><p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">ROI (Rev/Fees)</p></Card>
       </div>
+
+      {/* Referral Fee Summary */}
+      {totalReferralFees > 0 && (
+        <Card className="!p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-montserrat font-medium text-navy/70 dark:text-white/70">Total Referral Fees Paid</span>
+            <span className="text-lg font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>${totalReferralFees.toLocaleString()}</span>
+          </div>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         <div className="lg:col-span-2 space-y-4">

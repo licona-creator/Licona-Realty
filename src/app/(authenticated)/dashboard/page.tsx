@@ -10,6 +10,7 @@ import {
   CheckCircle, Users, FileText, Calendar, Shield, Zap, AlertTriangle,
   Clock, DollarSign, ArrowRight, ChevronRight, Phone, PhoneCall,
   MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag, Check,
+  Send, Copy,
 } from 'lucide-react';
 import { FollowUpActionPanel } from '@/components/dashboard/FollowUpActionPanel';
 
@@ -49,6 +50,17 @@ interface DashboardData {
   };
   schedule: { todayBookings: Array<{ id: string; meeting_type: string; visitor_name: string; scheduled_time: string }>; count: number };
   intelligence: { alerts: Array<{ category: string; message: string; severity: string; action_path: string | null }>; count: number };
+  commissionYTD?: number;
+  commissionProjected?: number;
+}
+
+interface CampaignMessageDue {
+  enrollment_id: string;
+  campaign_name: string;
+  contact_id: string;
+  contact_name: string;
+  message_content: string;
+  current_step: number;
 }
 
 const ACTIVITY_ICONS: Record<string, typeof PhoneCall> = {
@@ -85,19 +97,26 @@ export default function DashboardPage() {
   const [expandedContactId, setExpandedContactId] = useState<string | null>(null);
   const [completedToday, setCompletedToday] = useState(0);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [campaignMessages, setCampaignMessages] = useState<CampaignMessageDue[]>([]);
+  const [expandedCampaignId, setExpandedCampaignId] = useState<string | null>(null);
   const { settings } = useAgentSettings();
   const displayName = settings?.profile_name || BRAND.agent.name;
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const [dashRes, fuRes] = await Promise.all([
+      const [dashRes, fuRes, campRes] = await Promise.all([
         fetch('/api/dashboard'),
         fetch('/api/dashboard/follow-ups'),
+        fetch('/api/dashboard/campaign-messages'),
       ]);
       if (dashRes.ok) setData(await dashRes.json());
       if (fuRes.ok) {
         const fuData = await fuRes.json();
         setFollowUps(fuData);
+      }
+      if (campRes.ok) {
+        const campData = await campRes.json();
+        setCampaignMessages(campData.messages || []);
       }
     } catch { /* empty */ } finally { setLoading(false); }
   }, []);
@@ -335,6 +354,63 @@ export default function DashboardPage() {
           )}
         </Card>
 
+        {/* Campaign Messages Due */}
+        {campaignMessages.length > 0 && (
+          <Card className="!p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Send size={22} className="text-gold" />
+              <h2 className="text-lg font-semibold font-montserrat text-navy dark:text-white">Campaign Messages Due</h2>
+              <Badge variant="gold">{campaignMessages.length}</Badge>
+            </div>
+            <div className="space-y-2">
+              {campaignMessages.map(msg => (
+                <div key={msg.enrollment_id} className="rounded-lg border border-gold/10 bg-gold/[0.03]">
+                  <button
+                    onClick={() => setExpandedCampaignId(prev => prev === msg.enrollment_id ? null : msg.enrollment_id)}
+                    className="w-full p-3 text-left hover:bg-gold/5 transition-colors rounded-lg"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{msg.contact_name}</p>
+                        <p className="text-xs text-navy/50 dark:text-white/50 font-inter">{msg.campaign_name} - Step {msg.current_step}</p>
+                      </div>
+                      <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform ${expandedCampaignId === msg.enrollment_id ? 'rotate-90' : ''}`} />
+                    </div>
+                  </button>
+                  {expandedCampaignId === msg.enrollment_id && (
+                    <div className="px-3 pb-3 space-y-2">
+                      <div className="p-3 rounded-lg bg-surface dark:bg-navy/30">
+                        <p className="text-sm font-inter text-navy/70 dark:text-white/70 whitespace-pre-wrap">{msg.message_content}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => navigator.clipboard.writeText(msg.message_content)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-[8px] bg-gold/10 text-gold text-xs font-montserrat font-medium hover:bg-gold/20 transition-colors"
+                        >
+                          <Copy size={12} /> Copy
+                        </button>
+                        <button
+                          onClick={async () => {
+                            await fetch('/api/campaigns/enroll', {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ enrollment_id: msg.enrollment_id, action: 'advance' }),
+                            });
+                            fetchDashboard();
+                          }}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-[8px] bg-navy text-white dark:bg-gold dark:text-navy text-xs font-montserrat font-medium hover:opacity-90 transition-colors"
+                        >
+                          <Check size={12} /> Log and Advance
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
         {/* Pipeline Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="!p-4">
@@ -356,6 +432,20 @@ export default function DashboardPage() {
             <Users size={16} className="text-gold mb-2" />
             <p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{contactTotal}</p>
             <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Total Contacts</p>
+          </Card>
+        </div>
+
+        {/* Income Cards */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="!p-4">
+            <DollarSign size={16} className="text-green-500 mb-2" />
+            <p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>${(data?.commissionYTD || 0).toLocaleString()}</p>
+            <p className="text-xs text-navy/50 dark:text-white/50 font-inter">YTD Income (Net)</p>
+          </Card>
+          <Card className="!p-4">
+            <TrendingUp size={16} className="text-gold mb-2" />
+            <p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>${(data?.commissionProjected || 0).toLocaleString()}</p>
+            <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Projected (Active)</p>
           </Card>
         </div>
 

@@ -141,13 +141,24 @@ export async function POST(request: Request) {
     const firstName = nameParts[0] || visitorName;
     const lastName = nameParts.slice(1).join(' ') || '';
 
+    // Map consultation type to track type
+    const trackTypeMap: Record<string, string> = {
+      buyer_consultation: 'buyer',
+      seller_consultation: 'seller',
+      investor_strategy: 'investor',
+      general_inquiry: 'buyer',
+      showing_request: 'buyer',
+    };
+    const contactTrackType = trackTypeMap[body.meeting_type] || 'buyer';
+
     // Create or find contact in CRM
     const { data: existingContact } = await supabase
       .from('contacts')
       .select('id')
-      .eq('email', emailResult.sanitized)
+      .or(`email.eq.${emailResult.sanitized},phone.eq.${phoneResult.sanitized}`)
       .eq('user_id', agentUser.id)
       .eq('is_deleted', false)
+      .limit(1)
       .single();
 
     let contactId: string;
@@ -163,10 +174,10 @@ export async function POST(request: Request) {
           last_name: lastName,
           email: emailResult.sanitized,
           phone: phoneResult.sanitized,
-          track_type: 'buyer', // Default; agent can change
+          track_type: contactTrackType,
           pipeline_stage: 'new',
-          lead_source: 'Booking Page',
-          lead_score: 65, // Higher score for proactive bookings
+          lead_source: 'website',
+          lead_score: 65,
         })
         .select('id')
         .single();
@@ -177,6 +188,16 @@ export async function POST(request: Request) {
       }
       contactId = newContact.id;
     }
+
+    // Log activity note for the booking
+    const consultationLabel = body.meeting_type.replace(/_/g, ' ');
+    await supabase.from('activities').insert({
+      user_id: agentUser.id,
+      contact_id: contactId,
+      activity_type: 'note',
+      description: `Booking request via website. Type: ${consultationLabel}. Preferred date: ${body.scheduled_date} at ${body.scheduled_time}.${visitorNote ? ' Note: ' + visitorNote : ''}`,
+      activity_date: new Date().toISOString(),
+    });
 
     // Create booking record
     const duration = MEETING_DURATIONS[body.meeting_type] || 30;

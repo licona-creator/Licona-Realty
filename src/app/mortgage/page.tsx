@@ -100,6 +100,10 @@ export default function MortgageCalculatorPage() {
   const [result, setResult] = useState<MortgageResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [quickLeadName, setQuickLeadName] = useState('');
+  const [quickLeadPhone, setQuickLeadPhone] = useState('');
+  const [quickLeadEmail, setQuickLeadEmail] = useState('');
+  const [quickLeadSubmitted, setQuickLeadSubmitted] = useState(false);
 
   const isEnglish = language === 'en';
 
@@ -123,7 +127,7 @@ export default function MortgageCalculatorPage() {
 
     try {
       // Submit lead capture to server
-      const res = await fetch('/api/mortgage/calculate', {
+      await fetch('/api/mortgage/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -138,17 +142,37 @@ export default function MortgageCalculatorPage() {
           language,
         }),
       });
-
-      if (res.ok) {
-        // Server result may override client-side, but client-side is already stored
-        setStep('results');
-      } else {
-        // Even if server fails, still show client-side results
-        setStep('results');
-      }
     } catch {
-      // Show client-side results even on network failure
+      // Continue to results even on network failure
+    } finally {
+      setLoading(false);
       setStep('results');
+    }
+  }
+
+  async function handleQuickLead(e: FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await fetch('/api/mortgage/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          visitor_name: quickLeadName,
+          visitor_phone: quickLeadPhone,
+          visitor_email: quickLeadEmail || null,
+          calculator_inputs: {
+            annual_income: parseFloat(income),
+            monthly_debts: parseFloat(debts) || 0,
+            down_payment: parseFloat(downPayment) || 0,
+            credit_score_range: creditScore,
+            desired_location: location,
+          },
+        }),
+      });
+      setQuickLeadSubmitted(true);
+    } catch {
+      // Silent fail
     } finally {
       setLoading(false);
     }
@@ -453,10 +477,68 @@ export default function MortgageCalculatorPage() {
               </div>
             </motion.div>
 
+            {/* Quick Lead Capture */}
+            {!quickLeadSubmitted ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-white/5 rounded-[12px] p-5 mb-6"
+              >
+                <p className="text-sm font-montserrat font-semibold text-white mb-1">
+                  {isEnglish ? 'Want to discuss your options with a local expert?' : 'Quieres hablar con un experto local?'}
+                </p>
+                <p className="text-xs text-white/50 font-inter mb-4">
+                  {isEnglish ? 'Leave your info and Anthony will reach out.' : 'Deja tu informacion y Anthony te contactara.'}
+                </p>
+                <form onSubmit={handleQuickLead} className="space-y-3">
+                  <input
+                    type="text"
+                    value={quickLeadName}
+                    onChange={e => setQuickLeadName(e.target.value)}
+                    placeholder={isEnglish ? 'Your Name' : 'Tu Nombre'}
+                    required
+                    className={inputClasses}
+                    style={inputStyle}
+                  />
+                  <input
+                    type="tel"
+                    value={quickLeadPhone}
+                    onChange={e => setQuickLeadPhone(e.target.value)}
+                    placeholder={isEnglish ? 'Phone Number' : 'Numero de Telefono'}
+                    required
+                    className={inputClasses}
+                    style={inputStyle}
+                  />
+                  <input
+                    type="email"
+                    value={quickLeadEmail}
+                    onChange={e => setQuickLeadEmail(e.target.value)}
+                    placeholder={isEnglish ? 'Email (optional)' : 'Correo (opcional)'}
+                    className={inputClasses}
+                    style={inputStyle}
+                  />
+                  <Button type="submit" variant="accent" size="lg" className="w-full" disabled={loading}>
+                    {isEnglish ? 'Get in Touch' : 'Contactame'}
+                  </Button>
+                </form>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white/5 rounded-[12px] p-5 mb-6 text-center"
+              >
+                <p className="text-sm font-montserrat font-semibold text-gold">
+                  {isEnglish ? 'Thanks! Anthony will be in touch soon.' : 'Gracias! Anthony te contactara pronto.'}
+                </p>
+              </motion.div>
+            )}
+
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.6 }}
             >
               <Link
                 href="/booking"

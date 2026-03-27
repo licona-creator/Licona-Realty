@@ -3,7 +3,8 @@
  *
  * Combines sidebar (desktop) and bottom tab bar (mobile)
  * with the main content area. Approval queue badge visible everywhere.
- * Includes session timeout warning and global AI assistant button.
+ * Includes session timeout warning, global AI assistant button,
+ * global search, and notifications.
  */
 
 'use client';
@@ -14,6 +15,8 @@ import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
 import { SessionTimeoutWarning } from '@/components/auth/SessionTimeoutWarning';
 import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
+import { GlobalSearch } from '@/components/shared/GlobalSearch';
+import { NotificationBell } from '@/components/shared/NotificationBell';
 import { BRAND } from '@/lib/brand';
 import { Sparkles } from 'lucide-react';
 
@@ -36,6 +39,19 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
 
       {/* Desktop Sidebar */}
       <Sidebar approvalCount={approvalCount} />
+
+      {/* Top Bar (desktop) - Search + Notifications */}
+      <div className="hidden lg:flex fixed top-0 right-0 z-30 items-center gap-3 px-6 py-3" style={{ left: '16rem' }}>
+        <div className="flex-1" />
+        <GlobalSearch />
+        <NotificationBell />
+      </div>
+
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden flex items-center justify-end gap-2 px-4 py-2 sticky top-0 z-30 bg-surface/80 dark:bg-navy/80 backdrop-blur-sm">
+        <GlobalSearch />
+        <NotificationBell />
+      </div>
 
       {/* Main Content */}
       <main className="lg:ml-64 pb-20 lg:pb-0 min-h-screen">

@@ -247,6 +247,34 @@ export async function POST(request: Request) {
       );
     }
 
+    // Duplicate detection: check for existing contact with same phone OR email
+    if (sanitizedEmail || sanitizedPhone) {
+      const orClauses: string[] = [];
+      if (sanitizedEmail) orClauses.push(`email.eq.${sanitizedEmail}`);
+      if (sanitizedPhone) orClauses.push(`phone.eq.${sanitizedPhone}`);
+
+      const { data: duplicates } = await supabase
+        .from('contacts')
+        .select('id, first_name, last_name, email, phone')
+        .eq('is_deleted', false)
+        .or(orClauses.join(','))
+        .limit(1);
+
+      if (duplicates && duplicates.length > 0 && !body.force_create) {
+        const dup = duplicates[0];
+        return NextResponse.json({
+          warning: 'duplicate_found',
+          existing_contact: {
+            id: dup.id,
+            name: `${dup.first_name} ${dup.last_name}`,
+            email: dup.email,
+            phone: dup.phone,
+          },
+          message: `A contact with this ${sanitizedEmail && dup.email === sanitizedEmail ? 'email' : 'phone'} already exists.`,
+        }, { status: 200 });
+      }
+    }
+
     // Build contact record
     const contactData = {
       user_id: user.id,

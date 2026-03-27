@@ -175,6 +175,26 @@ export async function GET(request: NextRequest) {
       };
     }).sort((a, b) => b.total_revenue_generated - a.total_revenue_generated);
 
+    // Commission calculations
+    const { data: closedTransactions } = await supabase
+      .from('transactions')
+      .select('commission_net, commission_rate, contract_price, referral_fee')
+      .eq('status', 'closed');
+
+    const commissionYTD = (closedTransactions || []).reduce((sum, t) => {
+      if (t.commission_net) return sum + t.commission_net;
+      const rate = t.commission_rate || 3;
+      const gross = (t.contract_price || 0) * rate / 100;
+      const fee = t.referral_fee || 0;
+      return sum + (gross - fee);
+    }, 0);
+
+    const commissionProjected = transactions.reduce((sum, t) => {
+      const rate = 3; // default
+      const gross = (t.contract_price || 0) * rate / 100;
+      return sum + gross;
+    }, 0);
+
     // Process follow-ups
     const followUpContacts = followUpRes.data || [];
     const overdueFollowUps = followUpContacts.filter(c => c.next_follow_up_date < today);
@@ -217,6 +237,8 @@ export async function GET(request: NextRequest) {
         count: (alertsRes.data || []).length,
       },
       recentActivity: recentActivityRes.data || [],
+      commissionYTD: Math.round(commissionYTD),
+      commissionProjected: Math.round(commissionProjected),
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

@@ -526,6 +526,59 @@ export interface AuditLog {
 
 export type IntegrationProvider = 'google' | 'docusign' | 'canva' | 'meta';
 
+// ============================================
+// Campaign Templates (Build 2)
+// ============================================
+
+export interface CampaignTemplate {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  track_type: string;
+  status: 'active' | 'paused' | 'archived';
+  messages: CampaignTemplateMessage[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CampaignTemplateMessage {
+  day: number;
+  type: 'text';
+  content: string;
+}
+
+export interface CampaignEnrollmentV2 {
+  id: string;
+  user_id: string;
+  campaign_id: string;
+  contact_id: string;
+  current_step: number;
+  status: 'active' | 'paused' | 'completed' | 'stopped';
+  next_message_date: string | null;
+  enrolled_at: string;
+  completed_at: string | null;
+}
+
+// ============================================
+// Notifications
+// ============================================
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string | null;
+  link: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+// ============================================
+// User Integrations
+// ============================================
+
 export interface UserIntegration {
   id: string;
   user_id: string;

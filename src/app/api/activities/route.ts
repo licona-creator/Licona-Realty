@@ -101,12 +101,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Auto-update contact's last_contact_date and updated_at
+    const contactUpdate: Record<string, unknown> = {
+      last_contact_date: new Date().toISOString().split('T')[0],
+      updated_at: new Date().toISOString(),
+    };
+
+    // Auto-update pipeline: outbound activity on 'new' contact moves to 'contacted'
+    if (activityData.direction === 'outbound') {
+      const { data: contact } = await supabase
+        .from('contacts')
+        .select('pipeline_stage')
+        .eq('id', body.contact_id)
+        .single();
+
+      if (contact?.pipeline_stage === 'new') {
+        contactUpdate.pipeline_stage = 'contacted';
+      }
+    }
+
     await supabase
       .from('contacts')
-      .update({
-        last_contact_date: new Date().toISOString().split('T')[0],
-        updated_at: new Date().toISOString(),
-      })
+      .update(contactUpdate)
       .eq('id', body.contact_id);
 
     await writeAuditLog({

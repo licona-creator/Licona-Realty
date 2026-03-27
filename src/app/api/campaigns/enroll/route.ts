@@ -1,28 +1,41 @@
 /**
  * Campaign Enrollment API
  *
- * Enrolls a contact in a selected campaign.
- * First step always goes to the approval queue.
- * System surfaces 3-5 campaign options per contact.
- *
- * If contact replies, system pauses all remaining steps
- * and moves contact to top of queue with response alert.
+ * POST: Enroll a contact in a campaign_template
+ * PATCH: Update enrollment status (pause/resume/stop)
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { writeAuditLog, getClientIP, getUserAgent } from '@/lib/security/audit';
 import { validateUUID } from '@/lib/security/validation';
 import { logger } from '@/lib/security/logger';
+import { checkRateLimit } from '@/lib/security/rate-limit';
+
+interface CampaignMessage {
+  day: number;
+  type: 'text';
+  content: string;
+}
+
+const VALID_ENROLLMENT_STATUSES = ['active', 'paused', 'stopped'];
 
 /**
- * POST /api/campaigns/enroll - Enroll a contact in a campaign
+ * POST /api/campaigns/enroll - Enroll a contact in a campaign template
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const ip = getClientIP(request);
   const ua = getUserAgent(request);
 
   try {
+    const rateCheck = checkRateLimit(ip, 'api');
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again shortly.' },
+        { status: 429 }
+      );
+    }
+
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -32,29 +45,32 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    if (!validateUUID(body.contact_id) || !validateUUID(body.campaign_id)) {
-      return NextResponse.json({ error: 'Valid contact and campaign IDs required.' }, { status: 400 });
+    if (!validateUUID(body.contact_id) || !validateUUID(body.campaign_template_id)) {
+      return NextResponse.json(
+        { error: 'Valid contact ID and campaign template ID are required.' },
+        { status: 400 }
+      );
     }
 
-    // Verify campaign exists and get its first step
+    // Verify campaign template exists
     const { data: campaign } = await supabase
-      .from('campaigns')
-      .select('*, steps:campaign_steps(*)')
-      .eq('id', body.campaign_id)
+      .from('campaign_templates')
+      .select('*')
+      .eq('id', body.campaign_template_id)
       .single();
 
     if (!campaign) {
-      return NextResponse.json({ error: 'Campaign not found.' }, { status: 404 });
+      return NextResponse.json({ error: 'Campaign template not found.' }, { status: 404 });
     }
 
-    // Check if already enrolled in this campaign
+    // Check if already enrolled
     const { data: existing } = await supabase
       .from('campaign_enrollments')
       .select('id')
       .eq('contact_id', body.contact_id)
-      .eq('campaign_id', body.campaign_id)
-      .eq('is_completed', false)
-      .single();
+      .eq('campaign_template_id', body.campaign_template_id)
+      .in('status', ['active', 'paused'])
+      .maybeSingle();
 
     if (existing) {
       return NextResponse.json(
@@ -63,13 +79,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create enrollment
-    const steps = (campaign.steps || []).sort(
-      (a: { step_number: number }, b: { step_number: number }) => a.step_number - b.step_number
-    );
-    const firstStep = steps[0];
-    const nextDue = firstStep
-      ? new Date(Date.now() + firstStep.delay_days * 86400000).toISOString()
+    // Calculate next_message_date based on first step day number
+    const messages = (campaign.messages || []) as CampaignMessage[];
+    const sortedMessages = [...messages].sort((a, b) => a.day - b.day);
+    const firstStep = sortedMessages[0];
+
+    const nextMessageDate = firstStep
+      ? new Date(Date.now() + firstStep.day * 86400000).toISOString()
       : null;
 
     const { data: enrollment, error } = await supabase
@@ -77,9 +93,10 @@ export async function POST(request: Request) {
       .insert({
         user_id: user.id,
         contact_id: body.contact_id,
-        campaign_id: body.campaign_id,
+        campaign_template_id: body.campaign_template_id,
+        status: 'active',
         current_step: 1,
-        next_step_due_at: nextDue,
+        next_message_date: nextMessageDate,
       })
       .select()
       .single();
@@ -89,53 +106,84 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to enroll contact.' }, { status: 500 });
     }
 
-    // Queue the first step in the approval queue
-    if (firstStep) {
-      // Get contact info for the message
-      const { data: contact } = await supabase
-        .from('contacts')
-        .select('first_name, language_preference')
-        .eq('id', body.contact_id)
-        .single();
-
-      await supabase.from('approval_queue').insert({
-        user_id: user.id,
-        item_type: 'campaign_email',
-        recipient_contact_id: body.contact_id,
-        subject: firstStep.subject,
-        content: firstStep.body_template.replace(
-          /\{\{first_name\}\}/g,
-          contact?.first_name || 'there'
-        ),
-        scheduled_time: nextDue,
-        trigger_source: `Campaign: ${campaign.name} (Step 1)`,
-        tone_mode: firstStep.tone_mode,
-        urgency_level: 2,
-      });
-    }
-
-    // Update contact with selected campaign
-    await supabase
-      .from('contacts')
-      .update({
-        selected_drip_campaign: body.campaign_id,
-        campaign_enrollment_status: 'enrolled',
-      })
-      .eq('id', body.contact_id);
-
     await writeAuditLog({
       userId: user.id,
       action: 'record_create',
       resourceType: 'campaign_enrollment',
       resourceId: enrollment.id,
-      details: `Enrolled in campaign: ${campaign.name}`,
+      details: `Enrolled contact in campaign: ${campaign.name}`,
       ipAddress: ip,
       userAgent: ua,
     });
 
     return NextResponse.json({ enrollment }, { status: 201 });
   } catch (err) {
-    logger.error('Campaign enroll error', { error: String(err) });
+    logger.error('Campaign enroll POST error', { error: String(err) });
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+  }
+}
+
+/**
+ * PATCH /api/campaigns/enroll - Update enrollment status (pause/resume/stop)
+ */
+export async function PATCH(request: NextRequest) {
+  const ip = getClientIP(request);
+  const ua = getUserAgent(request);
+
+  try {
+    const rateCheck = checkRateLimit(ip, 'api');
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again shortly.' },
+        { status: 429 }
+      );
+    }
+
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    if (!validateUUID(body.enrollment_id)) {
+      return NextResponse.json({ error: 'Valid enrollment ID is required.' }, { status: 400 });
+    }
+
+    if (!body.status || !VALID_ENROLLMENT_STATUSES.includes(body.status)) {
+      return NextResponse.json(
+        { error: 'Valid status is required (active, paused, stopped).' },
+        { status: 400 }
+      );
+    }
+
+    const { data: enrollment, error } = await supabase
+      .from('campaign_enrollments')
+      .update({ status: body.status })
+      .eq('id', body.enrollment_id)
+      .select()
+      .single();
+
+    if (error) {
+      logger.error('Failed to update enrollment', { error: error.message });
+      return NextResponse.json({ error: 'Failed to update enrollment.' }, { status: 500 });
+    }
+
+    await writeAuditLog({
+      userId: user.id,
+      action: 'record_update',
+      resourceType: 'campaign_enrollment',
+      resourceId: body.enrollment_id,
+      details: `Updated enrollment status to: ${body.status}`,
+      ipAddress: ip,
+      userAgent: ua,
+    });
+
+    return NextResponse.json({ enrollment });
+  } catch (err) {
+    logger.error('Campaign enroll PATCH error', { error: String(err) });
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
