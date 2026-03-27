@@ -9,10 +9,9 @@ import { useAgentSettings } from '@/hooks/useAgentSettings';
 import {
   CheckCircle, Users, FileText, Calendar, Shield, Zap, AlertTriangle,
   Clock, DollarSign, ArrowRight, ChevronRight, Phone, PhoneCall,
-  MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag, Check, Sparkles,
+  MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag, Check,
 } from 'lucide-react';
 import { FollowUpActionPanel } from '@/components/dashboard/FollowUpActionPanel';
-import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
 
 interface FollowUpContact {
   id: string; first_name: string; last_name: string; phone: string | null;
@@ -86,7 +85,6 @@ export default function DashboardPage() {
   const [expandedContactId, setExpandedContactId] = useState<string | null>(null);
   const [completedToday, setCompletedToday] = useState(0);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
-  const [showAI, setShowAI] = useState(false);
   const { settings } = useAgentSettings();
   const displayName = settings?.profile_name || BRAND.agent.name;
 
@@ -145,6 +143,56 @@ export default function DashboardPage() {
       </div>
 
       <div className="space-y-6">
+        {/* Mobile-only: compact metric pills row */}
+        <div className="flex gap-2 overflow-x-auto pb-1 lg:hidden scrollbar-hide">
+          <div className="flex-shrink-0 px-3 py-2 rounded-full bg-gold/10 border border-gold/20">
+            <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">${pipelineValue >= 1000 ? `${Math.round(pipelineValue / 1000)}K` : pipelineValue.toLocaleString()}</span>
+          </div>
+          <div className="flex-shrink-0 px-3 py-2 rounded-full bg-blue-500/10 border border-blue-500/20">
+            <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{data?.contacts.activeLeads || 0} Leads</span>
+          </div>
+          <div className="flex-shrink-0 px-3 py-2 rounded-full bg-green-500/10 border border-green-500/20">
+            <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{activeDeals} {activeDeals === 1 ? 'Deal' : 'Deals'}</span>
+          </div>
+          <div className="flex-shrink-0 px-3 py-2 rounded-full bg-surface dark:bg-navy/50 border border-navy/10 dark:border-white/10">
+            <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{contactTotal} Contacts</span>
+          </div>
+        </div>
+
+        {/* Mobile-only: urgent closing banners */}
+        {data?.pipeline.upcomingClosings && data.pipeline.upcomingClosings.length > 0 && (
+          <div className="space-y-2 lg:hidden">
+            {data.pipeline.upcomingClosings.map(tx => {
+              const days = tx.closing_date ? Math.floor((new Date(tx.closing_date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
+              if (days === null || days > 14) return null;
+              const isUrgent = days <= 7;
+              const closingDateStr = tx.closing_date ? new Date(tx.closing_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : '';
+              return (
+                <a
+                  key={tx.id}
+                  href={`/transactions/${tx.id}`}
+                  className="flex items-center gap-3 p-3 rounded-[8px] transition-colors min-h-[44px]"
+                  style={{
+                    backgroundColor: isUrgent ? 'rgba(239,68,68,0.1)' : 'rgba(234,179,8,0.1)',
+                    border: `1px solid ${isUrgent ? 'rgba(239,68,68,0.3)' : 'rgba(234,179,8,0.3)'}`,
+                  }}
+                >
+                  <AlertTriangle size={16} className={isUrgent ? 'text-red-500 flex-shrink-0' : 'text-yellow-500 flex-shrink-0'} />
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-montserrat font-semibold ${isUrgent ? 'text-red-600' : 'text-yellow-700 dark:text-yellow-400'}`}>
+                      Closing in {days} {days === 1 ? 'day' : 'days'}
+                    </p>
+                    <p className="text-xs font-inter text-navy/70 dark:text-white/70 truncate">
+                      {tx.property_address} {closingDateStr && `- ${closingDateStr}`}
+                    </p>
+                  </div>
+                  <ChevronRight size={14} className="text-navy/30 dark:text-white/30 flex-shrink-0" />
+                </a>
+              );
+            })}
+          </div>
+        )}
+
         {/* FOLLOW-UPS - #1 Priority - Always visible */}
         <Card className={`!p-6 ${visibleOverdue.length > 0 ? '!border-red-500/30 !bg-red-500/[0.02]' : ''}`}>
           <div className="flex items-center justify-between mb-4">
@@ -173,20 +221,23 @@ export default function DashboardPage() {
                       <div key={c.id} className={`rounded-lg bg-red-500/5 border transition-colors ${expandedContactId === c.id ? 'border-gold/30' : 'border-red-500/10'}`}>
                         <button
                           onClick={() => togglePanel(c.id)}
-                          className="w-full flex items-center justify-between p-3 text-left hover:bg-red-500/10 transition-colors rounded-lg"
+                          className="w-full p-3 text-left hover:bg-red-500/10 transition-colors rounded-lg"
                         >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
-                              <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full">{daysOverdue(c.next_follow_up_date)}d overdue</span>
-                            </div>
-                            {c.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-0.5 truncate">{c.follow_up_notes}</p>}
-                            {c.phone && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{c.phone}</p>}
+                          {/* Line 1: Name + badge */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
+                            <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full">{daysOverdue(c.next_follow_up_date)}d overdue</span>
                           </div>
-                          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                            {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
-                            {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors"><MessageCircle size={12} /></a>}
-                            <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                          {/* Line 2: Notes (no truncation on mobile, 2 lines max) */}
+                          {c.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-1 line-clamp-2 lg:truncate lg:line-clamp-none">{c.follow_up_notes}</p>}
+                          {/* Line 3: Phone + actions + chevron */}
+                          <div className="flex items-center gap-2 mt-1.5">
+                            {c.phone && <span className="text-xs text-navy/40 dark:text-white/40 font-inter">{c.phone}</span>}
+                            <div className="flex items-center gap-2 ml-auto">
+                              {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><Phone size={14} /></a>}
+                              {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><MessageCircle size={14} /></a>}
+                              <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                            </div>
                           </div>
                         </button>
                         {expandedContactId === c.id && (
@@ -213,17 +264,17 @@ export default function DashboardPage() {
                       <div key={c.id} className={`rounded-lg bg-gold/5 border transition-colors ${expandedContactId === c.id ? 'border-gold/30' : 'border-gold/10'}`}>
                         <button
                           onClick={() => togglePanel(c.id)}
-                          className="w-full flex items-center justify-between p-3 text-left hover:bg-gold/10 transition-colors rounded-lg"
+                          className="w-full p-3 text-left hover:bg-gold/10 transition-colors rounded-lg"
                         >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
-                            {c.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-0.5 truncate">{c.follow_up_notes}</p>}
-                            {c.phone && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{c.phone}</p>}
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                            {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
-                            {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors"><MessageCircle size={12} /></a>}
-                            <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                          <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
+                          {c.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-1 line-clamp-2 lg:truncate lg:line-clamp-none">{c.follow_up_notes}</p>}
+                          <div className="flex items-center gap-2 mt-1.5">
+                            {c.phone && <span className="text-xs text-navy/40 dark:text-white/40 font-inter">{c.phone}</span>}
+                            <div className="flex items-center gap-2 ml-auto">
+                              {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><Phone size={14} /></a>}
+                              {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><MessageCircle size={14} /></a>}
+                              <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                            </div>
                           </div>
                         </button>
                         {expandedContactId === c.id && (
@@ -250,18 +301,18 @@ export default function DashboardPage() {
                       <div key={c.id} className={`rounded-lg border transition-colors ${expandedContactId === c.id ? 'border-gold/30 bg-surface dark:bg-navy/30' : 'border-transparent'}`}>
                         <button
                           onClick={() => togglePanel(c.id)}
-                          className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors text-left"
+                          className="w-full p-3 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors text-left"
                         >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-inter text-navy/70 dark:text-white/70">{c.first_name} {c.last_name}</p>
-                            {c.follow_up_notes && <p className="text-xs text-navy/40 dark:text-white/40 font-inter truncate">{c.follow_up_notes}</p>}
-                            {c.phone && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{c.phone}</p>}
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                            {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
-                            {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors"><MessageCircle size={12} /></a>}
-                            <span className="text-xs font-inter text-navy/40 dark:text-white/40">{new Date(c.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                            <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                          <p className="text-sm font-inter text-navy/70 dark:text-white/70">{c.first_name} {c.last_name}</p>
+                          {c.follow_up_notes && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-1 line-clamp-2 lg:truncate lg:line-clamp-none">{c.follow_up_notes}</p>}
+                          <div className="flex items-center gap-2 mt-1.5">
+                            {c.phone && <span className="text-xs text-navy/40 dark:text-white/40 font-inter">{c.phone}</span>}
+                            <div className="flex items-center gap-2 ml-auto">
+                              {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><Phone size={14} /></a>}
+                              {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><MessageCircle size={14} /></a>}
+                              <span className="text-xs font-inter text-navy/40 dark:text-white/40">{new Date(c.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                              <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                            </div>
                           </div>
                         </button>
                         {expandedContactId === c.id && (
@@ -463,23 +514,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* AI Assistant floating button */}
-      <button
-        onClick={() => setShowAI(true)}
-        className="fixed z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl active:scale-95 transition-all"
-        style={{ backgroundColor: BRAND.colors.gold, right: '20px', bottom: '24px' }}
-        aria-label="AI Assistant"
-      >
-        <Sparkles size={20} color={BRAND.colors.navy} />
-      </button>
-      <span className="fixed z-40 text-[9px] font-montserrat font-semibold text-navy/50 dark:text-white/50 pointer-events-none" style={{ right: '32px', bottom: '12px' }}>
-        AI
-      </span>
-
-      <AIAssistantPanel
-        open={showAI}
-        onClose={() => setShowAI(false)}
-      />
     </div>
   );
 }
