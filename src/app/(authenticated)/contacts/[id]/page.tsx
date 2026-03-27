@@ -14,8 +14,9 @@ import type { TrackType, PipelineStage } from '@/types/database';
 import {
   ArrowLeft, Edit3, Trash2, Phone, Mail, MapPin, DollarSign,
   Tag, Globe, Briefcase, MessageSquare, Clock, PhoneCall,
-  MessageCircle, FileText, Eye, Users, CalendarDays, Plus,
+  MessageCircle, FileText, Eye, Users, CalendarDays, Plus, Sparkles,
 } from 'lucide-react';
+import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
 
 interface ContactData {
   id: string;
@@ -126,6 +127,7 @@ export default function ContactDetailPage() {
   const [logSaving, setLogSaving] = useState(false);
   const [partners, setPartners] = useState<Array<{ id: string; first_name: string; last_name: string | null }>>([]);
   const [deleteActivityTarget, setDeleteActivityTarget] = useState<Activity | null>(null);
+  const [showAI, setShowAI] = useState(false);
 
   const fetchContact = useCallback(async () => {
     try {
@@ -278,6 +280,7 @@ export default function ContactDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="accent" size="sm" onClick={() => setShowAI(true)} className="!bg-gold !text-navy"><Sparkles size={14} /><span className="hidden sm:inline ml-1">AI</span></Button>
           <Button variant="accent" size="sm" onClick={() => setShowLogActivity(true)}><Plus size={14} /><span className="hidden sm:inline ml-1">Log Activity</span></Button>
           <Button variant="ghost" size="sm" onClick={startEdit}><Edit3 size={14} /><span className="hidden sm:inline ml-1">Edit</span></Button>
           <Button variant="ghost" size="sm" onClick={() => setShowDelete(true)} className="!text-red-500 hover:!bg-red-500/10"><Trash2 size={14} /></Button>
@@ -475,6 +478,13 @@ export default function ContactDetailPage() {
 
       <ConfirmDialog open={showDelete} onClose={() => setShowDelete(false)} onConfirm={handleDelete} title="Delete Contact?" message={`Are you sure you want to delete ${contact.first_name} ${contact.last_name}? This action cannot be undone.`} variant="danger" />
       <ConfirmDialog open={!!deleteActivityTarget} onClose={() => setDeleteActivityTarget(null)} onConfirm={() => deleteActivityTarget && handleDeleteActivity(deleteActivityTarget)} title="Delete this activity?" message="This activity will be permanently removed." variant="danger" />
+      <AIAssistantPanel
+        open={showAI}
+        onClose={() => setShowAI(false)}
+        contactId={id}
+        contactName={`${contact.first_name} ${contact.last_name}`}
+        contactStage={contact.pipeline_stage}
+      />
     </div>
   );
 }

@@ -9,9 +9,10 @@ import { useAgentSettings } from '@/hooks/useAgentSettings';
 import {
   CheckCircle, Users, FileText, Calendar, Shield, Zap, AlertTriangle,
   Clock, DollarSign, ArrowRight, ChevronRight, Phone, PhoneCall,
-  MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag, Check,
+  MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag, Check, Sparkles,
 } from 'lucide-react';
 import { FollowUpActionPanel } from '@/components/dashboard/FollowUpActionPanel';
+import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
 
 interface FollowUpContact {
   id: string; first_name: string; last_name: string; phone: string | null;
@@ -85,6 +86,7 @@ export default function DashboardPage() {
   const [expandedContactId, setExpandedContactId] = useState<string | null>(null);
   const [completedToday, setCompletedToday] = useState(0);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [showAI, setShowAI] = useState(false);
   const { settings } = useAgentSettings();
   const displayName = settings?.profile_name || BRAND.agent.name;
 
@@ -460,6 +462,24 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* AI Assistant floating button */}
+      <button
+        onClick={() => setShowAI(true)}
+        className="fixed z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl active:scale-95 transition-all"
+        style={{ backgroundColor: BRAND.colors.gold, right: '20px', bottom: '24px' }}
+        aria-label="AI Assistant"
+      >
+        <Sparkles size={20} color={BRAND.colors.navy} />
+      </button>
+      <span className="fixed z-40 text-[9px] font-montserrat font-semibold text-navy/50 dark:text-white/50 pointer-events-none" style={{ right: '32px', bottom: '12px' }}>
+        AI
+      </span>
+
+      <AIAssistantPanel
+        open={showAI}
+        onClose={() => setShowAI(false)}
+      />
     </div>
   );
 }
