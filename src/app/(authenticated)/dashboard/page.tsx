@@ -122,7 +122,10 @@ export default function DashboardPage() {
   const fuOverdue = followUps?.overdue || data?.followUps?.overdue || [];
   const fuToday = followUps?.today || data?.followUps?.today || [];
   const fuUpcoming = followUps?.upcoming || data?.followUps?.upcoming || [];
-  const hasFollowUps = fuCounts.overdue > 0 || fuCounts.today > 0 || fuCounts.upcoming > 0;
+  const visibleOverdue = fuOverdue.filter(c => !completedIds.has(c.id));
+  const visibleToday = fuToday.filter(c => !completedIds.has(c.id));
+  const visibleUpcoming = fuUpcoming.filter(c => !completedIds.has(c.id));
+  const hasFollowUps = visibleOverdue.length > 0 || visibleToday.length > 0 || visibleUpcoming.length > 0;
 
   return (
     <div data-testid="dashboard-page" className="p-4 lg:p-8 max-w-7xl mx-auto">
@@ -160,11 +163,11 @@ export default function DashboardPage() {
           {hasFollowUps ? (
             <>
               {/* Overdue */}
-              {fuOverdue.filter(c => !completedIds.has(c.id)).length > 0 && (
+              {visibleOverdue.length > 0 && (
                 <div className="mb-4">
                   <p className="text-xs font-montserrat font-semibold text-red-500 uppercase tracking-wider mb-2">Overdue</p>
                   <div className="space-y-2">
-                    {fuOverdue.filter(c => !completedIds.has(c.id)).map(c => (
+                    {visibleOverdue.map(c => (
                       <div key={c.id} className={`rounded-lg bg-red-500/5 border transition-colors ${expandedContactId === c.id ? 'border-gold/30' : 'border-red-500/10'}`}>
                         <button
                           onClick={() => togglePanel(c.id)}
@@ -179,9 +182,9 @@ export default function DashboardPage() {
                             {c.phone && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{c.phone}</p>}
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                            {c.phone && <a href={`tel:${c.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
-                            {c.phone && <a href={`sms:${c.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors"><MessageCircle size={12} /></a>}
-                            <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                            {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
+                            {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors"><MessageCircle size={12} /></a>}
+                            <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
                           </div>
                         </button>
                         {expandedContactId === c.id && (
@@ -200,11 +203,11 @@ export default function DashboardPage() {
               )}
 
               {/* Today */}
-              {fuToday.filter(c => !completedIds.has(c.id)).length > 0 && (
+              {visibleToday.length > 0 && (
                 <div className="mb-4">
                   <p className="text-xs font-montserrat font-semibold text-gold uppercase tracking-wider mb-2">Today</p>
                   <div className="space-y-2">
-                    {fuToday.filter(c => !completedIds.has(c.id)).map(c => (
+                    {visibleToday.map(c => (
                       <div key={c.id} className={`rounded-lg bg-gold/5 border transition-colors ${expandedContactId === c.id ? 'border-gold/30' : 'border-gold/10'}`}>
                         <button
                           onClick={() => togglePanel(c.id)}
@@ -216,8 +219,9 @@ export default function DashboardPage() {
                             {c.phone && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{c.phone}</p>}
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                            {c.phone && <a href={`tel:${c.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
-                            <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                            {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
+                            {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors"><MessageCircle size={12} /></a>}
+                            <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
                           </div>
                         </button>
                         {expandedContactId === c.id && (
@@ -236,21 +240,27 @@ export default function DashboardPage() {
               )}
 
               {/* Upcoming */}
-              {fuUpcoming.filter(c => !completedIds.has(c.id)).length > 0 && (
+              {visibleUpcoming.length > 0 && (
                 <div>
                   <p className="text-xs font-montserrat font-semibold text-navy/40 dark:text-white/40 uppercase tracking-wider mb-2">Upcoming (7 days)</p>
-                  <div className="space-y-1">
-                    {fuUpcoming.filter(c => !completedIds.has(c.id)).map(c => (
-                      <div key={c.id} className={`rounded-lg transition-colors ${expandedContactId === c.id ? 'border border-gold/30 bg-surface dark:bg-navy/30' : ''}`}>
+                  <div className="space-y-2">
+                    {visibleUpcoming.map(c => (
+                      <div key={c.id} className={`rounded-lg border transition-colors ${expandedContactId === c.id ? 'border-gold/30 bg-surface dark:bg-navy/30' : 'border-transparent'}`}>
                         <button
                           onClick={() => togglePanel(c.id)}
-                          className="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors text-left"
+                          className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors text-left"
                         >
-                          <div className="min-w-0">
+                          <div className="flex-1 min-w-0">
                             <p className="text-sm font-inter text-navy/70 dark:text-white/70">{c.first_name} {c.last_name}</p>
                             {c.follow_up_notes && <p className="text-xs text-navy/40 dark:text-white/40 font-inter truncate">{c.follow_up_notes}</p>}
+                            {c.phone && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{c.phone}</p>}
                           </div>
-                          <span className="text-xs font-inter text-navy/40 dark:text-white/40 flex-shrink-0 ml-2">{new Date(c.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                            {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
+                            {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors"><MessageCircle size={12} /></a>}
+                            <span className="text-xs font-inter text-navy/40 dark:text-white/40">{new Date(c.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                            <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                          </div>
                         </button>
                         {expandedContactId === c.id && (
                           <div className="px-3 pb-3">
