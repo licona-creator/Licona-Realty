@@ -9,8 +9,9 @@ import { useAgentSettings } from '@/hooks/useAgentSettings';
 import {
   CheckCircle, Users, FileText, Calendar, Shield, Zap, AlertTriangle,
   Clock, DollarSign, ArrowRight, ChevronRight, Phone, PhoneCall,
-  MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag,
+  MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag, Check,
 } from 'lucide-react';
+import { FollowUpActionPanel } from '@/components/dashboard/FollowUpActionPanel';
 
 interface FollowUpContact {
   id: string; first_name: string; last_name: string; phone: string | null;
@@ -81,6 +82,9 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [followUps, setFollowUps] = useState<FollowUpsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [expandedContactId, setExpandedContactId] = useState<string | null>(null);
+  const [completedToday, setCompletedToday] = useState(0);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const { settings } = useAgentSettings();
   const displayName = settings?.profile_name || BRAND.agent.name;
 
@@ -99,6 +103,16 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => { fetchDashboard(); }, [fetchDashboard]);
+
+  const togglePanel = useCallback((contactId: string) => {
+    setExpandedContactId(prev => prev === contactId ? null : contactId);
+  }, []);
+
+  const handleFollowUpComplete = useCallback((contactId: string) => {
+    setExpandedContactId(null);
+    setCompletedToday(prev => prev + 1);
+    setCompletedIds(prev => new Set(prev).add(contactId));
+  }, []);
 
   const approvalCount = data?.approvalQueue?.count || 0;
   const contactTotal = data?.contacts?.total || 0;
@@ -135,71 +149,119 @@ export default function DashboardPage() {
               {fuCounts.overdue > 0 && <Badge variant="danger">{fuCounts.overdue} Overdue</Badge>}
               {fuCounts.today > 0 && <Badge variant="gold">{fuCounts.today} Today</Badge>}
             </div>
+            {completedToday > 0 && (
+              <span className="flex items-center gap-1 text-xs font-montserrat font-semibold text-green-600">
+                <Check size={12} />
+                {completedToday} done today
+              </span>
+            )}
           </div>
 
           {hasFollowUps ? (
             <>
               {/* Overdue */}
-              {fuOverdue.length > 0 && (
+              {fuOverdue.filter(c => !completedIds.has(c.id)).length > 0 && (
                 <div className="mb-4">
                   <p className="text-xs font-montserrat font-semibold text-red-500 uppercase tracking-wider mb-2">Overdue</p>
                   <div className="space-y-2">
-                    {fuOverdue.map(c => (
-                      <a key={c.id} href={`/contacts/${c.id}`} className="flex items-center justify-between p-3 rounded-lg bg-red-500/5 border border-red-500/10 hover:bg-red-500/10 transition-colors">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
-                            <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full">{daysOverdue(c.next_follow_up_date)}d overdue</span>
+                    {fuOverdue.filter(c => !completedIds.has(c.id)).map(c => (
+                      <div key={c.id} className={`rounded-lg bg-red-500/5 border transition-colors ${expandedContactId === c.id ? 'border-gold/30' : 'border-red-500/10'}`}>
+                        <button
+                          onClick={() => togglePanel(c.id)}
+                          className="w-full flex items-center justify-between p-3 text-left hover:bg-red-500/10 transition-colors rounded-lg"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
+                              <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full">{daysOverdue(c.next_follow_up_date)}d overdue</span>
+                            </div>
+                            {c.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-0.5 truncate">{c.follow_up_notes}</p>}
+                            {c.phone && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{c.phone}</p>}
                           </div>
-                          {c.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-0.5 truncate">{c.follow_up_notes}</p>}
-                          {c.phone && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{c.phone}</p>}
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                          {c.phone && <a href={`tel:${c.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
-                          {c.phone && <a href={`sms:${c.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors"><MessageCircle size={12} /></a>}
-                          <ChevronRight size={14} className="text-navy/20 dark:text-white/20" />
-                        </div>
-                      </a>
+                          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                            {c.phone && <a href={`tel:${c.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
+                            {c.phone && <a href={`sms:${c.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors"><MessageCircle size={12} /></a>}
+                            <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                          </div>
+                        </button>
+                        {expandedContactId === c.id && (
+                          <div className="px-3 pb-3">
+                            <FollowUpActionPanel
+                              contact={c}
+                              onComplete={handleFollowUpComplete}
+                              onClose={() => setExpandedContactId(null)}
+                            />
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
               )}
 
               {/* Today */}
-              {fuToday.length > 0 && (
+              {fuToday.filter(c => !completedIds.has(c.id)).length > 0 && (
                 <div className="mb-4">
                   <p className="text-xs font-montserrat font-semibold text-gold uppercase tracking-wider mb-2">Today</p>
                   <div className="space-y-2">
-                    {fuToday.map(c => (
-                      <a key={c.id} href={`/contacts/${c.id}`} className="flex items-center justify-between p-3 rounded-lg bg-gold/5 border border-gold/10 hover:bg-gold/10 transition-colors">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
-                          {c.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-0.5 truncate">{c.follow_up_notes}</p>}
-                          {c.phone && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{c.phone}</p>}
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                          {c.phone && <a href={`tel:${c.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
-                          <ChevronRight size={14} className="text-navy/20 dark:text-white/20" />
-                        </div>
-                      </a>
+                    {fuToday.filter(c => !completedIds.has(c.id)).map(c => (
+                      <div key={c.id} className={`rounded-lg bg-gold/5 border transition-colors ${expandedContactId === c.id ? 'border-gold/30' : 'border-gold/10'}`}>
+                        <button
+                          onClick={() => togglePanel(c.id)}
+                          className="w-full flex items-center justify-between p-3 text-left hover:bg-gold/10 transition-colors rounded-lg"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
+                            {c.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-0.5 truncate">{c.follow_up_notes}</p>}
+                            {c.phone && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{c.phone}</p>}
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                            {c.phone && <a href={`tel:${c.phone}`} onClick={e => e.stopPropagation()} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors"><Phone size={12} /></a>}
+                            <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                          </div>
+                        </button>
+                        {expandedContactId === c.id && (
+                          <div className="px-3 pb-3">
+                            <FollowUpActionPanel
+                              contact={c}
+                              onComplete={handleFollowUpComplete}
+                              onClose={() => setExpandedContactId(null)}
+                            />
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
               )}
 
               {/* Upcoming */}
-              {fuUpcoming.length > 0 && (
+              {fuUpcoming.filter(c => !completedIds.has(c.id)).length > 0 && (
                 <div>
                   <p className="text-xs font-montserrat font-semibold text-navy/40 dark:text-white/40 uppercase tracking-wider mb-2">Upcoming (7 days)</p>
                   <div className="space-y-1">
-                    {fuUpcoming.map(c => (
-                      <a key={c.id} href={`/contacts/${c.id}`} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors">
-                        <div className="min-w-0">
-                          <p className="text-sm font-inter text-navy/70 dark:text-white/70">{c.first_name} {c.last_name}</p>
-                          {c.follow_up_notes && <p className="text-xs text-navy/40 dark:text-white/40 font-inter truncate">{c.follow_up_notes}</p>}
-                        </div>
-                        <span className="text-xs font-inter text-navy/40 dark:text-white/40 flex-shrink-0 ml-2">{new Date(c.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                      </a>
+                    {fuUpcoming.filter(c => !completedIds.has(c.id)).map(c => (
+                      <div key={c.id} className={`rounded-lg transition-colors ${expandedContactId === c.id ? 'border border-gold/30 bg-surface dark:bg-navy/30' : ''}`}>
+                        <button
+                          onClick={() => togglePanel(c.id)}
+                          className="w-full flex items-center justify-between p-2.5 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors text-left"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-sm font-inter text-navy/70 dark:text-white/70">{c.first_name} {c.last_name}</p>
+                            {c.follow_up_notes && <p className="text-xs text-navy/40 dark:text-white/40 font-inter truncate">{c.follow_up_notes}</p>}
+                          </div>
+                          <span className="text-xs font-inter text-navy/40 dark:text-white/40 flex-shrink-0 ml-2">{new Date(c.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        </button>
+                        {expandedContactId === c.id && (
+                          <div className="px-3 pb-3">
+                            <FollowUpActionPanel
+                              contact={c}
+                              onComplete={handleFollowUpComplete}
+                              onClose={() => setExpandedContactId(null)}
+                            />
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -340,7 +402,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="space-y-2">
                   {data.pipeline.upcomingClosings.map(tx => {
-                    const days = tx.closing_date ? Math.floor((new Date(tx.closing_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
+                    const days = tx.closing_date ? Math.floor((new Date(tx.closing_date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
                     return (
                       <a key={tx.id} href={`/transactions/${tx.id}`} className="flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors">
                         <div><p className="text-sm font-montserrat font-medium text-navy dark:text-white">{tx.property_address}</p><p className="text-xs text-navy/40 dark:text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'Price TBD'}</p></div>
