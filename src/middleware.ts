@@ -59,6 +59,7 @@ export async function middleware(request: NextRequest) {
     '/auth/register',
     '/auth/reset-password',
     '/auth/callback',
+    '/auth/update-password',
     '/mortgage',
     '/scheduling/book',
     '/testimonials',
