@@ -4,6 +4,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 export async function POST(request: NextRequest) {
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
+    console.log('[ai:assistant] API key configured:', !!apiKey);
+
     if (!apiKey) {
       return NextResponse.json(
         { error: 'AI Assistant not configured. Add your Anthropic API key in Vercel environment variables.' },
@@ -137,41 +139,51 @@ YOUR ROLE:
 - When Anthony feels overwhelmed, help him prioritize by urgency and likelihood to close
 ${contactContext}`;
 
+    // Build messages array, filtering out any with empty content
+    const historyMessages = Array.isArray(conversationHistory)
+      ? conversationHistory
+          .filter((m: { role: string; content: string }) => m.role && m.content?.trim())
+          .map((m: { role: string; content: string }) => ({
+            role: m.role as 'user' | 'assistant',
+            content: m.content,
+          }))
+      : [];
+
     const messages = [
-      ...((conversationHistory || []).map((m: { role: string; content: string }) => ({
-        role: m.role,
-        content: m.content,
-      }))),
-      { role: 'user', content: message },
+      ...historyMessages,
+      { role: 'user' as const, content: message.trim() },
     ];
+
+    const requestBody = {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1500,
+      system: systemPrompt,
+      tools: [
+        {
+          type: 'web_search_20250305',
+        },
+      ],
+      messages,
+    };
+
+    console.log('[ai:assistant] Sending request with', messages.length, 'messages');
 
     const apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        'anthropic-version': '2025-03-05',
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
-        system: systemPrompt,
-        tools: [
-          {
-            type: 'web_search_20250305',
-            name: 'web_search',
-          },
-        ],
-        messages,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!apiResponse.ok) {
-      const errBody = await apiResponse.text().catch(() => '');
-      console.error('[ai:assistant] API error:', apiResponse.status, errBody);
+      const errorBody = await apiResponse.text().catch(() => '');
+      console.error('[ai:assistant] Anthropic API error:', apiResponse.status, errorBody);
       return NextResponse.json(
-        { error: `AI service error (${apiResponse.status}). Please try again.` },
-        { status: 500 }
+        { error: `AI service error (${apiResponse.status}). Please try again.`, details: errorBody },
+        { status: apiResponse.status >= 500 ? 502 : apiResponse.status }
       );
     }
 
