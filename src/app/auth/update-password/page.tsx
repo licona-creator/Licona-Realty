@@ -2,12 +2,8 @@
  * Update Password Page
  *
  * Allows users to set a new password after clicking a recovery link.
- * The auth callback exchanges the recovery token for a session before
- * redirecting here, so Supabase auth is already active on this page.
- *
- * Also handles the implicit flow where Supabase sends tokens in the
- * URL hash (#access_token=...&refresh_token=...) and listens for
- * the PASSWORD_RECOVERY auth event.
+ * Features real-time password strength indicator, requirements checklist,
+ * and confirmation matching. Handles both PKCE and implicit auth flows.
  */
 
 'use client';
@@ -18,9 +14,16 @@ import { createClient } from '@/lib/supabase/client';
 import { LRMonogram } from '@/components/ui/LRMonogram';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
+import {
+  PasswordStrengthBar,
+  PasswordRequirements,
+  PasswordMatchIndicator,
+  usePasswordValid,
+} from '@/components/auth/PasswordStrength';
 import { BRAND } from '@/lib/brand';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { CheckCircle } from 'lucide-react';
 
 export default function UpdatePasswordPage() {
   const router = useRouter();
@@ -30,7 +33,12 @@ export default function UpdatePasswordPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasSession, setHasSession] = useState<boolean | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(3);
   const checkedRef = useRef(false);
+  const isPasswordValid = usePasswordValid(password);
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+  const canSubmit = isPasswordValid && passwordsMatch;
 
   useEffect(() => {
     if (checkedRef.current) return;
@@ -39,19 +47,20 @@ export default function UpdatePasswordPage() {
     const supabase = createClient();
 
     // Listen for PASSWORD_RECOVERY event (implicit flow with hash tokens)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event) => {
-        if (event === 'PASSWORD_RECOVERY') {
-          setHasSession(true);
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setHasSession(true);
       }
-    );
+    });
 
     // Check for existing session (PKCE flow where callback already exchanged the code)
-    // Small delay to allow cookies to propagate after redirect
     const timer = setTimeout(async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setHasSession((prev) => prev === true ? true : !!user);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setHasSession((prev) => (prev === true ? true : !!user));
     }, 500);
 
     return () => {
@@ -60,19 +69,22 @@ export default function UpdatePasswordPage() {
     };
   }, []);
 
+  // Countdown after success
+  useEffect(() => {
+    if (!success) return;
+    if (countdown <= 0) {
+      router.push('/auth/login');
+      return;
+    }
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [success, countdown, router]);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
+    if (!canSubmit) return;
 
     setLoading(true);
 
@@ -88,7 +100,7 @@ export default function UpdatePasswordPage() {
       }
 
       toast.success('Password updated successfully');
-      setTimeout(() => router.push('/auth/login'), 2000);
+      setSuccess(true);
     } catch {
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
@@ -96,13 +108,15 @@ export default function UpdatePasswordPage() {
     }
   }
 
-  // Still checking session
+  // Loading state
   if (hasSession === null) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
         style={{ background: BRAND.colors.heroGradient }}
-      />
+      >
+        <div className="animate-spin h-8 w-8 border-2 border-gold border-t-transparent rounded-full" />
+      </div>
     );
   }
 
@@ -122,94 +136,147 @@ export default function UpdatePasswordPage() {
         </div>
 
         {hasSession ? (
-          <>
-            <h1
-              className="text-center text-2xl font-semibold mb-2"
-              style={{ fontFamily: BRAND.fonts.playfair, color: BRAND.colors.white }}
-            >
-              Set New Password
-            </h1>
-            <p className="text-center text-sm text-white/40 font-inter mb-8">
-              Enter your new password below.
-            </p>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label
-                  className="block text-sm font-montserrat font-medium mb-1.5"
-                  style={{ color: BRAND.colors.surface }}
-                >
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 8 characters"
-                  autoComplete="new-password"
-                  required
-                  className="w-full px-4 py-2.5 rounded-[8px] text-sm font-inter outline-none transition-all duration-200"
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.3)',
-                    color: '#ffffff',
-                  }}
-                  onFocus={(e) => { e.target.style.borderColor = BRAND.colors.accent; }}
-                  onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.3)'; }}
-                />
-              </div>
-
-              <div>
-                <label
-                  className="block text-sm font-montserrat font-medium mb-1.5"
-                  style={{ color: BRAND.colors.surface }}
-                >
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter your new password"
-                  autoComplete="new-password"
-                  required
-                  className="w-full px-4 py-2.5 rounded-[8px] text-sm font-inter outline-none transition-all duration-200"
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.3)',
-                    color: '#ffffff',
-                  }}
-                  onFocus={(e) => { e.target.style.borderColor = BRAND.colors.accent; }}
-                  onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.3)'; }}
-                />
-              </div>
-
-              {error && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-red-400 text-sm text-center font-inter"
-                >
-                  {error}
-                </motion.p>
-              )}
-
+          success ? (
+            /* Success state with countdown */
+            <div className="text-center space-y-4">
+              <CheckCircle size={48} className="mx-auto" style={{ color: '#22c55e' }} />
+              <h1
+                className="text-2xl font-semibold"
+                style={{
+                  fontFamily: BRAND.fonts.playfair,
+                  color: BRAND.colors.white,
+                }}
+              >
+                Password Updated
+              </h1>
+              <p className="text-white/60 text-sm font-inter">
+                Your password has been updated successfully.
+              </p>
               <Button
-                type="submit"
                 variant="accent"
                 size="lg"
-                loading={loading}
                 className="w-full"
+                onClick={() => router.push('/auth/login')}
               >
-                Update Password
+                Go to Login
               </Button>
-            </form>
-          </>
+              <p className="text-white/40 text-xs font-inter">
+                Redirecting to login in {countdown}...
+              </p>
+            </div>
+          ) : (
+            /* Password form */
+            <>
+              <h1
+                className="text-center text-2xl font-semibold mb-2"
+                style={{
+                  fontFamily: BRAND.fonts.playfair,
+                  color: BRAND.colors.white,
+                }}
+              >
+                Set New Password
+              </h1>
+              <p className="text-center text-sm text-white/40 font-inter mb-8">
+                Enter your new password below.
+              </p>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label
+                    className="block text-sm font-montserrat font-medium mb-1.5"
+                    style={{ color: BRAND.colors.surface }}
+                  >
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="At least 8 characters"
+                    autoComplete="new-password"
+                    required
+                    className="w-full px-4 py-2.5 rounded-[8px] text-sm font-inter outline-none transition-all duration-200"
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.08)',
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      color: '#ffffff',
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = BRAND.colors.accent;
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = 'rgba(255,255,255,0.3)';
+                    }}
+                  />
+                  <PasswordStrengthBar password={password} />
+                  <PasswordRequirements password={password} />
+                </div>
+
+                <div>
+                  <label
+                    className="block text-sm font-montserrat font-medium mb-1.5"
+                    style={{ color: BRAND.colors.surface }}
+                  >
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Re-enter your new password"
+                    autoComplete="new-password"
+                    required
+                    className="w-full px-4 py-2.5 rounded-[8px] text-sm font-inter outline-none transition-all duration-200"
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.08)',
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      color: '#ffffff',
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = BRAND.colors.accent;
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = 'rgba(255,255,255,0.3)';
+                    }}
+                  />
+                  <PasswordMatchIndicator
+                    password={password}
+                    confirmPassword={confirmPassword}
+                  />
+                </div>
+
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-red-400 text-sm text-center font-inter"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+
+                <Button
+                  type="submit"
+                  variant="accent"
+                  size="lg"
+                  loading={loading}
+                  disabled={!canSubmit}
+                  className="w-full"
+                >
+                  Update Password
+                </Button>
+              </form>
+            </>
+          )
         ) : (
+          /* No session - link expired */
           <div className="text-center">
             <h1
               className="text-2xl font-semibold mb-4"
-              style={{ fontFamily: BRAND.fonts.playfair, color: BRAND.colors.white }}
+              style={{
+                fontFamily: BRAND.fonts.playfair,
+                color: BRAND.colors.white,
+              }}
             >
               Link Expired
             </h1>

@@ -1,8 +1,30 @@
+/**
+ * 404 Page
+ *
+ * Auth-aware: shows "Back to Dashboard" for authenticated users,
+ * "Go to Login" for unauthenticated users. Defaults to login link
+ * until auth state is confirmed to avoid leaking protected routes.
+ * No agent contact info shown (visible to unauthenticated visitors).
+ */
+
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 import { LRMonogram } from '@/components/ui/LRMonogram';
 import { BRAND } from '@/lib/brand';
 
 export default function NotFound() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsAuthenticated(!!user);
+    });
+  }, []);
+
   return (
     <div
       className="flex min-h-screen flex-col items-center justify-center px-6 text-center"
@@ -35,15 +57,24 @@ export default function NotFound() {
         The page you are looking for does not exist or has been moved.
       </p>
 
-      {/* Back to Home - links to / so middleware enforces auth before reaching /dashboard */}
-      <Link
-        href="/"
-        className="mt-8 inline-flex items-center justify-center gap-2 rounded-[8px] bg-gold px-7 py-3 text-base font-montserrat font-semibold text-navy transition-all duration-200 ease-in-out hover:bg-gold/90 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
-      >
-        Back to Home
-      </Link>
+      {/* Auth-aware CTA */}
+      {isAuthenticated ? (
+        <Link
+          href="/dashboard"
+          className="mt-8 inline-flex items-center justify-center gap-2 rounded-[8px] bg-gold px-7 py-3 text-base font-montserrat font-semibold text-navy transition-all duration-200 ease-in-out hover:bg-gold/90 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
+        >
+          Back to Dashboard
+        </Link>
+      ) : (
+        <Link
+          href="/auth/login"
+          className="mt-8 inline-flex items-center justify-center gap-2 rounded-[8px] bg-gold px-7 py-3 text-base font-montserrat font-semibold text-navy transition-all duration-200 ease-in-out hover:bg-gold/90 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
+        >
+          Go to Login
+        </Link>
+      )}
 
-      {/* Minimal footer - no contact info for unauthenticated visitors */}
+      {/* Minimal footer - no contact info */}
       <footer className="mt-16">
         <p
           className="font-inter text-xs italic"

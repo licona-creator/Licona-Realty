@@ -1,10 +1,13 @@
 /**
  * Next.js Middleware
  *
- * Runs on every request to handle:
+ * Security-first middleware that runs on every request:
  * 1. Supabase session refresh via cookie handler
  * 2. Authentication redirect for protected routes
- * 3. CSRF token injection
+ * 3. Single-device session enforcement via user_sessions table
+ * 4. 2-hour inactivity timeout
+ * 5. MFA enrollment enforcement
+ * 6. CSRF token injection
  *
  * Auth approach: uses ONLY getUser() per Supabase docs.
  * getUser() sends the JWT to the Supabase Auth server for verification.
@@ -14,6 +17,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+
+const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -45,8 +50,6 @@ export async function middleware(request: NextRequest) {
   );
 
   // IMPORTANT: Use ONLY getUser() - never getSession() in middleware.
-  // getUser() verifies the JWT with the Supabase Auth server.
-  // getSession() only reads cookies locally and can return stale/invalid sessions.
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -82,6 +85,10 @@ export async function middleware(request: NextRequest) {
 
   const isPublicPath = publicPaths.some((p) => pathname.startsWith(p));
 
+  // Paths that require auth but are exempt from MFA enforcement
+  const mfaExemptPaths = ['/auth/mfa-setup', '/auth/mfa-verify'];
+  const isMfaExemptPath = mfaExemptPaths.some((p) => pathname.startsWith(p));
+
   // =============================================
   // 3. Auth enforcement
   // =============================================
@@ -101,7 +108,74 @@ export async function middleware(request: NextRequest) {
   }
 
   // =============================================
-  // 4. CSRF token injection
+  // 4. Single-device session + 2hr timeout
+  // =============================================
+  if (user && !isPublicPath) {
+    const sessionToken = request.cookies.get('licona_device_session')?.value;
+
+    if (sessionToken) {
+      try {
+        // Check session is active and not timed out
+        const { data: deviceSession } = await supabase
+          .from('user_sessions')
+          .select('is_active, last_active_at')
+          .eq('session_token', sessionToken)
+          .eq('user_id', user.id)
+          .single();
+
+        if (deviceSession) {
+          if (!deviceSession.is_active) {
+            // Invalidated by login on another device
+            return redirectToLogin(request, 'signed_out_other_device');
+          }
+
+          const lastActive = new Date(deviceSession.last_active_at).getTime();
+          if (Date.now() - lastActive > TWO_HOURS_MS) {
+            // Expired due to inactivity
+            await supabase
+              .from('user_sessions')
+              .update({ is_active: false })
+              .eq('session_token', sessionToken);
+            return redirectToLogin(request, 'session_expired');
+          }
+
+          // Session is valid - update last_active_at
+          await supabase
+            .from('user_sessions')
+            .update({ last_active_at: new Date().toISOString() })
+            .eq('session_token', sessionToken);
+        }
+        // If no deviceSession row found, table may be empty/new - allow through
+      } catch {
+        // Table may not exist yet (migration not run) - allow through gracefully
+      }
+    }
+    // If no session token cookie exists, allow through (migration may not be run yet)
+
+    // =============================================
+    // 5. MFA enrollment enforcement
+    // =============================================
+    if (!isMfaExemptPath) {
+      try {
+        const { data: factors } = await supabase.auth.mfa.listFactors();
+        const hasVerifiedFactor = factors?.totp?.some(
+          (f: { status: string }) => f.status === 'verified'
+        );
+
+        if (!hasVerifiedFactor) {
+          // No MFA enrolled - force setup
+          const url = request.nextUrl.clone();
+          url.pathname = '/auth/mfa-setup';
+          return NextResponse.redirect(url);
+        }
+      } catch {
+        // MFA API error - allow through to avoid locking users out
+      }
+    }
+  }
+
+  // =============================================
+  // 6. CSRF token injection
   // =============================================
   if (!request.cookies.get('licona_csrf')) {
     const csrfToken = crypto.randomUUID();
@@ -110,11 +184,18 @@ export async function middleware(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
-      maxAge: 60 * 60 * 8,
+      maxAge: 60 * 60 * 2,
     });
   }
 
   return supabaseResponse;
+}
+
+function redirectToLogin(request: NextRequest, reason: string) {
+  const url = request.nextUrl.clone();
+  url.pathname = '/auth/login';
+  url.searchParams.set('reason', reason);
+  return NextResponse.redirect(url);
 }
 
 export const config = {

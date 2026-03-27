@@ -3,12 +3,14 @@
  *
  * Combines sidebar (desktop) and bottom tab bar (mobile)
  * with the main content area. Approval queue badge visible everywhere.
+ * Includes session timeout warning for inactivity detection.
  */
 
 'use client';
 
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
+import { SessionTimeoutWarning } from '@/components/auth/SessionTimeoutWarning';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -18,6 +20,8 @@ interface AppShellProps {
 export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
   return (
     <div className="min-h-screen bg-surface dark:bg-navy">
+      <SessionTimeoutWarning />
+
       {/* Desktop Sidebar */}
       <Sidebar approvalCount={approvalCount} />
 

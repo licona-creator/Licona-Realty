@@ -1,7 +1,7 @@
 /**
  * MFA Setup Page
  *
- * ENFORCED on first login - agent cannot access any CRM data until MFA is configured.
+ * MANDATORY - agent cannot access any CRM data until MFA is configured.
  * TOTP only - no SMS MFA (vulnerable to SIM swapping attacks).
  * Compatible with Google Authenticator, Authy, and similar apps.
  *
@@ -10,7 +10,8 @@
  * 2. User scans with authenticator app
  * 3. User enters verification code
  * 4. Display 8 backup codes (shown once, stored securely)
- * 5. Redirect to dashboard
+ * 5. User confirms backup codes saved via checkbox
+ * 6. Redirect to dashboard
  */
 
 'use client';
@@ -35,7 +36,6 @@ export default function MFASetupPage() {
   const [totpSecret, setTotpSecret] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [backupCodes] = useState<string[]>(() =>
-    // Generate 8 single-use backup codes
     Array.from({ length: 8 }, () =>
       Array.from({ length: 8 }, () =>
         'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]
@@ -44,6 +44,7 @@ export default function MFASetupPage() {
   );
   const [copiedSecret, setCopiedSecret] = useState(false);
   const [copiedBackup, setCopiedBackup] = useState(false);
+  const [savedBackupCodes, setSavedBackupCodes] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -117,9 +118,26 @@ export default function MFASetupPage() {
           </h1>
         </div>
 
+        {/* Mandatory notice */}
+        <div
+          className="flex items-center gap-2 justify-center mb-6 px-4 py-2 rounded-[8px]"
+          style={{
+            backgroundColor: 'rgba(211,169,113,0.1)',
+            border: '1px solid rgba(211,169,113,0.2)',
+          }}
+        >
+          <Shield size={14} style={{ color: BRAND.colors.accent }} />
+          <p
+            className="text-xs font-inter"
+            style={{ color: BRAND.colors.accent }}
+          >
+            Two-factor authentication is required to protect your clients&apos; data.
+          </p>
+        </div>
+
         <p className="text-center text-sm text-white/50 font-inter mb-8">
           {step === 'enroll' &&
-            'MFA is required to protect sensitive client data. Scan the QR code with your authenticator app.'}
+            'Scan the QR code with your authenticator app (Google Authenticator, Authy, or 1Password).'}
           {step === 'verify' &&
             'Enter the 6-digit code from your authenticator app.'}
           {step === 'backup_codes' &&
@@ -133,7 +151,6 @@ export default function MFASetupPage() {
               <>
                 <div className="flex justify-center">
                   <div className="bg-white p-4 rounded-[12px]">
-                    {/* QR code image from Supabase */}
                     <img
                       src={qrCode}
                       alt="Scan this QR code with your authenticator app"
@@ -268,30 +285,34 @@ export default function MFASetupPage() {
               </button>
             </div>
 
+            {/* Confirmation checkbox */}
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={savedBackupCodes}
+                onChange={(e) => setSavedBackupCodes(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-white/30 accent-gold"
+              />
+              <span className="text-sm text-white/70 font-inter">
+                I have saved my backup codes in a secure location
+              </span>
+            </label>
+
             <Button
               variant="accent"
               size="lg"
               className="w-full"
+              disabled={!savedBackupCodes}
               onClick={() => {
                 setStep('complete');
                 router.push('/dashboard');
                 router.refresh();
               }}
             >
-              I&apos;ve Saved My Backup Codes
+              Continue to Dashboard
             </Button>
           </div>
         )}
-
-        {/* Skip MFA */}
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="text-sm text-white/40 hover:text-gold transition-colors font-inter"
-          >
-            Skip for now
-          </button>
-        </div>
 
         {/* Footer */}
         <div className="mt-8 text-center">

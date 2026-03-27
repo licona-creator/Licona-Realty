@@ -4,17 +4,17 @@
  * Clean premium login screen in full Licona Realty brand.
  * Navy background, gold LR monogram centered, Playfair Display heading.
  * Email and password authentication via Supabase Auth.
+ * Creates a single-device session token on success.
  * MFA enforced after initial login.
  */
 
 'use client';
 
-import { useState, useMemo, type FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useMemo, Suspense, type FormEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LRMonogram } from '@/components/ui/LRMonogram';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { validateEmail } from '@/lib/security/validation';
 import { BRAND } from '@/lib/brand';
 import Link from 'next/link';
@@ -54,8 +54,15 @@ function PasswordStrength({ password }: { password: string }) {
   );
 }
 
-export default function LoginPage() {
+const SESSION_REASONS: Record<string, string> = {
+  signed_out_other_device: 'You were signed out because you logged in on another device.',
+  session_expired: 'Your session expired due to inactivity. Please log in again.',
+};
+
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const reason = searchParams.get('reason');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -81,7 +88,7 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient();
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
         email: emailValidation.sanitized,
         password,
       });
@@ -100,6 +107,32 @@ export default function LoginPage() {
         return;
       }
 
+      // Create single-device session token
+      if (data.user) {
+        try {
+          const sessionToken = crypto.randomUUID();
+
+          // Invalidate all existing sessions for this user
+          await supabase
+            .from('user_sessions')
+            .update({ is_active: false })
+            .eq('user_id', data.user.id);
+
+          // Create new session
+          await supabase.from('user_sessions').insert({
+            user_id: data.user.id,
+            session_token: sessionToken,
+            device_info: navigator.userAgent,
+          });
+
+          // Store session token in cookie
+          const secure = location.protocol === 'https:' ? '; Secure' : '';
+          document.cookie = `licona_device_session=${sessionToken}; path=/; max-age=${60 * 60 * 3}; SameSite=Strict${secure}`;
+        } catch {
+          // Table may not exist yet - proceed without session enforcement
+        }
+      }
+
       // Check if MFA is enrolled
       const { data: factorsData } = await supabase.auth.mfa.listFactors();
       const hasVerifiedFactor = factorsData?.totp?.some(
@@ -107,11 +140,10 @@ export default function LoginPage() {
       );
 
       if (hasVerifiedFactor) {
-        // MFA enrolled - redirect to verify
         router.push('/auth/mfa-verify');
       } else {
-        // No MFA - go to dashboard
-        router.push('/dashboard');
+        // No MFA - must set it up (mandatory)
+        router.push('/auth/mfa-setup');
       }
       router.refresh();
     } catch {
@@ -150,6 +182,22 @@ export default function LoginPage() {
         >
           {BRAND.tagline}
         </p>
+
+        {/* Session reason banner */}
+        {reason && SESSION_REASONS[reason] && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-4 px-4 py-3 rounded-[8px] text-sm font-inter text-center"
+            style={{
+              backgroundColor: 'rgba(211,169,113,0.15)',
+              border: '1px solid rgba(211,169,113,0.3)',
+              color: BRAND.colors.accent,
+            }}
+          >
+            {SESSION_REASONS[reason]}
+          </motion.div>
+        )}
 
         {/* Login Form */}
         <form onSubmit={handleLogin} data-testid="login-form" className="space-y-4">
@@ -243,5 +291,13 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   );
 }

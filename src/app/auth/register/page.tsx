@@ -2,12 +2,12 @@
  * Registration Page
  *
  * New account creation with enforced password requirements:
- * - Minimum 12 characters
+ * - Minimum 8 characters
  * - At least one uppercase, lowercase, number, special character
- * - Visual password strength indicator
+ * - Visual password strength indicator with requirements checklist
  * - Email validation (RFC 5322)
  *
- * After registration, user is redirected to MFA setup (enforced).
+ * After registration, user is redirected to MFA setup (mandatory).
  */
 
 'use client';
@@ -18,31 +18,16 @@ import { createClient } from '@/lib/supabase/client';
 import { LRMonogram } from '@/components/ui/LRMonogram';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { validateEmail, validatePassword, type PasswordValidation } from '@/lib/security/validation';
+import { validateEmail } from '@/lib/security/validation';
+import {
+  PasswordStrengthBar,
+  PasswordRequirements,
+  PasswordMatchIndicator,
+  usePasswordValid,
+} from '@/components/auth/PasswordStrength';
 import { BRAND } from '@/lib/brand';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-
-const strengthColors = {
-  weak: '#EF4444',
-  fair: '#F59E0B',
-  good: '#3B82F6',
-  strong: '#22C55E',
-};
-
-const strengthLabels = {
-  weak: 'Weak',
-  fair: 'Fair',
-  good: 'Good',
-  strong: 'Strong',
-};
-
-const strengthWidth = {
-  weak: '25%',
-  fair: '50%',
-  good: '75%',
-  strong: '100%',
-};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -51,37 +36,26 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [passwordValidation, setPasswordValidation] = useState<PasswordValidation | null>(null);
-
-  function handlePasswordChange(value: string) {
-    setPassword(value);
-    if (value.length > 0) {
-      setPasswordValidation(validatePassword(value));
-    } else {
-      setPasswordValidation(null);
-    }
-  }
+  const isPasswordValid = usePasswordValid(password);
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+  const canSubmit = isPasswordValid && passwordsMatch && email.length > 0;
 
   async function handleRegister(e: FormEvent) {
     e.preventDefault();
     setError('');
 
-    // Validate email
     const emailResult = validateEmail(email);
     if (!emailResult.valid) {
       setError('Please enter a valid email address.');
       return;
     }
 
-    // Validate password
-    const passResult = validatePassword(password);
-    if (!passResult.valid) {
-      setError(passResult.errors[0]);
+    if (!isPasswordValid) {
+      setError('Please meet all password requirements.');
       return;
     }
 
-    // Confirm password match
-    if (password !== confirmPassword) {
+    if (!passwordsMatch) {
       setError('Passwords do not match.');
       return;
     }
@@ -90,7 +64,7 @@ export default function RegisterPage() {
 
     try {
       const supabase = createClient();
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: emailResult.sanitized,
         password,
         options: {
@@ -103,8 +77,24 @@ export default function RegisterPage() {
         return;
       }
 
-      // Redirect to dashboard - MFA setup is optional for now
-      router.push('/dashboard');
+      // Create session token if user has an active session
+      if (signUpData.user && signUpData.session) {
+        try {
+          const sessionToken = crypto.randomUUID();
+          await supabase.from('user_sessions').insert({
+            user_id: signUpData.user.id,
+            session_token: sessionToken,
+            device_info: navigator.userAgent,
+          });
+          const secure = location.protocol === 'https:' ? '; Secure' : '';
+          document.cookie = `licona_device_session=${sessionToken}; path=/; max-age=${60 * 60 * 3}; SameSite=Strict${secure}`;
+        } catch {
+          // Table may not exist yet
+        }
+      }
+
+      // Redirect to MFA setup (mandatory)
+      router.push('/auth/mfa-setup');
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -158,60 +148,32 @@ export default function RegisterPage() {
               label="Password"
               type="password"
               value={password}
-              onChange={(e) => handlePasswordChange(e.target.value)}
-              placeholder="Minimum 12 characters"
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Minimum 8 characters"
               autoComplete="new-password"
               required
               className="!bg-white/10 !border-white/20 !text-white !placeholder:text-white/30"
             />
-
-            {/* Password Strength Indicator */}
-            {passwordValidation && (
-              <div className="mt-2">
-                <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: strengthWidth[passwordValidation.strength] }}
-                    className="h-full rounded-full transition-all duration-300"
-                    style={{ backgroundColor: strengthColors[passwordValidation.strength] }}
-                  />
-                </div>
-                <p
-                  className="text-xs mt-1 font-inter"
-                  style={{ color: strengthColors[passwordValidation.strength] }}
-                >
-                  {strengthLabels[passwordValidation.strength]}
-                </p>
-
-                {/* Password requirements */}
-                {passwordValidation.errors.length > 0 && (
-                  <ul className="mt-2 space-y-0.5">
-                    {passwordValidation.errors.map((err) => (
-                      <li key={err} className="text-xs text-red-400 font-inter">
-                        {err}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
+            <PasswordStrengthBar password={password} />
+            <PasswordRequirements password={password} />
           </div>
 
-          <Input
-            label="Confirm Password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm your password"
-            autoComplete="new-password"
-            required
-            error={
-              confirmPassword.length > 0 && password !== confirmPassword
-                ? 'Passwords do not match'
-                : undefined
-            }
-            className="!bg-white/10 !border-white/20 !text-white !placeholder:text-white/30"
-          />
+          <div>
+            <Input
+              label="Confirm Password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm your password"
+              autoComplete="new-password"
+              required
+              className="!bg-white/10 !border-white/20 !text-white !placeholder:text-white/30"
+            />
+            <PasswordMatchIndicator
+              password={password}
+              confirmPassword={confirmPassword}
+            />
+          </div>
 
           {error && (
             <motion.p
@@ -229,11 +191,7 @@ export default function RegisterPage() {
             size="lg"
             loading={loading}
             className="w-full"
-            disabled={
-              !passwordValidation?.valid ||
-              password !== confirmPassword ||
-              !email
-            }
+            disabled={!canSubmit}
           >
             Create Account
           </Button>
