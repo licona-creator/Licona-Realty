@@ -119,7 +119,9 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Something went wrong.');
+        const errorMsg = data.error || 'Something went wrong.';
+        const details = data.details ? `\n\nDetails: ${data.details}` : '';
+        setError(errorMsg + details);
         setThinking(false);
         return;
       }
@@ -256,8 +258,8 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
 
           {/* Error */}
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-              <p className="text-xs text-red-600 dark:text-red-400 font-inter">{error}</p>
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 overflow-x-auto">
+              <p className="text-xs text-red-600 dark:text-red-400 font-inter whitespace-pre-wrap break-words">{error}</p>
               {error.includes('API key') && (
                 <p className="text-[10px] text-red-500/70 font-inter mt-1">
                   To enable your AI assistant, add your Anthropic API key in Vercel. Go to Vercel &gt; Settings &gt; Environment Variables &gt; Add ANTHROPIC_API_KEY

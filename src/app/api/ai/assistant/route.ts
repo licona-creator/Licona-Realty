@@ -166,7 +166,12 @@ ${contactContext}`;
       messages,
     };
 
-    console.log('[ai:assistant] Sending request with', messages.length, 'messages');
+    console.log('[ai:assistant] Sending request:', {
+      model: requestBody.model,
+      messageCount: messages.length,
+      toolCount: requestBody.tools?.length,
+      systemLength: systemPrompt.length,
+    });
 
     const apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
