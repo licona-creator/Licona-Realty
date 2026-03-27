@@ -144,13 +144,13 @@ export default function DashboardPage() {
 
       <div className="space-y-6">
         {/* FOLLOW-UPS - #1 Priority - Always visible */}
-        <Card className={`!p-6 ${fuCounts.overdue > 0 ? '!border-red-500/30 !bg-red-500/[0.02]' : ''}`}>
+        <Card className={`!p-6 ${visibleOverdue.length > 0 ? '!border-red-500/30 !bg-red-500/[0.02]' : ''}`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <Clock size={22} className={fuCounts.overdue > 0 ? 'text-red-500' : 'text-gold'} />
+              <Clock size={22} className={visibleOverdue.length > 0 ? 'text-red-500' : 'text-gold'} />
               <h2 className="text-lg font-semibold font-montserrat text-navy dark:text-white">Follow-Ups</h2>
-              {fuCounts.overdue > 0 && <Badge variant="danger">{fuCounts.overdue} Overdue</Badge>}
-              {fuCounts.today > 0 && <Badge variant="gold">{fuCounts.today} Today</Badge>}
+              {visibleOverdue.length > 0 && <Badge variant="danger">{visibleOverdue.length} Overdue</Badge>}
+              {visibleToday.length > 0 && <Badge variant="gold">{visibleToday.length} Today</Badge>}
             </div>
             {completedToday > 0 && (
               <span className="flex items-center gap-1 text-xs font-montserrat font-semibold text-green-600">
