@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider';
 export const metadata: Metadata = {
   title: 'Licona Realty Platform',
   description:
-    'Smart Moves. Simple Decisions. Real estate CRM and business operating system for Anthony Licona, North Texas Realtor.',
+    'Smart Moves. Simple Decisions. Real estate CRM and business operating system for Anthony Licona, North Texas Realtor\u00AE.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,

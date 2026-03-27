@@ -481,7 +481,7 @@ export default function MortgageCalculatorPage() {
         {/* Footer */}
         <footer className="mt-12 py-8 text-center" style={{ backgroundColor: BRAND.colors.primary }}>
           <p className="text-xs text-white font-inter">
-            {BRAND.agent.name} &middot; Realtor &middot; {BRAND.agent.phone} &middot; {BRAND.agent.email}
+            {BRAND.agent.name} &middot; Realtor® &middot; {BRAND.agent.phone} &middot; {BRAND.agent.email}
           </p>
           <p className="text-xs font-inter mt-1" style={{ color: 'rgba(244,244,244,0.8)' }}>
             {BRAND.agent.brokerage} &middot; {BRAND.agent.license}

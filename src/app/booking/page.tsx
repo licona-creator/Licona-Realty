@@ -293,7 +293,7 @@ export default function BookingPage() {
         {/* Footer */}
         <footer className="mt-16 py-8 text-center">
           <p className="text-xs font-inter" style={{ color: BRAND.colors.white }}>
-            {BRAND.agent.name} &middot; Realtor &middot; {BRAND.agent.phone} &middot; {BRAND.agent.email}
+            {BRAND.agent.name} &middot; Realtor® &middot; {BRAND.agent.phone} &middot; {BRAND.agent.email}
           </p>
           <p className="text-xs font-inter mt-1" style={{ color: 'rgba(244,244,244,0.8)' }}>
             {BRAND.agent.brokerage} &middot; {BRAND.agent.license}

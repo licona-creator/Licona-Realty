@@ -219,7 +219,7 @@ export default function CanvaPage() {
                 style={{ backgroundColor: BRAND.colors.primary }}
               >
                 <p className="text-[10px] text-white font-inter">
-                  {BRAND.agent.name} &middot; Realtor &middot; {BRAND.agent.phone}
+                  {BRAND.agent.name} &middot; Realtor® &middot; {BRAND.agent.phone}
                 </p>
               </div>
             </div>

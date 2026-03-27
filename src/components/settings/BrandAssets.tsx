@@ -61,7 +61,7 @@ const BRAND_COLORS = [
 const FONT_ASSIGNMENTS = [
   { name: 'Playfair Display', role: 'Display headings, hero text', sample: 'Smart Moves. Simple Decisions.' },
   { name: 'Montserrat', role: 'Navigation, buttons, labels', sample: 'LICONA REALTY' },
-  { name: 'Inter', role: 'Body text, content, descriptions', sample: 'North Texas Realtor specializing in residential real estate.' },
+  { name: 'Inter', role: 'Body text, content, descriptions', sample: 'North Texas Realtor\u00AE specializing in residential real estate.' },
   { name: 'DM Serif Display', role: 'Large numbers, pipeline values', sample: '$1,250,000' },
   { name: 'Sacramento', role: 'Milestone headlines only', sample: 'Congratulations' },
 ];

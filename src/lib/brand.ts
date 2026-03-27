@@ -10,7 +10,7 @@ export const BRAND = {
   // Agent Identity - hardcoded into all templates and public pages
   agent: {
     name: 'Anthony Licona',
-    title: 'North Texas Realtor',
+    title: 'North Texas Realtor\u00AE',
     phone: '(469) 968-7688',
     phoneE164: '+14699687688',
     email: 'licona@liconarealty.com',
@@ -80,7 +80,7 @@ export const BRAND = {
     monogramPosition: 'top-right',
     footerBar: {
       background: '#132236',
-      text: 'Anthony Licona | Realtor | (469) 968-7688 | licona@liconarealty.com',
+      text: 'Anthony Licona | Realtor\u00AE | (469) 968-7688 | licona@liconarealty.com',
       license: 'TREC Lic. 0821484-SA',
     },
   },
@@ -104,7 +104,7 @@ export const BRAND = {
 } as const;
 
 // Social post footer text for templates
-export const SOCIAL_FOOTER = `${BRAND.agent.name} | Realtor | ${BRAND.agent.phone} | ${BRAND.agent.email}`;
+export const SOCIAL_FOOTER = `${BRAND.agent.name} | Realtor\u00AE | ${BRAND.agent.phone} | ${BRAND.agent.email}`;
 
 // SEO footer text for public pages
 export const SEO_FOOTER = `${BRAND.agent.name} | ${BRAND.agent.title} | ${BRAND.agent.brokerage} | ${BRAND.agent.license}`;

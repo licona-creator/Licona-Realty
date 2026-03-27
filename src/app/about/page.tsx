@@ -12,9 +12,9 @@ import {
 } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Anthony Licona - North Texas Realtor - Licona Realty',
+  title: 'Anthony Licona - North Texas Realtor\u00AE - Licona Realty',
   description:
-    'Anthony Licona is a bilingual North Texas Realtor serving the Dallas-Fort Worth metroplex. Specializing in buyers, sellers, landlords, and investors. Hablo Espanol.',
+    'Anthony Licona is a bilingual North Texas Realtor\u00AE serving the Dallas-Fort Worth metroplex. Specializing in buyers, sellers, landlords, and investors. Hablo Espanol.',
 };
 
 const services = [
@@ -130,7 +130,7 @@ export default function AboutPage() {
               lineHeight: 1.8,
             }}
           >
-            Anthony Licona is a licensed North Texas Realtor serving the
+            Anthony Licona is a licensed North Texas Realtor® serving the
             Dallas-Fort Worth metroplex. Specializing in helping buyers,
             sellers, landlords, and investors make smart moves in the DFW
             market. Bilingual in English and Spanish - Hablo Espanol.
@@ -318,7 +318,7 @@ export default function AboutPage() {
             marginBottom: '8px',
           }}
         >
-          {BRAND.agent.name} &middot; Realtor &middot; {BRAND.agent.phone}{' '}
+          {BRAND.agent.name} &middot; Realtor® &middot; {BRAND.agent.phone}{' '}
           &middot; {BRAND.agent.email}
         </p>
 

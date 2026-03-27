@@ -222,7 +222,7 @@ export function recommendToneMode(context: {
  * Every post includes this - it's a business card.
  */
 export function getSocialPostFooter(includeLicense = true): string {
-  const footer = 'Anthony Licona | Realtor | (469) 968-7688 | licona@liconarealty.com';
+  const footer = 'Anthony Licona | Realtor\u00AE | (469) 968-7688 | licona@liconarealty.com';
   return includeLicense ? `${footer}\nTREC Lic. 0821484-SA` : footer;
 }
 
@@ -232,7 +232,7 @@ export function getSocialPostFooter(includeLicense = true): string {
 export function getEmailSignature(language: LanguagePreference = 'en'): string {
   const lines = [
     'Anthony Licona',
-    'North Texas Realtor',
+    'North Texas Realtor\u00AE',
     language === 'es' ? 'Hablo Español' : '',
     'Central Metro Realty',
     '(469) 968-7688',

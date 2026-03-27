@@ -4,11 +4,15 @@
  * Allows users to set a new password after clicking a recovery link.
  * The auth callback exchanges the recovery token for a session before
  * redirecting here, so Supabase auth is already active on this page.
+ *
+ * Also handles the implicit flow where Supabase sends tokens in the
+ * URL hash (#access_token=...&refresh_token=...) and listens for
+ * the PASSWORD_RECOVERY auth event.
  */
 
 'use client';
 
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LRMonogram } from '@/components/ui/LRMonogram';
@@ -26,12 +30,34 @@ export default function UpdatePasswordPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasSession, setHasSession] = useState<boolean | null>(null);
+  const checkedRef = useRef(false);
 
   useEffect(() => {
+    if (checkedRef.current) return;
+    checkedRef.current = true;
+
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setHasSession(!!user);
-    });
+
+    // Listen for PASSWORD_RECOVERY event (implicit flow with hash tokens)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          setHasSession(true);
+        }
+      }
+    );
+
+    // Check for existing session (PKCE flow where callback already exchanged the code)
+    // Small delay to allow cookies to propagate after redirect
+    const timer = setTimeout(async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setHasSession((prev) => prev === true ? true : !!user);
+    }, 500);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
   }, []);
 
   async function handleSubmit(e: FormEvent) {
