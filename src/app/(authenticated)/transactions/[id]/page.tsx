@@ -11,6 +11,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
 import type { TransactionChecklistItem, TransactionParty } from '@/types/database';
+import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
 import {
   ArrowLeft, Edit3, Trash2, DollarSign, Calendar,
   CheckSquare, Square, User, FileText, Clock, AlertTriangle,
@@ -548,10 +549,20 @@ export default function TransactionDetailPage() {
               )}
             </select>
           </div>
-          <Input
+          <AddressAutocomplete
             label="Property Address *"
+            placeholder="Start typing an address..."
             value={(editForm.property_address as string) || ''}
-            onChange={e => setEditForm(prev => ({ ...prev, property_address: e.target.value }))}
+            onRawChange={val => setEditForm(prev => ({ ...prev, property_address: val }))}
+            onChange={({ street, city, state, zip }) => {
+              setEditForm(prev => ({
+                ...prev,
+                property_address: street,
+                property_city: city || prev.property_city,
+                property_state: state || prev.property_state,
+                property_zip: zip || prev.property_zip,
+              }));
+            }}
             disabled={saving}
           />
           <div className="grid grid-cols-3 gap-3">

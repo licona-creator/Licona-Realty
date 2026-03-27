@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Sparkles, Trash2 } from 'lucide-react';
+import { X, Send, Sparkles, Trash2, Bookmark, Pin } from 'lucide-react';
 import { BRAND } from '@/lib/brand';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  saved?: boolean;
 }
 
 interface AIAssistantPanelProps {
@@ -32,17 +33,21 @@ const STAGE_COLORS: Record<string, string> = {
 };
 
 const CONTACT_QUICK_ACTIONS = [
-  'Draft follow-up message',
+  'Draft follow-up',
   'What should I do next?',
   'Market data for their area',
   'Analyze this deal',
+  'Objection: rates too high',
+  'Prepare me for a call',
 ];
 
 const DASHBOARD_QUICK_ACTIONS = [
+  'Who needs attention today?',
   'Review my full pipeline',
-  'DFW market update',
-  'Who should I focus on today?',
+  'DFW market briefing',
   'Help me plan this week',
+  'How am I tracking toward my $60K goal?',
+  'Draft content idea',
 ];
 
 export function AIAssistantPanel({ open, onClose, contactId, contactName, contactStage }: AIAssistantPanelProps) {
@@ -52,6 +57,7 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
   const [error, setError] = useState<string | null>(null);
   const [pipelineLoaded, setPipelineLoaded] = useState(false);
   const [pipelineSummary, setPipelineSummary] = useState<string | null>(null);
+  const [savingIndex, setSavingIndex] = useState<number | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -135,6 +141,32 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
     }
   }, [thinking, messages, contactId, pipelineSummary]);
 
+  async function saveInsight(index: number) {
+    const msg = messages[index];
+    if (!msg || msg.role !== 'assistant' || msg.saved) return;
+
+    setSavingIndex(index);
+    try {
+      const res = await fetch('/api/ai/insights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contact_id: contactId || null,
+          insight_type: 'suggestion',
+          content: msg.content,
+        }),
+      });
+
+      if (res.ok) {
+        setMessages(prev => prev.map((m, i) => i === index ? { ...m, saved: true } : m));
+      }
+    } catch {
+      // silent fail
+    } finally {
+      setSavingIndex(null);
+    }
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -163,9 +195,10 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
       {/* Panel */}
       <div
         className="fixed top-0 right-0 bottom-0 z-[61] w-full sm:w-[420px] bg-white dark:bg-dark-card flex flex-col shadow-2xl animate-in slide-in-from-right duration-300"
+        style={{ maxHeight: '100vh' }}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between p-4 border-b border-gold/15">
+        {/* Header - sticky */}
+        <div className="flex items-start justify-between p-4 border-b border-gold/15 sticky top-0 z-10 bg-white dark:bg-dark-card" style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 12px)' }}>
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
               <Sparkles size={16} className="text-gold" />
@@ -190,6 +223,7 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
           <button
             onClick={onClose}
             className="p-1.5 rounded hover:bg-navy/5 dark:hover:bg-white/5 text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white transition-colors flex-shrink-0"
+            style={{ marginTop: 'max(env(safe-area-inset-top, 0px), 0px)' }}
           >
             <X size={18} />
           </button>
@@ -231,14 +265,34 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
               key={i}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div
-                className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm font-inter whitespace-pre-wrap break-words ${
-                  msg.role === 'user'
-                    ? 'bg-gold text-navy rounded-br-md'
-                    : 'bg-[#f4f4f4] dark:bg-navy/40 text-navy dark:text-white rounded-bl-md'
-                }`}
-              >
-                {msg.role === 'assistant' ? renderMarkdown(msg.content) : msg.content}
+              <div className="max-w-[85%]">
+                <div
+                  className={`rounded-2xl px-3.5 py-2.5 text-sm font-inter whitespace-pre-wrap break-words ${
+                    msg.role === 'user'
+                      ? 'bg-gold text-navy rounded-br-md'
+                      : 'bg-[#f4f4f4] dark:bg-navy/40 text-navy dark:text-white rounded-bl-md'
+                  }`}
+                >
+                  {msg.role === 'assistant' ? renderMarkdown(msg.content) : msg.content}
+                </div>
+                {/* Save Insight button for assistant messages */}
+                {msg.role === 'assistant' && (
+                  <div className="flex items-center gap-1 mt-1 ml-1">
+                    <button
+                      onClick={() => saveInsight(i)}
+                      disabled={msg.saved || savingIndex === i}
+                      className={`flex items-center gap-1 text-[10px] font-inter transition-colors ${
+                        msg.saved
+                          ? 'text-gold'
+                          : 'text-navy/25 dark:text-white/25 hover:text-gold'
+                      }`}
+                      title={msg.saved ? 'Insight saved' : 'Save insight'}
+                    >
+                      {msg.saved ? <Pin size={10} /> : <Bookmark size={10} />}
+                      {msg.saved ? 'Saved' : savingIndex === i ? 'Saving...' : 'Save'}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -271,8 +325,8 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
           <div ref={chatEndRef} />
         </div>
 
-        {/* Input Area */}
-        <div className="border-t border-gold/15 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+        {/* Input Area - sticky bottom */}
+        <div className="border-t border-gold/15 p-3 sticky bottom-0 z-10 bg-white dark:bg-dark-card" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
           <div className="flex items-center gap-2">
             <input
               ref={inputRef}
@@ -314,7 +368,7 @@ function renderMarkdown(text: string): React.ReactNode {
   const elements: React.ReactNode[] = [];
 
   for (let i = 0; i < lines.length; i++) {
-    let line = lines[i];
+    const line = lines[i];
 
     if (line.trim() === '') {
       elements.push(<br key={`br-${i}`} />);

@@ -20,6 +20,7 @@ import { Users, Plus, Search, Upload, Filter, Phone, Mail, Trash2, ChevronRight,
 import { AddContactModal } from '@/components/modals/AddContactModal';
 import { ImportContactsModal } from '@/components/modals/ImportContactsModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { calculateLeadScore, getScoreTailwind } from '@/lib/ai/lead-scoring';
 import type { TrackType } from '@/types/database';
 
 interface Contact {
@@ -258,6 +259,22 @@ export default function ContactsPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Lead Score Badge */}
+                  {(() => {
+                    const scoreData = calculateLeadScore({
+                      phone: contact.phone,
+                      email: contact.email,
+                      budget: contact.budget,
+                      pipeline_stage: contact.pipeline_stage,
+                    });
+                    const colors = getScoreTailwind(scoreData.score);
+                    return (
+                      <span className={`flex-shrink-0 w-7 h-7 rounded-full ${colors.bg} ${colors.text} flex items-center justify-center text-[10px] font-montserrat font-bold`} title={`Lead score: ${scoreData.score}`}>
+                        {scoreData.score}
+                      </span>
+                    );
+                  })()}
 
                   {/* Overdue indicator */}
                   {contact.next_follow_up_date && new Date(contact.next_follow_up_date + 'T00:00:00') < new Date(new Date().toISOString().split('T')[0] + 'T00:00:00') && (

@@ -17,6 +17,8 @@ import {
   MessageCircle, FileText, Eye, Users, CalendarDays, Plus, Sparkles,
 } from 'lucide-react';
 import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
+import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
+import { calculateLeadScore, getScoreTailwind } from '@/lib/ai/lead-scoring';
 
 interface ContactData {
   id: string;
@@ -128,6 +130,17 @@ export default function ContactDetailPage() {
   const [partners, setPartners] = useState<Array<{ id: string; first_name: string; last_name: string | null }>>([]);
   const [deleteActivityTarget, setDeleteActivityTarget] = useState<Activity | null>(null);
   const [showAI, setShowAI] = useState(false);
+  const [insights, setInsights] = useState<Array<{ id: string; content: string; insight_type: string; is_pinned: boolean; created_at: string }>>([]);
+
+  const fetchInsights = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/ai/insights?contact_id=${id}&limit=10`);
+      if (res.ok) {
+        const data = await res.json();
+        setInsights(data.insights || []);
+      }
+    } catch { /* empty */ }
+  }, [id]);
 
   const fetchContact = useCallback(async () => {
     try {
@@ -158,7 +171,7 @@ export default function ContactDetailPage() {
     } catch { /* empty */ }
   }, [id]);
 
-  useEffect(() => { fetchContact(); fetchRelatedData(); }, [fetchContact, fetchRelatedData]);
+  useEffect(() => { fetchContact(); fetchRelatedData(); fetchInsights(); }, [fetchContact, fetchRelatedData, fetchInsights]);
 
   function startEdit() {
     if (!contact) return;
@@ -357,6 +370,32 @@ export default function ContactDetailPage() {
             )}
           </Card>
 
+          {/* AI Insights */}
+          {insights.length > 0 && (
+            <Card className="!p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 flex items-center gap-2">
+                  <Sparkles size={14} className="text-gold" /> AI Insights
+                </h3>
+                <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">{insights.length} saved</span>
+              </div>
+              <div className="space-y-2">
+                {insights.map(insight => (
+                  <div key={insight.id} className={`p-3 rounded-lg bg-surface dark:bg-navy/30 ${insight.is_pinned ? 'border border-gold/20' : ''}`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-montserrat font-semibold text-gold uppercase">{insight.insight_type.replace(/_/g, ' ')}</span>
+                      {insight.is_pinned && <span className="text-[9px] text-gold font-inter">Pinned</span>}
+                    </div>
+                    <p className="text-xs font-inter text-navy/70 dark:text-white/70 whitespace-pre-wrap line-clamp-4">{insight.content}</p>
+                    <p className="text-[10px] text-navy/30 dark:text-white/30 font-inter mt-1">
+                      {new Date(insight.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
           {/* Linked Transactions */}
           <Card className="!p-5">
             <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3"><Briefcase size={14} className="inline mr-2 text-gold" />Transactions</h3>
@@ -397,10 +436,41 @@ export default function ContactDetailPage() {
             <div className="space-y-3">
               <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Track Type</p><p className="text-sm font-inter text-navy dark:text-white capitalize">{contact.track_type}</p></div>
               <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Pipeline Stage</p><p className="text-sm font-inter text-navy dark:text-white capitalize">{contact.pipeline_stage.replace(/_/g, ' ')}</p></div>
-              <div>
-                <p className="text-xs text-navy/40 dark:text-white/40 font-inter">Lead Score</p>
-                <div className="flex items-center gap-2"><div className="flex-1 h-2 bg-navy/10 dark:bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-gold rounded-full transition-all" style={{ width: `${contact.lead_score}%` }} /></div><span className="text-xs font-inter text-navy/60 dark:text-white/60">{contact.lead_score}</span></div>
-              </div>
+              {(() => {
+                const inboundCount = activities.filter(a => a.direction === 'inbound').length;
+                const hasActiveTx = transactions.some(t => !['closed', 'cancelled', 'lost'].includes(t.status));
+                const scoreData = calculateLeadScore({
+                  phone: contact.phone,
+                  email: contact.email,
+                  budget: contact.budget,
+                  pipeline_stage: contact.pipeline_stage,
+                  referral_partner_id: contact.referral_partner_id,
+                  last_contact_date: contact.last_contact_date,
+                  inbound_activity_count: inboundCount,
+                  has_active_transaction: hasActiveTx,
+                });
+                const colors = getScoreTailwind(scoreData.score);
+                return (
+                  <div>
+                    <p className="text-xs text-navy/40 dark:text-white/40 font-inter mb-2">Lead Score</p>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-full ${colors.bg} ${colors.text} flex items-center justify-center font-montserrat font-bold text-lg ring-2 ${colors.ring}`}>
+                        {scoreData.score}
+                      </div>
+                      <div className="flex-1 space-y-0.5">
+                        {scoreData.factors.slice(0, 4).map((f, fi) => (
+                          <p key={fi} className={`text-[10px] font-inter ${f.points >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                            {f.points >= 0 ? '+' : ''}{f.points} {f.label}
+                          </p>
+                        ))}
+                        {scoreData.factors.length > 4 && (
+                          <p className="text-[10px] font-inter text-navy/30 dark:text-white/30">+{scoreData.factors.length - 4} more factors</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
               {contact.last_contact_date && <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Last Contact</p><p className="text-sm font-inter text-navy dark:text-white">{new Date(contact.last_contact_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p></div>}
               <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Date Added</p><p className="text-sm font-inter text-navy dark:text-white">{new Date(contact.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p></div>
             </div>
@@ -446,7 +516,22 @@ export default function ContactDetailPage() {
             <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Referral Partner</label><select value={editForm.referral_partner_id || ''} onChange={e => setEditForm(p => ({ ...p, referral_partner_id: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{partners.map(p => <option key={p.id} value={p.id}>{p.first_name} {p.last_name || ''}</option>)}</select></div>
           </div>
           <Input label="Follow-Up Notes" placeholder="Reminder notes for follow-up..." value={editForm.follow_up_notes || ''} onChange={e => setEditForm(p => ({ ...p, follow_up_notes: e.target.value }))} disabled={saving} />
-          <Input label="Address" value={editForm.address_line_1 || ''} onChange={e => setEditForm(p => ({ ...p, address_line_1: e.target.value }))} disabled={saving} />
+          <AddressAutocomplete
+            label="Address"
+            placeholder="Start typing an address..."
+            value={editForm.address_line_1 || ''}
+            onRawChange={val => setEditForm(p => ({ ...p, address_line_1: val }))}
+            onChange={({ street, city, state, zip }) => {
+              setEditForm(p => ({
+                ...p,
+                address_line_1: street,
+                city: city || p.city,
+                state: state || p.state,
+                zip_code: zip || p.zip_code,
+              }));
+            }}
+            disabled={saving}
+          />
           <div className="grid grid-cols-6 gap-3">
             <div className="col-span-3"><Input label="City" value={editForm.city || ''} onChange={e => setEditForm(p => ({ ...p, city: e.target.value }))} disabled={saving} /></div>
             <div className="col-span-1"><Input label="State" value={editForm.state || ''} onChange={e => setEditForm(p => ({ ...p, state: e.target.value }))} disabled={saving} /></div>

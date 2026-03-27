@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
+import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
 
 interface NewTransactionModalProps {
   open: boolean;
@@ -241,12 +242,20 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         </div>
 
         {/* Property Address */}
-        <Input
+        <AddressAutocomplete
           label="Property Address *"
-          placeholder="123 Main St"
+          placeholder="Start typing an address..."
           value={form.property_address}
-          onChange={e => update('property_address', e.target.value)}
-          required
+          onRawChange={val => update('property_address', val)}
+          onChange={({ street, city, state, zip }) => {
+            setForm(prev => ({
+              ...prev,
+              property_address: street,
+              property_city: city || prev.property_city,
+              property_state: state || prev.property_state,
+              property_zip: zip || prev.property_zip,
+            }));
+          }}
         />
 
         {/* City / State / Zip row */}

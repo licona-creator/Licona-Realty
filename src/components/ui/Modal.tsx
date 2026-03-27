@@ -4,6 +4,7 @@
  * Reusable overlay dialog with brand styling.
  * Accessible: focus trap, Escape to close, backdrop click.
  * Uses Framer Motion for smooth enter/exit.
+ * Mobile: sticky header/footer, scrollable content, safe area for close button.
  */
 
 'use client';
@@ -58,7 +59,7 @@ export function Modal({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -76,11 +77,11 @@ export function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             transition={{ duration: 0.15 }}
-            className={`relative w-full ${sizeStyles[size]} bg-white dark:bg-dark-card rounded-[12px] border border-gold/15 shadow-[0_8px_32px_rgba(19,34,54,0.2)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)]`}
+            className={`relative w-full ${sizeStyles[size]} bg-white dark:bg-dark-card sm:rounded-[12px] rounded-t-[12px] border border-gold/15 shadow-[0_8px_32px_rgba(19,34,54,0.2)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col max-h-[calc(100vh-40px)] sm:max-h-[calc(100vh-80px)]`}
           >
-            {/* Header */}
+            {/* Header - sticky */}
             {(title || !hideClose) && (
-              <div className="flex items-start justify-between p-5 pb-0">
+              <div className="flex items-start justify-between p-5 pb-3 sticky top-0 z-10 bg-white dark:bg-dark-card sm:rounded-t-[12px] rounded-t-[12px] border-b border-gold/10">
                 <div>
                   {title && (
                     <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white">
@@ -96,8 +97,9 @@ export function Modal({
                 {!hideClose && (
                   <button
                     onClick={onClose}
-                    className="ml-4 p-1 rounded-md text-navy/30 dark:text-white/30 hover:text-navy/60 dark:hover:text-white/60 hover:bg-gold/10 transition-colors"
+                    className="ml-4 p-1 rounded-md text-navy/30 dark:text-white/30 hover:text-navy/60 dark:hover:text-white/60 hover:bg-gold/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                     aria-label="Close"
+                    style={{ marginTop: 'max(env(safe-area-inset-top, 0px), 0px)' }}
                   >
                     <X size={18} />
                   </button>
@@ -105,8 +107,8 @@ export function Modal({
               </div>
             )}
 
-            {/* Body */}
-            <div className="p-5">{children}</div>
+            {/* Body - scrollable */}
+            <div className="p-5 overflow-y-auto flex-1">{children}</div>
           </motion.div>
         </div>
       )}

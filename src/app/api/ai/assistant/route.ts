@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { ANTHONYS_BRAIN } from '@/lib/ai/anthonys-brain';
+import { TEXAS_KNOWLEDGE } from '@/lib/ai/texas-knowledge';
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,6 +67,28 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Fetch saved AI insights for this contact
+      let insightsContext = '';
+      try {
+        const { data: insights } = await supabase
+          .from('ai_insights')
+          .select('content, insight_type, created_at, is_pinned')
+          .eq('contact_id', contactId)
+          .eq('user_id', user.id)
+          .order('is_pinned', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        if (insights && insights.length > 0) {
+          insightsContext = '\n\nSAVED AI INSIGHTS (previous recommendations Anthony saved):\n' +
+            insights.map(i =>
+              `- [${i.insight_type}${i.is_pinned ? ', PINNED' : ''}] ${i.content.substring(0, 300)}`
+            ).join('\n');
+        }
+      } catch {
+        // ai_insights table may not exist yet
+      }
+
       const activityLog = (activities || []).map(a =>
         `- ${a.activity_date?.split('T')[0] || 'unknown date'}: ${a.activity_type}${a.direction ? ` (${a.direction})` : ''} - ${a.description}`
       ).join('\n');
@@ -76,6 +100,10 @@ export async function POST(request: NextRequest) {
       const daysSinceContact = contact.last_contact_date
         ? Math.floor((Date.now() - new Date(contact.last_contact_date + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24))
         : -1;
+
+      // Calculate inbound activities for lead score context
+      const inboundCount = (activities || []).filter(a => a.direction === 'inbound').length;
+      const hasActiveTransaction = (transactions || []).some(t => !['closed', 'cancelled', 'lost'].includes(t.status));
 
       contactContext = `
 CURRENT CONTACT: ${contact.first_name} ${contact.last_name}
@@ -90,6 +118,8 @@ CURRENT CONTACT: ${contact.first_name} ${contact.last_name}
 - Follow-Up Notes: ${contact.follow_up_notes || 'none'}
 - Next Follow-Up: ${contact.next_follow_up_date || 'not scheduled'}
 - Days Since Last Contact: ${daysSinceContact >= 0 ? daysSinceContact : 'never contacted'}
+- Inbound Activities: ${inboundCount}
+- Has Active Transaction: ${hasActiveTransaction ? 'yes' : 'no'}
 ${partnerName ? `- Referral Partner: ${partnerName}` : ''}
 - Notes: ${contact.notes || 'none'}
 
@@ -97,46 +127,27 @@ ACTIVITY HISTORY (most recent first):
 ${activityLog || 'No activities logged yet.'}
 
 LINKED TRANSACTIONS:
-${txLog || 'No transactions linked.'}`;
+${txLog || 'No transactions linked.'}${insightsContext}`;
     }
 
-    const systemPrompt = `You are the AI assistant for Licona Realty, helping Anthony Licona manage his real estate business in the DFW metroplex.
+    const now = new Date();
+    const currentMonth = now.toLocaleString('en-US', { month: 'long' });
+    const currentYear = now.getFullYear();
 
-ABOUT ANTHONY:
-- 25 year old bilingual (English/Spanish) real estate agent at Central Metro Realty
-- TREC License: 0821484-SA
-- Serves Denton County, Collin County, and Dallas County
-- Competitive edge: bilingual service for Spanish-speaking families
-- Income goal: replace day job income through real estate ($50K-$70K/year, roughly 7 deals)
-- Commission structure: 100% after cap
-- Primary lead source: referral partner Ana who works with lenders and Spanish-speaking clients (2 closings from 5 leads = 40% close rate)
-- Secondary source: Qazzoo leads (being canceled, 0 closings from 12 leads)
-- Working a full-time remote job M-F, does real estate in pockets of time
-- Posts on Instagram @liconarealty (Canva only, no reels/video, bilingual content)
-- Mom Karla Licona runs a separate Facebook page in Spanish supporting the business
+    const systemPrompt = `${ANTHONYS_BRAIN}
 
-DFW MARKET CONTEXT:
-- Target price range: $250K-$400K
-- Key areas: Denton County (Denton, Corinth, Aubrey, Celina, Lewisville), Collin County (McKinney, Frisco, Allen, Plano), Dallas County (Dallas, Mesquite, Irving)
-- Market is shifting toward buyers: longer days on market, more inventory, sellers offering concessions
-- Hispanic population is 30%+ in Dallas County, 20%+ in Denton County, creating strong demand for bilingual service
+${TEXAS_KNOWLEDGE}
 
-CURRENT PIPELINE:
-- Active transaction: 1725 Lemonwood Circle, Mesquite TX, $250,000, closing April 2, 2026 (buyer: Aimee Serrano via Ana)
-- Prior closing: Rigoberto (December 2025, also via Ana)
-- 12 total contacts in various pipeline stages
+Today's date is ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
 
-YOUR ROLE:
-- Draft follow-up messages that sound like Anthony (casual, warm, professional, never salesy)
-- If a contact's language is Spanish, draft in Spanish
-- Suggest specific next actions based on the contact's pipeline position and history
-- Provide DFW market data when asked (use web search for current data)
-- Help with objection handling, negotiation strategy, and deal analysis
-- Be direct. No fluff. No generic advice. Reference the specific contact's data.
-- Think long-term: every suggestion should build toward a relationship, not just a transaction
-- TREC compliance: never make guarantees about property values or investment returns
-- When suggesting to move a lead to nurture or cold, explain why based on the data
-- When Anthony feels overwhelmed, help him prioritize by urgency and likelihood to close
+CRITICAL RULES:
+1. When asked about market data, ALWAYS use web search. Search for "[city] TX housing market ${currentMonth} ${currentYear}" or similar. NEVER use training data for prices, inventory, or market statistics.
+2. After searching, cite when the data was published. If older than 30 days, say so.
+3. When drafting messages for Spanish-speaking contacts, write in natural conversational Spanish.
+4. Reference specific data from the contact's history. Never give generic advice.
+5. When suggesting next steps, consider Anthony works full-time M-F and can only do RE before 8am, at lunch, after 5pm, and weekends.
+6. Think long-term: every suggestion should build toward relationships and referrals, not just transactions.
+7. TREC compliance: never guarantee property values, investment returns, or market timing.
 ${contactContext}`;
 
     // Build messages array, filtering out any with empty content

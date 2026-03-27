@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
+import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
 import type { TrackType, PipelineStage } from '@/types/database';
 
 interface AddContactModalProps {
@@ -457,11 +458,20 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
         />
 
         {/* Address */}
-        <Input
+        <AddressAutocomplete
           label="Address"
-          placeholder="Street address"
+          placeholder="Start typing an address..."
           value={form.address_line_1}
-          onChange={e => updateField('address_line_1', e.target.value)}
+          onRawChange={val => updateField('address_line_1', val)}
+          onChange={({ street, city, state, zip }) => {
+            setForm(prev => ({
+              ...prev,
+              address_line_1: street,
+              city: city || prev.city,
+              state: state || prev.state,
+              zip_code: zip || prev.zip_code,
+            }));
+          }}
           disabled={loading}
         />
 
