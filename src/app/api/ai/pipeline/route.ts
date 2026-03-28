@@ -11,7 +11,7 @@ export async function GET() {
 
     const today = new Date().toISOString().split('T')[0];
 
-    const [contactsRes, transactionsRes, partnersRes, activitiesRes] = await Promise.all([
+    const [contactsRes, transactionsRes, partnersRes, activitiesRes, emailSyncRes, calSyncRes, emailTotalRes, recentEmailContactsRes] = await Promise.all([
       supabase
         .from('contacts')
         .select('id, first_name, last_name, track_type, pipeline_stage, phone, email, lead_source, next_follow_up_date, last_contact_date, language_preference, budget, location_preference, follow_up_notes, notes')
@@ -30,12 +30,45 @@ export async function GET() {
         .select('contact_id, activity_type, direction, activity_date')
         .order('activity_date', { ascending: false })
         .limit(100),
+      supabase
+        .from('sync_log')
+        .select('completed_at')
+        .eq('provider', 'google')
+        .eq('sync_type', 'email')
+        .eq('status', 'success')
+        .order('completed_at', { ascending: false })
+        .limit(1)
+        .single(),
+      supabase
+        .from('sync_log')
+        .select('completed_at')
+        .eq('provider', 'google')
+        .eq('sync_type', 'calendar')
+        .eq('status', 'success')
+        .order('completed_at', { ascending: false })
+        .limit(1)
+        .single(),
+      supabase
+        .from('sync_log')
+        .select('items_synced')
+        .eq('provider', 'google')
+        .eq('sync_type', 'email')
+        .eq('status', 'success'),
+      supabase
+        .from('activities')
+        .select('contact_id')
+        .eq('activity_type', 'email')
+        .gte('activity_date', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
     ]);
 
     const contacts = contactsRes.data || [];
     const transactions = transactionsRes.data || [];
     const partners = partnersRes.data || [];
     const activities = activitiesRes.data || [];
+    const lastEmailSync = emailSyncRes.data?.completed_at || null;
+    const lastCalSync = calSyncRes.data?.completed_at || null;
+    const totalEmailsSynced = (emailTotalRes.data || []).reduce((sum: number, r: { items_synced: number }) => sum + (r.items_synced || 0), 0);
+    const recentEmailContacts = new Set((recentEmailContactsRes.data || []).map((r: { contact_id: string }) => r.contact_id)).size;
 
     // Pipeline stage counts
     const stageCounts: Record<string, number> = {};
@@ -124,7 +157,13 @@ REFERRAL PARTNERS:
 ${partnerStats.length > 0 ? partnerStats.map(p => `- ${p}`).join('\n') : '- None'}
 
 UPCOMING CLOSINGS:
-${upcoming.length > 0 ? upcoming.map(u => `- ${u}`).join('\n') : '- None'}`;
+${upcoming.length > 0 ? upcoming.map(u => `- ${u}`).join('\n') : '- None'}
+
+SYNC STATUS:
+- Last email sync: ${lastEmailSync ? new Date(lastEmailSync).toLocaleString() : 'Never'}
+- Last calendar sync: ${lastCalSync ? new Date(lastCalSync).toLocaleString() : 'Never'}
+- Total emails synced: ${totalEmailsSynced}
+- Contacts with recent email activity (7d): ${recentEmailContacts}`;
 
     return NextResponse.json({ summary });
   } catch (err) {

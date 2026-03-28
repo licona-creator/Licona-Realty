@@ -122,6 +122,28 @@ export default function SystemHealthPage() {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<HealthCheckResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [syncingEmail, setSyncingEmail] = useState(false);
+  const [syncingCalendar, setSyncingCalendar] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+
+  async function handleSync(type: 'email' | 'calendar') {
+    const setter = type === 'email' ? setSyncingEmail : setSyncingCalendar;
+    setter(true);
+    setSyncMessage(null);
+    try {
+      const res = await fetch(`/api/sync/${type}`, { method: 'POST' });
+      if (!res.ok) throw new Error('Sync failed');
+      const data = await res.json();
+      const label = type === 'email' ? 'emails' : 'calendar events';
+      setSyncMessage(`Synced ${data.synced} ${label}`);
+      // Re-run diagnostic to refresh display
+      runDiagnostic();
+    } catch {
+      setSyncMessage(`${type === 'email' ? 'Email' : 'Calendar'} sync failed`);
+    } finally {
+      setter(false);
+    }
+  }
 
   async function runDiagnostic() {
     setRunning(true);
@@ -194,6 +216,13 @@ export default function SystemHealthPage() {
         </div>
       )}
 
+      {/* Sync Result Message */}
+      {syncMessage && (
+        <div className="p-3 rounded-[12px] bg-gold/10 border border-gold/20 mb-6">
+          <p className="text-sm text-navy dark:text-white font-inter">{syncMessage}</p>
+        </div>
+      )}
+
       {/* Results */}
       <AnimatePresence>
         {result && (
@@ -243,14 +272,25 @@ export default function SystemHealthPage() {
                     </span>
                   )}
 
-                  {/* Sync Now buttons for email/calendar (disabled Phase 1) */}
-                  {(card.name === 'Email Sync' || card.name === 'Calendar Sync') && (
+                  {/* Sync Now buttons for email/calendar */}
+                  {card.name === 'Email Sync' && result?.checks.googleOAuth.connected && (
                     <button
-                      disabled
-                      title="Coming in next update"
-                      className="text-xs text-navy/30 dark:text-white/30 font-montserrat font-medium px-3 py-1.5 rounded-[8px] border border-gold/10 cursor-not-allowed opacity-50"
+                      disabled={syncingEmail}
+                      onClick={() => handleSync('email')}
+                      className="text-xs text-gold font-montserrat font-medium px-3 py-1.5 rounded-[8px] border border-gold/20 hover:bg-gold/10 transition-colors disabled:opacity-50"
                     >
-                      Sync Now
+                      {syncingEmail ? <Loader2 size={12} className="animate-spin inline mr-1" /> : null}
+                      {syncingEmail ? 'Syncing...' : 'Sync Now'}
+                    </button>
+                  )}
+                  {card.name === 'Calendar Sync' && result?.checks.googleOAuth.connected && (
+                    <button
+                      disabled={syncingCalendar}
+                      onClick={() => handleSync('calendar')}
+                      className="text-xs text-gold font-montserrat font-medium px-3 py-1.5 rounded-[8px] border border-gold/20 hover:bg-gold/10 transition-colors disabled:opacity-50"
+                    >
+                      {syncingCalendar ? <Loader2 size={12} className="animate-spin inline mr-1" /> : null}
+                      {syncingCalendar ? 'Syncing...' : 'Sync Now'}
                     </button>
                   )}
                 </div>

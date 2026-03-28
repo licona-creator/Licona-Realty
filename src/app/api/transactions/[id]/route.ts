@@ -10,6 +10,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/security/rate-limit';
 import { validateUUID, sanitizePlainText } from '@/lib/security/validation';
 import { writeAuditLog, getClientIP, getUserAgent } from '@/lib/security/audit';
+import { createClosingCalendarEvent, createWalkthroughCalendarEvent } from '@/lib/sync/calendar-actions';
 
 export async function GET(
   request: NextRequest,
@@ -96,6 +97,13 @@ export async function PATCH(
   if (body.commission_rate !== undefined) updates.commission_rate = body.commission_rate;
   if (body.referral_fee !== undefined) updates.referral_fee = body.referral_fee;
 
+  // Fetch existing transaction before update for closing_date comparison
+  const { data: existingTx } = await supabase
+    .from('transactions')
+    .select('closing_date, calendar_event_ids, contact_id')
+    .eq('id', id)
+    .single();
+
   const { data, error } = await supabase
     .from('transactions')
     .update(updates)
@@ -113,6 +121,41 @@ export async function PATCH(
       .from('contacts')
       .update({ pipeline_stage: 'closed', updated_at: new Date().toISOString() })
       .eq('id', data.contact_id);
+  }
+
+  // Calendar sync: create closing + walkthrough events when closing_date changes
+  if (body.closing_date !== undefined && existingTx) {
+    try {
+      const oldDate = existingTx.closing_date;
+      const newDate = body.closing_date || null;
+
+      if (newDate && newDate !== oldDate && data?.contacts) {
+        const contactName = `${data.contacts.first_name} ${data.contacts.last_name}`;
+        const txData = {
+          property_address: data.property_address,
+          contact_name: contactName,
+          closing_date: newDate,
+        };
+
+        const [closingEventId, walkthroughEventId] = await Promise.all([
+          createClosingCalendarEvent(supabase, txData),
+          createWalkthroughCalendarEvent(supabase, txData),
+        ]);
+
+        const calendarEventIds: Record<string, string | null> = {
+          closing: closingEventId,
+          walkthrough: walkthroughEventId,
+        };
+
+        await supabase
+          .from('transactions')
+          .update({ calendar_event_ids: calendarEventIds })
+          .eq('id', id);
+      }
+    } catch (calErr) {
+      // Calendar operations must never crash the transaction save
+      console.error('[transactions:PATCH] Calendar sync error (non-fatal):', calErr);
+    }
   }
 
   await writeAuditLog({

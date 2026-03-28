@@ -89,6 +89,24 @@ export async function POST(request: NextRequest) {
         // ai_insights table may not exist yet
       }
 
+      // Fetch email activities (10 most recent)
+      const { data: emailActivities } = await supabase
+        .from('activities')
+        .select('direction, description, activity_date')
+        .eq('contact_id', contactId)
+        .eq('activity_type', 'email')
+        .order('activity_date', { ascending: false })
+        .limit(10);
+
+      // Fetch meeting activities (5 most recent)
+      const { data: meetingActivities } = await supabase
+        .from('activities')
+        .select('direction, description, activity_date')
+        .eq('contact_id', contactId)
+        .eq('activity_type', 'meeting')
+        .order('activity_date', { ascending: false })
+        .limit(5);
+
       const activityLog = (activities || []).map(a =>
         `- ${a.activity_date?.split('T')[0] || 'unknown date'}: ${a.activity_type}${a.direction ? ` (${a.direction})` : ''} - ${a.description}`
       ).join('\n');
@@ -127,7 +145,17 @@ ACTIVITY HISTORY (most recent first):
 ${activityLog || 'No activities logged yet.'}
 
 LINKED TRANSACTIONS:
-${txLog || 'No transactions linked.'}${insightsContext}`;
+${txLog || 'No transactions linked.'}
+
+Recent emails with this contact:
+${emailActivities && emailActivities.length > 0
+  ? emailActivities.map(e => `- [${e.activity_date?.split('T')[0] || 'unknown'}] ${e.direction || 'unknown'}: ${e.description}`).join('\n')
+  : 'No email activity synced yet.'}
+
+Upcoming/recent meetings:
+${meetingActivities && meetingActivities.length > 0
+  ? meetingActivities.map(m => `- [${m.activity_date?.split('T')[0] || 'unknown'}] ${m.direction || ''}: ${m.description}`).join('\n')
+  : 'No meeting activity synced yet.'}${insightsContext}`;
     }
 
     const now = new Date();

@@ -17,6 +17,7 @@ import {
   validateZipCode,
 } from '@/lib/security/validation';
 import { logger } from '@/lib/security/logger';
+import { createFollowUpCalendarEvent, removeCalendarEvent } from '@/lib/sync/calendar-actions';
 
 const VALID_PIPELINE_STAGES = [
   'new', 'contacted', 'qualifying', 'nurturing', 'showing',
@@ -169,6 +170,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'No valid fields to update.' }, { status: 400 });
     }
 
+    // Fetch existing contact before update (for calendar event comparison)
+    const { data: existingContact } = await supabase
+      .from('contacts')
+      .select('next_follow_up_date, google_calendar_event_id, first_name, last_name, phone, follow_up_notes')
+      .eq('id', id)
+      .single();
+
     const { data, error } = await supabase
       .from('contacts')
       .update(updates)
@@ -190,6 +198,49 @@ export async function PATCH(
       ipAddress: ip,
       userAgent: ua,
     });
+
+    // Calendar sync: manage follow-up events when next_follow_up_date changes
+    if (body.next_follow_up_date !== undefined && existingContact) {
+      try {
+        const oldDate = existingContact.next_follow_up_date;
+        const newDate = body.next_follow_up_date || null;
+        const oldEventId = existingContact.google_calendar_event_id;
+
+        if (newDate && newDate !== oldDate) {
+          // Date set or changed: remove old event, create new one
+          if (oldEventId) {
+            await removeCalendarEvent(supabase, oldEventId);
+          }
+          const eventId = await createFollowUpCalendarEvent(
+            supabase,
+            {
+              id,
+              first_name: data.first_name || existingContact.first_name,
+              last_name: data.last_name || existingContact.last_name,
+              phone: data.phone || existingContact.phone,
+            },
+            newDate,
+            data.follow_up_notes || existingContact.follow_up_notes || undefined
+          );
+          if (eventId) {
+            await supabase
+              .from('contacts')
+              .update({ google_calendar_event_id: eventId })
+              .eq('id', id);
+          }
+        } else if (!newDate && oldEventId) {
+          // Date cleared: remove calendar event
+          await removeCalendarEvent(supabase, oldEventId);
+          await supabase
+            .from('contacts')
+            .update({ google_calendar_event_id: null })
+            .eq('id', id);
+        }
+      } catch (calErr) {
+        // Calendar operations must never crash the contact save
+        console.error('[contacts:PATCH] Calendar sync error (non-fatal):', calErr);
+      }
+    }
 
     return NextResponse.json({ contact: data });
   } catch (err) {

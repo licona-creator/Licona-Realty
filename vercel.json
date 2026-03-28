@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/cron/sync-all",
+      "schedule": "0 */6 * * *"
+    },
+    {
       "path": "/api/cron/daily-health",
       "schedule": "0 12 * * *"
     }

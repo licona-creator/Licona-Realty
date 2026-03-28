@@ -20,6 +20,12 @@ interface FollowUpContact {
   pipeline_stage: string; track_type: string;
 }
 
+interface UpcomingEvent {
+  id: string; description: string; activity_date: string;
+  contact_id: string;
+  contacts?: { first_name: string; last_name: string } | null;
+}
+
 interface RecentActivity {
   id: string; activity_type: string; direction: string | null;
   description: string; activity_date: string;
@@ -98,16 +104,20 @@ export default function DashboardPage() {
   const [completedToday, setCompletedToday] = useState(0);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [campaignMessages, setCampaignMessages] = useState<CampaignMessageDue[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
+  const [googleConnected, setGoogleConnected] = useState(false);
   const [expandedCampaignId, setExpandedCampaignId] = useState<string | null>(null);
   const { settings } = useAgentSettings();
   const displayName = settings?.profile_name || BRAND.agent.name;
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const [dashRes, fuRes, campRes] = await Promise.all([
+      const [dashRes, fuRes, campRes, eventsRes, googleRes] = await Promise.all([
         fetch('/api/dashboard'),
         fetch('/api/dashboard/follow-ups'),
         fetch('/api/dashboard/campaign-messages'),
+        fetch('/api/dashboard/upcoming-events'),
+        fetch('/api/auth/google/status'),
       ]);
       if (dashRes.ok) setData(await dashRes.json());
       if (fuRes.ok) {
@@ -117,6 +127,14 @@ export default function DashboardPage() {
       if (campRes.ok) {
         const campData = await campRes.json();
         setCampaignMessages(campData.messages || []);
+      }
+      if (eventsRes.ok) {
+        const evData = await eventsRes.json();
+        setUpcomingEvents(evData.events || []);
+      }
+      if (googleRes.ok) {
+        const gData = await googleRes.json();
+        setGoogleConnected(gData.connected || false);
       }
     } catch { /* empty */ } finally { setLoading(false); }
   }, []);
@@ -351,6 +369,49 @@ export default function DashboardPage() {
             </>
           ) : (
             <p className="text-sm text-navy/50 dark:text-white/50 font-inter">No follow-ups scheduled. Set follow-up dates on your contacts.</p>
+          )}
+        </Card>
+
+        {/* Upcoming Events */}
+        <Card className="!p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Calendar size={22} className="text-gold" />
+            <h2 className="text-lg font-semibold font-montserrat text-navy dark:text-white">Upcoming Events</h2>
+          </div>
+          {upcomingEvents.length > 0 ? (
+            <div className="space-y-2">
+              {upcomingEvents.map(ev => {
+                const evDate = new Date(ev.activity_date);
+                const contactName = ev.contacts ? `${ev.contacts.first_name} ${ev.contacts.last_name}` : '';
+                return (
+                  <div key={ev.id} className="flex items-start gap-3 p-3 rounded-lg bg-surface dark:bg-navy/30">
+                    <div className="w-7 h-7 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Calendar size={12} className="text-gold" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-montserrat font-medium text-navy dark:text-white truncate">{ev.description}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-navy/50 dark:text-white/50 font-inter">
+                          {evDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at {evDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                        </span>
+                        {contactName && (
+                          <a href={`/contacts/${ev.contact_id}`} className="text-xs text-gold font-inter hover:underline truncate">
+                            {contactName}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <ChevronRight size={14} className="text-navy/20 dark:text-white/20 flex-shrink-0 mt-1" />
+                  </div>
+                );
+              })}
+            </div>
+          ) : googleConnected ? (
+            <p className="text-sm text-navy/50 dark:text-white/50 font-inter">No upcoming events. Events sync from Google Calendar every 6 hours.</p>
+          ) : (
+            <p className="text-sm text-navy/50 dark:text-white/50 font-inter">
+              Connect Google in <a href="/settings?tab=integrations" className="text-gold hover:underline">Settings</a> to see calendar events.
+            </p>
           )}
         </Card>
 

@@ -54,6 +54,7 @@ export function Integrations() {
   const [healthStatus, setHealthStatus] = useState<HealthStatus>({});
   const [loading, setLoading] = useState(true);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     title: string;
@@ -197,11 +198,29 @@ export function Integrations() {
               </div>
               <div className="flex gap-2">
                 <button
-                  disabled
-                  title="Coming in next update"
-                  className="text-xs text-navy/30 dark:text-white/30 font-montserrat font-medium px-3 py-1.5 rounded-[8px] border border-gold/10 cursor-not-allowed opacity-50"
+                  disabled={syncing}
+                  onClick={async () => {
+                    setSyncing(true);
+                    try {
+                      const [emailRes, calRes] = await Promise.all([
+                        fetch('/api/sync/email', { method: 'POST' }),
+                        fetch('/api/sync/calendar', { method: 'POST' }),
+                      ]);
+                      const emailData = emailRes.ok ? await emailRes.json() : null;
+                      const calData = calRes.ok ? await calRes.json() : null;
+                      const parts: string[] = [];
+                      if (emailData) parts.push(`${emailData.synced} emails`);
+                      if (calData) parts.push(`${calData.synced} calendar events`);
+                      success('Sync Complete', `Synced ${parts.join(' and ')}.`);
+                    } catch {
+                      toastError('Sync Failed', 'Could not complete sync.');
+                    } finally {
+                      setSyncing(false);
+                    }
+                  }}
+                  className="text-xs text-gold font-montserrat font-medium px-3 py-1.5 rounded-[8px] border border-gold/20 hover:bg-gold/10 transition-colors disabled:opacity-50"
                 >
-                  Sync Now
+                  {syncing ? 'Syncing...' : 'Sync Now'}
                 </button>
                 <Button
                   size="sm"
