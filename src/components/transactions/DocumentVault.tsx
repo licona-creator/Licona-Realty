@@ -40,26 +40,44 @@ export function DocumentVault({ transactionId, trackType }: DocumentVaultProps) 
   const [checklist, setChecklist] = useState<DocumentRequirement[]>([]);
   const [progress, setProgress] = useState<DocumentProgress>({ total: 0, uploaded: 0, signed: 0, pending: 0, missing: 0, percentComplete: 0 });
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [statusDropdown, setStatusDropdown] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const toastRef = useRef(toast);
+  toastRef.current = toast;
+
+  const MAX_RETRIES = 3;
 
   const fetchDocuments = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/transactions/${transactionId}/documents`);
-      if (!res.ok) throw new Error('Failed to fetch');
-      const data = await res.json();
-      setDocuments(data.documents || []);
-      setChecklist(data.checklist || getDocumentChecklist(trackType));
-      setProgress(data.progress || calculateDocumentProgress(data.documents || [], data.checklist || []));
-    } catch {
-      toast.error('Error', 'Failed to load documents.');
-    } finally {
-      setLoading(false);
+    setLoading(true);
+    setFetchError(false);
+
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        const res = await fetch(`/api/transactions/${transactionId}/documents`);
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        setDocuments(data.documents || []);
+        setChecklist(data.checklist || getDocumentChecklist(trackType));
+        setProgress(data.progress || calculateDocumentProgress(data.documents || [], data.checklist || []));
+        setLoading(false);
+        return; // success - exit
+      } catch {
+        if (attempt < MAX_RETRIES - 1) {
+          // Exponential backoff: 1s, 2s, 4s
+          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+        }
+      }
     }
-  }, [transactionId, trackType, toast]);
+
+    // All retries exhausted
+    setFetchError(true);
+    setLoading(false);
+    toastRef.current.error('Error', 'Could not load document vault. Tap Retry to try again.');
+  }, [transactionId, trackType]);
 
   useEffect(() => { fetchDocuments(); }, [fetchDocuments]);
 
@@ -80,14 +98,14 @@ export function DocumentVault({ transactionId, trackType }: DocumentVaultProps) 
         throw new Error(data.error || 'Upload failed');
       }
 
-      toast.success('Uploaded', `${file.name} uploaded successfully.`);
+      toastRef.current.success('Uploaded', `${file.name} uploaded successfully.`);
       await fetchDocuments();
     } catch (err) {
-      toast.error('Upload Failed', err instanceof Error ? err.message : 'Something went wrong.');
+      toastRef.current.error('Upload Failed', err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
       setUploading(prev => ({ ...prev, [documentType]: false }));
     }
-  }, [transactionId, fetchDocuments, toast]);
+  }, [transactionId, fetchDocuments]);
 
   const handleStatusChange = useCallback(async (docId: string, newStatus: string) => {
     try {
@@ -100,9 +118,9 @@ export function DocumentVault({ transactionId, trackType }: DocumentVaultProps) 
       setStatusDropdown(null);
       await fetchDocuments();
     } catch {
-      toast.error('Error', 'Failed to update status.');
+      toastRef.current.error('Error', 'Failed to update status.');
     }
-  }, [transactionId, fetchDocuments, toast]);
+  }, [transactionId, fetchDocuments]);
 
   const handleDownload = useCallback(async (docId: string) => {
     try {
@@ -111,9 +129,9 @@ export function DocumentVault({ transactionId, trackType }: DocumentVaultProps) 
       const data = await res.json();
       window.open(data.url, '_blank');
     } catch {
-      toast.error('Error', 'Failed to download file.');
+      toastRef.current.error('Error', 'Failed to download file.');
     }
-  }, [transactionId, toast]);
+  }, [transactionId]);
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
@@ -122,14 +140,14 @@ export function DocumentVault({ transactionId, trackType }: DocumentVaultProps) 
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Failed to delete');
-      toast.success('Deleted', 'Document removed.');
+      toastRef.current.success('Deleted', 'Document removed.');
       setDeleteTarget(null);
       await fetchDocuments();
     } catch {
-      toast.error('Error', 'Failed to delete document.');
+      toastRef.current.error('Error', 'Failed to delete document.');
       setDeleteTarget(null);
     }
-  }, [transactionId, deleteTarget, fetchDocuments, toast]);
+  }, [transactionId, deleteTarget, fetchDocuments]);
 
   // Group checklist by category
   const categories = checklist.reduce<Record<string, DocumentRequirement[]>>((acc, item) => {
@@ -146,6 +164,29 @@ export function DocumentVault({ transactionId, trackType }: DocumentVaultProps) 
       <div className="flex items-center justify-center py-8">
         <Loader2 size={20} className="animate-spin text-gold" />
         <span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading documents...</span>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="py-8 text-center">
+        <div className="flex items-center gap-2 justify-center mb-3">
+          <FileArchive size={16} className="text-gold" />
+          <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">
+            Document Vault
+          </h3>
+        </div>
+        <p className="text-sm text-navy/50 dark:text-white/50 font-inter mb-4">
+          Unable to load documents. Please check your connection and try again.
+        </p>
+        <button
+          onClick={fetchDocuments}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] text-xs font-montserrat font-medium transition-colors min-h-[44px]"
+          style={{ backgroundColor: '#d3a971', color: '#132236' }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
