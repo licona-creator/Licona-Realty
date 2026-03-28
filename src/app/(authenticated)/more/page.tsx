@@ -15,11 +15,12 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Send, Megaphone, MapPin, Calendar, Palette,
-  Star, Calculator, Settings, LogOut,
+  Star, Calculator, Settings, LogOut, Handshake,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   send: Send,
+  handshake: Handshake,
   megaphone: Megaphone,
   'map-pin': MapPin,
   calendar: Calendar,
