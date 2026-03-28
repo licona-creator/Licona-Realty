@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { BRAND } from '@/lib/brand';
 import { Button } from '@/components/ui/Button';
@@ -95,16 +95,22 @@ export function Integrations() {
     Promise.all([fetchGoogleStatus(), fetchHealthStatus()]).finally(() => setLoading(false));
   }, [fetchGoogleStatus, fetchHealthStatus]);
 
-  // Handle OAuth callback query params
+  // Handle OAuth callback query params (fire once, then strip params)
+  const toastFired = useRef(false);
   useEffect(() => {
+    if (toastFired.current) return;
     const connected = searchParams.get('connected');
     const err = searchParams.get('error');
     if (connected === 'google') {
+      toastFired.current = true;
       success('Google Connected', 'Gmail and Calendar access granted successfully.');
       fetchGoogleStatus();
+      window.history.replaceState({}, '', '/settings?tab=integrations');
     }
     if (err === 'google_auth_failed' || err === 'google_connection_failed') {
+      toastFired.current = true;
       toastError('Connection Failed', 'Google OAuth could not be completed. Please try again.');
+      window.history.replaceState({}, '', '/settings?tab=integrations');
     }
   }, [searchParams, success, toastError, fetchGoogleStatus]);
 
