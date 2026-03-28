@@ -27,6 +27,7 @@ import {
   Calculator,
   Settings,
   Handshake,
+  Activity,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -43,6 +44,7 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
   star: Star,
   calculator: Calculator,
   settings: Settings,
+  activity: Activity,
 };
 
 interface SidebarProps {

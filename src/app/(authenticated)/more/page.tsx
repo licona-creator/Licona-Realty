@@ -15,7 +15,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Send, Megaphone, MapPin, Calendar, Palette,
-  Star, Calculator, Settings, LogOut, Handshake,
+  Star, Calculator, Settings, LogOut, Handshake, Activity,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -27,6 +27,7 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
   palette: Palette,
   star: Star,
   calculator: Calculator,
+  activity: Activity,
 };
 
 // Show items not in mobile bottom nav

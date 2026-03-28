@@ -1,56 +1,36 @@
 /**
  * Google OAuth Initiation
  *
- * Redirects to Google OAuth consent screen for Gmail + Calendar access.
- * Env vars: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET (set in Vercel)
+ * Redirects authenticated user to Google OAuth consent screen.
+ * Requests Gmail (read) and Calendar (read/write) access.
  */
 
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-
-const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
-
-const SCOPES = [
-  'https://www.googleapis.com/auth/gmail.send',
-  'https://www.googleapis.com/auth/gmail.readonly',
-  'https://www.googleapis.com/auth/calendar',
-  'https://www.googleapis.com/auth/calendar.events',
-  'https://www.googleapis.com/auth/userinfo.email',
-].join(' ');
+import { getGoogleAuthUrl } from '@/lib/google/auth';
 
 export async function GET() {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.redirect(
+      new URL('/auth/login', process.env.NEXT_PUBLIC_APP_URL || 'https://licona-realty-i1st.vercel.app')
+    );
   }
 
-  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
   if (!clientId) {
     console.error(
-      '[google-oauth] GOOGLE_CLIENT_ID is not set.',
-      'Env keys containing GOOGLE:',
-      Object.keys(process.env).filter(k => k.toUpperCase().includes('GOOGLE')),
+      '[google-oauth] No Google OAuth client ID configured.',
+      'Set GOOGLE_OAUTH_CLIENT_ID in Vercel environment variables.',
     );
-    return NextResponse.json({
-      error: 'Google OAuth not configured. GOOGLE_CLIENT_ID must be set in Vercel environment variables. Redeploy after adding.',
-    }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Google OAuth not configured. Set GOOGLE_OAUTH_CLIENT_ID in environment.' },
+      { status: 500 }
+    );
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_SITE_URL
-    || 'https://licona-realty-i1st.vercel.app';
-  const redirectUri = `${appUrl}/api/auth/google/callback`;
-
-  const params = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    response_type: 'code',
-    scope: SCOPES,
-    access_type: 'offline',
-    prompt: 'consent',
-    state: user.id,
-  });
-
-  return NextResponse.redirect(`${GOOGLE_AUTH_URL}?${params}`);
+  const url = getGoogleAuthUrl();
+  return NextResponse.redirect(url);
 }

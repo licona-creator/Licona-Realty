@@ -124,4 +124,5 @@ export const NAV_ITEMS = [
   { label: 'Testimonials', href: '/testimonials', icon: 'star' },
   { label: 'Mortgage Calc', href: '/mortgage', icon: 'calculator' },
   { label: 'Settings', href: '/settings', icon: 'settings' },
+  { label: 'System Health', href: '/system-health', icon: 'activity' },
 ] as const;
