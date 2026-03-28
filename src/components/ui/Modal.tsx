@@ -108,7 +108,7 @@ export function Modal({
             )}
 
             {/* Body - scrollable */}
-            <div className="p-5 overflow-y-auto flex-1">{children}</div>
+            <div className="p-5 pb-20 sm:pb-5 overflow-y-auto flex-1">{children}</div>
           </motion.div>
         </div>
       )}

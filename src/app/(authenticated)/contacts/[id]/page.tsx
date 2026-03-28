@@ -492,7 +492,7 @@ export default function ContactDetailPage() {
 
       {/* Edit Modal */}
       <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Contact" size="lg">
-        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+        <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <Input label="First Name *" value={editForm.first_name || ''} onChange={e => setEditForm(p => ({ ...p, first_name: e.target.value }))} disabled={saving} />
             <Input label="Last Name *" value={editForm.last_name || ''} onChange={e => setEditForm(p => ({ ...p, last_name: e.target.value }))} disabled={saving} />
@@ -540,10 +540,11 @@ export default function ContactDetailPage() {
             <div className="col-span-2"><Input label="Zip" value={editForm.zip_code || ''} onChange={e => setEditForm(p => ({ ...p, zip_code: e.target.value }))} disabled={saving} /></div>
           </div>
           <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Notes</label><textarea rows={3} value={editForm.notes || ''} onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))} disabled={saving} className={`${selectClassName} resize-none`} placeholder="Additional notes..." /></div>
-          <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button>
-            <Button variant="accent" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button>
-          </div>
+          <div className="h-4" />
+        </div>
+        <div className="flex justify-end gap-3 pt-3 border-t border-gold/10 mt-2">
+          <Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button>
+          <Button variant="accent" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button>
         </div>
       </Modal>
 
