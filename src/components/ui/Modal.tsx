@@ -99,7 +99,6 @@ export function Modal({
                     onClick={onClose}
                     className="ml-4 p-1 rounded-md text-navy/30 dark:text-white/30 hover:text-navy/60 dark:hover:text-white/60 hover:bg-gold/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                     aria-label="Close"
-                    style={{ marginTop: 'max(env(safe-area-inset-top, 0px), 0px)' }}
                   >
                     <X size={18} />
                   </button>

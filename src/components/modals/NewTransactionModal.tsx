@@ -392,7 +392,8 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="h-4" />
+        <div className="flex justify-end gap-3 pt-3 border-t border-gold/10">
           <Button type="button" variant="ghost" onClick={resetAndClose} disabled={loading}>
             Cancel
           </Button>

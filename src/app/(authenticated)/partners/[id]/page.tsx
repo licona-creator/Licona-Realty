@@ -223,10 +223,11 @@ export default function PartnerDetailPage() {
             <Input label="Fee Structure" value={editForm.referral_fee_structure || ''} onChange={e => setEditForm(p => ({ ...p, referral_fee_structure: e.target.value }))} disabled={saving} />
           </div>
           <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Notes</label><textarea rows={3} value={editForm.notes || ''} onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))} className={`${selectClassName} resize-none`} disabled={saving} /></div>
-          <div className="flex justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button>
-            <Button variant="accent" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button>
-          </div>
+          <div className="h-4" />
+        </div>
+        <div className="flex justify-end gap-3 pt-3 border-t border-gold/10 mt-2">
+          <Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button>
+          <Button variant="accent" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button>
         </div>
       </Modal>
 

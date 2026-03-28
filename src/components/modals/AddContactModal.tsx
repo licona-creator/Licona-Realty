@@ -537,7 +537,8 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-2">
+        <div className="h-4" />
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gold/10">
           <Button
             type="button"
             variant="ghost"

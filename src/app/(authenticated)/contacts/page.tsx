@@ -241,7 +241,7 @@ export default function ContactsPage() {
                     </p>
                     <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                       {contact.email && (
-                        <span className="flex items-center gap-1 text-xs text-navy/50 dark:text-white/50 font-inter truncate">
+                        <span className="hidden sm:flex items-center gap-1 text-xs text-navy/50 dark:text-white/50 font-inter truncate">
                           <Mail size={10} className="flex-shrink-0" />
                           {contact.email}
                         </span>
@@ -270,7 +270,7 @@ export default function ContactsPage() {
                     });
                     const colors = getScoreTailwind(scoreData.score);
                     return (
-                      <span className={`flex-shrink-0 w-7 h-7 rounded-full ${colors.bg} ${colors.text} flex items-center justify-center text-[10px] font-montserrat font-bold`} title={`Lead score: ${scoreData.score}`}>
+                      <span className={`hidden sm:flex flex-shrink-0 w-7 h-7 rounded-full ${colors.bg} ${colors.text} items-center justify-center text-[10px] font-montserrat font-bold`} title={`Lead score: ${scoreData.score}`}>
                         {scoreData.score}
                       </span>
                     );
@@ -305,7 +305,7 @@ export default function ContactsPage() {
                     )}
                     <button
                       onClick={(e) => { e.stopPropagation(); setDeleteTarget(contact); }}
-                      className="p-1.5 rounded hover:bg-red-500/10 text-navy/30 dark:text-white/30 hover:text-red-500 transition-colors"
+                      className="hidden sm:block p-1.5 rounded hover:bg-red-500/10 text-navy/30 dark:text-white/30 hover:text-red-500 transition-colors"
                     >
                       <Trash2 size={14} />
                     </button>
