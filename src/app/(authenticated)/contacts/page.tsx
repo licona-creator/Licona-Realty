@@ -369,11 +369,11 @@ export default function ContactsPage() {
       {/* Mobile FAB */}
       <button
         onClick={() => setShowAddModal(true)}
-        className="lg:hidden fixed z-40 w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform"
-        style={{ backgroundColor: BRAND.colors.gold, right: '20px', bottom: '80px' }}
+        className="lg:hidden fixed z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform right-4 bottom-[88px]"
+        style={{ backgroundColor: BRAND.colors.gold }}
         aria-label="Add Contact"
       >
-        <Plus size={24} color="#fff" />
+        <Plus size={20} color="#fff" />
       </button>
     </div>
   );
