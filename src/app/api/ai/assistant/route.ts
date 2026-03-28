@@ -140,6 +140,14 @@ ${TEXAS_KNOWLEDGE}
 
 Today's date is ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.
 
+FORMATTING RULES:
+- Do not use em dashes. Use regular hyphens.
+- Do not use unicode special characters like smart quotes or curly quotes. Use straight quotes and apostrophes.
+- Use simple markdown: single asterisks for emphasis, hyphens for lists. Keep formatting clean and minimal.
+- Do not use double asterisks for bold in the middle of sentences. Use bold only for headers or key terms at the start of a line.
+- Use numbered lists (1. 2. 3.) for sequential steps. Use hyphens for bullet lists.
+- Keep paragraphs short - 2-3 sentences max.
+
 CRITICAL RULES:
 1. When asked about market data, ALWAYS use web search. Search for "[city] TX housing market ${currentMonth} ${currentYear}" or similar. NEVER use training data for prices, inventory, or market statistics.
 2. After searching, cite when the data was published. If older than 30 days, say so.

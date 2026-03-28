@@ -216,6 +216,7 @@ export default function ContactDetailPage() {
       setContact(data.contact);
       setEditing(false);
       toast.success('Contact Updated', `${data.contact.first_name} ${data.contact.last_name} has been updated.`);
+      router.refresh();
     } catch (err) {
       toast.error('Update Failed', err instanceof Error ? err.message : 'Something went wrong.');
     } finally { setSaving(false); }
@@ -250,6 +251,7 @@ export default function ContactDetailPage() {
       setShowLogActivity(false);
       fetchRelatedData();
       fetchContact();
+      router.refresh();
     } catch (err) {
       toast.error('Error', err instanceof Error ? err.message : 'Something went wrong.');
     } finally { setLogSaving(false); }

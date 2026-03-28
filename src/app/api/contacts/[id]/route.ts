@@ -224,6 +224,19 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Cascade: delete activities for this contact
+    await supabase.from('activities').delete().eq('contact_id', id);
+
+    // Cascade: remove campaign enrollments
+    await supabase.from('campaign_enrollments').delete().eq('contact_id', id);
+
+    // Cascade: unlink from transactions (set contact_id to null)
+    await supabase
+      .from('transactions')
+      .update({ contact_id: null })
+      .eq('contact_id', id);
+
+    // Soft-delete the contact
     const { error } = await supabase
       .from('contacts')
       .update({

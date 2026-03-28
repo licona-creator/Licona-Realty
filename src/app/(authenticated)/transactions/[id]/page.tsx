@@ -198,8 +198,8 @@ export default function TransactionDetailPage() {
 
       setEditing(false);
       toast.success('Transaction Updated', 'Changes have been saved.');
-      // Re-fetch to get updated joined contact data
       fetchTransaction();
+      router.refresh();
     } catch (err) {
       toast.error('Update Failed', err instanceof Error ? err.message : 'Something went wrong.');
     } finally {

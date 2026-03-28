@@ -5,6 +5,11 @@
  * with the main content area. Approval queue badge visible everywhere.
  * Includes session timeout warning, global AI assistant button,
  * global search, and notifications.
+ *
+ * AI button positioning:
+ * - On detail pages (/contacts/[id], /transactions/[id]), moved higher to avoid overlapping action buttons
+ * - On list pages with FABs (/contacts, /transactions), stacked above the FAB
+ * - On desktop, positioned in bottom-right corner
  */
 
 'use client';
@@ -32,6 +37,17 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
   // Auto-detect contact context from URL (/contacts/[id])
   const contactMatch = pathname.match(/^\/contacts\/([a-f0-9-]+)$/i);
   const contactId = contactMatch ? contactMatch[1] : null;
+
+  // Detect page types for AI button positioning
+  const isDetailPage = /^\/(contacts|transactions|partners)\/[a-f0-9-]+$/i.test(pathname);
+  const isListPageWithFAB = pathname === '/contacts' || pathname === '/transactions';
+
+  // Mobile AI button positioning:
+  // - Detail pages: bottom 160px (clear of Edit/Delete/Back buttons)
+  // - List pages with FAB: bottom 152px (above the + FAB which is at ~80px)
+  // - Default: bottom 90px (above the bottom nav)
+  const mobileBottom = isDetailPage ? '160px' : isListPageWithFAB ? '152px' : '90px';
+  const mobileLabelBottom = isDetailPage ? '148px' : isListPageWithFAB ? '140px' : '78px';
 
   return (
     <div className="min-h-screen bg-surface dark:bg-navy">
@@ -64,14 +80,22 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
       {/* Global AI Assistant Button */}
       <button
         onClick={() => setShowAI(true)}
-        className="fixed z-[51] flex items-center justify-center w-12 h-12 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all bottom-[90px] right-5 lg:bottom-6 lg:right-6"
-        style={{ backgroundColor: BRAND.colors.accent }}
+        className="fixed z-[51] flex items-center justify-center w-12 h-12 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all lg:bottom-6 lg:right-6"
+        style={{
+          backgroundColor: BRAND.colors.accent,
+          right: '20px',
+          bottom: mobileBottom,
+        }}
         aria-label="AI Assistant"
       >
         <Sparkles size={20} color={BRAND.colors.primary} />
       </button>
       <span
-        className="fixed z-[51] text-[9px] font-montserrat font-semibold pointer-events-none bottom-[78px] right-[26px] lg:bottom-[14px] lg:right-[30px] text-navy/50 dark:text-white/50"
+        className="fixed z-[51] text-[9px] font-montserrat font-semibold pointer-events-none lg:bottom-[14px] lg:right-[30px] text-navy/50 dark:text-white/50"
+        style={{
+          right: '26px',
+          bottom: mobileLabelBottom,
+        }}
       >
         AI
       </span>

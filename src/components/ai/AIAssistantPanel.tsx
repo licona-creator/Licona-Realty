@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Send, Sparkles, Trash2, Bookmark, Pin } from 'lucide-react';
 import { BRAND } from '@/lib/brand';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -49,6 +50,18 @@ const DASHBOARD_QUICK_ACTIONS = [
   'How am I tracking toward my $60K goal?',
   'Draft content idea',
 ];
+
+function sanitizeAIText(text: string): string {
+  return text
+    .replace(/\u2014/g, '-')       // em dash to hyphen
+    .replace(/\u2013/g, '-')       // en dash to hyphen
+    .replace(/\u201C/g, '"')       // left double smart quote
+    .replace(/\u201D/g, '"')       // right double smart quote
+    .replace(/\u2018/g, "'")       // left single smart quote
+    .replace(/\u2019/g, "'")       // right single smart quote
+    .replace(/^\*\*\s*/gm, '**')   // clean up double bold at line start
+    .replace(/\u2022\u2022/g, '-'); // double bullets to single hyphen
+}
 
 export function AIAssistantPanel({ open, onClose, contactId, contactName, contactStage }: AIAssistantPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -103,10 +116,8 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
     setError(null);
 
     try {
-      // Build conversation history for context
       const history = messages.map(m => ({ role: m.role, content: m.content }));
 
-      // If dashboard mode with pipeline data, prepend it to first message
       let fullMessage = text.trim();
       if (!contactId && pipelineSummary && messages.length === 0) {
         fullMessage = `[Pipeline context for your reference - do not repeat this back to me, just use it to inform your answers]\n${pipelineSummary}\n\n${text.trim()}`;
@@ -132,7 +143,8 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
         return;
       }
 
-      const aiMsg: ChatMessage = { role: 'assistant', content: data.response };
+      const sanitized = sanitizeAIText(data.response || '');
+      const aiMsg: ChatMessage = { role: 'assistant', content: sanitized };
       setMessages(prev => [...prev, aiMsg]);
     } catch {
       setError('Network error. Please check your connection.');
@@ -267,13 +279,19 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
             >
               <div className="max-w-[85%]">
                 <div
-                  className={`rounded-2xl px-3.5 py-2.5 text-sm font-inter whitespace-pre-wrap break-words ${
+                  className={`rounded-2xl px-3.5 py-2.5 text-sm font-inter break-words ${
                     msg.role === 'user'
                       ? 'bg-gold text-navy rounded-br-md'
                       : 'bg-[#f4f4f4] dark:bg-navy/40 text-navy dark:text-white rounded-bl-md'
                   }`}
                 >
-                  {msg.role === 'assistant' ? renderMarkdown(msg.content) : msg.content}
+                  {msg.role === 'assistant' ? (
+                    <div className="ai-markdown prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:text-navy dark:prose-headings:text-white prose-strong:text-navy dark:prose-strong:text-white">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <span className="whitespace-pre-wrap">{msg.content}</span>
+                  )}
                 </div>
                 {/* Save Insight button for assistant messages */}
                 {msg.role === 'assistant' && (
@@ -360,62 +378,4 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
       </div>
     </>
   );
-}
-
-function renderMarkdown(text: string): React.ReactNode {
-  // Simple markdown rendering for bold, lists, and line breaks
-  const lines = text.split('\n');
-  const elements: React.ReactNode[] = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    if (line.trim() === '') {
-      elements.push(<br key={`br-${i}`} />);
-      continue;
-    }
-
-    // Bold (**text**)
-    const parts: React.ReactNode[] = [];
-    const boldRegex = /\*\*(.+?)\*\*/g;
-    let lastIndex = 0;
-    let match;
-
-    while ((match = boldRegex.exec(line)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(line.slice(lastIndex, match.index));
-      }
-      parts.push(<strong key={`b-${i}-${match.index}`}>{match[1]}</strong>);
-      lastIndex = match.index + match[0].length;
-    }
-    if (lastIndex < line.length) {
-      parts.push(line.slice(lastIndex));
-    }
-
-    const content = parts.length > 0 ? parts : line;
-
-    // Bullet lists
-    if (line.match(/^\s*[-*]\s/)) {
-      const indent = line.match(/^\s*/)?.[0].length || 0;
-      elements.push(
-        <div key={`li-${i}`} className={`flex gap-1.5 ${indent > 0 ? 'ml-3' : ''}`}>
-          <span className="text-gold flex-shrink-0 mt-0.5">&#8226;</span>
-          <span>{content}</span>
-        </div>
-      );
-    } else if (line.match(/^\d+\.\s/)) {
-      // Numbered list
-      const num = line.match(/^(\d+)\./)?.[1];
-      elements.push(
-        <div key={`ol-${i}`} className="flex gap-1.5">
-          <span className="text-gold flex-shrink-0 font-semibold">{num}.</span>
-          <span>{typeof content === 'string' ? content.replace(/^\d+\.\s*/, '') : content}</span>
-        </div>
-      );
-    } else {
-      elements.push(<div key={`p-${i}`}>{content}</div>);
-    }
-  }
-
-  return <>{elements}</>;
 }
