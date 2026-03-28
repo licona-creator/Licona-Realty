@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ANTHONYS_BRAIN } from '@/lib/ai/anthonys-brain';
 import { TEXAS_KNOWLEDGE } from '@/lib/ai/texas-knowledge';
+import { getDocumentChecklist, calculateDocumentProgress } from '@/lib/documents/texas-checklist';
+import type { TransactionDocument } from '@/lib/documents/texas-checklist';
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,7 +53,7 @@ export async function POST(request: NextRequest) {
 
       const { data: transactions } = await supabase
         .from('transactions')
-        .select('property_address, status, contract_price, closing_date, track_type')
+        .select('id, property_address, status, contract_price, closing_date, track_type')
         .eq('contact_id', contactId);
 
       let partnerName = '';
@@ -111,9 +113,38 @@ export async function POST(request: NextRequest) {
         `- ${a.activity_date?.split('T')[0] || 'unknown date'}: ${a.activity_type}${a.direction ? ` (${a.direction})` : ''} - ${a.description}`
       ).join('\n');
 
-      const txLog = (transactions || []).map(t =>
-        `- ${t.property_address}: ${t.status}, $${(t.contract_price || 0).toLocaleString()}, closing ${t.closing_date || 'TBD'}`
-      ).join('\n');
+      // Build transaction log with document progress
+      const txEntries: string[] = [];
+      for (const t of (transactions || [])) {
+        let entry = `- ${t.property_address}: ${t.status}, $${(t.contract_price || 0).toLocaleString()}, closing ${t.closing_date || 'TBD'}`;
+
+        // Fetch document progress for each transaction
+        try {
+          const { data: txDocs } = await supabase
+            .from('transaction_documents')
+            .select('document_type, status')
+            .eq('transaction_id', t.id);
+
+          if (txDocs) {
+            const txChecklist = getDocumentChecklist(t.track_type);
+            const txProgress = calculateDocumentProgress(txDocs as unknown as TransactionDocument[], txChecklist);
+            entry += `\n  Documents: ${txProgress.uploaded}/${txProgress.total} collected (${txProgress.percentComplete}%)`;
+            if (txProgress.missing > 0) {
+              const missingDocs = txChecklist
+                .filter(c => c.required && !txDocs.some(d => d.document_type === c.type))
+                .map(c => c.label);
+              if (missingDocs.length > 0) {
+                entry += `\n  Missing required: ${missingDocs.join(', ')}`;
+              }
+            }
+          }
+        } catch {
+          // transaction_documents table may not exist yet
+        }
+
+        txEntries.push(entry);
+      }
+      const txLog = txEntries.join('\n');
 
       const daysSinceContact = contact.last_contact_date
         ? Math.floor((Date.now() - new Date(contact.last_contact_date + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24))

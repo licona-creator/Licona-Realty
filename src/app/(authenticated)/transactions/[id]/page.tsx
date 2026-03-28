@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
 import type { TransactionChecklistItem, TransactionParty } from '@/types/database';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
+import { DocumentVault } from '@/components/transactions/DocumentVault';
 import {
   ArrowLeft, Edit3, Trash2, DollarSign, Calendar,
   CheckSquare, Square, User, FileText, Clock, AlertTriangle,
@@ -374,6 +375,11 @@ export default function TransactionDetailPage() {
             ) : (
               <p className="text-sm text-navy/40 dark:text-white/40 font-inter">No checklist items.</p>
             )}
+          </Card>
+
+          {/* Document Vault */}
+          <Card className="!p-5">
+            <DocumentVault transactionId={id} trackType={transaction.track_type} />
           </Card>
 
           {/* Notes */}

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getDocumentChecklist, calculateDocumentProgress } from '@/lib/documents/texas-checklist';
+import type { TransactionDocument } from '@/lib/documents/texas-checklist';
 
 export async function GET() {
   try {
@@ -129,13 +131,35 @@ export async function GET() {
       return `${p.first_name} ${p.last_name || ''}${p.company ? ` (${p.company})` : ''}`;
     });
 
-    // Upcoming closings
-    const upcoming = transactions
-      .filter(t => t.closing_date && t.closing_date >= today && !['closed', 'lost', 'cancelled'].includes(t.status))
-      .map(t => {
-        const days = Math.floor((new Date(t.closing_date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-        return `${t.property_address}: $${(t.contract_price || 0).toLocaleString()}, ${days}d to close, status: ${t.status}`;
-      });
+    // Upcoming closings with document progress
+    const activeTransactions = transactions
+      .filter(t => t.closing_date && t.closing_date >= today && !['closed', 'lost', 'cancelled'].includes(t.status));
+
+    const upcoming: string[] = [];
+    for (const t of activeTransactions) {
+      const days = Math.floor((new Date(t.closing_date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+      let line = `${t.property_address}: $${(t.contract_price || 0).toLocaleString()}, ${days}d to close, status: ${t.status}`;
+
+      try {
+        const { data: txDocs } = await supabase
+          .from('transaction_documents')
+          .select('document_type, status')
+          .eq('transaction_id', t.id);
+
+        if (txDocs) {
+          const cl = getDocumentChecklist(t.track_type);
+          const prog = calculateDocumentProgress(txDocs as unknown as TransactionDocument[], cl);
+          line += `, docs: ${prog.uploaded}/${prog.total} (${prog.percentComplete}%)`;
+          if (prog.percentComplete < 80 && days <= 14) {
+            line += ' [DOCUMENT ALERT]';
+          }
+        }
+      } catch {
+        // transaction_documents table may not exist
+      }
+
+      upcoming.push(line);
+    }
 
     // Closed deals
     const closedDeals = transactions.filter(t => t.status === 'closed');

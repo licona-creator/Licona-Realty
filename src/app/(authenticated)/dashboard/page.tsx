@@ -10,7 +10,7 @@ import {
   CheckCircle, Users, FileText, Calendar, Shield, Zap, AlertTriangle,
   Clock, DollarSign, ArrowRight, ChevronRight, Phone, PhoneCall,
   MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag, Check,
-  Send, Copy,
+  Send, Copy, FileArchive,
 } from 'lucide-react';
 import { FollowUpActionPanel } from '@/components/dashboard/FollowUpActionPanel';
 
@@ -107,17 +107,19 @@ export default function DashboardPage() {
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
   const [googleConnected, setGoogleConnected] = useState(false);
   const [expandedCampaignId, setExpandedCampaignId] = useState<string | null>(null);
+  const [documentAlerts, setDocumentAlerts] = useState<Array<{ transactionId: string; address: string; daysToClose: number; percentComplete: number; missingCount: number }>>([]);
   const { settings } = useAgentSettings();
   const displayName = settings?.profile_name || BRAND.agent.name;
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const [dashRes, fuRes, campRes, eventsRes, googleRes] = await Promise.all([
+      const [dashRes, fuRes, campRes, eventsRes, googleRes, docAlertRes] = await Promise.all([
         fetch('/api/dashboard'),
         fetch('/api/dashboard/follow-ups'),
         fetch('/api/dashboard/campaign-messages'),
         fetch('/api/dashboard/upcoming-events'),
         fetch('/api/auth/google/status'),
+        fetch('/api/dashboard/document-alerts'),
       ]);
       if (dashRes.ok) setData(await dashRes.json());
       if (fuRes.ok) {
@@ -135,6 +137,10 @@ export default function DashboardPage() {
       if (googleRes.ok) {
         const gData = await googleRes.json();
         setGoogleConnected(gData.connected || false);
+      }
+      if (docAlertRes.ok) {
+        const daData = await docAlertRes.json();
+        setDocumentAlerts(daData.alerts || []);
       }
     } catch { /* empty */ } finally { setLoading(false); }
   }, []);
@@ -227,6 +233,34 @@ export default function DashboardPage() {
                 </a>
               );
             })}
+          </div>
+        )}
+
+        {/* Document Alerts */}
+        {documentAlerts.length > 0 && (
+          <div className="space-y-2">
+            {documentAlerts.map(alert => (
+              <a
+                key={alert.transactionId}
+                href={`/transactions/${alert.transactionId}`}
+                className="flex items-center gap-3 p-3 rounded-[8px] transition-colors min-h-[44px]"
+                style={{
+                  backgroundColor: 'rgba(234,179,8,0.1)',
+                  border: '1px solid rgba(234,179,8,0.3)',
+                }}
+              >
+                <FileArchive size={16} className="text-amber-500 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-montserrat font-semibold text-amber-700 dark:text-amber-400">
+                    Document alert: {alert.address}
+                  </p>
+                  <p className="text-xs font-inter text-navy/70 dark:text-white/70">
+                    Closing in {alert.daysToClose} {alert.daysToClose === 1 ? 'day' : 'days'} - only {alert.percentComplete}% documents collected
+                  </p>
+                </div>
+                <ChevronRight size={14} className="text-navy/30 dark:text-white/30 flex-shrink-0" />
+              </a>
+            ))}
           </div>
         )}
 
