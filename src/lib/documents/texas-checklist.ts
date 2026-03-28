@@ -24,8 +24,8 @@ export interface TransactionDocument {
   status: 'pending' | 'received' | 'reviewed' | 'signed' | 'complete';
   notes: string | null;
   signed_at: string | null;
-  created_at: string;
-  updated_at: string;
+  uploaded_at: string;
+  metadata: Record<string, unknown>;
 }
 
 export interface DocumentProgress {

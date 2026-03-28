@@ -301,7 +301,7 @@ export function DocumentVault({ transactionId, trackType }: DocumentVaultProps) 
                                 {formatFileSize(doc.file_size)}
                               </span>
                               <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">
-                                {new Date(doc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                {new Date(doc.uploaded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               </span>
                               {doc.signed_at && (
                                 <span className="text-[10px] text-green-600 font-inter">

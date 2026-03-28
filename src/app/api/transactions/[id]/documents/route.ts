@@ -29,7 +29,7 @@ export async function GET(
       .from('transaction_documents')
       .select('*')
       .eq('transaction_id', id)
-      .order('created_at', { ascending: false });
+      .order('uploaded_at', { ascending: false });
 
     if (docError) {
       console.error('[documents:get] Error fetching documents:', docError);

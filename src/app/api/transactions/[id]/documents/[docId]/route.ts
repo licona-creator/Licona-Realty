@@ -40,8 +40,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
     }
 
-    updates.updated_at = new Date().toISOString();
-
     const { data: doc, error } = await supabase
       .from('transaction_documents')
       .update(updates)
