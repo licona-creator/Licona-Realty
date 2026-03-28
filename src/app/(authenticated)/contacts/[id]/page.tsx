@@ -17,6 +17,7 @@ import {
   MessageCircle, FileText, Eye, Users, CalendarDays, Plus, Sparkles,
 } from 'lucide-react';
 import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
+import { ContactEmailHistory } from '@/components/integrations/GmailInbox';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
 import { calculateLeadScore, getScoreTailwind } from '@/lib/ai/lead-scoring';
 
@@ -396,6 +397,14 @@ export default function ContactDetailPage() {
               </div>
             </Card>
           )}
+
+          {/* Email History */}
+          <Card className="!p-5">
+            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3">
+              <Mail size={14} className="inline mr-2 text-gold" />Email History
+            </h3>
+            <ContactEmailHistory email={contact.email} />
+          </Card>
 
           {/* Linked Transactions */}
           <Card className="!p-5">

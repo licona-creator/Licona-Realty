@@ -13,6 +13,7 @@ import {
   Send, Copy,
 } from 'lucide-react';
 import { FollowUpActionPanel } from '@/components/dashboard/FollowUpActionPanel';
+import { GmailInbox } from '@/components/integrations/GmailInbox';
 
 interface FollowUpContact {
   id: string; first_name: string; last_name: string; phone: string | null;
@@ -511,6 +512,18 @@ export default function DashboardPage() {
             ) : (
               <p className="text-sm text-navy/50 dark:text-white/50 font-inter">No referral partners yet. <a href="/partners" className="text-gold hover:underline">Add one</a></p>
             )}
+          </Card>
+
+          {/* Recent Emails */}
+          <Card className="!p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Mail size={18} className="text-gold" />
+                <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">Recent Emails</h3>
+              </div>
+              <a href="/settings?tab=integrations" className="text-xs text-gold font-montserrat hover:underline">Settings</a>
+            </div>
+            <GmailInbox maxItems={5} compact />
           </Card>
 
           {/* Approval Queue */}

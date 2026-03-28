@@ -3,7 +3,7 @@
  *
  * Exchanges auth code for tokens and stores in user_integrations.
  * Handles Gmail + Calendar in a single Google OAuth flow.
- * Env vars: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET (set in Vercel)
+ * Supports both GOOGLE_OAUTH_CLIENT_ID/SECRET and GOOGLE_CLIENT_ID/SECRET env vars.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -16,18 +16,25 @@ export async function GET(request: NextRequest) {
   const state = request.nextUrl.searchParams.get('state');
   const error = request.nextUrl.searchParams.get('error');
 
-  const appUrl = process.env.NEXT_PUBLIC_SITE_URL
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL
+    || process.env.NEXT_PUBLIC_SITE_URL
     || 'https://licona-realty-i1st.vercel.app';
 
-  if (error || !code || !state) {
+  if (error) {
+    const desc = request.nextUrl.searchParams.get('error_description') || 'Permission denied';
+    console.error('[google-callback] OAuth error:', error, desc);
+    return NextResponse.redirect(`${appUrl}/settings?tab=integrations&error=google_denied`);
+  }
+
+  if (!code || !state) {
     return NextResponse.redirect(`${appUrl}/settings?tab=integrations&error=google_auth_failed`);
   }
 
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    console.error('[google-callback] Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET');
+    console.error('[google-callback] Missing OAuth credentials');
     return NextResponse.redirect(`${appUrl}/settings?tab=integrations&error=google_not_configured`);
   }
 
@@ -48,6 +55,8 @@ export async function GET(request: NextRequest) {
     });
 
     if (!tokenRes.ok) {
+      const errBody = await tokenRes.text();
+      console.error('[google-callback] Token exchange failed:', errBody);
       return NextResponse.redirect(`${appUrl}/settings?tab=integrations&error=google_token_exchange_failed`);
     }
 
@@ -82,11 +91,13 @@ export async function GET(request: NextRequest) {
       }, { onConflict: 'user_id,provider' });
 
     if (upsertError) {
+      console.error('[google-callback] Upsert error:', upsertError);
       return NextResponse.redirect(`${appUrl}/settings?tab=integrations&error=google_save_failed`);
     }
 
-    return NextResponse.redirect(`${appUrl}/settings?tab=integrations&success=google`);
-  } catch {
+    return NextResponse.redirect(`${appUrl}/settings?tab=integrations&connected=google`);
+  } catch (err) {
+    console.error('[google-callback] Unexpected error:', err);
     return NextResponse.redirect(`${appUrl}/settings?tab=integrations&error=google_unknown`);
   }
 }

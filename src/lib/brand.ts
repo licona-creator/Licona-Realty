@@ -123,5 +123,6 @@ export const NAV_ITEMS = [
   { label: 'Canva Studio', href: '/canva', icon: 'palette' },
   { label: 'Testimonials', href: '/testimonials', icon: 'star' },
   { label: 'Mortgage Calc', href: '/mortgage', icon: 'calculator' },
+  { label: 'System Health', href: '/system-health', icon: 'activity' },
   { label: 'Settings', href: '/settings', icon: 'settings' },
 ] as const;
