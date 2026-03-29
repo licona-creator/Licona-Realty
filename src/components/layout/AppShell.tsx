@@ -22,7 +22,7 @@ import { Sparkles } from 'lucide-react';
 
 type AIMode = 'system' | 'deal' | 'contact';
 
-const MODE_DOT_COLORS: Record<AIMode, string> = {
+const MODE_COLORS: Record<AIMode, string> = {
   system: '#d3a971',
   deal: '#3B8BD4',
   contact: '#1D9E75',
@@ -87,7 +87,7 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
     return () => window.removeEventListener('open-ai-panel', handler);
   }, []);
 
-  const dotColor = MODE_DOT_COLORS[aiMode];
+  const modeColor = MODE_COLORS[aiMode];
 
   return (
     <div className="min-h-screen bg-surface dark:bg-navy">
@@ -116,18 +116,14 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
           className="relative w-11 h-11 flex items-center justify-center rounded-lg hover:bg-gold/10 active:scale-95 transition-all"
           aria-label="AI Assistant"
         >
-          <Sparkles size={20} style={{ color: BRAND.colors.accent }} />
-          <span
-            className="absolute top-1 right-1 w-2 h-2 rounded-full"
-            style={{ backgroundColor: dotColor }}
-          />
+          <Sparkles size={20} style={{ color: modeColor }} />
         </button>
         <GlobalSearch />
         <NotificationBell />
       </div>
 
       {/* Main Content */}
-      <main className="lg:ml-64 pb-20 lg:pb-0 min-h-screen">
+      <main className="lg:ml-64 lg:pt-12 pb-20 lg:pb-0 min-h-screen">
         {children}
       </main>
 
@@ -138,15 +134,11 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
       <div className="hidden lg:block">
         <button
           onClick={() => setShowAI(true)}
-          className="fixed z-[51] flex items-center justify-center w-12 h-12 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all bottom-6 right-6 relative"
-          style={{ backgroundColor: BRAND.colors.accent }}
+          className="fixed z-[51] flex items-center justify-center w-12 h-12 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all bottom-6 right-6"
+          style={{ backgroundColor: modeColor }}
           aria-label="AI Assistant"
         >
-          <Sparkles size={20} color={BRAND.colors.primary} />
-          <span
-            className="absolute top-0 right-0 w-2 h-2 rounded-full border border-white"
-            style={{ backgroundColor: dotColor }}
-          />
+          <Sparkles size={20} color={aiMode === 'system' ? BRAND.colors.primary : '#ffffff'} />
         </button>
         <span
           className="fixed z-[51] text-[9px] font-montserrat font-semibold pointer-events-none bottom-[14px] right-[30px] text-navy/50 dark:text-white/50"

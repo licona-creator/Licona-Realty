@@ -1,6 +1,6 @@
 /**
  * Central Metro Realty (CMR) Document Checklist
- * Two-tier system: CMR Required for Funding + Good to Save
+ * Two-tier system: CMR Required + Good to Save
  *
  * Run in Supabase SQL Editor:
  * ALTER TABLE transactions ADD COLUMN IF NOT EXISTS transaction_type text NOT NULL DEFAULT 'buyers_agent_sale';
@@ -63,7 +63,7 @@ export interface DocumentProgress {
 }
 
 // ============================================
-// TIER 1: CMR REQUIRED FOR FUNDING
+// TIER 1: CMR REQUIRED
 // These documents MUST be emailed to da@centralmetro.com
 // Without these, the agent does NOT get paid
 // ============================================
@@ -331,7 +331,7 @@ const CMR_TENANTS_AGENT_APT: DocumentRequirement[] = [
 
 // ============================================
 // TIER 2: GOOD TO SAVE
-// Not required by CMR for funding, but important
+// Not required by CMR, but important
 // for protecting the agent and managing the deal
 // Only applies to sale transactions
 // ============================================

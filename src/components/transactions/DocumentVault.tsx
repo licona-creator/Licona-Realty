@@ -224,7 +224,7 @@ export function DocumentVault({ transactionId, trackType, transactionType }: Doc
 
   return (
     <div className="space-y-6">
-      {/* ===== SECTION 1: CMR Required for Funding ===== */}
+      {/* ===== SECTION 1: CMR Required by Broker ===== */}
       <div>
         {/* Header */}
         <div
@@ -241,7 +241,7 @@ export function DocumentVault({ transactionId, trackType, transactionType }: Doc
           )}
           <div className="flex-1 min-w-0">
             <h3 className={`text-sm font-montserrat font-bold ${cmrAllDone ? 'text-green-700 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-              {cmrAllDone ? 'Ready for Funding' : 'Required for Funding'}
+              {cmrAllDone ? 'Broker Documents Complete' : 'Required by Broker'}
             </h3>
             <p className="text-[10px] text-navy/50 dark:text-white/50 font-inter">
               Email completed documents to da@centralmetro.com

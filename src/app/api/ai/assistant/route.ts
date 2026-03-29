@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
             const prog = calculateProgress(cl, uploadedTypes);
             line += `, CMR funding docs: ${prog.cmr.uploaded}/${prog.cmr.total} (${prog.cmr.percent}%)`;
             if (prog.cmr.percent < 100 && days <= 14) {
-              line += ' [FUNDING DOCUMENT ALERT - missing CMR docs]';
+              line += ' [BROKER DOCUMENT ALERT - missing CMR docs]';
             }
           }
         } catch {
@@ -294,7 +294,7 @@ ${activityLog || 'No activities logged.'}`;
 
         documentsData = `TRANSACTION TYPE: ${effectiveType}
 
-CMR FUNDING STATUS: ${progress.cmr.percent === 100 ? 'READY FOR FUNDING' : `${progress.cmr.uploaded}/${progress.cmr.total} required docs (${progress.cmr.percent}%) - NOT YET READY`}
+CMR BROKER STATUS: ${progress.cmr.percent === 100 ? 'BROKER DOCUMENTS COMPLETE' : `${progress.cmr.uploaded}/${progress.cmr.total} required docs (${progress.cmr.percent}%) - NOT YET COMPLETE`}
 
 Missing CMR-Required (must email to da@centralmetro.com):
 ${cmrMissing.length > 0 ? cmrMissing.map(d => `- ${d.label}${d.formNumber ? ` (${d.formNumber})` : ''}`).join('\n') : '- All required documents collected!'}

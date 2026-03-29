@@ -236,7 +236,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Document Alerts - CMR Funding */}
+        {/* Document Alerts - CMR Required */}
         {documentAlerts.length > 0 && (
           <div className="space-y-2">
             {documentAlerts.map(alert => {
@@ -254,7 +254,7 @@ export default function DashboardPage() {
                   <AlertTriangle size={16} className={isRed ? 'text-red-500 flex-shrink-0' : 'text-amber-500 flex-shrink-0'} />
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-montserrat font-semibold ${isRed ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'}`}>
-                      {alert.address}: {alert.cmrUploaded} of {alert.cmrTotal} funding documents collected
+                      {alert.address}: {alert.cmrUploaded} of {alert.cmrTotal} broker-required documents collected
                     </p>
                     <p className="text-xs font-inter text-navy/70 dark:text-white/70">
                       Closing in {alert.daysToClose} {alert.daysToClose === 1 ? 'day' : 'days'}. {alert.missingCount} CMR-required {alert.missingCount === 1 ? 'doc' : 'docs'} still needed for payment.
