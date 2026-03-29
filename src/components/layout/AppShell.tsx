@@ -4,11 +4,12 @@
  * Mobile: AI trigger lives in the top header bar (no floating button).
  * Desktop: AI trigger is a floating button in the bottom-right corner.
  * Global search and notification bell in header on both breakpoints.
+ * AI mode auto-detected from URL: System, Deal, or Contact.
  */
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
@@ -18,6 +19,14 @@ import { GlobalSearch } from '@/components/shared/GlobalSearch';
 import { NotificationBell } from '@/components/shared/NotificationBell';
 import { BRAND } from '@/lib/brand';
 import { Sparkles } from 'lucide-react';
+
+type AIMode = 'system' | 'deal' | 'contact';
+
+const MODE_DOT_COLORS: Record<AIMode, string> = {
+  system: '#d3a971',
+  deal: '#3B8BD4',
+  contact: '#1D9E75',
+};
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -47,9 +56,38 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
     return () => clearInterval(interval);
   }, [router]);
 
-  // Auto-detect contact context from URL (/contacts/[id])
-  const contactMatch = pathname.match(/^\/contacts\/([a-f0-9-]+)$/i);
-  const contactId = contactMatch ? contactMatch[1] : null;
+  // Auto-detect AI mode and IDs from URL
+  const { aiMode, contactId, transactionId } = useMemo(() => {
+    const txMatch = pathname.match(/^\/transactions\/([a-f0-9-]+)$/i);
+    if (txMatch) {
+      return { aiMode: 'deal' as AIMode, contactId: null, transactionId: txMatch[1] };
+    }
+
+    const contactMatch = pathname.match(/^\/contacts\/([a-f0-9-]+)$/i);
+    if (contactMatch) {
+      return { aiMode: 'contact' as AIMode, contactId: contactMatch[1], transactionId: null };
+    }
+
+    return { aiMode: 'system' as AIMode, contactId: null, transactionId: null };
+  }, [pathname]);
+
+  // Close panel and reset when mode changes
+  const [prevMode, setPrevMode] = useState<AIMode>(aiMode);
+  useEffect(() => {
+    if (aiMode !== prevMode) {
+      setShowAI(false);
+      setPrevMode(aiMode);
+    }
+  }, [aiMode, prevMode]);
+
+  // Listen for custom event to open AI panel (from page-level buttons)
+  useEffect(() => {
+    const handler = () => setShowAI(true);
+    window.addEventListener('open-ai-panel', handler);
+    return () => window.removeEventListener('open-ai-panel', handler);
+  }, []);
+
+  const dotColor = MODE_DOT_COLORS[aiMode];
 
   return (
     <div className="min-h-screen bg-surface dark:bg-navy">
@@ -75,10 +113,14 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
       >
         <button
           onClick={() => setShowAI(true)}
-          className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-gold/10 active:scale-95 transition-all"
+          className="relative w-11 h-11 flex items-center justify-center rounded-lg hover:bg-gold/10 active:scale-95 transition-all"
           aria-label="AI Assistant"
         >
           <Sparkles size={20} style={{ color: BRAND.colors.accent }} />
+          <span
+            className="absolute top-1 right-1 w-2 h-2 rounded-full"
+            style={{ backgroundColor: dotColor }}
+          />
         </button>
         <GlobalSearch />
         <NotificationBell />
@@ -96,11 +138,15 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
       <div className="hidden lg:block">
         <button
           onClick={() => setShowAI(true)}
-          className="fixed z-[51] flex items-center justify-center w-12 h-12 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all bottom-6 right-6"
+          className="fixed z-[51] flex items-center justify-center w-12 h-12 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all bottom-6 right-6 relative"
           style={{ backgroundColor: BRAND.colors.accent }}
           aria-label="AI Assistant"
         >
           <Sparkles size={20} color={BRAND.colors.primary} />
+          <span
+            className="absolute top-0 right-0 w-2 h-2 rounded-full border border-white"
+            style={{ backgroundColor: dotColor }}
+          />
         </button>
         <span
           className="fixed z-[51] text-[9px] font-montserrat font-semibold pointer-events-none bottom-[14px] right-[30px] text-navy/50 dark:text-white/50"
@@ -112,7 +158,9 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
       <AIAssistantPanel
         open={showAI}
         onClose={() => setShowAI(false)}
+        mode={aiMode}
         contactId={contactId}
+        transactionId={transactionId}
       />
     </div>
   );

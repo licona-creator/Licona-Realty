@@ -16,7 +16,7 @@ import { DocumentVault } from '@/components/transactions/DocumentVault';
 import {
   ArrowLeft, Edit3, Trash2, DollarSign, Calendar,
   CheckSquare, Square, User, FileText, Clock, AlertTriangle,
-  Building, Phone, Mail,
+  Building, Phone, Mail, Sparkles,
 } from 'lucide-react';
 
 interface TransactionData {
@@ -287,6 +287,17 @@ export default function TransactionDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              // Dispatch a custom event to open AI panel from AppShell
+              window.dispatchEvent(new CustomEvent('open-ai-panel'));
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-montserrat font-semibold text-white transition-colors hover:opacity-90"
+            style={{ backgroundColor: '#3B8BD4' }}
+          >
+            <Sparkles size={12} />
+            Ask Deal AI
+          </button>
           <Button variant="ghost" size="sm" onClick={startEdit}>
             <Edit3 size={14} />
             <span className="hidden sm:inline ml-1">Edit</span>

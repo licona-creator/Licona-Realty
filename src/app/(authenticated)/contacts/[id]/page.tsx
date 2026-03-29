@@ -295,6 +295,15 @@ export default function ContactDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setShowAI(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-montserrat font-semibold text-white transition-colors hover:opacity-90"
+            style={{ backgroundColor: '#1D9E75' }}
+          >
+            <Sparkles size={12} />
+            <span className="hidden sm:inline">Ask Contact AI</span>
+            <span className="sm:hidden">AI</span>
+          </button>
           <Button variant="accent" size="sm" onClick={() => setShowLogActivity(true)}><Plus size={14} /><span className="hidden sm:inline ml-1">Log</span></Button>
           <Button variant="ghost" size="sm" onClick={startEdit}><Edit3 size={14} /><span className="hidden sm:inline ml-1">Edit</span></Button>
           <Button variant="ghost" size="sm" onClick={() => setShowDelete(true)} className="!text-red-500 hover:!bg-red-500/10"><Trash2 size={14} /></Button>
@@ -573,6 +582,7 @@ export default function ContactDetailPage() {
       <AIAssistantPanel
         open={showAI}
         onClose={() => setShowAI(false)}
+        mode="contact"
         contactId={id}
         contactName={`${contact.first_name} ${contact.last_name}`}
         contactStage={contact.pipeline_stage}

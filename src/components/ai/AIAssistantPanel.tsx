@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Sparkles, Trash2, Bookmark, Pin } from 'lucide-react';
+import { X, Send, Sparkles, Trash2, Bookmark, Pin, LayoutDashboard, FileText, User } from 'lucide-react';
 import { BRAND } from '@/lib/brand';
 import ReactMarkdown from 'react-markdown';
+
+type AIMode = 'system' | 'deal' | 'contact';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -14,10 +16,54 @@ interface ChatMessage {
 interface AIAssistantPanelProps {
   open: boolean;
   onClose: () => void;
+  mode?: AIMode;
   contactId?: string | null;
   contactName?: string | null;
   contactStage?: string | null;
+  transactionId?: string | null;
 }
+
+const MODE_CONFIG = {
+  system: {
+    label: 'System AI',
+    description: 'Your business overview and strategy assistant',
+    color: '#d3a971',
+    icon: LayoutDashboard,
+  },
+  deal: {
+    label: 'Deal AI',
+    description: 'Focused on this specific deal',
+    color: '#3B8BD4',
+    icon: FileText,
+  },
+  contact: {
+    label: 'Contact AI',
+    description: 'Focused on this specific person',
+    color: '#1D9E75',
+    icon: User,
+  },
+} as const;
+
+const SYSTEM_QUICK_ACTIONS = [
+  'Who should I focus on today?',
+  'Review my full pipeline',
+  'DFW market update',
+  'Help me plan this week',
+];
+
+const DEAL_QUICK_ACTIONS = [
+  'What documents am I missing?',
+  'What needs to happen before closing?',
+  'Draft a message to the other agent',
+  'Summarize this deal',
+];
+
+const CONTACT_QUICK_ACTIONS = [
+  'Draft a follow-up message',
+  'What should I do next with this person?',
+  'Market data for their area',
+  'Draft a referral ask',
+];
 
 const STAGE_COLORS: Record<string, string> = {
   new: 'bg-blue-500/10 text-blue-600',
@@ -33,24 +79,6 @@ const STAGE_COLORS: Record<string, string> = {
   on_hold: 'bg-gray-500/10 text-gray-600',
 };
 
-const CONTACT_QUICK_ACTIONS = [
-  'Draft follow-up',
-  'What should I do next?',
-  'Market data for their area',
-  'Analyze this deal',
-  'Objection: rates too high',
-  'Prepare me for a call',
-];
-
-const DASHBOARD_QUICK_ACTIONS = [
-  'Who needs attention today?',
-  'Review my full pipeline',
-  'DFW market briefing',
-  'Help me plan this week',
-  'How am I tracking toward my $60K goal?',
-  'Draft content idea',
-];
-
 function sanitizeAIText(text: string): string {
   return text
     .replace(/\u2014/g, '-')       // em dash to hyphen
@@ -63,7 +91,7 @@ function sanitizeAIText(text: string): string {
     .replace(/\u2022\u2022/g, '-'); // double bullets to single hyphen
 }
 
-export function AIAssistantPanel({ open, onClose, contactId, contactName, contactStage }: AIAssistantPanelProps) {
+export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, contactName, contactStage, transactionId }: AIAssistantPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
@@ -71,12 +99,24 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
   const [pipelineLoaded, setPipelineLoaded] = useState(false);
   const [pipelineSummary, setPipelineSummary] = useState<string | null>(null);
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
+  const [lastMode, setLastMode] = useState<AIMode>(mode);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load pipeline summary for dashboard mode
+  // Clear conversation when mode changes
   useEffect(() => {
-    if (open && !contactId && !pipelineLoaded) {
+    if (mode !== lastMode) {
+      setMessages([]);
+      setError(null);
+      setPipelineLoaded(false);
+      setPipelineSummary(null);
+      setLastMode(mode);
+    }
+  }, [mode, lastMode]);
+
+  // Load pipeline summary for system mode
+  useEffect(() => {
+    if (open && mode === 'system' && !pipelineLoaded) {
       setPipelineLoaded(true);
       fetch('/api/ai/pipeline')
         .then(r => r.ok ? r.json() : null)
@@ -85,7 +125,7 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
         })
         .catch(() => {});
     }
-  }, [open, contactId, pipelineLoaded]);
+  }, [open, mode, pipelineLoaded]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -119,7 +159,7 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
       const history = messages.map(m => ({ role: m.role, content: m.content }));
 
       let fullMessage = text.trim();
-      if (!contactId && pipelineSummary && messages.length === 0) {
+      if (mode === 'system' && pipelineSummary && messages.length === 0) {
         fullMessage = `[Pipeline context for your reference - do not repeat this back to me, just use it to inform your answers]\n${pipelineSummary}\n\n${text.trim()}`;
       }
 
@@ -127,7 +167,9 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          mode,
           contactId: contactId || undefined,
+          transactionId: transactionId || undefined,
           message: fullMessage,
           conversationHistory: history,
         }),
@@ -151,7 +193,7 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
     } finally {
       setThinking(false);
     }
-  }, [thinking, messages, contactId, pipelineSummary]);
+  }, [thinking, messages, mode, contactId, transactionId, pipelineSummary]);
 
   async function saveInsight(index: number) {
     const msg = messages[index];
@@ -191,7 +233,15 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
     setError(null);
   }
 
-  const quickActions = contactId ? CONTACT_QUICK_ACTIONS : DASHBOARD_QUICK_ACTIONS;
+  const modeConfig = MODE_CONFIG[mode];
+  const ModeIcon = modeConfig.icon;
+
+  const quickActions = mode === 'deal'
+    ? DEAL_QUICK_ACTIONS
+    : mode === 'contact'
+    ? CONTACT_QUICK_ACTIONS
+    : SYSTEM_QUICK_ACTIONS;
+
   const stageColor = contactStage ? (STAGE_COLORS[contactStage] || STAGE_COLORS.new) : '';
 
   if (!open) return null;
@@ -219,16 +269,26 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-sm font-montserrat font-semibold text-navy dark:text-white">
                   AI Assistant
-                  {contactName && <span className="text-gold"> - {contactName}</span>}
+                  {mode === 'contact' && contactName && <span className="text-gold"> - {contactName}</span>}
                 </h2>
-                {contactStage && (
+                {mode === 'contact' && contactStage && (
                   <span className={`text-[9px] font-montserrat font-semibold px-1.5 py-0.5 rounded-full capitalize ${stageColor}`}>
                     {contactStage.replace(/_/g, ' ')}
                   </span>
                 )}
               </div>
-              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">
-                Powered by Claude - searches the web for live market data
+              {/* Mode Badge */}
+              <div className="flex items-center gap-2 mt-1.5">
+                <span
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-montserrat font-semibold text-white"
+                  style={{ backgroundColor: modeConfig.color, height: '28px' }}
+                >
+                  <ModeIcon size={12} />
+                  {modeConfig.label}
+                </span>
+              </div>
+              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-1">
+                {modeConfig.description}
               </p>
             </div>
           </div>
@@ -265,8 +325,10 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
             <div className="text-center py-8">
               <Sparkles size={32} className="text-gold/40 mx-auto mb-3" />
               <p className="text-sm text-navy/40 dark:text-white/40 font-inter">
-                {contactId
+                {mode === 'contact'
                   ? `Ask me about ${contactName || 'this contact'}, or pick a quick action above.`
+                  : mode === 'deal'
+                  ? 'Ask about this deal, documents, timeline, or pick a quick action above.'
                   : 'Ask about your pipeline, the DFW market, or pick a quick action above.'}
               </p>
             </div>
@@ -352,7 +414,13 @@ export function AIAssistantPanel({ open, onClose, contactId, contactName, contac
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about this lead, the market, or your pipeline..."
+              placeholder={
+                mode === 'deal'
+                  ? 'Ask about this deal, documents, or timeline...'
+                  : mode === 'contact'
+                  ? 'Ask about this contact, draft a message...'
+                  : 'Ask about your pipeline, the market, or strategy...'
+              }
               disabled={thinking}
               className="flex-1 px-3 py-2.5 rounded-lg bg-surface dark:bg-navy/30 border border-gold/15 text-sm font-inter text-navy dark:text-white placeholder:text-navy/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-50 min-h-[44px]"
             />
