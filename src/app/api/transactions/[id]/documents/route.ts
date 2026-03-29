@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { getDocumentChecklist, calculateDocumentProgress } from '@/lib/documents/texas-checklist';
-import type { TransactionDocument } from '@/lib/documents/texas-checklist';
+import { getDocumentChecklist, calculateProgress } from '@/lib/documents/texas-checklist';
 
 export async function GET(
   _request: NextRequest,
@@ -17,7 +16,7 @@ export async function GET(
 
     const { data: transaction, error: txError } = await supabase
       .from('transactions')
-      .select('id, track_type')
+      .select('id, track_type, transaction_type')
       .eq('id', id)
       .single();
 
@@ -36,8 +35,10 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch documents' }, { status: 500 });
     }
 
-    const checklist = getDocumentChecklist(transaction.track_type);
-    const progress = calculateDocumentProgress((documents || []) as TransactionDocument[], checklist);
+    const effectiveType = transaction.transaction_type || transaction.track_type;
+    const checklist = getDocumentChecklist(effectiveType);
+    const uploadedTypes = (documents || []).map((d: { document_type: string }) => d.document_type);
+    const progress = calculateProgress(checklist, uploadedTypes);
 
     return NextResponse.json({ documents: documents || [], checklist, progress });
   } catch (err) {
@@ -90,6 +91,22 @@ export async function POST(
       return NextResponse.json({ error: 'File type not supported. Accepted: PDF, JPG, PNG, DOC, DOCX, HEIC' }, { status: 400 });
     }
 
+    // Validate document_type exists in the current checklist
+    const { data: transaction } = await supabase
+      .from('transactions')
+      .select('track_type, transaction_type')
+      .eq('id', id)
+      .single();
+
+    if (transaction) {
+      const effectiveType = transaction.transaction_type || transaction.track_type;
+      const checklist = getDocumentChecklist(effectiveType);
+      const validTypes = checklist.map(c => c.type);
+      if (!validTypes.includes(documentType)) {
+        return NextResponse.json({ error: 'Invalid document type for this transaction' }, { status: 400 });
+      }
+    }
+
     const timestamp = Date.now();
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const filePath = `${id}/${documentType}/${timestamp}-${safeName}`;
@@ -127,7 +144,6 @@ export async function POST(
 
     if (insertError) {
       console.error('[documents:insert] DB error:', insertError);
-      // Clean up uploaded file
       await supabase.storage.from('transaction-docs').remove([filePath]);
       return NextResponse.json({ error: 'Failed to save document record' }, { status: 500 });
     }

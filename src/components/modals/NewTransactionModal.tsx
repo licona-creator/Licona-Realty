@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
+import { TRANSACTION_TYPE_LABELS } from '@/lib/documents/texas-checklist';
+import type { TransactionType } from '@/lib/documents/texas-checklist';
 
 interface NewTransactionModalProps {
   open: boolean;
@@ -31,6 +33,7 @@ interface FormData {
   closing_date: string;
   option_expiry_date: string;
   track_type: TrackType;
+  transaction_type: TransactionType;
   status: string;
   listing_agent_name: string;
   listing_agent_email: string;
@@ -52,6 +55,7 @@ const INITIAL_FORM: FormData = {
   closing_date: '',
   option_expiry_date: '',
   track_type: 'buyer',
+  transaction_type: 'buyers_agent_sale',
   status: 'active',
   listing_agent_name: '',
   listing_agent_email: '',
@@ -168,6 +172,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
       const payload = {
         contact_id: form.contact_id,
         track_type: form.track_type,
+        transaction_type: form.transaction_type,
         property_address: form.property_address.trim(),
         property_city: form.property_city.trim() || null,
         property_state: form.property_state.trim() || null,
@@ -305,6 +310,27 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
             value={form.option_expiry_date}
             onChange={e => update('option_expiry_date', e.target.value)}
           />
+        </div>
+
+        {/* Transaction Type */}
+        <div className="w-full">
+          <label
+            htmlFor="transaction-type"
+            className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+          >
+            Transaction Type *
+          </label>
+          <select
+            id="transaction-type"
+            value={form.transaction_type}
+            onChange={e => update('transaction_type', e.target.value as TransactionType)}
+            required
+            className={selectClasses}
+          >
+            {(Object.entries(TRANSACTION_TYPE_LABELS) as [TransactionType, string][]).map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
         </div>
 
         {/* Track Type & Status */}

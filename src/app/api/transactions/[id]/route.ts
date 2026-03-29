@@ -77,6 +77,7 @@ export async function PATCH(
   if (body.property_state !== undefined) updates.property_state = body.property_state || null;
   if (body.property_zip !== undefined) updates.property_zip = body.property_zip || null;
   if (body.track_type) updates.track_type = body.track_type.toLowerCase();
+  if (body.transaction_type) updates.transaction_type = body.transaction_type;
   if (body.contact_id) updates.contact_id = body.contact_id;
   if (body.checklist) updates.checklist = body.checklist;
   if (body.parties) updates.parties = body.parties;

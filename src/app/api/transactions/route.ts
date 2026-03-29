@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
-      contact_id, track_type, property_address, property_city,
+      contact_id, track_type, transaction_type, property_address, property_city,
       property_state, property_zip, deal_type, contract_price,
       closing_date, parties, notes,
     } = body;
@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         contact_id,
         track_type: normalizedTrackType,
+        transaction_type: transaction_type || 'buyers_agent_sale',
         property_address: sanitizePlainText(property_address),
         property_city: property_city ? sanitizePlainText(property_city) : null,
         property_state: property_state || null,

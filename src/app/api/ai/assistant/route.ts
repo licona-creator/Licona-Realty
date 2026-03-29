@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getSystemAIPrompt, getDealAIPrompt, getContactAIPrompt } from '@/lib/ai/system-prompts';
-import { getDocumentChecklist, calculateDocumentProgress } from '@/lib/documents/texas-checklist';
+import { getDocumentChecklist, calculateDocumentProgress, calculateProgress } from '@/lib/documents/texas-checklist';
 import type { TransactionDocument } from '@/lib/documents/texas-checklist';
 
 type AIMode = 'system' | 'deal' | 'contact';
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
           .order('created_at', { ascending: false }),
         supabase
           .from('transactions')
-          .select('id, property_address, status, contract_price, closing_date, contact_id, track_type, commission_net')
+          .select('id, property_address, status, contract_price, closing_date, contact_id, track_type, transaction_type, commission_net')
           .order('closing_date', { ascending: true }),
         supabase
           .from('referral_partners')
@@ -141,11 +141,12 @@ export async function POST(request: NextRequest) {
             .eq('transaction_id', t.id);
 
           if (txDocs) {
-            const cl = getDocumentChecklist(t.track_type);
-            const prog = calculateDocumentProgress(txDocs as unknown as TransactionDocument[], cl);
-            line += `, docs: ${prog.uploaded}/${prog.total} (${prog.percentComplete}%)`;
-            if (prog.percentComplete < 80 && days <= 14) {
-              line += ' [DOCUMENT ALERT]';
+            const cl = getDocumentChecklist((t as Record<string, unknown>).transaction_type as string || t.track_type);
+            const uploadedTypes = txDocs.map(d => d.document_type);
+            const prog = calculateProgress(cl, uploadedTypes);
+            line += `, CMR funding docs: ${prog.cmr.uploaded}/${prog.cmr.total} (${prog.cmr.percent}%)`;
+            if (prog.cmr.percent < 100 && days <= 14) {
+              line += ' [FUNDING DOCUMENT ALERT - missing CMR docs]';
             }
           }
         } catch {
@@ -247,6 +248,7 @@ ${recentActivities || '- None'}`;
 Property: ${transaction.property_address}${transaction.property_city ? `, ${transaction.property_city}` : ''}${transaction.property_state ? `, ${transaction.property_state}` : ''} ${transaction.property_zip || ''}
 Status: ${transaction.status}
 Track Type: ${transaction.track_type}
+Transaction Type: ${transaction.transaction_type || 'not set (using track_type)'}
 Contract Price: $${(transaction.contract_price || 0).toLocaleString()}
 Closing Date: ${transaction.closing_date || 'TBD'}
 Days to Close: ${daysToClose}
@@ -263,7 +265,7 @@ Parties: ${transaction.parties ? (transaction.parties as Array<{ role: string; n
 RECENT ACTIVITY:
 ${activityLog || 'No activities logged.'}`;
 
-      // Fetch document status
+      // Fetch document status with two-tier CMR system
       let documentsData = 'Document tracking not yet set up for this transaction.';
       try {
         const { data: txDocs } = await supabase
@@ -271,21 +273,39 @@ ${activityLog || 'No activities logged.'}`;
           .select('document_type, status, uploaded_at')
           .eq('transaction_id', transactionId);
 
-        if (txDocs && txDocs.length > 0) {
-          const checklist = getDocumentChecklist(transaction.track_type);
-          const progress = calculateDocumentProgress(txDocs as unknown as TransactionDocument[], checklist);
+        const effectiveType = transaction.transaction_type || transaction.track_type;
+        const checklist = getDocumentChecklist(effectiveType);
+        const uploadedTypes = (txDocs || []).map(d => d.document_type);
+        const progress = calculateProgress(checklist, uploadedTypes);
 
-          const uploaded = txDocs.filter(d => d.status === 'uploaded' || d.status === 'approved');
-          const missing = checklist.filter(c => c.required && !txDocs.some(d => d.document_type === c.type));
+        const cmrDocs = checklist.filter(c => c.tier === 'cmr_required');
+        const cmrRequired = cmrDocs.filter(c => c.required);
+        const cmrMissing = cmrRequired.filter(c => !uploadedTypes.includes(c.type));
+        const cmrConditional = cmrDocs.filter(c => !c.required && c.conditional);
+        const cmrConditionalUploaded = cmrConditional.filter(c => uploadedTypes.includes(c.type));
 
-          documentsData = `Overall: ${progress.uploaded}/${progress.total} documents (${progress.percentComplete}% complete)
+        const goodDocs = checklist.filter(c => c.tier === 'good_to_save');
+        const goodUploaded = goodDocs.filter(c => uploadedTypes.includes(c.type));
 
-Uploaded/Approved:
-${uploaded.length > 0 ? uploaded.map(d => `- ${d.document_type}: ${d.status}`).join('\n') : '- None'}
+        const uploadedDocDetails = (txDocs || []).map(d => {
+          const req = checklist.find(c => c.type === d.document_type);
+          return `- ${req?.label || d.document_type}: ${d.status} (uploaded ${d.uploaded_at?.split('T')[0] || 'unknown'})`;
+        });
 
-Missing CMR-Required:
-${missing.length > 0 ? missing.map(d => `- ${d.label} (${d.type})`).join('\n') : '- All required documents collected'}`;
-        }
+        documentsData = `TRANSACTION TYPE: ${effectiveType}
+
+CMR FUNDING STATUS: ${progress.cmr.percent === 100 ? 'READY FOR FUNDING' : `${progress.cmr.uploaded}/${progress.cmr.total} required docs (${progress.cmr.percent}%) - NOT YET READY`}
+
+Missing CMR-Required (must email to da@centralmetro.com):
+${cmrMissing.length > 0 ? cmrMissing.map(d => `- ${d.label}${d.formNumber ? ` (${d.formNumber})` : ''}`).join('\n') : '- All required documents collected!'}
+
+Conditional CMR Documents (${cmrConditionalUploaded.length}/${cmrConditional.length} uploaded):
+${cmrConditional.map(d => `- ${d.label}: ${uploadedTypes.includes(d.type) ? 'UPLOADED' : 'not uploaded'} (${d.conditional})`).join('\n') || '- None'}
+
+Good to Save: ${goodUploaded.length}/${goodDocs.length} uploaded
+
+All Uploaded Documents:
+${uploadedDocDetails.length > 0 ? uploadedDocDetails.join('\n') : '- None uploaded yet'}`;
       } catch {
         // transaction_documents table may not exist yet
       }

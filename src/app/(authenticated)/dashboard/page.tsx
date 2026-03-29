@@ -107,7 +107,7 @@ export default function DashboardPage() {
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
   const [googleConnected, setGoogleConnected] = useState(false);
   const [expandedCampaignId, setExpandedCampaignId] = useState<string | null>(null);
-  const [documentAlerts, setDocumentAlerts] = useState<Array<{ transactionId: string; address: string; daysToClose: number; percentComplete: number; missingCount: number }>>([]);
+  const [documentAlerts, setDocumentAlerts] = useState<Array<{ transactionId: string; address: string; daysToClose: number; percentComplete: number; cmrUploaded: number; cmrTotal: number; missingCount: number; urgency: 'red' | 'amber' }>>([]);
   const { settings } = useAgentSettings();
   const displayName = settings?.profile_name || BRAND.agent.name;
 
@@ -236,31 +236,34 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Document Alerts */}
+        {/* Document Alerts - CMR Funding */}
         {documentAlerts.length > 0 && (
           <div className="space-y-2">
-            {documentAlerts.map(alert => (
-              <a
-                key={alert.transactionId}
-                href={`/transactions/${alert.transactionId}`}
-                className="flex items-center gap-3 p-3 rounded-[8px] transition-colors min-h-[44px]"
-                style={{
-                  backgroundColor: 'rgba(234,179,8,0.1)',
-                  border: '1px solid rgba(234,179,8,0.3)',
-                }}
-              >
-                <FileArchive size={16} className="text-amber-500 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-montserrat font-semibold text-amber-700 dark:text-amber-400">
-                    Document alert: {alert.address}
-                  </p>
-                  <p className="text-xs font-inter text-navy/70 dark:text-white/70">
-                    Closing in {alert.daysToClose} {alert.daysToClose === 1 ? 'day' : 'days'} - only {alert.percentComplete}% documents collected
-                  </p>
-                </div>
-                <ChevronRight size={14} className="text-navy/30 dark:text-white/30 flex-shrink-0" />
-              </a>
-            ))}
+            {documentAlerts.map(alert => {
+              const isRed = alert.urgency === 'red';
+              return (
+                <a
+                  key={alert.transactionId}
+                  href={`/transactions/${alert.transactionId}`}
+                  className="flex items-center gap-3 p-3 rounded-[8px] transition-colors min-h-[44px]"
+                  style={{
+                    backgroundColor: isRed ? 'rgba(239,68,68,0.1)' : 'rgba(234,179,8,0.1)',
+                    border: `1px solid ${isRed ? 'rgba(239,68,68,0.3)' : 'rgba(234,179,8,0.3)'}`,
+                  }}
+                >
+                  <AlertTriangle size={16} className={isRed ? 'text-red-500 flex-shrink-0' : 'text-amber-500 flex-shrink-0'} />
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-montserrat font-semibold ${isRed ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'}`}>
+                      {alert.address}: {alert.cmrUploaded} of {alert.cmrTotal} funding documents collected
+                    </p>
+                    <p className="text-xs font-inter text-navy/70 dark:text-white/70">
+                      Closing in {alert.daysToClose} {alert.daysToClose === 1 ? 'day' : 'days'}. {alert.missingCount} CMR-required {alert.missingCount === 1 ? 'doc' : 'docs'} still needed for payment.
+                    </p>
+                  </div>
+                  <ChevronRight size={14} className="text-navy/30 dark:text-white/30 flex-shrink-0" />
+                </a>
+              );
+            })}
           </div>
         )}
 

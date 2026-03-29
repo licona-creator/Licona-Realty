@@ -13,6 +13,8 @@ import { BRAND } from '@/lib/brand';
 import type { TransactionChecklistItem, TransactionParty } from '@/types/database';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
 import { DocumentVault } from '@/components/transactions/DocumentVault';
+import { TRANSACTION_TYPE_LABELS } from '@/lib/documents/texas-checklist';
+import type { TransactionType } from '@/lib/documents/texas-checklist';
 import {
   ArrowLeft, Edit3, Trash2, DollarSign, Calendar,
   CheckSquare, Square, User, FileText, Clock, AlertTriangle,
@@ -23,6 +25,7 @@ interface TransactionData {
   id: string;
   contact_id: string;
   track_type: string;
+  transaction_type: string;
   property_address: string;
   property_city: string | null;
   property_state: string | null;
@@ -162,6 +165,7 @@ export default function TransactionDetailPage() {
       closing_date: transaction.closing_date || '',
       status: transaction.status,
       track_type: transaction.track_type,
+      transaction_type: transaction.transaction_type || 'buyers_agent_sale',
     });
     setEditing(true);
     // Fetch contacts for the dropdown
@@ -189,6 +193,7 @@ export default function TransactionDetailPage() {
           closing_date: editForm.closing_date || null,
           status: editForm.status,
           track_type: editForm.track_type,
+          transaction_type: editForm.transaction_type,
         }),
       });
 
@@ -390,7 +395,7 @@ export default function TransactionDetailPage() {
 
           {/* Document Vault */}
           <Card className="!p-5">
-            <DocumentVault transactionId={id} trackType={transaction.track_type} />
+            <DocumentVault transactionId={id} trackType={transaction.track_type} transactionType={transaction.transaction_type || 'buyers_agent_sale'} />
           </Card>
 
           {/* Notes */}
@@ -603,6 +608,24 @@ export default function TransactionDetailPage() {
               onChange={e => setEditForm(prev => ({ ...prev, closing_date: e.target.value }))}
               disabled={saving}
             />
+          </div>
+          <div>
+            <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Transaction Type *</label>
+            <select
+              value={(editForm.transaction_type as string) || 'buyers_agent_sale'}
+              onChange={e => setEditForm(prev => ({ ...prev, transaction_type: e.target.value }))}
+              className={selectClassName}
+              disabled={saving}
+            >
+              {(Object.entries(TRANSACTION_TYPE_LABELS) as [TransactionType, string][]).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+            {editForm.transaction_type !== transaction.transaction_type && (
+              <p className="text-xs text-amber-600 font-inter mt-1">
+                Changing the transaction type will update the document checklist. Any uploaded documents will be preserved.
+              </p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
