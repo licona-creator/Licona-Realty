@@ -177,7 +177,7 @@ export default function PartnerDetailPage() {
           {/* Transactions from referrals */}
           {transactions.length > 0 && (
             <Card className="!p-5">
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3">Transactions ({transactions.length})</h3>
+              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3">Deals ({transactions.length})</h3>
               <div className="space-y-2">
                 {transactions.map(tx => (
                   <button key={tx.id} onClick={() => router.push(`/transactions/${tx.id}`)} className="w-full flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors text-left">

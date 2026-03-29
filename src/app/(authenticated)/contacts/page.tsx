@@ -89,8 +89,7 @@ export default function ContactsPage() {
         const json = await res.json().catch(() => ({}));
         setFetchError(json.error || `Failed to load contacts (${res.status})`);
       }
-    } catch (err) {
-      console.error('[ContactsPage:fetch]', err);
+    } catch {
       setFetchError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
@@ -112,8 +111,7 @@ export default function ContactsPage() {
         const json = await res.json().catch(() => ({}));
         showError('Delete Failed', json.error || 'Could not delete contact.');
       }
-    } catch (err) {
-      console.error('[ContactsPage:delete]', err);
+    } catch {
       showError('Delete Failed', 'Network error. Please try again.');
     }
     setDeleteTarget(null);

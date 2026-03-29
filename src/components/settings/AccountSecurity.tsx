@@ -445,7 +445,7 @@ export function AccountSecurity() {
             <div className="flex-1">
               <p className="text-sm text-navy dark:text-white font-inter">Export all my data</p>
               <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">
-                Download all contacts, transactions, campaigns, and documents as JSON.
+                Download all contacts, deals, campaigns, and documents as JSON.
                 MFA verification required.
               </p>
             </div>
@@ -460,12 +460,12 @@ export function AccountSecurity() {
               <div className="flex-1">
                 <p className="text-sm text-red-600 font-inter font-medium">Request Data Deletion</p>
                 <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">
-                  This permanently deletes all your data including contacts, transactions,
+                  This permanently deletes all your data including contacts, deals,
                   campaigns, documents, and audit logs. This action cannot be undone.
                   Requires MFA verification and typing "DELETE MY DATA" to confirm.
                 </p>
               </div>
-              <Button size="sm" variant="danger" onClick={() => setConfirmDialog({ open: true, title: 'Request Data Deletion?', message: 'WARNING: This action is permanent and cannot be undone. All contacts, transactions, campaigns, documents, and audit logs will be deleted.', variant: 'danger', onConfirm: () => warning('MFA Verification Required', 'You will need to type "DELETE MY DATA" to confirm.') })}>
+              <Button size="sm" variant="danger" onClick={() => setConfirmDialog({ open: true, title: 'Request Data Deletion?', message: 'WARNING: This action is permanent and cannot be undone. All contacts, deals, campaigns, documents, and audit logs will be deleted.', variant: 'danger', onConfirm: () => warning('MFA Verification Required', 'You will need to type "DELETE MY DATA" to confirm.') })}>
                 <Trash2 size={12} className="mr-1.5" />
                 Delete Data
               </Button>

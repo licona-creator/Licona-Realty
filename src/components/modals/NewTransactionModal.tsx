@@ -189,7 +189,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         throw new Error(body?.error || 'Failed to create transaction.');
       }
 
-      toast.success('Transaction Created', 'The new transaction has been added successfully.');
+      toast.success('Deal Created', 'The new deal has been added successfully.');
       onSuccess?.();
       resetAndClose();
     } catch (err) {
@@ -201,7 +201,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
   }
 
   return (
-    <Modal open={open} onClose={resetAndClose} title="New Transaction" size="lg">
+    <Modal open={open} onClose={resetAndClose} title="New Deal" size="lg">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Contact Selector */}
         <div className="w-full">
@@ -236,7 +236,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
           </select>
           {!contactsLoading && !hasContacts && (
             <p className="text-xs text-red-500/80 font-inter mt-1">
-              You need at least one contact before creating a transaction.
+              You need at least one contact before creating a deal.
             </p>
           )}
         </div>
@@ -403,7 +403,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
             loading={loading}
             disabled={!hasContacts || contactsLoading}
           >
-            {loading ? 'Creating...' : 'Create Transaction'}
+            {loading ? 'Creating...' : 'Create Deal'}
           </Button>
         </div>
       </form>

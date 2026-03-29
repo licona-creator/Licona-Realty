@@ -284,7 +284,7 @@ export function Integrations() {
       >
         <div className="space-y-3">
           <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
-            Address autocomplete for contacts and transactions
+            Address autocomplete for contacts and deals
           </p>
           {mapsConfigured ? (
             <div className="space-y-1.5">
@@ -330,7 +330,7 @@ export function Integrations() {
             <span className="text-[10px] text-navy/50 dark:text-white/50 font-montserrat font-medium">Coming soon</span>
           </div>
           <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
-            Transaction document signing - Phase 3
+            Deal document signing - Phase 3
           </p>
         </div>
       </IntegrationCard>

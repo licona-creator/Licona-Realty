@@ -8,8 +8,8 @@
 
 'use client';
 
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
 import { SessionTimeoutWarning } from '@/components/auth/SessionTimeoutWarning';
@@ -27,6 +27,25 @@ interface AppShellProps {
 export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
   const [showAI, setShowAI] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Client-side session monitoring: poll every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/auth/session-check');
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.valid) {
+            router.push(`/auth/session-expired?reason=${data.reason || 'timeout'}`);
+          }
+        }
+      } catch {
+        // Network error, skip this check
+      }
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, [router]);
 
   // Auto-detect contact context from URL (/contacts/[id])
   const contactMatch = pathname.match(/^\/contacts\/([a-f0-9-]+)$/i);
@@ -47,7 +66,13 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
       </div>
 
       {/* Mobile Top Bar - AI + Search + Notifications */}
-      <div className="lg:hidden flex items-center justify-end gap-1 px-4 py-2 sticky top-0 z-30 bg-surface/80 dark:bg-navy/80 backdrop-blur-sm">
+      <div
+        className="lg:hidden flex items-center justify-end gap-1 px-4 pb-2 sticky top-0 z-30"
+        style={{
+          backgroundColor: BRAND.colors.primary,
+          paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)',
+        }}
+      >
         <button
           onClick={() => setShowAI(true)}
           className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-gold/10 active:scale-95 transition-all"

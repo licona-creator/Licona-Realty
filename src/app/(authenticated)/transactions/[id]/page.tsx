@@ -198,7 +198,7 @@ export default function TransactionDetailPage() {
       }
 
       setEditing(false);
-      toast.success('Transaction Updated', 'Changes have been saved.');
+      toast.success('Deal Updated', 'Changes have been saved.');
       fetchTransaction();
       router.refresh();
     } catch (err) {
@@ -215,7 +215,7 @@ export default function TransactionDetailPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to delete');
       }
-      toast.success('Transaction Deleted', 'The transaction has been removed.');
+      toast.success('Deal Deleted', 'The deal has been removed.');
       router.push('/transactions');
     } catch (err) {
       toast.error('Delete Failed', err instanceof Error ? err.message : 'Something went wrong.');
@@ -227,7 +227,7 @@ export default function TransactionDetailPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-        <span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading transaction...</span>
+        <span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading deal...</span>
       </div>
     );
   }
@@ -236,10 +236,10 @@ export default function TransactionDetailPage() {
     return (
       <div className="p-4 lg:p-8 max-w-4xl mx-auto">
         <button onClick={() => router.push('/transactions')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline">
-          <ArrowLeft size={16} /> Back to Transactions
+          <ArrowLeft size={16} /> Back to Deals
         </button>
         <Card className="!p-8 text-center">
-          <p className="text-red-500 font-inter">{error || 'Transaction not found'}</p>
+          <p className="text-red-500 font-inter">{error || 'Deal not found'}</p>
         </Card>
       </div>
     );
@@ -262,7 +262,7 @@ export default function TransactionDetailPage() {
         onClick={() => router.push('/transactions')}
         className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline"
       >
-        <ArrowLeft size={16} /> Back to Transactions
+        <ArrowLeft size={16} /> Back to Deals
       </button>
 
       {/* Header */}
@@ -407,7 +407,7 @@ export default function TransactionDetailPage() {
             <Card className="!p-5">
               <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3 flex items-center gap-2">
                 <Building size={14} className="text-gold" />
-                Transaction Parties
+                Deal Parties
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {transaction.parties.map(party => (
@@ -510,8 +510,13 @@ export default function TransactionDetailPage() {
         </div>
       </div>
 
+      {/* End of deal details */}
+      <div className="mt-8 pb-12 flex justify-center">
+        <span className="text-[10px] text-navy/20 dark:text-white/20 font-inter">End of deal details</span>
+      </div>
+
       {/* Edit Modal */}
-      <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Transaction" size="lg">
+      <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Deal" size="lg">
         <div className="space-y-4">
           {/* Linked Contact */}
           <div>
@@ -631,8 +636,8 @@ export default function TransactionDetailPage() {
         open={showDelete}
         onClose={() => setShowDelete(false)}
         onConfirm={handleDelete}
-        title="Delete Transaction?"
-        message={`Are you sure you want to delete the transaction for ${transaction.property_address}? This action cannot be undone.`}
+        title="Delete Deal?"
+        message={`Are you sure you want to delete the deal for ${transaction.property_address}? This action cannot be undone.`}
         variant="danger"
       />
     </div>

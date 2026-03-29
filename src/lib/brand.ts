@@ -115,7 +115,7 @@ export const NAV_ITEMS = [
   { label: 'Approval Queue', href: '/approval-queue', icon: 'check-circle', badge: true },
   { label: 'Contacts', href: '/contacts', icon: 'users' },
   { label: 'Partners', href: '/partners', icon: 'handshake' },
-  { label: 'Transactions', href: '/transactions', icon: 'file-text' },
+  { label: 'Deals', href: '/transactions', icon: 'file-text' },
   { label: 'Campaigns', href: '/campaigns', icon: 'send' },
   { label: 'Marketing', href: '/marketing', icon: 'megaphone' },
   { label: 'Map', href: '/map', icon: 'map-pin' },

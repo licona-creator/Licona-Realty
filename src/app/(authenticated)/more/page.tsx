@@ -15,7 +15,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Send, Megaphone, MapPin, Calendar, Palette,
-  Star, Calculator, Settings, LogOut, Handshake, Activity,
+  Star, Calculator, Settings, LogOut, Handshake, Activity, ChevronRight,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -32,7 +32,7 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
 
 // Show items not in mobile bottom nav
 const moreItems = NAV_ITEMS.filter(
-  (item) => !['Dashboard', 'Approval Queue', 'Contacts', 'Transactions'].includes(item.label)
+  (item) => !['Dashboard', 'Approval Queue', 'Contacts', 'Deals'].includes(item.label)
 );
 
 export default function MorePage() {
@@ -68,9 +68,10 @@ export default function MorePage() {
                 className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-gold/20 transition-colors"
               >
                 {Icon && <Icon size={20} className="text-gold" />}
-                <span className="font-montserrat text-sm font-medium text-navy dark:text-white">
+                <span className="font-montserrat text-sm font-medium text-navy dark:text-white flex-1">
                   {item.label}
                 </span>
+                <ChevronRight size={14} className="text-navy/20 dark:text-white/20" />
               </Link>
             </motion.div>
           );
@@ -83,9 +84,10 @@ export default function MorePage() {
           className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-gold/20 transition-colors"
         >
           <Settings size={20} className="text-navy/40 dark:text-white/40" />
-          <span className="font-montserrat text-sm font-medium text-navy/60 dark:text-white/60">
+          <span className="font-montserrat text-sm font-medium text-navy/60 dark:text-white/60 flex-1">
             Settings
           </span>
+          <ChevronRight size={14} className="text-navy/20 dark:text-white/20" />
         </Link>
 
         <button onClick={() => setShowSignOut(true)} className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full">

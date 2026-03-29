@@ -163,7 +163,7 @@ export function GlobalSearch() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search contacts, transactions, partners..."
+            placeholder="Search contacts, deals, partners..."
             className="flex-1 text-base outline-none bg-transparent"
             style={{
               color: BRAND.colors.text,
@@ -211,7 +211,7 @@ export function GlobalSearch() {
           {/* Transactions section */}
           {results && results.transactions.length > 0 && (
             <ResultSection
-              title="Transactions"
+              title="Deals"
               icon={<FileText size={16} style={{ color: BRAND.colors.gold }} />}
             >
               {results.transactions.map((tx) => (

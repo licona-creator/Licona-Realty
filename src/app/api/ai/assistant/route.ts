@@ -8,8 +8,6 @@ import type { TransactionDocument } from '@/lib/documents/texas-checklist';
 export async function POST(request: NextRequest) {
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    console.log('[ai:assistant] API key configured:', !!apiKey);
-
     if (!apiKey) {
       return NextResponse.json(
         { error: 'AI Assistant not configured. Add your Anthropic API key in Vercel environment variables.' },
@@ -245,12 +243,6 @@ ${contactContext}`;
       messages,
     };
 
-    console.log('[ai:assistant] Sending request:', {
-      model: requestBody.model,
-      messageCount: messages.length,
-      toolCount: requestBody.tools?.length,
-      systemLength: systemPrompt.length,
-    });
 
     const apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',

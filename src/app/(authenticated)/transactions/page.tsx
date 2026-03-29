@@ -85,12 +85,12 @@ export default function TransactionsPage() {
             className="text-2xl font-semibold text-navy dark:text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
-            Transactions
+            Deals
           </h1>
         </div>
         <Button variant="accent" size="sm" onClick={() => setShowNewTransaction(true)}>
           <Plus size={16} className="mr-1" />
-          New Transaction
+          New Deal
         </Button>
       </div>
 
@@ -235,15 +235,15 @@ export default function TransactionsPage() {
         <Card className="!p-8 text-center">
           <FileText size={40} className="text-gold mx-auto mb-4 opacity-50" />
           <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
-            No {filter === 'all' ? '' : filter} Transactions
+            No {filter === 'all' ? '' : filter} Deals
           </h2>
           <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto mb-6">
-            Create your first transaction to start tracking deadlines, documents,
+            Create your first deal to start tracking deadlines, documents,
             checklists, and commissions.
           </p>
           <Button variant="accent" onClick={() => setShowNewTransaction(true)}>
             <Plus size={16} className="mr-1" />
-            Create Transaction
+            Create Deal
           </Button>
         </Card>
       )}
@@ -259,7 +259,7 @@ export default function TransactionsPage() {
         onClick={() => setShowNewTransaction(true)}
         className="lg:hidden fixed z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform right-4 bottom-[88px]"
         style={{ backgroundColor: BRAND.colors.gold }}
-        aria-label="New Transaction"
+        aria-label="New Deal"
       >
         <Plus size={20} color="#fff" />
       </button>

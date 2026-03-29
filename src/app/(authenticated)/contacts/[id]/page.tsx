@@ -399,7 +399,7 @@ export default function ContactDetailPage() {
 
           {/* Linked Transactions */}
           <Card className="!p-5">
-            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3"><Briefcase size={14} className="inline mr-2 text-gold" />Transactions</h3>
+            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3"><Briefcase size={14} className="inline mr-2 text-gold" />Deals</h3>
             {transactions.length > 0 ? (
               <div className="space-y-2">
                 {transactions.map(tx => (
@@ -412,7 +412,7 @@ export default function ContactDetailPage() {
                   </button>
                 ))}
               </div>
-            ) : <p className="text-sm text-navy/40 dark:text-white/40 font-inter">No transactions linked.</p>}
+            ) : <p className="text-sm text-navy/40 dark:text-white/40 font-inter">No deals linked.</p>}
           </Card>
         </div>
 
@@ -487,6 +487,11 @@ export default function ContactDetailPage() {
             </div>
           </Card>
         </div>
+      </div>
+
+      {/* End of contact details */}
+      <div className="mt-8 pb-12 flex justify-center">
+        <span className="text-[10px] text-navy/20 dark:text-white/20 font-inter">End of contact details</span>
       </div>
 
       {/* Edit Modal */}

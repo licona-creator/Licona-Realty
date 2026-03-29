@@ -86,7 +86,7 @@ export function calculateLeadScore(input: LeadScoreInput): LeadScoreBreakdown {
 
   // Active transaction linked
   if (input.has_active_transaction) {
-    factors.push({ label: 'Active transaction linked', points: 25 });
+    factors.push({ label: 'Active deal linked', points: 25 });
     score += 25;
   }
 

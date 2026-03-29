@@ -21,12 +21,6 @@ export async function GET(request: NextRequest) {
     const supabase = await createServerSupabaseClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    console.log('[DEBUG transactions:GET] Auth result:', {
-      userId: user?.id,
-      email: user?.email,
-      error: authError?.message,
-    });
-
     if (!user) {
       return NextResponse.json(
         { error: 'Not authenticated', authError: authError?.message },
@@ -90,12 +84,6 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    console.log('[DEBUG transactions:POST] Auth result:', {
-      userId: user?.id,
-      email: user?.email,
-      error: authError?.message,
-    });
 
     if (!user) {
       return NextResponse.json(

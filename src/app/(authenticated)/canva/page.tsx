@@ -262,7 +262,7 @@ export default function CanvaPage() {
                     Auto-fill with contact data
                   </p>
                 </div>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedTemplate(key); }}>
                   <Sparkles size={14} className="mr-1" /> Create
                 </Button>
               </Card>

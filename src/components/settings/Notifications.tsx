@@ -174,7 +174,7 @@ export function Notifications() {
           <Toggle label="Approval queue morning digest" description="Sent at your configured morning briefing time" enabled={pushApprovalDigest} onChange={setPushApprovalDigest} />
           <Toggle label="Urgent approval queue items" enabled={true} onChange={() => {}} locked />
           <Toggle label="DocuSign envelope signed or declined" enabled={pushDocusign} onChange={setPushDocusign} />
-          <Toggle label="Critical transaction deadline within 72 hours" enabled={pushDeadline} onChange={setPushDeadline} />
+          <Toggle label="Critical deal deadline within 72 hours" enabled={pushDeadline} onChange={setPushDeadline} />
           <Toggle label="New social media DM or lead" enabled={pushSocialDM} onChange={setPushSocialDM} />
           <Toggle label="Birthday message ready for review" enabled={pushBirthday} onChange={setPushBirthday} />
           <Toggle label="Holiday campaign ready for review" enabled={pushHoliday} onChange={setPushHoliday} />
@@ -197,7 +197,7 @@ export function Notifications() {
         <div className="space-y-4">
           <Toggle label="Weekly system health report" enabled={emailWeeklyHealth} onChange={setEmailWeeklyHealth} />
           <Toggle label="New lead summary (daily digest)" description="Daily summary of all new leads captured" enabled={emailLeadSummary} onChange={setEmailLeadSummary} />
-          <Toggle label="Transaction milestone alerts" enabled={emailTransactionMilestone} onChange={setEmailTransactionMilestone} />
+          <Toggle label="Deal milestone alerts" enabled={emailTransactionMilestone} onChange={setEmailTransactionMilestone} />
           <Toggle label="Security alerts" enabled={true} onChange={() => {}} locked />
         </div>
       </Card>

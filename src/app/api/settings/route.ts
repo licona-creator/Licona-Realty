@@ -13,12 +13,6 @@ export async function GET() {
     const supabase = await createServerSupabaseClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    console.log('[DEBUG settings:GET] Auth result:', {
-      userId: user?.id,
-      email: user?.email,
-      error: authError?.message,
-    });
-
     if (!user) {
       return NextResponse.json(
         { error: 'Not authenticated', authError: authError?.message },
@@ -54,12 +48,6 @@ export async function PUT(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    console.log('[DEBUG settings:PUT] Auth result:', {
-      userId: user?.id,
-      email: user?.email,
-      error: authError?.message,
-    });
 
     if (!user) {
       return NextResponse.json(
