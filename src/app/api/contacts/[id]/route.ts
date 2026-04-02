@@ -207,7 +207,7 @@ export async function PATCH(
         data.address_line_1, data.city, data.state, data.zip_code,
       ].filter(Boolean).join(', ');
       if (fullAddress) {
-        const geoKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        const geoKey = process.env.GOOGLE_GEOCODING_KEY;
         if (geoKey) {
           fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${geoKey}`)
             .then(res => res.json())

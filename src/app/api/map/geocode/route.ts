@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Address is required' }, { status: 400 });
     }
 
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const apiKey = process.env.GOOGLE_GEOCODING_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: 'Geocoding service not configured' }, { status: 503 });
     }

@@ -23,7 +23,7 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const geoKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const geoKey = process.env.GOOGLE_GEOCODING_KEY;
     if (!geoKey) {
       return NextResponse.json({ error: 'Google Maps API key not configured.' }, { status: 500 });
     }
