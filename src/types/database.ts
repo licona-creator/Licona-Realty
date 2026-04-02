@@ -66,6 +66,8 @@ export interface Contact {
   // Location for Google Maps
   latitude: number | null;
   longitude: number | null;
+  neighborhood: string | null;
+  county: string | null;
 
   // Campaign
   campaign_enrollment_status: string | null;
@@ -578,6 +580,26 @@ export interface Notification {
 // ============================================
 // User Integrations
 // ============================================
+
+// ============================================
+// Market Data Cache
+// ============================================
+
+export interface MarketDataCache {
+  id: string;
+  zip_code: string;
+  median_price: number | null;
+  avg_dom: number | null;
+  homes_sold: number | null;
+  new_listings: number | null;
+  inventory_level: number | null;
+  list_to_sale_ratio: number | null;
+  market_summary: string | null;
+  data_source: string | null;
+  fetched_at: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface UserIntegration {
   id: string;

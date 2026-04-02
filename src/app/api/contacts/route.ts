@@ -305,6 +305,42 @@ export async function POST(request: Request) {
       );
     }
 
+    // Auto-geocode if address is provided (non-blocking)
+    if (data && (body.address_line_1 || body.city || body.zip_code)) {
+      const fullAddress = [body.address_line_1, body.city, body.state, body.zip_code].filter(Boolean).join(', ');
+      if (fullAddress) {
+        const geoKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        if (geoKey) {
+          fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${geoKey}`)
+            .then(res => res.json())
+            .then(geoData => {
+              if (geoData.status === 'OK' && geoData.results?.[0]) {
+                const result = geoData.results[0];
+                const loc = result.geometry?.location;
+                const comps = result.address_components || [];
+                const getComp = (type: string): string | null => {
+                  const c = comps.find((comp: { types: string[]; long_name: string }) => comp.types.includes(type));
+                  return c ? c.long_name : null;
+                };
+                const geoUpdate: Record<string, unknown> = {};
+                if (loc?.lat) geoUpdate.latitude = loc.lat;
+                if (loc?.lng) geoUpdate.longitude = loc.lng;
+                const neighborhood = getComp('neighborhood') || getComp('sublocality');
+                if (neighborhood) geoUpdate.neighborhood = neighborhood;
+                const county = getComp('administrative_area_level_2');
+                if (county) geoUpdate.county = county;
+                if (Object.keys(geoUpdate).length > 0) {
+                  supabase.from('contacts').update(geoUpdate).eq('id', data.id).then(() => {});
+                }
+              }
+            })
+            .catch(() => {
+              // Geocoding failure is non-blocking
+            });
+        }
+      }
+    }
+
     // Audit log - no PII in details
     await writeAuditLog({
       userId: user.id,
