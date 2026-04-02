@@ -36,7 +36,7 @@ function UsageMeter({
     <div>
       <div className="flex justify-between text-xs mb-1">
         <span className="text-navy/50 dark:text-white/50 font-inter">{label}</span>
-        <span className={`font-inter ${isWarning ? 'text-amber-600 font-semibold' : 'text-navy/40 dark:text-white/40'}`}>
+        <span className={`font-inter ${isWarning ? 'text-amber-600 font-semibold' : 'text-navy/60 dark:text-white/50'}`}>
           {used.toLocaleString()} / {limit.toLocaleString()} {unit}
         </span>
       </div>
@@ -85,20 +85,20 @@ export function BillingPlan() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <p className="text-xs text-navy/40 dark:text-white/40 font-inter">Plan</p>
+            <p className="text-xs text-navy/60 dark:text-white/50 font-inter">Plan</p>
             <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">Starter</p>
           </div>
           <div>
-            <p className="text-xs text-navy/40 dark:text-white/40 font-inter">Monthly Cost</p>
+            <p className="text-xs text-navy/60 dark:text-white/50 font-inter">Monthly Cost</p>
             <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">$0</p>
             <p className="text-[10px] text-navy/30 dark:text-white/30 font-inter">Free tier</p>
           </div>
           <div>
-            <p className="text-xs text-navy/40 dark:text-white/40 font-inter">Renewal</p>
+            <p className="text-xs text-navy/60 dark:text-white/50 font-inter">Renewal</p>
             <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">N/A</p>
           </div>
           <div>
-            <p className="text-xs text-navy/40 dark:text-white/40 font-inter">Payment Method</p>
+            <p className="text-xs text-navy/60 dark:text-white/50 font-inter">Payment Method</p>
             <p className="text-sm font-montserrat font-semibold text-navy dark:text-white/40">None on file</p>
           </div>
         </div>
@@ -167,7 +167,7 @@ export function BillingPlan() {
             <UsageMeter label="Gmail API" used={0} limit={10000} unit="calls" />
             <UsageMeter label="Calendar API" used={0} limit={10000} unit="calls" />
           </div>
-          <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-2">
+          <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-2">
             Estimated cost this month: $0.00 (within free credit)
           </p>
         </div>
@@ -221,7 +221,7 @@ export function BillingPlan() {
             <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0" />
             <div>
               <p className="text-sm text-navy dark:text-white font-inter">Supabase</p>
-              <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+              <p className="text-xs text-navy/60 dark:text-white/50 font-inter">
                 Well within free tier limits. No upgrade needed.
               </p>
             </div>
@@ -230,7 +230,7 @@ export function BillingPlan() {
             <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0" />
             <div>
               <p className="text-sm text-navy dark:text-white font-inter">Google Maps</p>
-              <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+              <p className="text-xs text-navy/60 dark:text-white/50 font-inter">
                 Using 3% of monthly free credit. No overage expected.
               </p>
             </div>

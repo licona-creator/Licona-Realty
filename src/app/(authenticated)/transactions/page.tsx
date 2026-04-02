@@ -22,13 +22,19 @@ import {
 
 const STAGE_LABELS: Record<string, { label: string; color: string }> = {
   new: { label: 'New', color: '#3B82F6' },
+  active: { label: 'Active', color: '#3B82F6' },
   contacted: { label: 'Contacted', color: '#8B5CF6' },
   qualifying: { label: 'Qualifying', color: '#F59E0B' },
+  option_period: { label: 'Option Period', color: '#F59E0B' },
+  inspection: { label: 'Inspection', color: '#8B5CF6' },
+  appraisal: { label: 'Appraisal', color: '#F97316' },
   showing: { label: 'Showing', color: '#F97316' },
   offer: { label: 'Offer', color: '#EC4899' },
   under_contract: { label: 'Under Contract', color: '#22C55E' },
+  clear_to_close: { label: 'Clear to Close', color: '#10B981' },
   closing: { label: 'Closing', color: BRAND.colors.accent },
   closed: { label: 'Closed', color: '#10B981' },
+  cancelled: { label: 'Cancelled', color: '#EF4444' },
   lost: { label: 'Lost', color: '#EF4444' },
 };
 
@@ -77,8 +83,8 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-3 pt-2 lg:p-8 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between mb-4 lg:mb-6">
         <div className="flex items-center gap-3">
           <FileText size={24} className="text-gold" />
           <h1
@@ -214,7 +220,7 @@ export default function TransactionsPage() {
                         }`}>
                           {days !== null && days <= 7 && <AlertTriangle size={10} />}
                           <CalendarDays size={10} />
-                          {days !== null ? `${days}d to close` : tx.closing_date}
+                          {days !== null ? (days < 0 ? `${Math.abs(days)}d overdue` : `${days}d to close`) : tx.closing_date}
                         </span>
                       )}
                       {totalItems > 0 && (

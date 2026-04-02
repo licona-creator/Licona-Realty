@@ -275,7 +275,7 @@ export default function ContactDetailPage() {
   const stageColor = STAGE_COLORS[contact.pipeline_stage] || STAGE_COLORS.new;
 
   return (
-    <div className="p-4 lg:p-8 max-w-4xl mx-auto">
+    <div className="p-3 pt-2 lg:p-8 max-w-4xl mx-auto">
       <button onClick={() => router.push('/contacts')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline">
         <ArrowLeft size={16} /> Back to Contacts
       </button>
@@ -506,27 +506,27 @@ export default function ContactDetailPage() {
       {/* Edit Modal */}
       <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Contact" size="lg">
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="First Name *" value={editForm.first_name || ''} onChange={e => setEditForm(p => ({ ...p, first_name: e.target.value }))} disabled={saving} />
             <Input label="Last Name *" value={editForm.last_name || ''} onChange={e => setEditForm(p => ({ ...p, last_name: e.target.value }))} disabled={saving} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Email" type="email" value={editForm.email || ''} onChange={e => setEditForm(p => ({ ...p, email: e.target.value }))} disabled={saving} />
             <Input label="Phone" type="tel" value={editForm.phone || ''} onChange={e => setEditForm(p => ({ ...p, phone: e.target.value }))} disabled={saving} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Track Type</label><select value={editForm.track_type || 'buyer'} onChange={e => setEditForm(p => ({ ...p, track_type: e.target.value }))} className={selectClassName} disabled={saving}>{TRACK_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
             <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Pipeline Stage</label><select value={editForm.pipeline_stage || 'new'} onChange={e => setEditForm(p => ({ ...p, pipeline_stage: e.target.value }))} className={selectClassName} disabled={saving}>{PIPELINE_STAGES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Lead Source</label><select value={editForm.lead_source || ''} onChange={e => setEditForm(p => ({ ...p, lead_source: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{LEAD_SOURCES.map(s => <option key={s} value={s.toLowerCase()}>{s}</option>)}</select></div>
             <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Language</label><select value={editForm.language_preference || 'en'} onChange={e => setEditForm(p => ({ ...p, language_preference: e.target.value }))} className={selectClassName} disabled={saving}>{LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}</select></div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Budget" placeholder="$300k - $450k" value={editForm.budget || ''} onChange={e => setEditForm(p => ({ ...p, budget: e.target.value }))} disabled={saving} />
             <Input label="Location Preference" placeholder="Denton County" value={editForm.location_preference || ''} onChange={e => setEditForm(p => ({ ...p, location_preference: e.target.value }))} disabled={saving} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Next Follow-Up Date" type="date" value={editForm.next_follow_up_date || ''} onChange={e => setEditForm(p => ({ ...p, next_follow_up_date: e.target.value }))} disabled={saving} />
             <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Referral Partner</label><select value={editForm.referral_partner_id || ''} onChange={e => setEditForm(p => ({ ...p, referral_partner_id: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{partners.map(p => <option key={p.id} value={p.id}>{p.first_name} {p.last_name || ''}</option>)}</select></div>
           </div>
@@ -547,7 +547,7 @@ export default function ContactDetailPage() {
             }}
             disabled={saving}
           />
-          <div className="grid grid-cols-6 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
             <div className="col-span-3"><Input label="City" value={editForm.city || ''} onChange={e => setEditForm(p => ({ ...p, city: e.target.value }))} disabled={saving} /></div>
             <div className="col-span-1"><Input label="State" value={editForm.state || ''} onChange={e => setEditForm(p => ({ ...p, state: e.target.value }))} disabled={saving} /></div>
             <div className="col-span-2"><Input label="Zip" value={editForm.zip_code || ''} onChange={e => setEditForm(p => ({ ...p, zip_code: e.target.value }))} disabled={saving} /></div>

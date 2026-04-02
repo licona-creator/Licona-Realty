@@ -65,7 +65,7 @@ function Toggle({
       <div className="flex-1 min-w-0">
         <p className="text-sm text-navy dark:text-white font-inter">{label}</p>
         {description && (
-          <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{description}</p>
+          <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-0.5">{description}</p>
         )}
       </div>
     </div>
@@ -218,7 +218,7 @@ export function CampaignDefaults() {
               onChange={(e) => setDefaultSendTime(e.target.value)}
               className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
             />
-            <span className="text-xs text-navy/40 dark:text-white/40 font-inter">local time</span>
+            <span className="text-xs text-navy/60 dark:text-white/50 font-inter">local time</span>
           </div>
 
           <div className="border-t border-gold/15 dark:border-white/10 pt-4">
@@ -279,7 +279,7 @@ export function CampaignDefaults() {
               onChange={(e) => setVoiceThreshold(Number(e.target.value))}
               className="w-full accent-gold"
             />
-            <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-1">
+            <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-1">
               Messages below this confidence level are flagged for heavier review in the approval queue.
             </p>
           </div>

@@ -171,9 +171,9 @@ export default function DashboardPage() {
   const hasFollowUps = visibleOverdue.length > 0 || visibleToday.length > 0 || visibleUpcoming.length > 0;
 
   return (
-    <div data-testid="dashboard-page" className="p-4 lg:p-8 max-w-7xl mx-auto">
+    <div data-testid="dashboard-page" className="p-3 pt-2 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4 lg:mb-8">
         <div>
           <h1 className="text-2xl lg:text-3xl font-semibold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.playfair }}>
             {getGreeting()}, {displayName.split(' ')[0]}
@@ -223,7 +223,7 @@ export default function DashboardPage() {
                   <AlertTriangle size={16} className={isUrgent ? 'text-red-500 flex-shrink-0' : 'text-yellow-500 flex-shrink-0'} />
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-montserrat font-semibold ${isUrgent ? 'text-red-600' : 'text-yellow-700 dark:text-yellow-400'}`}>
-                      Closing in {days} {days === 1 ? 'day' : 'days'}
+                      {days < 0 ? `${Math.abs(days)} ${Math.abs(days) === 1 ? 'day' : 'days'} overdue` : days === 0 ? 'Closing today' : `Closing in ${days} ${days === 1 ? 'day' : 'days'}`}
                     </p>
                     <p className="text-xs font-inter text-navy/70 dark:text-white/70 truncate">
                       {tx.property_address} {closingDateStr && `- ${closingDateStr}`}
@@ -257,7 +257,7 @@ export default function DashboardPage() {
                       {alert.address}: {alert.cmrUploaded} of {alert.cmrTotal} broker-required documents collected
                     </p>
                     <p className="text-xs font-inter text-navy/70 dark:text-white/70">
-                      Closing in {alert.daysToClose} {alert.daysToClose === 1 ? 'day' : 'days'}. {alert.missingCount} CMR-required {alert.missingCount === 1 ? 'doc' : 'docs'} still needed for payment.
+                      {alert.daysToClose < 0 ? `${Math.abs(alert.daysToClose)} ${Math.abs(alert.daysToClose) === 1 ? 'day' : 'days'} overdue` : alert.daysToClose === 0 ? 'Closing today' : `Closing in ${alert.daysToClose} ${alert.daysToClose === 1 ? 'day' : 'days'}`}. {alert.missingCount} CMR-required {alert.missingCount === 1 ? 'doc' : 'docs'} still needed for payment.
                     </p>
                   </div>
                   <ChevronRight size={14} className="text-navy/30 dark:text-white/30 flex-shrink-0" />
@@ -511,39 +511,39 @@ export default function DashboardPage() {
 
         {/* Pipeline Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="!p-4">
-            <DollarSign size={16} className="text-gold mb-2" />
-            <p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>${pipelineValue.toLocaleString()}</p>
-            <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Pipeline Value</p>
+          <Card className="!p-3 lg:!p-4">
+            <DollarSign size={16} className="text-gold mb-1 lg:mb-2" />
+            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>${pipelineValue >= 1000 ? `${Math.round(pipelineValue / 1000)}K` : pipelineValue.toLocaleString()}</p>
+            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Pipeline Value</p>
           </Card>
-          <Card className="!p-4">
-            <Users size={16} className="text-gold mb-2" />
-            <p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{data?.contacts.activeLeads || 0}</p>
-            <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Active Leads</p>
+          <Card className="!p-3 lg:!p-4">
+            <Users size={16} className="text-gold mb-1 lg:mb-2" />
+            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{data?.contacts.activeLeads || 0}</p>
+            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Active Leads</p>
           </Card>
-          <Card className="!p-4">
-            <FileText size={16} className="text-gold mb-2" />
-            <p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{activeDeals}</p>
-            <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Active Deals</p>
+          <Card className="!p-3 lg:!p-4">
+            <FileText size={16} className="text-gold mb-1 lg:mb-2" />
+            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{activeDeals}</p>
+            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Active Deals</p>
           </Card>
-          <Card className="!p-4">
-            <Users size={16} className="text-gold mb-2" />
-            <p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{contactTotal}</p>
-            <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Total Contacts</p>
+          <Card className="!p-3 lg:!p-4">
+            <Users size={16} className="text-gold mb-1 lg:mb-2" />
+            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{contactTotal}</p>
+            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Total Contacts</p>
           </Card>
         </div>
 
         {/* Income Cards */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="!p-4">
-            <DollarSign size={16} className="text-green-500 mb-2" />
-            <p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>${(data?.commissionYTD || 0).toLocaleString()}</p>
-            <p className="text-xs text-navy/50 dark:text-white/50 font-inter">YTD Income (Net)</p>
+          <Card className="!p-3 lg:!p-4">
+            <DollarSign size={16} className="text-green-500 mb-1 lg:mb-2" />
+            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>${((data?.commissionYTD || 0) >= 1000 ? `${Math.round((data?.commissionYTD || 0) / 1000)}K` : (data?.commissionYTD || 0).toLocaleString())}</p>
+            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">YTD Income (Net)</p>
           </Card>
-          <Card className="!p-4">
-            <TrendingUp size={16} className="text-gold mb-2" />
-            <p className="text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>${(data?.commissionProjected || 0).toLocaleString()}</p>
-            <p className="text-xs text-navy/50 dark:text-white/50 font-inter">Projected (Active)</p>
+          <Card className="!p-3 lg:!p-4">
+            <TrendingUp size={16} className="text-gold mb-1 lg:mb-2" />
+            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>${((data?.commissionProjected || 0) >= 1000 ? `${Math.round((data?.commissionProjected || 0) / 1000)}K` : (data?.commissionProjected || 0).toLocaleString())}</p>
+            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Projected (Active)</p>
           </Card>
         </div>
 
@@ -561,20 +561,20 @@ export default function DashboardPage() {
                     const Icon = ACTIVITY_ICONS[a.activity_type] || Clock;
                     const contactName = a.contacts ? `${a.contacts.first_name} ${a.contacts.last_name}` : '';
                     return (
-                      <div key={a.id} className="flex items-start gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30">
+                      <div key={a.id} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-surface dark:bg-navy/30">
                         <div className="w-7 h-7 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <Icon size={12} className="text-gold" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-inter text-navy dark:text-white truncate">
-                            <span className="capitalize font-medium">{a.activity_type}</span>
-                            {contactName && <span className="text-navy/50 dark:text-white/50"> with {contactName}</span>}
-                          </p>
+                          <div className="flex items-baseline justify-between gap-2">
+                            <p className="text-sm font-inter font-medium text-navy dark:text-white capitalize truncate">{a.activity_type}</p>
+                            <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter flex-shrink-0 whitespace-nowrap">
+                              {new Date(a.activity_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </span>
+                          </div>
+                          {contactName && <p className="text-xs text-navy/60 dark:text-white/60 font-inter truncate">{contactName}</p>}
                           <p className="text-xs text-navy/40 dark:text-white/40 font-inter truncate">{a.description}</p>
                         </div>
-                        <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter flex-shrink-0">
-                          {new Date(a.activity_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </span>
                       </div>
                     );
                   })}
@@ -659,7 +659,7 @@ export default function DashboardPage() {
                         <div><p className="text-sm font-montserrat font-medium text-navy dark:text-white">{tx.property_address}</p><p className="text-xs text-navy/40 dark:text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'Price TBD'}</p></div>
                         <div className="flex items-center gap-2">
                           {days !== null && days <= 7 && <AlertTriangle size={12} className="text-red-500" />}
-                          <span className={`text-xs font-inter ${days !== null && days <= 7 ? 'text-red-500 font-semibold' : days !== null && days <= 14 ? 'text-gold' : 'text-navy/60 dark:text-white/60'}`}>{days !== null ? `${days}d` : 'TBD'}</span>
+                          <span className={`text-xs font-inter ${days !== null && days <= 7 ? 'text-red-500 font-semibold' : days !== null && days <= 14 ? 'text-gold' : 'text-navy/60 dark:text-white/60'}`}>{days !== null ? (days < 0 ? `${Math.abs(days)}d overdue` : `${days}d`) : 'TBD'}</span>
                           <ChevronRight size={14} className="text-navy/30 dark:text-white/30" />
                         </div>
                       </a>

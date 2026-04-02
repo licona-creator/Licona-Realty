@@ -130,9 +130,9 @@ export default function ContactsPage() {
   });
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto">
+    <div className="p-3 pt-2 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 lg:mb-6">
         <div className="flex items-center gap-3">
           <Users size={24} className="text-gold" />
           <h1
@@ -176,7 +176,8 @@ export default function ContactsPage() {
       </div>
 
       {/* Track Tabs */}
-      <div className="flex gap-1 overflow-x-auto pb-2 mb-6 min-w-0 scrollbar-hide [&]:[-webkit-overflow-scrolling:touch]">
+      <div className="relative mb-4 lg:mb-6">
+      <div className="flex gap-1 overflow-x-auto pb-2 min-w-0 scrollbar-hide [&]:[-webkit-overflow-scrolling:touch]">
         {trackTabs.map((tab) => (
           <button
             key={tab.value}
@@ -194,6 +195,8 @@ export default function ContactsPage() {
             {tab.label}
           </button>
         ))}
+      </div>
+      <div className="absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-surface dark:from-navy to-transparent pointer-events-none lg:hidden" />
       </div>
 
       {/* Error State */}
@@ -223,36 +226,38 @@ export default function ContactsPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <Card className="!p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/contacts/${contact.id}`)}>
-                <div className="flex items-center gap-4">
+              <Card className="!p-2.5 sm:!p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/contacts/${contact.id}`)}>
+                <div className="flex items-center gap-3 sm:gap-4">
                   {/* Avatar */}
-                  <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-montserrat font-semibold text-gold">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs sm:text-sm font-montserrat font-semibold text-gold">
                       {contact.first_name[0]}{contact.last_name[0]}
                     </span>
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">
-                      {contact.first_name} {contact.last_name}
-                    </p>
-                    <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                      {contact.email && (
-                        <span className="hidden sm:flex items-center gap-1 text-xs text-navy/50 dark:text-white/50 font-inter truncate">
-                          <Mail size={10} className="flex-shrink-0" />
-                          {contact.email}
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-montserrat font-semibold text-navy dark:text-white truncate">
+                        {contact.first_name} {contact.last_name}
+                      </p>
+                      {contact.lead_source && (
+                        <span className="text-[10px] text-navy/50 dark:text-white/50 font-inter flex-shrink-0 hidden sm:inline">
+                          via {contact.lead_source}
                         </span>
                       )}
+                    </div>
+                    <div className="flex items-center gap-3 flex-wrap">
                       {contact.phone && (
                         <span className="flex items-center gap-1 text-xs text-navy/50 dark:text-white/50 font-inter">
                           <Phone size={10} className="flex-shrink-0" />
                           {contact.phone}
                         </span>
                       )}
-                      {contact.lead_source && (
-                        <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter hidden sm:inline">
-                          via {contact.lead_source}
+                      {contact.email && (
+                        <span className="hidden sm:flex items-center gap-1 text-xs text-navy/50 dark:text-white/50 font-inter truncate">
+                          <Mail size={10} className="flex-shrink-0" />
+                          {contact.email}
                         </span>
                       )}
                     </div>

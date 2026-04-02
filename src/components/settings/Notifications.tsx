@@ -56,10 +56,10 @@ function Toggle({
       <div className="flex-1 min-w-0">
         <p className="text-sm text-navy dark:text-white font-inter">
           {label}
-          {locked && <span className="text-xs text-navy/40 dark:text-white/40 ml-2">(always on)</span>}
+          {locked && <span className="text-xs text-navy/60 dark:text-white/50 ml-2">(always on)</span>}
         </p>
         {description && (
-          <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{description}</p>
+          <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-0.5">{description}</p>
         )}
       </div>
     </div>
@@ -247,7 +247,7 @@ export function Notifications() {
               <Send size={12} className="mr-1.5" />
               Send Test Notification
             </Button>
-            <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-1.5">
+            <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-1.5">
               Fires a test push notification immediately to verify push is working on your device.
             </p>
           </div>

@@ -261,7 +261,7 @@ export default function TransactionDetailPage() {
     : 'Unknown Contact';
 
   return (
-    <div className="p-4 lg:p-8 max-w-4xl mx-auto">
+    <div className="p-3 pt-2 lg:p-8 max-w-4xl mx-auto">
       {/* Back button */}
       <button
         onClick={() => router.push('/transactions')}
@@ -573,7 +573,7 @@ export default function TransactionDetailPage() {
             }}
             disabled={saving}
           />
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-3 gap-3">
             <Input
               label="City"
               value={(editForm.property_city as string) || ''}
@@ -593,7 +593,7 @@ export default function TransactionDetailPage() {
               disabled={saving}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
               label="Contract Price"
               type="number"
@@ -627,7 +627,7 @@ export default function TransactionDetailPage() {
               </p>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Status</label>
               <select

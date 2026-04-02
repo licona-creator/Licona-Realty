@@ -32,7 +32,7 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
 
 // Show items not in mobile bottom nav
 const moreItems = NAV_ITEMS.filter(
-  (item) => !['Dashboard', 'Approval Queue', 'Contacts', 'Deals'].includes(item.label)
+  (item) => !['Dashboard', 'Approval Queue', 'Contacts', 'Deals', 'Settings'].includes(item.label)
 );
 
 export default function MorePage() {
@@ -40,14 +40,14 @@ export default function MorePage() {
   const { signOut } = useAuth();
 
   return (
-    <div className="p-4 lg:p-8 max-w-lg mx-auto">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="p-3 pt-2 lg:p-8 max-w-lg mx-auto">
+      <div className="flex items-center gap-3 mb-4 lg:mb-6">
         <LRMonogram size="md" />
         <div>
           <h1 className="text-lg font-montserrat font-semibold text-navy dark:text-white">
             {BRAND.agent.name}
           </h1>
-          <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+          <p className="text-xs text-navy/70 dark:text-white/60 font-inter">
             {BRAND.agent.title}
           </p>
         </div>
@@ -85,8 +85,8 @@ export default function MorePage() {
           prefetch={false}
           className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-gold/20 transition-colors"
         >
-          <Settings size={20} className="text-navy/40 dark:text-white/40" />
-          <span className="font-montserrat text-sm font-medium text-navy/60 dark:text-white/60 flex-1">
+          <Settings size={20} className="text-navy/60 dark:text-white/50" />
+          <span className="font-montserrat text-sm font-medium text-navy/80 dark:text-white/70 flex-1">
             Settings
           </span>
           <ChevronRight size={14} className="text-navy/20 dark:text-white/20" />

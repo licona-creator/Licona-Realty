@@ -70,10 +70,10 @@ function Toggle({
       <div className="flex-1 min-w-0">
         <p className="text-sm text-navy dark:text-white font-inter">
           {label}
-          {locked && <span className="text-xs text-navy/40 dark:text-white/40 ml-2">(always on)</span>}
+          {locked && <span className="text-xs text-navy/60 dark:text-white/50 ml-2">(always on)</span>}
         </p>
         {description && (
-          <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{description}</p>
+          <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-0.5">{description}</p>
         )}
       </div>
     </div>
@@ -287,7 +287,7 @@ export function AccountSecurity() {
             </Button>
           </div>
 
-          <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+          <p className="text-xs text-navy/60 dark:text-white/50 font-inter">
             All MFA actions require re-verification. Backup codes are shown only once per
             generation. MFA is required for this account and cannot be disabled.
             This protects the sensitive client information stored in your platform.
@@ -315,7 +315,7 @@ export function AccountSecurity() {
                     <span className="text-xs text-green-600 ml-2">(this session)</span>
                   )}
                 </p>
-                <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+                <p className="text-xs text-navy/60 dark:text-white/50 font-inter">
                   {session.location} / {session.ip} / {session.time}
                 </p>
               </div>
@@ -444,7 +444,7 @@ export function AccountSecurity() {
           <div className="flex items-start gap-3">
             <div className="flex-1">
               <p className="text-sm text-navy dark:text-white font-inter">Export all my data</p>
-              <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">
+              <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-0.5">
                 Download all contacts, deals, campaigns, and documents as JSON.
                 MFA verification required.
               </p>
@@ -459,7 +459,7 @@ export function AccountSecurity() {
             <div className="flex items-start gap-3">
               <div className="flex-1">
                 <p className="text-sm text-red-600 font-inter font-medium">Request Data Deletion</p>
-                <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">
+                <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-0.5">
                   This permanently deletes all your data including contacts, deals,
                   campaigns, documents, and audit logs. This action cannot be undone.
                   Requires MFA verification and typing "DELETE MY DATA" to confirm.

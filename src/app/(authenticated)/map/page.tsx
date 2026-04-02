@@ -326,7 +326,7 @@ export default function MapPage() {
     else setPanelState('collapsed');
   };
 
-  const panelHeight = panelState === 'collapsed' ? 'h-14' : panelState === 'half' ? 'h-[50vh]' : 'h-[85vh]';
+  const panelHeight = panelState === 'collapsed' ? 'h-24' : panelState === 'half' ? 'h-[50vh]' : 'h-[85vh]';
 
   const hasApiKey = !!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 

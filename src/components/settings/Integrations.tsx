@@ -249,7 +249,7 @@ export function Integrations() {
                 <Globe size={14} className="mr-2" />
                 Connect Google
               </Button>
-              <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+              <p className="text-xs text-navy/60 dark:text-white/50 font-inter">
                 Scopes: gmail.readonly, calendar, calendar.events
               </p>
             </>

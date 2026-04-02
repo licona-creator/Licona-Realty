@@ -60,7 +60,7 @@ function Toggle({
       <div className="flex-1 min-w-0">
         <p className="text-sm text-navy dark:text-white font-inter">{label}</p>
         {description && (
-          <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">{description}</p>
+          <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-0.5">{description}</p>
         )}
       </div>
     </div>
@@ -353,7 +353,7 @@ export function PlatformPreferences() {
               onChange={(e) => setLeadExpiryDays(Number(e.target.value))}
               className="w-full accent-gold"
             />
-            <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-1">
+            <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-1">
               Leads with no activity for this many days are surfaced as stale lead alerts.
             </p>
           </div>
