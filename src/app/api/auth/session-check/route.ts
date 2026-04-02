@@ -10,10 +10,17 @@ export async function GET() {
     const sessionToken = cookieStore.get('licona_device_session')?.value;
 
     if (!sessionToken) {
-      return NextResponse.json({ valid: false, reason: 'timeout' });
+      return NextResponse.json({ valid: false, reason: 'timeout' }, { status: 401 });
     }
 
     const supabase = await createServerSupabaseClient();
+
+    // Verify Supabase auth session is still valid
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ valid: false, reason: 'timeout' }, { status: 401 });
+    }
+
     const { data: session } = await supabase
       .from('user_sessions')
       .select('is_active, last_active_at')
@@ -21,11 +28,11 @@ export async function GET() {
       .single();
 
     if (!session) {
-      return NextResponse.json({ valid: false, reason: 'timeout' });
+      return NextResponse.json({ valid: false, reason: 'timeout' }, { status: 401 });
     }
 
     if (!session.is_active) {
-      return NextResponse.json({ valid: false, reason: 'device' });
+      return NextResponse.json({ valid: false, reason: 'device' }, { status: 401 });
     }
 
     const lastActive = new Date(session.last_active_at).getTime();
@@ -35,7 +42,7 @@ export async function GET() {
         .from('user_sessions')
         .update({ is_active: false })
         .eq('session_token', sessionToken);
-      return NextResponse.json({ valid: false, reason: 'timeout' });
+      return NextResponse.json({ valid: false, reason: 'timeout' }, { status: 401 });
     }
 
     // Session is valid, update last_active_at

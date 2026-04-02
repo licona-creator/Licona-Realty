@@ -49,6 +49,7 @@ export function MobileNav({ approvalCount = 0 }: MobileNavProps) {
             <li key={item.href} className="flex-1 min-w-0">
               <Link
                 href={item.href}
+                prefetch={false}
                 className="flex flex-col items-center justify-center gap-0.5 py-2 min-h-[48px] relative"
               >
                 {isActive && (

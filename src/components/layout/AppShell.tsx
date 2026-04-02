@@ -43,11 +43,9 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
     const interval = setInterval(async () => {
       try {
         const res = await fetch('/api/auth/session-check');
-        if (res.ok) {
-          const data = await res.json();
-          if (!data.valid) {
-            router.push(`/auth/session-expired?reason=${data.reason || 'timeout'}`);
-          }
+        const data = await res.json();
+        if (!data.valid) {
+          router.push(`/auth/session-expired?reason=${data.reason || 'timeout'}`);
         }
       } catch {
         // Network error, skip this check

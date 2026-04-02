@@ -305,8 +305,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Auto-geocode if address is provided (non-blocking)
-    if (data && (body.address_line_1 || body.city || body.zip_code)) {
+    // Auto-geocode if address is provided or contact has address but no coordinates (non-blocking)
+    if (data && (body.address_line_1 || body.city || body.zip_code || (data.address_line_1 && !data.latitude))) {
       const fullAddress = [body.address_line_1, body.city, body.state, body.zip_code].filter(Boolean).join(', ');
       if (fullAddress) {
         const geoKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;

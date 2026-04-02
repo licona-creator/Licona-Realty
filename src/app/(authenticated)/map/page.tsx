@@ -87,6 +87,10 @@ export default function MapPage() {
   const [marketLoading, setMarketLoading] = useState(false);
   const [marketError, setMarketError] = useState('');
 
+  // Backfill geocode state
+  const [isBackfilling, setIsBackfilling] = useState(false);
+  const [backfillResult, setBackfillResult] = useState<{ geocoded: number; failed: number; total: number } | null>(null);
+
   // Search
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -108,6 +112,26 @@ export default function MapPage() {
 
   useEffect(() => {
     fetchContacts();
+  }, [fetchContacts]);
+
+  // Backfill geocode handler
+  const handleBackfillGeocode = useCallback(async () => {
+    setIsBackfilling(true);
+    setBackfillResult(null);
+    try {
+      const res = await fetch('/api/map/backfill-geocode', { method: 'POST' });
+      if (res.ok) {
+        const result = await res.json();
+        setBackfillResult(result);
+        if (result.geocoded > 0) {
+          fetchContacts();
+        }
+      }
+    } catch {
+      // Backfill error handled silently
+    } finally {
+      setIsBackfilling(false);
+    }
   }, [fetchContacts]);
 
   // Initialize Google Maps
@@ -403,6 +427,52 @@ export default function MapPage() {
           ))}
         </div>
       </div>
+
+      {/* Backfill Banner - shows when contacts exist but have no coordinates */}
+      {!isLoading && contacts.length === 0 && !backfillResult && (
+        <div
+          className="flex items-center justify-between px-4 py-2 text-sm font-inter"
+          style={{ backgroundColor: 'rgba(211,169,113,0.15)', borderBottom: '1px solid rgba(211,169,113,0.2)' }}
+        >
+          <span className="text-white/80">
+            Contacts may need location updates to appear on the map.
+          </span>
+          <button
+            onClick={handleBackfillGeocode}
+            disabled={isBackfilling}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-montserrat font-semibold transition-colors disabled:opacity-50"
+            style={{ backgroundColor: BRAND.colors.accent, color: BRAND.colors.primary }}
+          >
+            {isBackfilling ? (
+              <>
+                <Loader2 size={14} className="animate-spin" />
+                Updating...
+              </>
+            ) : (
+              'Update contact locations'
+            )}
+          </button>
+        </div>
+      )}
+      {backfillResult && (
+        <div
+          className="flex items-center justify-between px-4 py-2 text-sm font-inter"
+          style={{ backgroundColor: 'rgba(211,169,113,0.15)', borderBottom: '1px solid rgba(211,169,113,0.2)' }}
+        >
+          <span className="text-white/80">
+            {backfillResult.geocoded > 0
+              ? `Updated ${backfillResult.geocoded} contact${backfillResult.geocoded !== 1 ? 's' : ''} with location data.`
+              : 'No contacts needed location updates.'}
+            {backfillResult.failed > 0 && ` (${backfillResult.failed} could not be geocoded)`}
+          </span>
+          <button
+            onClick={() => setBackfillResult(null)}
+            className="text-white/40 hover:text-white"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       {/* Map + Panel Layout */}
       <div className="flex-1 flex relative overflow-hidden">

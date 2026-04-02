@@ -199,9 +199,10 @@ export async function PATCH(
       userAgent: ua,
     });
 
-    // Auto-geocode if address fields changed (non-blocking)
+    // Auto-geocode: fires when address changes OR when contact has address but no coordinates
     const addressChanged = body.address_line_1 !== undefined || body.city !== undefined || body.state !== undefined || body.zip_code !== undefined;
-    if (addressChanged && data) {
+    const needsGeocode = addressChanged || (data?.address_line_1 && !data?.latitude);
+    if (needsGeocode && data) {
       const fullAddress = [
         data.address_line_1, data.city, data.state, data.zip_code,
       ].filter(Boolean).join(', ');
@@ -277,7 +278,7 @@ export async function PATCH(
         }
       } catch (calErr) {
         // Calendar operations must never crash the contact save
-        console.error('[contacts:PATCH] Calendar sync error (non-fatal):', calErr);
+        logger.error('Calendar sync error (non-fatal)', { error: String(calErr) });
       }
     }
 

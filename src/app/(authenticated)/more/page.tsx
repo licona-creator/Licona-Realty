@@ -65,6 +65,7 @@ export default function MorePage() {
             >
               <Link
                 href={item.href}
+                prefetch={false}
                 className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-gold/20 transition-colors"
               >
                 {Icon && <Icon size={20} className="text-gold" />}
@@ -81,6 +82,7 @@ export default function MorePage() {
 
         <Link
           href="/settings"
+          prefetch={false}
           className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-gold/20 transition-colors"
         >
           <Settings size={20} className="text-navy/40 dark:text-white/40" />
