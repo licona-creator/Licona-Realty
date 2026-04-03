@@ -293,6 +293,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-1.5 rounded hover:bg-navy/5 dark:hover:bg-white/5 text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white transition-colors flex-shrink-0"
             style={{ marginTop: 'max(env(safe-area-inset-top, 0px), 0px)' }}
@@ -307,6 +308,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
             <div className="grid grid-cols-2 gap-1.5">
               {quickActions.map(action => (
                 <button
+                  type="button"
                   key={action}
                   onClick={() => sendMessage(action)}
                   disabled={thinking}
@@ -359,6 +361,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
                 {msg.role === 'assistant' && (
                   <div className="flex items-center gap-1 mt-1 ml-1">
                     <button
+                      type="button"
                       onClick={() => saveInsight(i)}
                       disabled={msg.saved || savingIndex === i}
                       className={`flex items-center gap-1 text-[10px] font-inter transition-colors ${
@@ -425,6 +428,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
               className="flex-1 px-3 py-2.5 rounded-lg bg-surface dark:bg-navy/30 border border-gold/15 text-sm font-inter text-navy dark:text-white placeholder:text-navy/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-50 min-h-[44px]"
             />
             <button
+              type="button"
               onClick={() => sendMessage(input)}
               disabled={thinking || !input.trim()}
               className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors disabled:opacity-30"
@@ -435,6 +439,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
           </div>
           {messages.length > 0 && (
             <button
+              type="button"
               onClick={clearChat}
               className="flex items-center gap-1 text-[10px] text-navy/30 dark:text-white/30 hover:text-navy/50 dark:hover:text-white/50 font-inter mt-1.5 ml-1 transition-colors"
             >

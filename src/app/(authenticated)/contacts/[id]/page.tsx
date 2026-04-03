@@ -285,13 +285,13 @@ export default function ContactDetailPage() {
   }
 
   if (loading) return <ContactDetailSkeleton />;
-  if (error || !contact) return <div className="p-4 lg:p-8 max-w-4xl mx-auto"><button onClick={() => router.push('/contacts')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline"><ArrowLeft size={16} /> Back to Contacts</button><Card className="!p-8 text-center"><p className="text-red-500 font-inter">{error || 'Contact not found'}</p></Card></div>;
+  if (error || !contact) return <div className="p-4 lg:p-8 max-w-4xl mx-auto"><button type="button" onClick={() => router.push('/contacts')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline"><ArrowLeft size={16} /> Back to Contacts</button><Card className="!p-8 text-center"><p className="text-red-500 font-inter">{error || 'Contact not found'}</p></Card></div>;
 
   const stageColor = STAGE_COLORS[contact.pipeline_stage] || STAGE_COLORS.new;
 
   return (
     <div className="p-3 pt-2 lg:p-8 max-w-4xl mx-auto animate-fade-in">
-      <button onClick={() => router.push('/contacts')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline">
+      <button type="button" onClick={() => router.push('/contacts')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline">
         <ArrowLeft size={16} /> Back to Contacts
       </button>
 
@@ -311,6 +311,7 @@ export default function ContactDetailPage() {
         </div>
         <div className="flex items-center gap-1.5">
           <button
+            type="button"
             onClick={() => setShowAI(true)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-montserrat font-semibold text-white transition-colors hover:opacity-90"
             style={{ backgroundColor: '#1D9E75' }}
@@ -380,6 +381,7 @@ export default function ContactDetailPage() {
                         </p>
                       </div>
                       <button
+                        type="button"
                         onClick={() => setDeleteActivityTarget(activity)}
                         className="p-1.5 rounded hover:bg-red-500/10 text-navy/20 dark:text-white/20 hover:text-red-500 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex-shrink-0 self-start"
                         title="Delete activity"
@@ -427,7 +429,7 @@ export default function ContactDetailPage() {
             {transactions.length > 0 ? (
               <div className="space-y-2">
                 {transactions.map(tx => (
-                  <button key={tx.id} onClick={() => router.push(`/transactions/${tx.id}`)} className="w-full flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-left">
+                  <button type="button" key={tx.id} onClick={() => router.push(`/transactions/${tx.id}`)} className="w-full flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-left">
                     <div>
                       <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{tx.property_address}</p>
                       <p className="text-xs text-navy/40 dark:text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'No price set'}{tx.closing_date ? ` - Closes ${new Date(tx.closing_date + 'T00:00:00').toLocaleDateString()}` : ''}</p>
@@ -507,7 +509,7 @@ export default function ContactDetailPage() {
             <div className="space-y-2">
               {contact.phone && <a href={`tel:${contact.phone}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-navy dark:text-white"><PhoneCall size={14} className="text-gold" />Call {contact.first_name}</a>}
               {contact.phone && <a href={`sms:${contact.phone}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-navy dark:text-white"><MessageCircle size={14} className="text-gold" />Text {contact.first_name}</a>}
-              <button onClick={() => setShowLogActivity(true)} className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-navy dark:text-white text-left"><FileText size={14} className="text-gold" />Log Activity</button>
+              <button type="button" onClick={() => setShowLogActivity(true)} className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-navy dark:text-white text-left"><FileText size={14} className="text-gold" />Log Activity</button>
             </div>
           </Card>
         </div>

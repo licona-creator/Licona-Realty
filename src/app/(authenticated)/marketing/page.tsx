@@ -428,6 +428,7 @@ export default function MarketingPage() {
       <div className="flex items-center gap-1 mb-6 bg-surface dark:bg-navy/50 rounded-lg p-1 overflow-x-auto w-fit max-w-full">
         {tabs.map(tab => (
           <button
+            type="button"
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-montserrat font-medium transition-colors whitespace-nowrap ${
@@ -458,6 +459,7 @@ export default function MarketingPage() {
                 const active = selectedPlatform === p;
                 return (
                   <button
+                    type="button"
                     key={p}
                     onClick={() => setSelectedPlatform(active ? null : p)}
                     className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-montserrat transition-colors text-navy dark:text-white ${
@@ -484,6 +486,7 @@ export default function MarketingPage() {
                 const active = selectedPillar === key;
                 return (
                   <button
+                    type="button"
                     key={key}
                     onClick={() => setSelectedPillar(active ? null : key)}
                     className={`flex items-start gap-2.5 p-3 rounded-xl border text-left transition-all ${
@@ -551,6 +554,7 @@ export default function MarketingPage() {
           {/* Month navigation */}
           <div className="flex items-center justify-between">
             <button
+              type="button"
               onClick={prevMonth}
               className="p-2 rounded-lg hover:bg-gold/10 transition-colors text-navy dark:text-white"
               aria-label="Previous month"
@@ -564,6 +568,7 @@ export default function MarketingPage() {
               {MONTH_NAMES[calMonth]} {calYear}
             </h2>
             <button
+              type="button"
               onClick={nextMonth}
               className="p-2 rounded-lg hover:bg-gold/10 transition-colors text-navy dark:text-white"
               aria-label="Next month"
@@ -599,6 +604,7 @@ export default function MarketingPage() {
                   calYear === now.getFullYear();
                 return (
                   <button
+                    type="button"
                     key={day}
                     onClick={() => setSelectedDay(isSelected ? null : day)}
                     className={`relative h-12 sm:h-16 rounded-lg text-xs font-inter transition-colors text-navy dark:text-white ${
@@ -871,12 +877,14 @@ export default function MarketingPage() {
                         </p>
                         <div className="flex gap-2">
                           <button
+                            type="button"
                             onClick={() => startEdit(idea)}
                             className="text-xs text-gold hover:underline font-inter flex items-center gap-1"
                           >
                             <Edit3 size={10} /> Edit
                           </button>
                           <button
+                            type="button"
                             onClick={() => deleteIdea(idea.id)}
                             className="text-xs text-red-400 hover:underline font-inter flex items-center gap-1"
                           >

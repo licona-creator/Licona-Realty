@@ -129,6 +129,7 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
         }}
       >
         <button
+          type="button"
           onClick={() => setShowAI(true)}
           className="relative w-11 h-11 flex items-center justify-center rounded-lg hover:bg-gold/10 active:scale-95 transition-all"
           aria-label="AI Assistant"
@@ -150,6 +151,7 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
       {/* Desktop-only floating AI button */}
       <div className="hidden lg:block">
         <button
+          type="button"
           onClick={() => setShowAI(true)}
           className="fixed z-[51] flex items-center justify-center w-12 h-12 rounded-full shadow-lg hover:shadow-xl active:scale-95 transition-all bottom-6 right-6"
           style={{ backgroundColor: modeColor }}

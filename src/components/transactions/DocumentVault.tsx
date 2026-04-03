@@ -212,6 +212,7 @@ export function DocumentVault({ transactionId, trackType, transactionType }: Doc
           Unable to load documents. Please check your connection and try again.
         </p>
         <button
+          type="button"
           onClick={fetchDocuments}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[8px] text-xs font-montserrat font-medium transition-colors min-h-[44px]"
           style={{ backgroundColor: '#d3a971', color: '#132236' }}
@@ -279,6 +280,7 @@ export function DocumentVault({ transactionId, trackType, transactionType }: Doc
         <div>
           {/* Collapsible Header */}
           <button
+            type="button"
             onClick={() => setGoodToSaveExpanded(!goodToSaveExpanded)}
             className="w-full flex items-center gap-3 p-3 rounded-[8px] bg-navy/5 dark:bg-white/5 hover:bg-navy/8 dark:hover:bg-white/8 transition-colors min-h-[44px]"
           >
@@ -358,6 +360,7 @@ function renderDocumentsByCategory(
     return (
       <div key={catKey} className="border border-gold/10 rounded-[8px] overflow-hidden">
         <button
+          type="button"
           onClick={() => toggleCategory(catKey)}
           className="w-full flex items-center gap-3 p-3 hover:bg-surface dark:hover:bg-navy/30 transition-colors min-h-[44px]"
         >
@@ -443,6 +446,7 @@ function DocumentRow({
             {/* Status Badge */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => setStatusDropdown(statusDropdown === doc.id ? null : doc.id)}
                 className={`text-[10px] font-montserrat font-semibold px-2 py-0.5 rounded-full min-h-[28px] flex items-center ${STATUS_STYLES[doc.status]?.bg || ''} ${STATUS_STYLES[doc.status]?.text || ''}`}
               >
@@ -452,6 +456,7 @@ function DocumentRow({
                 <div className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-dark-card border border-gold/15 rounded-[8px] shadow-lg py-1 min-w-[120px]">
                   {STATUS_ORDER.map(s => (
                     <button
+                      type="button"
                       key={s}
                       onClick={() => handleStatusChange(doc.id, s)}
                       className={`w-full text-left px-3 py-2 text-xs font-inter hover:bg-surface dark:hover:bg-navy/30 transition-colors min-h-[36px] ${doc.status === s ? 'text-gold font-semibold' : 'text-navy dark:text-white'}`}
@@ -478,6 +483,7 @@ function DocumentRow({
           {/* Actions */}
           <div className="flex items-center gap-2 mt-2">
             <button
+              type="button"
               onClick={() => handleDownload(doc.id)}
               className="p-2 rounded-[8px] bg-gold/10 text-gold hover:bg-gold/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Download"
@@ -485,6 +491,7 @@ function DocumentRow({
               <Download size={14} />
             </button>
             <button
+              type="button"
               onClick={() => setDeleteTarget({ id: doc.id, name: doc.document_name })}
               className="p-2 rounded-[8px] bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Delete"
@@ -492,6 +499,7 @@ function DocumentRow({
               <Trash2 size={14} />
             </button>
             <button
+              type="button"
               onClick={() => fileInputRefs.current[item.type]?.click()}
               className="p-2 rounded-[8px] bg-navy/5 dark:bg-white/5 text-navy/50 dark:text-white/50 hover:bg-navy/10 dark:hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Replace"
@@ -538,6 +546,7 @@ function DocumentRow({
             {item.description}
           </p>
           <button
+            type="button"
             onClick={() => fileInputRefs.current[item.type]?.click()}
             disabled={isUploading}
             className="mt-2 flex items-center gap-2 px-4 py-2.5 rounded-[8px] text-xs font-montserrat font-medium transition-colors disabled:opacity-50 min-h-[44px] w-full sm:w-auto justify-center"

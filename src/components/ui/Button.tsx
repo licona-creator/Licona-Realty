@@ -35,10 +35,11 @@ const sizeStyles = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', loading, children, disabled, className = '', ...props }, ref) => {
+  ({ variant = 'primary', size = 'md', loading, children, disabled, className = '', type = 'button', ...props }, ref) => {
     return (
       <button
         ref={ref}
+        type={type}
         className={`
           inline-flex items-center justify-center gap-2
           rounded-[8px] transition-all duration-200 ease-in-out

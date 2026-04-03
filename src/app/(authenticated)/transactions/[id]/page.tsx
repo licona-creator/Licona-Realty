@@ -239,7 +239,7 @@ export default function TransactionDetailPage() {
   if (error || !transaction) {
     return (
       <div className="p-4 lg:p-8 max-w-4xl mx-auto">
-        <button onClick={() => router.push('/transactions')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline">
+        <button type="button" onClick={() => router.push('/transactions')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline">
           <ArrowLeft size={16} /> Back to Deals
         </button>
         <Card className="!p-8 text-center">
@@ -263,6 +263,7 @@ export default function TransactionDetailPage() {
     <div className="p-3 pt-2 lg:p-8 max-w-4xl mx-auto animate-fade-in">
       {/* Back button */}
       <button
+        type="button"
         onClick={() => router.push('/transactions')}
         className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline"
       >
@@ -292,6 +293,7 @@ export default function TransactionDetailPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => {
               // Dispatch a custom event to open AI panel from AppShell
               window.dispatchEvent(new CustomEvent('open-ai-panel'));
@@ -366,6 +368,7 @@ export default function TransactionDetailPage() {
               <div className="space-y-1">
                 {transaction.checklist.map(item => (
                   <button
+                    type="button"
                     key={item.id}
                     onClick={() => toggleChecklist(item.id)}
                     disabled={checklistSaving}
@@ -458,6 +461,7 @@ export default function TransactionDetailPage() {
               Contact
             </h3>
             <button
+              type="button"
               onClick={() => router.push(`/contacts/${transaction.contact_id}`)}
               className="w-full text-left p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors"
             >

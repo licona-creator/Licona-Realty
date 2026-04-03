@@ -154,6 +154,7 @@ export default function TransactionsPage() {
       <div className="flex items-center gap-2 mb-4">
         {['active', 'closed', 'all'].map(f => (
           <button
+            type="button"
             key={f}
             onClick={() => setFilter(f)}
             className={`px-4 py-1.5 rounded-full text-xs font-montserrat font-medium transition-colors capitalize ${
@@ -172,6 +173,7 @@ export default function TransactionsPage() {
         <div className="mb-4 p-4 rounded-[8px] bg-red-500/10 border border-red-500/20">
           <p className="text-sm text-red-600 dark:text-red-400 font-inter">{fetchError}</p>
           <button
+            type="button"
             onClick={fetchTransactions}
             className="text-xs text-red-500 hover:underline font-inter mt-1"
           >
@@ -268,6 +270,7 @@ export default function TransactionsPage() {
 
       {/* Mobile FAB */}
       <button
+        type="button"
         onClick={() => setShowNewTransaction(true)}
         className="lg:hidden fixed z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform right-4 bottom-[88px]"
         style={{ backgroundColor: BRAND.colors.gold }}

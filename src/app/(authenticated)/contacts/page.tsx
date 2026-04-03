@@ -181,6 +181,7 @@ export default function ContactsPage() {
       <div className="flex gap-1 overflow-x-auto pb-2 min-w-0 scrollbar-hide [&]:[-webkit-overflow-scrolling:touch]">
         {trackTabs.map((tab) => (
           <button
+            type="button"
             key={tab.value}
             onClick={() => setActiveTrack(tab.value)}
             className={`
@@ -205,6 +206,7 @@ export default function ContactsPage() {
         <div className="mb-4 p-4 rounded-[8px] bg-red-500/10 border border-red-500/20">
           <p className="text-sm text-red-600 dark:text-red-400 font-inter">{fetchError}</p>
           <button
+            type="button"
             onClick={() => { setLoading(true); fetchContacts(); }}
             className="text-xs text-red-500 hover:underline font-inter mt-1"
           >
@@ -309,7 +311,8 @@ export default function ContactsPage() {
                       </a>
                     )}
                     <button
-                      onClick={(e) => { e.stopPropagation(); setDeleteTarget(contact); }}
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); e.preventDefault(); setDeleteTarget(contact); }}
                       className="hidden sm:block p-1.5 rounded hover:bg-red-500/10 text-navy/30 dark:text-white/30 hover:text-red-500 transition-colors"
                     >
                       <Trash2 size={14} />
@@ -373,6 +376,7 @@ export default function ContactsPage() {
 
       {/* Mobile FAB */}
       <button
+        type="button"
         onClick={() => setShowAddModal(true)}
         className="lg:hidden fixed z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform right-4 bottom-[88px]"
         style={{ backgroundColor: BRAND.colors.gold }}
