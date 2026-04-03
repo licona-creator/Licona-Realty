@@ -2,8 +2,8 @@
  * Authenticated Layout
  *
  * Wraps all authenticated pages with the AppShell (sidebar + mobile nav).
- * Shows branded LR loading screen while initial session check completes.
- * Prevents flash of authenticated app in broken state.
+ * One-time branded LR screen on cold load while session validates.
+ * Module-level flag ensures it only runs once per browser session.
  */
 
 'use client';
@@ -13,17 +13,26 @@ import { AppShell } from '@/components/layout/AppShell';
 import { useApprovalCount } from '@/hooks/useApprovalCount';
 import { LRMonogram } from '@/components/ui/LRMonogram';
 
+// Module-level: survives component remounts, only resets on full page refresh
+let sessionVerified = false;
+
 export default function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const approvalCount = useApprovalCount();
-  const [authChecked, setAuthChecked] = useState(false);
+  const [ready, setReady] = useState(sessionVerified);
 
-  // Quick session check on mount - show branded screen while verifying
   useEffect(() => {
+    // Already verified this browser session - skip entirely
+    if (sessionVerified) {
+      setReady(true);
+      return;
+    }
+
     let cancelled = false;
+
     const check = async () => {
       try {
         const res = await fetch('/api/auth/session-check');
@@ -32,14 +41,16 @@ export default function AuthenticatedLayout({
           return;
         }
       } catch {
-        // Network error on first load - proceed anyway, middleware already validated
+        // Network error - proceed, middleware already validated on this request
       }
-      if (!cancelled) setAuthChecked(true);
+      sessionVerified = true;
+      if (!cancelled) setReady(true);
     };
 
-    // Add a small minimum display time for the branded screen (300ms)
+    // Force-proceed after 500ms regardless (AppShell polling catches real expiry)
     const timer = setTimeout(() => {
-      if (!cancelled) setAuthChecked(true);
+      sessionVerified = true;
+      if (!cancelled) setReady(true);
     }, 500);
 
     check();
@@ -47,7 +58,7 @@ export default function AuthenticatedLayout({
     return () => { cancelled = true; clearTimeout(timer); };
   }, []);
 
-  if (!authChecked) {
+  if (!ready) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
