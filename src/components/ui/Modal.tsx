@@ -77,6 +77,8 @@ export function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             transition={{ duration: 0.15 }}
+            onClick={e => e.stopPropagation()}
+            onMouseDown={e => e.stopPropagation()}
             className={`relative w-full ${sizeStyles[size]} bg-white dark:bg-dark-card sm:rounded-[12px] rounded-t-[12px] border border-gold/15 shadow-[0_8px_32px_rgba(19,34,54,0.2)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col max-h-[calc(100vh-40px)] sm:max-h-[calc(100vh-80px)]`}
           >
             {/* Header - sticky */}
@@ -96,6 +98,7 @@ export function Modal({
                 </div>
                 {!hideClose && (
                   <button
+                    type="button"
                     onClick={onClose}
                     className="ml-4 p-1 rounded-md text-navy/30 dark:text-white/30 hover:text-navy/60 dark:hover:text-white/60 hover:bg-gold/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                     aria-label="Close"
