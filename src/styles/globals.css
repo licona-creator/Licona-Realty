@@ -197,6 +197,11 @@ body {
   }
 }
 
+/* Google Places autocomplete dropdown must float above modals */
+.pac-container {
+  z-index: 99999 !important;
+}
+
 /* Theme classes for light/dark mode */
 .theme-light body,
 .theme-light {

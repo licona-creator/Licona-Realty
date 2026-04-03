@@ -67,7 +67,10 @@ export function Modal({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             className="absolute inset-0 bg-navy/60 dark:bg-black/70"
-            onClick={onClose}
+            onClick={e => {
+              if ((e.target as HTMLElement).closest('.pac-container')) return;
+              onClose();
+            }}
           />
 
           {/* Content */}
