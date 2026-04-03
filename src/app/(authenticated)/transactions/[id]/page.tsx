@@ -20,6 +20,7 @@ import {
   CheckSquare, Square, User, FileText, Clock, AlertTriangle,
   Building, Phone, Mail, Sparkles,
 } from 'lucide-react';
+import { DealDetailSkeleton } from '@/components/ui/Skeleton';
 
 interface TransactionData {
   id: string;
@@ -122,9 +123,9 @@ export default function TransactionDetailPage() {
   useEffect(() => { fetchTransaction(); }, [fetchTransaction]);
 
   async function toggleChecklist(itemId: string) {
-    if (!transaction?.checklist || checklistSaving) return;
-    setChecklistSaving(true);
+    if (!transaction?.checklist) return;
 
+    const previousChecklist = transaction.checklist;
     const updated = transaction.checklist.map(item => {
       if (item.id === itemId) {
         return {
@@ -135,6 +136,9 @@ export default function TransactionDetailPage() {
       }
       return item;
     });
+
+    // Optimistic: update UI immediately
+    setTransaction(prev => prev ? { ...prev, checklist: updated } : prev);
 
     try {
       const res = await fetch(`/api/transactions/${id}`, {
@@ -147,9 +151,9 @@ export default function TransactionDetailPage() {
       const data = await res.json();
       setTransaction(data.transaction);
     } catch {
+      // Revert on failure
+      setTransaction(prev => prev ? { ...prev, checklist: previousChecklist } : prev);
       toast.error('Update Failed', 'Could not update checklist item.');
-    } finally {
-      setChecklistSaving(false);
     }
   }
 
@@ -229,12 +233,7 @@ export default function TransactionDetailPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-        <span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading deal...</span>
-      </div>
-    );
+    return <DealDetailSkeleton />;
   }
 
   if (error || !transaction) {
@@ -261,7 +260,7 @@ export default function TransactionDetailPage() {
     : 'Unknown Contact';
 
   return (
-    <div className="p-3 pt-2 lg:p-8 max-w-4xl mx-auto">
+    <div className="p-3 pt-2 lg:p-8 max-w-4xl mx-auto animate-fade-in">
       {/* Back button */}
       <button
         onClick={() => router.push('/transactions')}
@@ -370,7 +369,7 @@ export default function TransactionDetailPage() {
                     key={item.id}
                     onClick={() => toggleChecklist(item.id)}
                     disabled={checklistSaving}
-                    className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors text-left disabled:opacity-50"
+                    className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors text-left disabled:opacity-50 touch-row"
                   >
                     {item.is_completed ? (
                       <CheckSquare size={16} className="text-gold flex-shrink-0" />

@@ -21,6 +21,7 @@ import { AddContactModal } from '@/components/modals/AddContactModal';
 import { ImportContactsModal } from '@/components/modals/ImportContactsModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { calculateLeadScore, getScoreTailwind } from '@/lib/ai/lead-scoring';
+import { SkeletonContactRow } from '@/components/ui/Skeleton';
 import type { TrackType } from '@/types/database';
 
 interface Contact {
@@ -214,9 +215,10 @@ export default function ContactsPage() {
 
       {/* Contacts List or Empty State */}
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-          <span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading contacts...</span>
+        <div className="space-y-2">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <SkeletonContactRow key={i} />
+          ))}
         </div>
       ) : filtered.length > 0 ? (
         <div className="space-y-2">
@@ -226,7 +228,7 @@ export default function ContactsPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <Card className="!p-2.5 sm:!p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/contacts/${contact.id}`)}>
+              <Card className="!p-2.5 sm:!p-4 cursor-pointer hover:shadow-md transition-shadow touch-card" onClick={() => router.push(`/contacts/${contact.id}`)}>
                 <div className="flex items-center gap-3 sm:gap-4">
                   {/* Avatar */}
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">

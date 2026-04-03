@@ -37,7 +37,7 @@ export function MobileNav({ approvalCount = 0 }: MobileNavProps) {
   return (
     <nav
       data-testid="bottom-tab-bar"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-navy border-t border-white/10 pb-[env(safe-area-inset-bottom)]"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-navy border-t border-white/10 pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_12px_rgba(0,0,0,0.15)]"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <ul className="flex w-full">
@@ -50,7 +50,7 @@ export function MobileNav({ approvalCount = 0 }: MobileNavProps) {
               <Link
                 href={item.href}
                 prefetch={false}
-                className="flex flex-col items-center justify-center gap-0.5 py-2 min-h-[48px] relative"
+                className="flex flex-col items-center justify-center gap-0.5 py-2 min-h-[48px] relative touch-nav rounded-lg"
               >
                 {isActive && (
                   <div className="absolute -top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-gold" />

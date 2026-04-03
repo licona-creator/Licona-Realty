@@ -118,6 +118,85 @@ body {
   display: none;
 }
 
+/* ============================================
+   Animations & Transitions
+   ============================================ */
+
+/* Skeleton pulse animation */
+.skeleton-pulse {
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+/* Page fade-in animation */
+.animate-fade-in {
+  animation: fade-in 200ms ease-out both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Touch feedback utilities */
+.touch-card {
+  transition: transform 100ms ease-out;
+}
+.touch-card:active {
+  transform: scale(0.98);
+}
+
+.touch-row {
+  transition: transform 100ms ease-out, background-color 75ms ease-out;
+}
+.touch-row:active {
+  transform: scale(0.98);
+}
+
+.touch-icon {
+  transition: transform 75ms ease-out;
+}
+.touch-icon:active {
+  transform: scale(0.90);
+}
+
+.touch-nav {
+  transition: background-color 100ms ease-out;
+}
+.touch-nav:active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Smooth scrolling for scrollable containers */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-pulse {
+    animation: none;
+    opacity: 0.5;
+  }
+  .animate-fade-in {
+    animation: none;
+  }
+  .touch-card:active,
+  .touch-row:active,
+  .touch-icon:active {
+    transform: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
 /* Theme classes for light/dark mode */
 .theme-light body,
 .theme-light {

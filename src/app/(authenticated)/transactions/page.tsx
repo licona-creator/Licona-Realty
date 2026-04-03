@@ -15,6 +15,7 @@ import { BRAND } from '@/lib/brand';
 import { NewTransactionModal } from '@/components/modals/NewTransactionModal';
 import type { Transaction } from '@/types/database';
 import { useRouter } from 'next/navigation';
+import { DealListSkeleton } from '@/components/ui/Skeleton';
 import {
   FileText, Plus, DollarSign, CalendarDays, CheckSquare,
   Clock, AlertTriangle, ChevronRight, User,
@@ -48,6 +49,7 @@ export default function TransactionsPage() {
   const [pipelineValue, setPipelineValue] = useState(0);
   const [closedValue, setClosedValue] = useState(0);
   const [filter, setFilter] = useState<string>('active');
+  const [loading, setLoading] = useState(true);
   const [showNewTransaction, setShowNewTransaction] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -66,6 +68,8 @@ export default function TransactionsPage() {
       }
     } catch {
       setFetchError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -82,8 +86,10 @@ export default function TransactionsPage() {
     return Math.floor((new Date(date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   };
 
+  if (loading) return <DealListSkeleton />;
+
   return (
-    <div className="p-3 pt-2 lg:p-8 max-w-7xl mx-auto">
+    <div className="p-3 pt-2 lg:p-8 max-w-7xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <div className="flex items-center gap-3">
           <FileText size={24} className="text-gold" />
@@ -184,7 +190,7 @@ export default function TransactionsPage() {
             const totalItems = (tx.checklist || []).length;
 
             return (
-              <Card key={tx.id} className="!p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/transactions/${tx.id}`)}>
+              <Card key={tx.id} className="!p-4 hover:shadow-md transition-shadow cursor-pointer touch-card" onClick={() => router.push(`/transactions/${tx.id}`)}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">

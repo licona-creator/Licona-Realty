@@ -66,7 +66,7 @@ export default function MorePage() {
               <Link
                 href={item.href}
                 prefetch={false}
-                className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-gold/20 transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-gold/20 transition-colors touch-row"
               >
                 {Icon && <Icon size={20} className="text-gold" />}
                 <span className="font-montserrat text-sm font-medium text-navy dark:text-white flex-1">

@@ -13,6 +13,7 @@ import {
   Send, Copy, FileArchive,
 } from 'lucide-react';
 import { FollowUpActionPanel } from '@/components/dashboard/FollowUpActionPanel';
+import { DashboardSkeleton } from '@/components/ui/Skeleton';
 
 interface FollowUpContact {
   id: string; first_name: string; last_name: string; phone: string | null;
@@ -170,8 +171,10 @@ export default function DashboardPage() {
   const visibleUpcoming = fuUpcoming.filter(c => !completedIds.has(c.id));
   const hasFollowUps = visibleOverdue.length > 0 || visibleToday.length > 0 || visibleUpcoming.length > 0;
 
+  if (loading) return <DashboardSkeleton />;
+
   return (
-    <div data-testid="dashboard-page" className="p-3 pt-2 lg:p-8 max-w-7xl mx-auto">
+    <div data-testid="dashboard-page" className="p-3 pt-2 lg:p-8 max-w-7xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 lg:mb-8">
         <div>
@@ -214,7 +217,7 @@ export default function DashboardPage() {
                 <a
                   key={tx.id}
                   href={`/transactions/${tx.id}`}
-                  className="flex items-center gap-3 p-3 rounded-[8px] transition-colors min-h-[44px]"
+                  className="flex items-center gap-3 p-3 rounded-[8px] transition-colors min-h-[44px] touch-row"
                   style={{
                     backgroundColor: isUrgent ? 'rgba(239,68,68,0.1)' : 'rgba(234,179,8,0.1)',
                     border: `1px solid ${isUrgent ? 'rgba(239,68,68,0.3)' : 'rgba(234,179,8,0.3)'}`,
@@ -511,22 +514,22 @@ export default function DashboardPage() {
 
         {/* Pipeline Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="!p-3 lg:!p-4">
+          <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <DollarSign size={16} className="text-gold mb-1 lg:mb-2" />
             <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>${pipelineValue >= 1000 ? `${Math.round(pipelineValue / 1000)}K` : pipelineValue.toLocaleString()}</p>
             <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Pipeline Value</p>
           </Card>
-          <Card className="!p-3 lg:!p-4">
+          <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <Users size={16} className="text-gold mb-1 lg:mb-2" />
             <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{data?.contacts.activeLeads || 0}</p>
             <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Active Leads</p>
           </Card>
-          <Card className="!p-3 lg:!p-4">
+          <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <FileText size={16} className="text-gold mb-1 lg:mb-2" />
             <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{activeDeals}</p>
             <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Active Deals</p>
           </Card>
-          <Card className="!p-3 lg:!p-4">
+          <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <Users size={16} className="text-gold mb-1 lg:mb-2" />
             <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{contactTotal}</p>
             <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Total Contacts</p>
@@ -535,12 +538,12 @@ export default function DashboardPage() {
 
         {/* Income Cards */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="!p-3 lg:!p-4">
+          <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <DollarSign size={16} className="text-green-500 mb-1 lg:mb-2" />
             <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>${((data?.commissionYTD || 0) >= 1000 ? `${Math.round((data?.commissionYTD || 0) / 1000)}K` : (data?.commissionYTD || 0).toLocaleString())}</p>
             <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">YTD Income (Net)</p>
           </Card>
-          <Card className="!p-3 lg:!p-4">
+          <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <TrendingUp size={16} className="text-gold mb-1 lg:mb-2" />
             <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>${((data?.commissionProjected || 0) >= 1000 ? `${Math.round((data?.commissionProjected || 0) / 1000)}K` : (data?.commissionProjected || 0).toLocaleString())}</p>
             <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Projected (Active)</p>
@@ -597,7 +600,7 @@ export default function DashboardPage() {
             {data?.partners && data.partners.length > 0 ? (
               <div className="space-y-3">
                 {data.partners.map(p => (
-                  <a key={p.id} href={`/partners/${p.id}`} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors">
+                  <a key={p.id} href={`/partners/${p.id}`} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors touch-row">
                     <div>
                       <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{p.first_name} {p.last_name || ''}</p>
                       <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">{p.total_leads_sent} leads, {p.total_closings} closings</p>
@@ -655,7 +658,7 @@ export default function DashboardPage() {
                   {data.pipeline.upcomingClosings.map(tx => {
                     const days = tx.closing_date ? Math.floor((new Date(tx.closing_date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
                     return (
-                      <a key={tx.id} href={`/transactions/${tx.id}`} className="flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors">
+                      <a key={tx.id} href={`/transactions/${tx.id}`} className="flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row">
                         <div><p className="text-sm font-montserrat font-medium text-navy dark:text-white">{tx.property_address}</p><p className="text-xs text-navy/40 dark:text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'Price TBD'}</p></div>
                         <div className="flex items-center gap-2">
                           {days !== null && days <= 7 && <AlertTriangle size={12} className="text-red-500" />}

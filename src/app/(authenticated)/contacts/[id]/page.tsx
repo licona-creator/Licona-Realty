@@ -19,6 +19,7 @@ import {
 import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
 import { calculateLeadScore, getScoreTailwind } from '@/lib/ai/lead-scoring';
+import { ContactDetailSkeleton } from '@/components/ui/Skeleton';
 
 interface ContactData {
   id: string;
@@ -236,23 +237,37 @@ export default function ContactDetailPage() {
     e.preventDefault();
     if (!activityForm.description.trim()) { toast.error('Validation', 'Description is required.'); return; }
     setLogSaving(true);
+    // Optimistic: add activity to timeline immediately
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimisticActivity: Activity = {
+      id: optimisticId,
+      activity_type: activityForm.activity_type,
+      direction: activityForm.direction || null,
+      subject: null,
+      description: activityForm.description.trim(),
+      activity_date: activityForm.activity_date || new Date().toISOString(),
+      created_at: new Date().toISOString(),
+    };
+    setActivities(prev => [optimisticActivity, ...prev]);
+    setActivityForm({ activity_type: 'call', direction: 'outbound', description: '', activity_date: '' });
+    setShowLogActivity(false);
     try {
       const res = await fetch('/api/activities', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contact_id: id, activity_type: activityForm.activity_type,
-          direction: activityForm.direction || null, description: activityForm.description.trim(),
-          activity_date: activityForm.activity_date || new Date().toISOString(),
+          contact_id: id, activity_type: optimisticActivity.activity_type,
+          direction: optimisticActivity.direction, description: optimisticActivity.description,
+          activity_date: optimisticActivity.activity_date,
         }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Failed to log activity'); }
       toast.success('Activity Logged', 'Activity has been recorded.');
-      setActivityForm({ activity_type: 'call', direction: 'outbound', description: '', activity_date: '' });
-      setShowLogActivity(false);
+      // Replace optimistic with real data
       fetchRelatedData();
       fetchContact();
-      router.refresh();
     } catch (err) {
+      // Revert optimistic update
+      setActivities(prev => prev.filter(a => a.id !== optimisticId));
       toast.error('Error', err instanceof Error ? err.message : 'Something went wrong.');
     } finally { setLogSaving(false); }
   }
@@ -269,13 +284,13 @@ export default function ContactDetailPage() {
     setDeleteActivityTarget(null);
   }
 
-  if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" /><span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading contact...</span></div>;
+  if (loading) return <ContactDetailSkeleton />;
   if (error || !contact) return <div className="p-4 lg:p-8 max-w-4xl mx-auto"><button onClick={() => router.push('/contacts')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline"><ArrowLeft size={16} /> Back to Contacts</button><Card className="!p-8 text-center"><p className="text-red-500 font-inter">{error || 'Contact not found'}</p></Card></div>;
 
   const stageColor = STAGE_COLORS[contact.pipeline_stage] || STAGE_COLORS.new;
 
   return (
-    <div className="p-3 pt-2 lg:p-8 max-w-4xl mx-auto">
+    <div className="p-3 pt-2 lg:p-8 max-w-4xl mx-auto animate-fade-in">
       <button onClick={() => router.push('/contacts')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline">
         <ArrowLeft size={16} /> Back to Contacts
       </button>
@@ -412,7 +427,7 @@ export default function ContactDetailPage() {
             {transactions.length > 0 ? (
               <div className="space-y-2">
                 {transactions.map(tx => (
-                  <button key={tx.id} onClick={() => router.push(`/transactions/${tx.id}`)} className="w-full flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors text-left">
+                  <button key={tx.id} onClick={() => router.push(`/transactions/${tx.id}`)} className="w-full flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-left">
                     <div>
                       <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{tx.property_address}</p>
                       <p className="text-xs text-navy/40 dark:text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'No price set'}{tx.closing_date ? ` - Closes ${new Date(tx.closing_date + 'T00:00:00').toLocaleDateString()}` : ''}</p>
@@ -490,9 +505,9 @@ export default function ContactDetailPage() {
           <Card className="!p-5">
             <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3">Quick Actions</h3>
             <div className="space-y-2">
-              {contact.phone && <a href={`tel:${contact.phone}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors text-sm font-inter text-navy dark:text-white"><PhoneCall size={14} className="text-gold" />Call {contact.first_name}</a>}
-              {contact.phone && <a href={`sms:${contact.phone}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors text-sm font-inter text-navy dark:text-white"><MessageCircle size={14} className="text-gold" />Text {contact.first_name}</a>}
-              <button onClick={() => setShowLogActivity(true)} className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors text-sm font-inter text-navy dark:text-white text-left"><FileText size={14} className="text-gold" />Log Activity</button>
+              {contact.phone && <a href={`tel:${contact.phone}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-navy dark:text-white"><PhoneCall size={14} className="text-gold" />Call {contact.first_name}</a>}
+              {contact.phone && <a href={`sms:${contact.phone}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-navy dark:text-white"><MessageCircle size={14} className="text-gold" />Text {contact.first_name}</a>}
+              <button onClick={() => setShowLogActivity(true)} className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-navy dark:text-white text-left"><FileText size={14} className="text-gold" />Log Activity</button>
             </div>
           </Card>
         </div>
