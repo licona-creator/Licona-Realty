@@ -1,6 +1,6 @@
 {
   "name": "Licona Realty Platform",
-  "short_name": "Licona Realty",
+  "short_name": "LR",
   "description": "Smart Moves. Simple Decisions.  -  Real estate CRM and business operating system for Anthony Licona.",
   "start_url": "/dashboard",
   "display": "standalone",
