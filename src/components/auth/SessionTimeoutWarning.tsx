@@ -2,7 +2,7 @@
  * Session Timeout Warning
  *
  * Tracks user inactivity client-side. Displays a subtle top banner
- * at 1hr 50min of inactivity. Redirects to login at 2 hours.
+ * at 3hr 50min of inactivity. Redirects to login at 4 hours.
  * Clicking "Stay logged in" pings the server to refresh last_active_at.
  */
 
@@ -11,9 +11,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { BRAND } from '@/lib/brand';
 
-const WARNING_MS = 110 * 60 * 1000; // 1hr 50min
-const EXPIRE_MS = 120 * 60 * 1000; // 2hr
-const CHECK_INTERVAL = 15_000; // check every 15s
+const WARNING_MS = 230 * 60 * 1000; // 3hr 50min
+const EXPIRE_MS = 240 * 60 * 1000; // 4hr
+const CHECK_INTERVAL = 30_000; // check every 30s
 
 export function SessionTimeoutWarning() {
   const [showWarning, setShowWarning] = useState(false);

@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
@@ -36,36 +36,41 @@ interface AppShellProps {
 export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
   const [showAI, setShowAI] = useState(false);
   const pathname = usePathname();
-  const failCountRef = useRef(0);
 
-  // Client-side session monitoring: poll every 60 seconds
+  // Client-side session monitoring: poll every 5 minutes
+  // Network errors are NEVER treated as session failures (airplane mode, spotty signal)
+  // Only an explicit 401 from the server triggers a redirect
   useEffect(() => {
     const checkSession = async () => {
       try {
         const res = await fetch('/api/auth/session-check');
-        if (!res.ok) {
-          // 401 or any non-200 means session is invalid
+        if (res.status === 401) {
           window.location.href = '/auth/login';
           return;
         }
-        const data = await res.json();
-        if (!data.valid) {
-          window.location.href = '/auth/login';
-          return;
-        }
-        // Reset fail counter on success
-        failCountRef.current = 0;
+        // 200 = valid, 500 = server error (retry next cycle), anything else = ignore
       } catch {
-        // Network error - increment fail counter
-        failCountRef.current += 1;
-        if (failCountRef.current >= 3) {
-          window.location.href = '/auth/login';
-        }
+        // Network error - silently ignore, retry next cycle
       }
     };
 
-    const interval = setInterval(checkSession, 60_000);
+    const interval = setInterval(checkSession, 300_000); // 5 minutes
     return () => clearInterval(interval);
+
+    // Also check when app comes back from background (tab/app switch)
+  }, []);
+
+  // Check session when app returns to foreground
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetch('/api/auth/session-check')
+          .then(res => { if (res.status === 401) window.location.href = '/auth/login'; })
+          .catch(() => { /* network error - ignore */ });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
   // Auto-detect AI mode and IDs from URL

@@ -5,20 +5,20 @@
  * 1. Supabase session refresh via cookie handler
  * 2. Authentication redirect for protected routes
  * 3. Single-device session enforcement via user_sessions table
- * 4. 2-hour inactivity timeout
- * 5. MFA enrollment enforcement
+ * 4. 4-hour inactivity timeout
+ * 5. MFA enforcement with 4-hour grace period (mfa_verified_at cookie)
  * 6. CSRF token injection
  *
  * Auth approach: uses ONLY getUser() per Supabase docs.
  * getUser() sends the JWT to the Supabase Auth server for verification.
  * getSession() only reads cookies locally and can return stale sessions.
- * See: https://supabase.com/docs/guides/auth/server-side/nextjs
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+const FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
+const FOUR_HOURS_S = 4 * 60 * 60;
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -110,14 +110,13 @@ export async function middleware(request: NextRequest) {
   }
 
   // =============================================
-  // 4. Single-device session + 2hr timeout
+  // 4. Single-device session + 4hr inactivity timeout
   // =============================================
   if (user && !isPublicPath) {
     const sessionToken = request.cookies.get('licona_device_session')?.value;
 
     if (sessionToken) {
       try {
-        // Check session is active and not timed out
         const { data: deviceSession } = await supabase
           .from('user_sessions')
           .select('is_active, last_active_at')
@@ -127,13 +126,11 @@ export async function middleware(request: NextRequest) {
 
         if (deviceSession) {
           if (!deviceSession.is_active) {
-            // Invalidated by login on another device
             return redirectToLogin(request);
           }
 
           const lastActive = new Date(deviceSession.last_active_at).getTime();
-          if (Date.now() - lastActive > TWO_HOURS_MS) {
-            // Expired due to inactivity
+          if (Date.now() - lastActive > FOUR_HOURS_MS) {
             await supabase
               .from('user_sessions')
               .update({ is_active: false })
@@ -141,37 +138,48 @@ export async function middleware(request: NextRequest) {
             return redirectToLogin(request);
           }
 
-          // Session is valid - update last_active_at
+          // Session valid - refresh the activity timestamp (resets the 4hr clock)
           await supabase
             .from('user_sessions')
             .update({ last_active_at: new Date().toISOString() })
             .eq('session_token', sessionToken);
         }
-        // If no deviceSession row found, table may be empty/new - allow through
       } catch {
-        // Table may not exist yet (migration not run) - allow through gracefully
+        // Table may not exist yet - allow through gracefully
       }
     }
-    // If no session token cookie exists, allow through (migration may not be run yet)
 
     // =============================================
-    // 5. MFA enrollment enforcement
+    // 5. MFA enforcement with 4-hour grace period
     // =============================================
     if (!isMfaExemptPath) {
-      try {
-        const { data: factors } = await supabase.auth.mfa.listFactors();
-        const hasVerifiedFactor = factors?.totp?.some(
-          (f: { status: string }) => f.status === 'verified'
-        );
+      // Check if MFA was verified recently (4hr grace window via cookie)
+      const mfaVerifiedAt = request.cookies.get('mfa_verified_at')?.value;
+      const mfaStillValid = mfaVerifiedAt && (Date.now() - parseInt(mfaVerifiedAt, 10)) < FOUR_HOURS_MS;
 
-        if (!hasVerifiedFactor) {
-          // No MFA enrolled - force setup
-          const url = request.nextUrl.clone();
-          url.pathname = '/auth/mfa-setup';
-          return NextResponse.redirect(url);
+      if (!mfaStillValid) {
+        try {
+          const { data: factors } = await supabase.auth.mfa.listFactors();
+          const hasVerifiedFactor = factors?.totp?.some(
+            (f: { status: string }) => f.status === 'verified'
+          );
+
+          if (!hasVerifiedFactor) {
+            const url = request.nextUrl.clone();
+            url.pathname = '/auth/mfa-setup';
+            return NextResponse.redirect(url);
+          }
+
+          // MFA is enrolled but the grace period expired - require re-verification
+          // Only redirect to verify if user is NOT already on the mfa-verify page
+          if (!pathname.startsWith('/auth/mfa-verify')) {
+            const url = request.nextUrl.clone();
+            url.pathname = '/auth/mfa-verify';
+            return NextResponse.redirect(url);
+          }
+        } catch {
+          // MFA API error - allow through to avoid locking users out
         }
-      } catch {
-        // MFA API error - allow through to avoid locking users out
       }
     }
   }
@@ -186,7 +194,7 @@ export async function middleware(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
-      maxAge: 60 * 60 * 2,
+      maxAge: FOUR_HOURS_S,
     });
   }
 
@@ -198,11 +206,9 @@ function redirectToLogin(request: NextRequest) {
   url.pathname = '/auth/login';
   url.search = '';
   const response = NextResponse.redirect(url);
-  // Clear the device session cookie
-  response.cookies.set('licona_device_session', '', {
-    path: '/',
-    maxAge: 0,
-  });
+  // Clear session and MFA cookies
+  response.cookies.set('licona_device_session', '', { path: '/', maxAge: 0 });
+  response.cookies.set('mfa_verified_at', '', { path: '/', maxAge: 0 });
   return response;
 }
 
