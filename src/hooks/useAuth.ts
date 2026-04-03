@@ -27,8 +27,11 @@ export function useAuth() {
     // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+      if (event === 'SIGNED_OUT') {
+        window.location.href = '/auth/login';
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -41,7 +44,6 @@ export function useAuth() {
       setUser(null);
       window.location.href = '/auth/login';
     } else {
-      console.error('[signOut] Failed:', error.message);
       // Force redirect even on error to clear stale state
       setUser(null);
       window.location.href = '/auth/login';

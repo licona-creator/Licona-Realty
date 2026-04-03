@@ -128,7 +128,7 @@ export async function middleware(request: NextRequest) {
         if (deviceSession) {
           if (!deviceSession.is_active) {
             // Invalidated by login on another device
-            return redirectToSessionExpired(request, 'device');
+            return redirectToLogin(request);
           }
 
           const lastActive = new Date(deviceSession.last_active_at).getTime();
@@ -138,7 +138,7 @@ export async function middleware(request: NextRequest) {
               .from('user_sessions')
               .update({ is_active: false })
               .eq('session_token', sessionToken);
-            return redirectToSessionExpired(request, 'timeout');
+            return redirectToLogin(request);
           }
 
           // Session is valid - update last_active_at
@@ -193,10 +193,10 @@ export async function middleware(request: NextRequest) {
   return supabaseResponse;
 }
 
-function redirectToSessionExpired(request: NextRequest, reason: 'timeout' | 'device') {
+function redirectToLogin(request: NextRequest) {
   const url = request.nextUrl.clone();
-  url.pathname = '/auth/session-expired';
-  url.searchParams.set('reason', reason);
+  url.pathname = '/auth/login';
+  url.search = '';
   const response = NextResponse.redirect(url);
   // Clear the device session cookie
   response.cookies.set('licona_device_session', '', {

@@ -9,8 +9,8 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
 import { SessionTimeoutWarning } from '@/components/auth/SessionTimeoutWarning';
@@ -36,23 +36,37 @@ interface AppShellProps {
 export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
   const [showAI, setShowAI] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
+  const failCountRef = useRef(0);
 
   // Client-side session monitoring: poll every 60 seconds
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const checkSession = async () => {
       try {
         const res = await fetch('/api/auth/session-check');
+        if (!res.ok) {
+          // 401 or any non-200 means session is invalid
+          window.location.href = '/auth/login';
+          return;
+        }
         const data = await res.json();
         if (!data.valid) {
-          router.push(`/auth/session-expired?reason=${data.reason || 'timeout'}`);
+          window.location.href = '/auth/login';
+          return;
         }
+        // Reset fail counter on success
+        failCountRef.current = 0;
       } catch {
-        // Network error, skip this check
+        // Network error - increment fail counter
+        failCountRef.current += 1;
+        if (failCountRef.current >= 3) {
+          window.location.href = '/auth/login';
+        }
       }
-    }, 60_000);
+    };
+
+    const interval = setInterval(checkSession, 60_000);
     return () => clearInterval(interval);
-  }, [router]);
+  }, []);
 
   // Auto-detect AI mode and IDs from URL
   const { aiMode, contactId, transactionId } = useMemo(() => {

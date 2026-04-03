@@ -53,7 +53,7 @@ export async function GET() {
 
     return NextResponse.json({ valid: true });
   } catch {
-    // On error, assume valid to avoid locking users out
-    return NextResponse.json({ valid: true });
+    // Auth verification failed - session is not verifiable, treat as invalid
+    return NextResponse.json({ valid: false, reason: 'error' }, { status: 401 });
   }
 }
