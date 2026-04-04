@@ -53,7 +53,7 @@ CURRENT PIPELINE DATA:
 ${pipelineData}`;
 }
 
-export function getDealAIPrompt(dealData: string, documentsData: string, discType?: string | null): string {
+export function getDealAIPrompt(dealData: string, documentsData: string, discTypeOrIntel?: string | ContactIntelligence | null): string {
   return `[R] ROLE
 You are the Deal AI for Licona Realty, the transaction specialist for a specific real estate deal. You know every detail of this transaction: the property, the buyer/seller, the contract terms, the document status, the timeline, and the closing checklist. You are the deal coordinator who makes sure nothing falls through the cracks.
 
@@ -116,12 +116,51 @@ Today's date is ${new Date().toLocaleDateString('en-US', { weekday: 'long', year
 
 CURRENT DEAL DATA:
 ${dealData}
-${getDiscBlock(discType, 'deal')}
+${getDiscBlock(discTypeOrIntel, 'deal')}
 DOCUMENT STATUS:
 ${documentsData}`;
 }
 
-function getDiscBlock(discType: string | null | undefined, role: 'contact' | 'deal'): string {
+export interface ContactIntelligence {
+  disc_type?: string | null;
+  disc_secondary?: string | null;
+  disc_confidence?: string | null;
+  engagement_temperature?: string | null;
+  personality_brief?: string | null;
+  communication_tips?: string | null;
+  buying_motivation?: string | null;
+  silence_meaning?: string | null;
+  language_preference?: string | null;
+}
+
+function buildIntelligenceBlock(intel: ContactIntelligence): string {
+  const lines: string[] = [];
+
+  if (intel.disc_type) {
+    let discLine = `DISC Profile: ${intel.disc_type}`;
+    if (intel.disc_secondary) discLine += `/${intel.disc_secondary}`;
+    if (intel.disc_confidence) discLine += ` (${intel.disc_confidence} confidence)`;
+    lines.push(discLine);
+  }
+  if (intel.engagement_temperature) lines.push(`Engagement: ${intel.engagement_temperature}`);
+  if (intel.language_preference) lines.push(`Language: ${intel.language_preference}`);
+  if (intel.personality_brief) lines.push(`Personality: ${intel.personality_brief}`);
+  if (intel.communication_tips) lines.push(`Tips: ${intel.communication_tips}`);
+  if (intel.buying_motivation) lines.push(`Buying motivation: ${intel.buying_motivation}`);
+  if (intel.silence_meaning) lines.push(`If silent: ${intel.silence_meaning}`);
+
+  return lines.length > 0 ? lines.join('\n') : '';
+}
+
+function getDiscBlock(discTypeOrIntel: string | ContactIntelligence | null | undefined, role: 'contact' | 'deal'): string {
+  if (!discTypeOrIntel) return '';
+
+  // Support both legacy string and full intelligence object
+  const intel: ContactIntelligence = typeof discTypeOrIntel === 'string'
+    ? { disc_type: discTypeOrIntel }
+    : discTypeOrIntel;
+
+  const discType = intel.disc_type;
   if (!discType) return '';
 
   const styles: Record<string, string> = {
@@ -141,13 +180,15 @@ function getDiscBlock(discType: string | null | undefined, role: 'contact' | 'de
   const style = styles[discType];
   if (!style) return '';
 
+  const intelligenceBlock = buildIntelligenceBlock(intel);
+
   if (role === 'contact') {
     return `
 
 DISC PERSONALITY ADAPTATION:
 This contact's DISC personality type is ${discType}. Adapt ALL communication to match:
 - ${style}
-
+${intelligenceBlock ? `\nCONTACT INTELLIGENCE:\n${intelligenceBlock}` : ''}
 If the contact's language preference is Spanish, apply these same DISC adaptations in Mexican Spanish.
 `;
   }
@@ -159,12 +200,12 @@ DISC PERSONALITY ADAPTATION:
 The buyer/seller on this deal has DISC type ${discType}. When drafting communication to the other agent about this client's position, or when coaching Anthony on how to present offers/counters to the client, adapt the communication style:
 - ${style}
 - ${coaching}
-
+${intelligenceBlock ? `\nCONTACT INTELLIGENCE:\n${intelligenceBlock}` : ''}
 If the contact speaks Spanish, apply these DISC adaptations in Mexican Spanish.
 `;
 }
 
-export function getContactAIPrompt(contactData: string, activitiesData: string, transactionsData: string, discType?: string | null): string {
+export function getContactAIPrompt(contactData: string, activitiesData: string, transactionsData: string, discTypeOrIntel?: string | ContactIntelligence | null): string {
   return `[R] ROLE
 You are the Contact AI for Licona Realty, the relationship specialist for a specific person in Anthony's network. You know this person's full history: when they first connected, every interaction, their preferences, their search criteria, their communication style, and where they stand in the pipeline. You are the relationship coach who helps Anthony build and maintain genuine connections.
 
@@ -225,7 +266,7 @@ Today's date is ${new Date().toLocaleDateString('en-US', { weekday: 'long', year
 
 CONTACT DATA:
 ${contactData}
-${getDiscBlock(discType, 'contact')}
+${getDiscBlock(discTypeOrIntel, 'contact')}
 ACTIVITY HISTORY:
 ${activitiesData}
 

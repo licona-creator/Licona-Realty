@@ -209,17 +209,37 @@ ${recentActivities || '- None'}`;
 
       // Fetch linked contact
       let contactInfo = 'No contact linked';
-      let dealContactDiscType: string | null = null;
+      let dealContactIntel: {
+        disc_type?: string | null;
+        disc_secondary?: string | null;
+        disc_confidence?: string | null;
+        engagement_temperature?: string | null;
+        personality_brief?: string | null;
+        communication_tips?: string | null;
+        buying_motivation?: string | null;
+        silence_meaning?: string | null;
+        language_preference?: string | null;
+      } | null = null;
       if (transaction.contact_id) {
         const { data: contact } = await supabase
           .from('contacts')
-          .select('first_name, last_name, phone, email, language_preference, pipeline_stage, track_type, disc_type')
+          .select('first_name, last_name, phone, email, language_preference, pipeline_stage, track_type, disc_type, disc_secondary, disc_confidence, engagement_temperature, personality_brief, communication_tips, buying_motivation, silence_meaning')
           .eq('id', transaction.contact_id)
           .single();
 
         if (contact) {
           contactInfo = `${contact.first_name} ${contact.last_name} - Phone: ${contact.phone || 'none'}, Email: ${contact.email || 'none'}, Language: ${contact.language_preference || 'en'}, Stage: ${contact.pipeline_stage}, Track: ${contact.track_type}${contact.disc_type ? ', DISC: ' + contact.disc_type : ''}`;
-          dealContactDiscType = contact.disc_type;
+          dealContactIntel = {
+            disc_type: contact.disc_type,
+            disc_secondary: contact.disc_secondary,
+            disc_confidence: contact.disc_confidence,
+            engagement_temperature: contact.engagement_temperature,
+            personality_brief: contact.personality_brief,
+            communication_tips: contact.communication_tips,
+            buying_motivation: contact.buying_motivation,
+            silence_meaning: contact.silence_meaning,
+            language_preference: contact.language_preference,
+          };
         }
       }
 
@@ -312,7 +332,7 @@ ${uploadedDocDetails.length > 0 ? uploadedDocDetails.join('\n') : '- None upload
         // transaction_documents table may not exist yet
       }
 
-      systemPrompt = getDealAIPrompt(dealData, documentsData, dealContactDiscType);
+      systemPrompt = getDealAIPrompt(dealData, documentsData, dealContactIntel);
     }
 
     // ========== CONTACT MODE ==========
@@ -396,7 +416,7 @@ Email: ${contact.email || 'none'}
 Track: ${contact.track_type}
 Pipeline Stage: ${contact.pipeline_stage}
 Language: ${contact.language_preference === 'es' ? 'Spanish' : contact.language_preference === 'bilingual' ? 'Bilingual' : 'English'}
-DISC Personality: ${contact.disc_type ? contact.disc_type : 'not assessed'}
+DISC Personality: ${contact.disc_type || 'not assessed'}
 Lead Source: ${contact.lead_source || 'unknown'}
 Budget: ${contact.budget || 'not set'}
 Location Preference: ${contact.location_preference || 'not set'}
@@ -436,7 +456,18 @@ Notes: ${contact.notes || 'none'}${insightsContext}`;
       }
       const transactionsData = txEntries.join('\n') || 'No transactions linked.';
 
-      systemPrompt = getContactAIPrompt(contactData, activitiesData, transactionsData, contact.disc_type);
+      const contactIntel = {
+        disc_type: contact.disc_type as string | null,
+        disc_secondary: contact.disc_secondary as string | null,
+        disc_confidence: contact.disc_confidence as string | null,
+        engagement_temperature: contact.engagement_temperature as string | null,
+        personality_brief: contact.personality_brief as string | null,
+        communication_tips: contact.communication_tips as string | null,
+        buying_motivation: contact.buying_motivation as string | null,
+        silence_meaning: contact.silence_meaning as string | null,
+        language_preference: contact.language_preference as string | null,
+      };
+      systemPrompt = getContactAIPrompt(contactData, activitiesData, transactionsData, contactIntel);
     }
 
     // Build messages array

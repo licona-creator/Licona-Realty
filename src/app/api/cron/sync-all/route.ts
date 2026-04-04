@@ -42,9 +42,28 @@ export async function GET(request: NextRequest) {
       results[userId] = { email: emailResult, calendar: calendarResult };
     }
 
+    // Step 3: Auto-enrich contacts with new data
+    let enrichmentResults: Record<string, unknown> | null = null;
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://licona-realty-i1st.vercel.app';
+      const enrichResponse = await fetch(`${baseUrl}/api/ai/enrich-all`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (enrichResponse.ok) {
+        enrichmentResults = await enrichResponse.json();
+      }
+    } catch {
+      // Enrichment is best-effort. Never block the sync.
+    }
+
     return NextResponse.json({
       timestamp: new Date().toISOString(),
       results,
+      ...(enrichmentResults ? { enrichment: enrichmentResults } : {}),
     });
   } catch (err) {
     console.error('[cron:sync-all] Failed:', err);
