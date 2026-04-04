@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { Users, Plus, Search, Upload, Filter, Phone, Mail, Trash2, ChevronRight, MessageCircle, PhoneCall, AlertCircle } from 'lucide-react';
 import { AddContactModal } from '@/components/modals/AddContactModal';
 import { ImportContactsModal } from '@/components/modals/ImportContactsModal';
+import { VCardImportModal } from '@/components/modals/VCardImportModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { calculateLeadScore, getScoreTailwind } from '@/lib/ai/lead-scoring';
 import { SkeletonContactRow } from '@/components/ui/Skeleton';
@@ -71,6 +72,7 @@ export default function ContactsPage() {
   const router = useRouter();
   const [activeTrack, setActiveTrack] = useState<string>('all');
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showVCardImportModal, setShowVCardImportModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -152,7 +154,7 @@ export default function ContactsPage() {
           )}
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <Button variant="ghost" size="sm" onClick={() => setShowImportModal(true)} className="whitespace-nowrap">
+          <Button variant="ghost" size="sm" onClick={() => setShowVCardImportModal(true)} className="whitespace-nowrap">
             <Upload size={16} />
             <span className="hidden sm:inline">Import</span>
           </Button>
@@ -366,7 +368,7 @@ export default function ContactsPage() {
             </p>
             {!searchQuery && (
               <div className="flex items-center justify-center gap-3">
-                <Button variant="ghost" onClick={() => setShowImportModal(true)}>
+                <Button variant="ghost" onClick={() => setShowVCardImportModal(true)}>
                   <Upload size={16} />
                   Import Contacts
                 </Button>
@@ -388,6 +390,11 @@ export default function ContactsPage() {
       <ImportContactsModal
         open={showImportModal}
         onClose={() => setShowImportModal(false)}
+        onSuccess={fetchContacts}
+      />
+      <VCardImportModal
+        open={showVCardImportModal}
+        onClose={() => setShowVCardImportModal(false)}
         onSuccess={fetchContacts}
       />
       <ConfirmDialog

@@ -118,6 +118,18 @@ export interface Contact {
   sms_opt_in: boolean;
   sms_consent_date: string | null;
 
+  // Birthday (split for easy querying by month/day)
+  birthday_month: number | null;
+  birthday_day: number | null;
+  birthday_year: number | null;
+
+  // Professional
+  company: string | null;
+  job_title: string | null;
+
+  // Import tracking
+  import_source: string | null;
+
   // Soft delete
   is_deleted: boolean;
   deleted_at: string | null;
