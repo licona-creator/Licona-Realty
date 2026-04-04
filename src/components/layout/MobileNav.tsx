@@ -21,17 +21,18 @@ import {
 
 interface MobileNavProps {
   approvalCount?: number;
+  overdueCount?: number;
 }
 
 const mobileNavItems = [
-  { label: 'Home', href: '/dashboard', icon: Home },
+  { label: 'Home', href: '/dashboard', icon: Home, overdueBadge: true },
   { label: 'Approval', href: '/approval-queue', icon: CheckCircle, badge: true },
   { label: 'Contacts', href: '/contacts', icon: Users },
   { label: 'Deals', href: '/transactions', icon: FileText },
   { label: 'More', href: '/more', icon: MoreHorizontal },
 ];
 
-export function MobileNav({ approvalCount = 0 }: MobileNavProps) {
+export function MobileNav({ approvalCount = 0, overdueCount = 0 }: MobileNavProps) {
   const pathname = usePathname();
 
   return (
@@ -68,6 +69,11 @@ export function MobileNav({ approvalCount = 0 }: MobileNavProps) {
                       variant="gold"
                       className="absolute -top-2 -right-3"
                     />
+                  )}
+                  {'overdueBadge' in item && item.overdueBadge && overdueCount > 0 && (
+                    <span className="absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-montserrat font-bold flex items-center justify-center">
+                      {overdueCount > 99 ? '99+' : overdueCount}
+                    </span>
                   )}
                 </div>
                 <span

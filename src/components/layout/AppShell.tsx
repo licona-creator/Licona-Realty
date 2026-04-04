@@ -31,9 +31,10 @@ const MODE_COLORS: Record<AIMode, string> = {
 interface AppShellProps {
   children: React.ReactNode;
   approvalCount?: number;
+  overdueCount?: number;
 }
 
-export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
+export function AppShell({ children, approvalCount = 0, overdueCount = 0 }: AppShellProps) {
   const [showAI, setShowAI] = useState(false);
   const pathname = usePathname();
 
@@ -111,7 +112,7 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
       <SessionTimeoutWarning />
 
       {/* Desktop Sidebar */}
-      <Sidebar approvalCount={approvalCount} />
+      <Sidebar approvalCount={approvalCount} overdueCount={overdueCount} />
 
       {/* Top Bar (desktop) - Search + Notifications */}
       <div className="hidden lg:flex fixed top-0 right-0 z-30 items-center gap-3 px-6 py-3" style={{ left: '16rem' }}>
@@ -146,7 +147,7 @@ export function AppShell({ children, approvalCount = 0 }: AppShellProps) {
       </main>
 
       {/* Mobile Bottom Nav */}
-      <MobileNav approvalCount={approvalCount} />
+      <MobileNav approvalCount={approvalCount} overdueCount={overdueCount} />
 
       {/* Desktop-only floating AI button */}
       <div className="hidden lg:block">

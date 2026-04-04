@@ -9,6 +9,7 @@
 
 import { AppShell } from '@/components/layout/AppShell';
 import { useApprovalCount } from '@/hooks/useApprovalCount';
+import { useOverdueCount } from '@/hooks/useOverdueCount';
 import { InstallPrompt } from '@/components/ui/InstallPrompt';
 
 export default function AuthenticatedLayout({
@@ -17,9 +18,10 @@ export default function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   const approvalCount = useApprovalCount();
+  const overdueCount = useOverdueCount();
 
   return (
-    <AppShell approvalCount={approvalCount}>
+    <AppShell approvalCount={approvalCount} overdueCount={overdueCount}>
       {children}
       <InstallPrompt />
     </AppShell>

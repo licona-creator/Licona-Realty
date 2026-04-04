@@ -10,15 +10,15 @@ import {
   CheckCircle, Users, FileText, Calendar, Shield, Zap, AlertTriangle,
   Clock, DollarSign, ArrowRight, ChevronRight, Phone, PhoneCall,
   MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag, Check,
-  Send, Copy, FileArchive, Sparkles,
+  Send, Copy, Sparkles,
 } from 'lucide-react';
-import { FollowUpActionPanel } from '@/components/dashboard/FollowUpActionPanel';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 
 interface FollowUpContact {
   id: string; first_name: string; last_name: string; phone: string | null;
   email: string | null; next_follow_up_date: string; follow_up_notes: string | null;
   pipeline_stage: string; track_type: string; engagement_temperature: string | null;
+  disc_type: string | null; disc_secondary: string | null; disc_confidence: string | null;
 }
 
 interface UpcomingEvent {
@@ -90,20 +90,62 @@ function daysOverdue(dateStr: string): number {
   return Math.floor((Date.now() - new Date(dateStr + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24));
 }
 
+function getDiscSuggestion(disc: string | null, temp: string | null, firstName: string): string {
+  if (!disc) {
+    if (temp === 'cold') return `Re-engage ${firstName}. Quick personal message.`;
+    return `Check in with ${firstName}. See where they are at.`;
+  }
+  const key = `${disc}-${temp || 'warm'}`;
+  const map: Record<string, string> = {
+    'D-hot': 'Strike now. Direct text with a specific ask.',
+    'D-warm': 'Quick check-in. Lead with results or news.',
+    'D-cool': 'Re-engage with value. Market data for their area.',
+    'D-cold': 'One last shot. Direct and brief. If no response, move on.',
+    'I-hot': 'They are excited. Call them, keep the energy up.',
+    'I-warm': 'Friendly text. Ask about them, not business.',
+    'I-cool': 'Personal touch. Reference something you talked about.',
+    'I-cold': 'Warm re-engage. Fun market fact or congratulate them on something.',
+    'S-hot': 'They trust you. Reassure them on next steps.',
+    'S-warm': 'Steady check-in. Process update or neighborhood data.',
+    'S-cool': 'Send value quietly. Market report, no ask attached.',
+    'S-cold': 'Gentle re-engage. Ask how the family is doing.',
+    'C-hot': 'Send data now. CMA, market report, or comparison they asked for.',
+    'C-warm': 'Follow up with documentation. Something they can review.',
+    'C-cool': 'Share a detailed market report for their zip code.',
+    'C-cold': 'Data re-engage. New listings or price trends in their area.',
+  };
+  return map[key] || `Check in with ${firstName}. See where they are at.`;
+}
+
+function getDefaultSnoozeDays(disc: string | null): number {
+  if (disc === 'D' || disc === 'I') return 1;
+  if (disc === 'C') return 7;
+  return 3;
+}
+
+const TEMP_COLORS: Record<string, string> = { hot: '#e74c3c', warm: '#d3a971', cool: '#3498db', cold: '#95a5a6' };
+const DISC_COLORS: Record<string, string> = { D: '#c0392b', I: '#d3a971', S: '#27ae60', C: '#2980b9' };
+
+type CardAction = null | 'done' | 'snooze' | 'skip';
+
 interface FollowUpsData {
   overdue: FollowUpContact[];
   today: FollowUpContact[];
   upcoming: FollowUpContact[];
   counts: { overdue: number; today: number; upcoming: number };
+  nextFuture: { name: string; date: string } | null;
 }
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [followUps, setFollowUps] = useState<FollowUpsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [expandedContactId, setExpandedContactId] = useState<string | null>(null);
   const [completedToday, setCompletedToday] = useState(0);
-  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+  const [exitingIds, setExitingIds] = useState<Set<string>>(new Set());
+  const [activeAction, setActiveAction] = useState<Record<string, CardAction>>({});
+  const [doneForm, setDoneForm] = useState<Record<string, { type: string; note: string }>>({});
+  const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
   const [campaignMessages, setCampaignMessages] = useState<CampaignMessageDue[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
   const [googleConnected, setGoogleConnected] = useState(false);
@@ -158,14 +200,31 @@ export default function DashboardPage() {
 
   useEffect(() => { fetchDashboard(); }, [fetchDashboard]);
 
-  const togglePanel = useCallback((contactId: string) => {
-    setExpandedContactId(prev => prev === contactId ? null : contactId);
+  const dismissCard = useCallback((contactId: string) => {
+    setExitingIds(prev => new Set(prev).add(contactId));
+    setTimeout(() => {
+      setDismissedIds(prev => new Set(prev).add(contactId));
+      setExitingIds(prev => { const n = new Set(prev); n.delete(contactId); return n; });
+      setActiveAction(prev => { const n = { ...prev }; delete n[contactId]; return n; });
+      setCompletedToday(prev => prev + 1);
+    }, 200);
   }, []);
 
-  const handleFollowUpComplete = useCallback((contactId: string) => {
-    setExpandedContactId(null);
-    setCompletedToday(prev => prev + 1);
-    setCompletedIds(prev => new Set(prev).add(contactId));
+  const handleAction = useCallback(async (contactId: string, body: Record<string, unknown>) => {
+    setActionLoading(prev => ({ ...prev, [contactId]: true }));
+    try {
+      const res = await fetch(`/api/contacts/${contactId}/follow-up`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        const result = await res.json();
+        return result;
+      }
+    } catch { /* empty */ }
+    finally { setActionLoading(prev => ({ ...prev, [contactId]: false })); }
+    return null;
   }, []);
 
   const approvalCount = data?.approvalQueue?.count || 0;
@@ -176,15 +235,13 @@ export default function DashboardPage() {
   const fuOverdue = followUps?.overdue || data?.followUps?.overdue || [];
   const fuToday = followUps?.today || data?.followUps?.today || [];
   const fuUpcoming = followUps?.upcoming || data?.followUps?.upcoming || [];
-  const tempOrder: Record<string, number> = { hot: 0, warm: 1, cool: 2, cold: 3 };
-  const visibleOverdue = fuOverdue.filter(c => !completedIds.has(c.id)).sort((a, b) => {
-    const aT = a.engagement_temperature;
-    const bT = b.engagement_temperature;
-    return (tempOrder[aT || ''] ?? 4) - (tempOrder[bT || ''] ?? 4);
-  });
-  const visibleToday = fuToday.filter(c => !completedIds.has(c.id));
-  const visibleUpcoming = fuUpcoming.filter(c => !completedIds.has(c.id));
-  const hasFollowUps = visibleOverdue.length > 0 || visibleToday.length > 0 || visibleUpcoming.length > 0;
+
+  // Merge all follow-ups, already priority-sorted by API
+  const allFollowUps = [...fuOverdue, ...fuToday, ...fuUpcoming].filter(c => !dismissedIds.has(c.id)).slice(0, 10);
+  const overdueCount = fuCounts.overdue;
+  const hasFollowUps = allFollowUps.length > 0;
+  const nextFuture = followUps?.nextFuture || null;
+  const today = new Date().toISOString().split('T')[0];
 
   if (loading) return <DashboardSkeleton />;
 
@@ -285,155 +342,246 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* FOLLOW-UPS - #1 Priority - Always visible */}
-        <Card className={`!p-6 ${visibleOverdue.length > 0 ? '!border-red-500/30 !bg-red-500/[0.02]' : ''}`}>
+        {/* FOLLOW-UPS - Smart Action Cards */}
+        <Card className={`!p-4 sm:!p-6 ${overdueCount > 0 ? '!border-red-500/30 !bg-red-500/[0.02]' : ''}`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <Clock size={22} className={visibleOverdue.length > 0 ? 'text-red-500' : 'text-gold'} />
+              <Clock size={22} className={overdueCount > 0 ? 'text-red-500' : 'text-gold'} />
               <h2 className="text-lg font-semibold font-montserrat text-navy dark:text-white">Follow-Ups</h2>
-              {visibleOverdue.length > 0 && <Badge variant="danger">{visibleOverdue.length} Overdue</Badge>}
-              {visibleToday.length > 0 && <Badge variant="gold">{visibleToday.length} Today</Badge>}
+              {overdueCount > 0 && <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">{overdueCount} overdue</span>}
             </div>
             {completedToday > 0 && (
               <span className="flex items-center gap-1 text-xs font-montserrat font-semibold text-green-600">
                 <Check size={12} />
-                {completedToday} done today
+                {completedToday} done
               </span>
             )}
           </div>
 
           {hasFollowUps ? (
-            <>
-              {/* Overdue */}
-              {visibleOverdue.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-xs font-montserrat font-semibold text-red-500 uppercase tracking-wider mb-2">Overdue</p>
-                  <div className="space-y-2">
-                    {visibleOverdue.map(c => (
-                      <div key={c.id} className={`rounded-lg bg-red-500/5 border transition-colors ${expandedContactId === c.id ? 'border-gold/30' : 'border-red-500/10'}`}>
-                        <button
-                          onClick={() => togglePanel(c.id)}
-                          className="w-full p-3 text-left hover:bg-red-500/10 transition-colors rounded-lg"
-                        >
-                          {/* Line 1: Name + badge */}
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {c.engagement_temperature && (
-                              <span
-                                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                                style={{
-                                  backgroundColor: c.engagement_temperature === 'hot' ? '#e74c3c' : c.engagement_temperature === 'warm' ? '#d3a971' : c.engagement_temperature === 'cool' ? '#3498db' : '#95a5a6',
-                                }}
-                                title={c.engagement_temperature}
-                              />
-                            )}
-                            <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
-                            <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full">{daysOverdue(c.next_follow_up_date)}d overdue</span>
-                          </div>
-                          {/* Line 2: Notes (no truncation on mobile, 2 lines max) */}
-                          {c.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-1 line-clamp-2 lg:truncate lg:line-clamp-none">{c.follow_up_notes}</p>}
-                          {/* Line 3: Phone + actions + chevron */}
-                          <div className="flex items-center gap-2 mt-1.5">
-                            {c.phone && <span className="text-xs text-navy/40 dark:text-white/40 font-inter">{c.phone}</span>}
-                            <div className="flex items-center gap-2 ml-auto">
-                              {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><Phone size={14} /></a>}
-                              {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><MessageCircle size={14} /></a>}
-                              <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
-                            </div>
-                          </div>
-                        </button>
-                        {expandedContactId === c.id && (
-                          <div className="px-3 pb-3">
-                            <FollowUpActionPanel
-                              contact={c}
-                              onComplete={handleFollowUpComplete}
-                              onClose={() => setExpandedContactId(null)}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="space-y-2">
+              {allFollowUps.map(c => {
+                const isOverdue = c.next_follow_up_date < today;
+                const isToday = c.next_follow_up_date === today;
+                const isExiting = exitingIds.has(c.id);
+                const currentAction = activeAction[c.id] || null;
+                const isLoading = actionLoading[c.id] || false;
+                const form = doneForm[c.id] || { type: 'text', note: '' };
+                const suggestion = getDiscSuggestion(c.disc_type, c.engagement_temperature, c.first_name);
 
-              {/* Today */}
-              {visibleToday.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-xs font-montserrat font-semibold text-gold uppercase tracking-wider mb-2">Today</p>
-                  <div className="space-y-2">
-                    {visibleToday.map(c => (
-                      <div key={c.id} className={`rounded-lg bg-gold/5 border transition-colors ${expandedContactId === c.id ? 'border-gold/30' : 'border-gold/10'}`}>
-                        <button
-                          onClick={() => togglePanel(c.id)}
-                          className="w-full p-3 text-left hover:bg-gold/10 transition-colors rounded-lg"
-                        >
-                          <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
-                          {c.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-1 line-clamp-2 lg:truncate lg:line-clamp-none">{c.follow_up_notes}</p>}
-                          <div className="flex items-center gap-2 mt-1.5">
-                            {c.phone && <span className="text-xs text-navy/40 dark:text-white/40 font-inter">{c.phone}</span>}
-                            <div className="flex items-center gap-2 ml-auto">
-                              {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><Phone size={14} /></a>}
-                              {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><MessageCircle size={14} /></a>}
-                              <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
+                return (
+                  <div
+                    key={c.id}
+                    className="rounded-lg border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 overflow-hidden"
+                    style={{
+                      transition: 'transform 200ms ease-out, opacity 200ms ease-out',
+                      transform: isExiting ? 'translateX(-100%)' : 'translateX(0)',
+                      opacity: isExiting ? 0 : 1,
+                    }}
+                  >
+                    {/* Default card view */}
+                    {!currentAction && (
+                      <div className="p-3">
+                        <div className="flex items-start gap-3">
+                          {/* Left: avatar + info */}
+                          <a href={`/contacts/${c.id}`} className="flex items-start gap-3 flex-1 min-w-0">
+                            <div className="w-9 h-9 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xs font-montserrat font-semibold text-gold">{c.first_name[0]}{c.last_name[0]}</span>
                             </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</span>
+                                {c.engagement_temperature && (
+                                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: TEMP_COLORS[c.engagement_temperature] || '#95a5a6' }} title={c.engagement_temperature} />
+                                )}
+                                {c.disc_type && (
+                                  <span className="text-[10px] font-montserrat font-bold flex-shrink-0" style={{ color: DISC_COLORS[c.disc_type] || '#95a5a6' }}>{c.disc_type}{c.disc_secondary || ''}</span>
+                                )}
+                                {isOverdue && (
+                                  <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full">{daysOverdue(c.next_follow_up_date)}d</span>
+                                )}
+                                {isToday && (
+                                  <span className="text-[10px] font-montserrat font-semibold text-gold bg-gold/10 px-1.5 py-0.5 rounded-full">today</span>
+                                )}
+                                {!isOverdue && !isToday && (
+                                  <span className="text-[10px] font-inter text-navy/30 dark:text-white/30">{new Date(c.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                                )}
+                              </div>
+                              <p className="text-xs font-inter text-navy/40 dark:text-white/40 mt-0.5 italic line-clamp-1">{suggestion}</p>
+                            </div>
+                          </a>
+                          {/* Right: 3 action buttons */}
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => { setActiveAction(prev => ({ ...prev, [c.id]: 'done' })); setDoneForm(prev => ({ ...prev, [c.id]: { type: 'text', note: '' } })); }}
+                              className="w-11 h-11 rounded-lg flex items-center justify-center transition-colors"
+                              style={{ backgroundColor: '#27ae60' }}
+                              title="Done"
+                            >
+                              <Check size={16} color="#fff" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: 'snooze' }))}
+                              className="w-11 h-11 rounded-lg flex items-center justify-center transition-colors"
+                              style={{ backgroundColor: '#d3a971' }}
+                              title="Snooze"
+                            >
+                              <Clock size={16} color="#fff" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: 'skip' }))}
+                              className="w-11 h-11 rounded-lg flex items-center justify-center transition-colors"
+                              style={{ backgroundColor: '#95a5a6' }}
+                              title="Skip"
+                            >
+                              <ArrowRight size={16} color="#fff" />
+                            </button>
                           </div>
-                        </button>
-                        {expandedContactId === c.id && (
-                          <div className="px-3 pb-3">
-                            <FollowUpActionPanel
-                              contact={c}
-                              onComplete={handleFollowUpComplete}
-                              onClose={() => setExpandedContactId(null)}
-                            />
-                          </div>
-                        )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                    )}
 
-              {/* Upcoming */}
-              {visibleUpcoming.length > 0 && (
-                <div>
-                  <p className="text-xs font-montserrat font-semibold text-navy/40 dark:text-white/40 uppercase tracking-wider mb-2">Upcoming (7 days)</p>
-                  <div className="space-y-2">
-                    {visibleUpcoming.map(c => (
-                      <div key={c.id} className={`rounded-lg border transition-colors ${expandedContactId === c.id ? 'border-gold/30 bg-surface dark:bg-navy/30' : 'border-transparent'}`}>
-                        <button
-                          onClick={() => togglePanel(c.id)}
-                          className="w-full p-3 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors text-left"
-                        >
-                          <p className="text-sm font-inter text-navy/70 dark:text-white/70">{c.first_name} {c.last_name}</p>
-                          {c.follow_up_notes && <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-1 line-clamp-2 lg:truncate lg:line-clamp-none">{c.follow_up_notes}</p>}
-                          <div className="flex items-center gap-2 mt-1.5">
-                            {c.phone && <span className="text-xs text-navy/40 dark:text-white/40 font-inter">{c.phone}</span>}
-                            <div className="flex items-center gap-2 ml-auto">
-                              {c.phone && <a href={`tel:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `tel:${c.phone}`; }} className="p-1.5 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><Phone size={14} /></a>}
-                              {c.phone && <a href={`sms:${c.phone}`} onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = `sms:${c.phone}`; }} className="p-1.5 rounded-full bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"><MessageCircle size={14} /></a>}
-                              <span className="text-xs font-inter text-navy/40 dark:text-white/40">{new Date(c.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                              <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform duration-200 ${expandedContactId === c.id ? 'rotate-90' : ''}`} />
-                            </div>
-                          </div>
-                        </button>
-                        {expandedContactId === c.id && (
-                          <div className="px-3 pb-3">
-                            <FollowUpActionPanel
-                              contact={c}
-                              onComplete={handleFollowUpComplete}
-                              onClose={() => setExpandedContactId(null)}
-                            />
-                          </div>
-                        )}
+                    {/* DONE inline form */}
+                    {currentAction === 'done' && (
+                      <div className="p-3 space-y-2.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {['call', 'text', 'email', 'note'].map(t => (
+                            <button
+                              key={t}
+                              type="button"
+                              onClick={() => setDoneForm(prev => ({ ...prev, [c.id]: { ...form, type: t } }))}
+                              className={`px-3 py-1.5 rounded-full text-xs font-montserrat font-semibold transition-colors capitalize ${form.type === t ? 'bg-navy text-white dark:bg-gold dark:text-navy' : 'bg-navy/5 dark:bg-white/10 text-navy/60 dark:text-white/60'}`}
+                            >
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Quick note..."
+                          value={form.note}
+                          onChange={e => setDoneForm(prev => ({ ...prev, [c.id]: { ...form, note: e.target.value } }))}
+                          className="w-full px-3 py-2 rounded-lg bg-white dark:bg-dark-card border border-navy/10 dark:border-white/10 text-sm font-inter text-navy dark:text-white placeholder:text-navy/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-gold/50"
+                        />
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            disabled={isLoading}
+                            onClick={async () => {
+                              const result = await handleAction(c.id, { action: 'done', activity_type: form.type, note: form.note || undefined });
+                              if (result) {
+                                const dateStr = result.next_follow_up_date ? new Date(result.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+                                dismissCard(c.id);
+                                // Toast via simple DOM notification
+                                const el = document.getElementById('fu-toast');
+                                if (el) { el.textContent = `Logged. Next: ${dateStr}`; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2000); }
+                              }
+                            }}
+                            className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white disabled:opacity-50"
+                            style={{ backgroundColor: '#27ae60' }}
+                          >
+                            {isLoading ? 'Saving...' : 'Save'}
+                          </button>
+                          <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">
+                            Cancel
+                          </button>
+                        </div>
                       </div>
-                    ))}
+                    )}
+
+                    {/* SNOOZE inline pills */}
+                    {currentAction === 'snooze' && (
+                      <div className="p-3 space-y-2.5">
+                        <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Snooze {c.first_name}</p>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {[{ label: 'Tomorrow', days: 1 }, { label: '3 Days', days: 3 }, { label: '1 Week', days: 7 }, { label: '2 Weeks', days: 14 }].map(opt => (
+                            <button
+                              key={opt.days}
+                              type="button"
+                              disabled={isLoading}
+                              onClick={async () => {
+                                const result = await handleAction(c.id, { action: 'snooze', snooze_days: opt.days });
+                                if (result) {
+                                  const dateStr = result.next_follow_up_date ? new Date(result.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+                                  dismissCard(c.id);
+                                  const el = document.getElementById('fu-toast');
+                                  if (el) { el.textContent = `Snoozed until ${dateStr}`; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2000); }
+                                }
+                              }}
+                              className={`py-2.5 rounded-lg text-xs font-montserrat font-semibold transition-colors disabled:opacity-50 ${opt.days === getDefaultSnoozeDays(c.disc_type) ? 'bg-gold/20 text-gold border border-gold/30' : 'bg-navy/5 dark:bg-white/10 text-navy/60 dark:text-white/60'}`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                        <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+
+                    {/* SKIP inline confirmation */}
+                    {currentAction === 'skip' && (
+                      <div className="p-3 space-y-2.5">
+                        <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Remove follow-up for {c.first_name}?</p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={isLoading}
+                            onClick={async () => {
+                              const result = await handleAction(c.id, { action: 'skip', skip_type: '30days' });
+                              if (result) {
+                                dismissCard(c.id);
+                                const el = document.getElementById('fu-toast');
+                                if (el) { el.textContent = 'Pushed 30 days'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2000); }
+                              }
+                            }}
+                            className="flex-1 py-2.5 rounded-lg text-xs font-montserrat font-semibold border border-gold/30 text-gold disabled:opacity-50"
+                          >
+                            30 Days
+                          </button>
+                          <button
+                            type="button"
+                            disabled={isLoading}
+                            onClick={async () => {
+                              const result = await handleAction(c.id, { action: 'skip', skip_type: 'remove' });
+                              if (result !== null) {
+                                dismissCard(c.id);
+                                const el = document.getElementById('fu-toast');
+                                if (el) { el.textContent = 'Follow-up removed'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2000); }
+                              }
+                            }}
+                            className="flex-1 py-2.5 rounded-lg text-xs font-montserrat font-semibold border border-red-500/30 text-red-500 disabled:opacity-50"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">
+                          Cancel
+                        </button>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
-            </>
+                );
+              })}
+            </div>
           ) : (
-            <p className="text-sm text-navy/50 dark:text-white/50 font-inter">No follow-ups scheduled. Set follow-up dates on your contacts.</p>
+            <div className="flex flex-col items-center py-6 gap-2">
+              <Check size={24} className="text-gold" />
+              <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">All caught up</p>
+              {nextFuture ? (
+                <p className="text-xs font-inter text-navy/40 dark:text-white/40">Next follow-up: {nextFuture.name} on {new Date(nextFuture.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+              ) : (
+                <p className="text-xs font-inter text-navy/40 dark:text-white/40">No follow-ups scheduled</p>
+              )}
+            </div>
           )}
+
+          {/* Inline toast */}
+          <div id="fu-toast" className="opacity-0 transition-opacity duration-300 mt-3 text-center text-xs font-montserrat font-semibold text-green-600" />
         </Card>
 
         {/* Upcoming Events */}
