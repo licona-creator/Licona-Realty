@@ -287,7 +287,9 @@ export default function TransactionDetailPage() {
               {transaction.status.replace(/_/g, ' ')}
             </span>
             <span className="text-[10px] font-montserrat font-semibold uppercase px-2 py-0.5 rounded-full bg-gold/10 text-gold">
-              {transaction.track_type}
+              {transaction.transaction_type
+                ? ({ buyers_agent_sale: 'BUYER', listing_agent_sale: 'SELLER', dual_agent: 'DUAL AGENT', lease_tenant_rep: 'TENANT', lease_landlord_rep: 'LANDLORD' }[transaction.transaction_type] || transaction.track_type)
+                : transaction.track_type}
             </span>
           </div>
         </div>

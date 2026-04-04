@@ -120,7 +120,6 @@ export const NAV_ITEMS = [
   { label: 'Marketing', href: '/marketing', icon: 'megaphone' },
   { label: 'Map', href: '/map', icon: 'map-pin' },
   { label: 'Scheduling', href: '/scheduling', icon: 'calendar' },
-  { label: 'Canva Studio', href: '/canva', icon: 'palette' },
   { label: 'Testimonials', href: '/testimonials', icon: 'star' },
   { label: 'Mortgage Calc', href: '/mortgage', icon: 'calculator' },
   { label: 'Settings', href: '/settings', icon: 'settings' },
