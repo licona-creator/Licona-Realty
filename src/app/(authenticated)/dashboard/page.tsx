@@ -19,6 +19,10 @@ interface FollowUpContact {
   email: string | null; next_follow_up_date: string; follow_up_notes: string | null;
   pipeline_stage: string; track_type: string; engagement_temperature: string | null;
   disc_type: string | null; disc_secondary: string | null; disc_confidence: string | null;
+  silence_meaning: string | null;
+  last_activity_type: string | null; last_activity_date: string | null;
+  last_activity_direction: string | null; last_activity_description: string | null;
+  deal_value: number | null; deal_name: string | null;
 }
 
 interface UpcomingEvent {
@@ -90,31 +94,88 @@ function daysOverdue(dateStr: string): number {
   return Math.floor((Date.now() - new Date(dateStr + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function getDiscSuggestion(disc: string | null, temp: string | null, firstName: string): string {
-  if (!disc) {
-    if (temp === 'cold') return `Re-engage ${firstName}. Quick personal message.`;
-    return `Check in with ${firstName}. See where they are at.`;
+function getSmartSuggestion(c: FollowUpContact): string {
+  const disc = c.disc_type;
+  const firstName = c.first_name;
+
+  // No activity history
+  if (!c.last_activity_date) {
+    return 'No contact history yet. Start with a text introducing yourself.';
   }
-  const key = `${disc}-${temp || 'warm'}`;
-  const map: Record<string, string> = {
-    'D-hot': 'Strike now. Direct text with a specific ask.',
-    'D-warm': 'Quick check-in. Lead with results or news.',
-    'D-cool': 'Re-engage with value. Market data for their area.',
-    'D-cold': 'One last shot. Direct and brief. If no response, move on.',
-    'I-hot': 'They are excited. Call them, keep the energy up.',
-    'I-warm': 'Friendly text. Ask about them, not business.',
-    'I-cool': 'Personal touch. Reference something you talked about.',
-    'I-cold': 'Warm re-engage. Fun market fact or congratulate them on something.',
-    'S-hot': 'They trust you. Reassure them on next steps.',
-    'S-warm': 'Steady check-in. Process update or neighborhood data.',
-    'S-cool': 'Send value quietly. Market report, no ask attached.',
-    'S-cold': 'Gentle re-engage. Ask how the family is doing.',
-    'C-hot': 'Send data now. CMA, market report, or comparison they asked for.',
-    'C-warm': 'Follow up with documentation. Something they can review.',
-    'C-cool': 'Share a detailed market report for their zip code.',
-    'C-cold': 'Data re-engage. New listings or price trends in their area.',
-  };
-  return map[key] || `Check in with ${firstName}. See where they are at.`;
+
+  const daysSince = Math.floor((Date.now() - new Date(c.last_activity_date).getTime()) / (1000 * 60 * 60 * 24));
+  const d = daysSince < 1 ? 1 : daysSince;
+  const wasInbound = c.last_activity_direction === 'inbound';
+  const wasOutbound = c.last_activity_direction === 'outbound';
+  const lastType = c.last_activity_type;
+
+  // 30+ days silent - use silence_meaning if available
+  if (d > 30) {
+    if (c.silence_meaning) return c.silence_meaning;
+    const longSilence: Record<string, string> = {
+      D: '30+ days silent. One final direct message with a reason. If nothing, move on.',
+      I: '30+ days silent. Warm personal re-engage. Ask about them, not business.',
+      S: '30+ days silent. They may be avoiding conflict. Send pure value, zero ask.',
+      C: '30+ days cold. Share fresh data for their area. They come back when ready.',
+    };
+    return longSilence[disc || ''] || 'Been a while. Quick check-in to see if anything has changed.';
+  }
+
+  // They reached out to us
+  if (wasInbound) {
+    const inbound: Record<string, string> = {
+      D: `They reached out ${d} days ago. Respond fast, D types hate waiting.`,
+      I: `They messaged you ${d} days ago. Match their energy, respond warmly.`,
+      S: `They reached out ${d} days ago. They took a step, acknowledge it gently.`,
+      C: `They contacted you ${d} days ago. Respond with the data they probably asked for.`,
+    };
+    return inbound[disc || ''] || `${firstName} reached out ${d} days ago. Respond today.`;
+  }
+
+  // We reached out recently - avoid over-following-up
+  if (wasOutbound && d <= 3) {
+    return `You reached out ${d} ${d === 1 ? 'day' : 'days'} ago. Give it a bit more time.`;
+  }
+
+  // We reached out 3+ days ago via text
+  if (wasOutbound && d > 3 && lastType === 'text') {
+    const textMap: Record<string, string> = {
+      D: `Texted ${d} days ago, no reply. Try a direct call, keep it under 2 minutes.`,
+      I: `Texted ${d} days ago. Try calling, they prefer real conversation.`,
+      S: `Texted ${d} days ago. Send something valuable, no ask. Market data for their area.`,
+      C: `Texted ${d} days ago. Send a detailed email with data they can review on their own.`,
+    };
+    return textMap[disc || ''] || `Texted ${d} days ago. Try a different channel, call or email.`;
+  }
+
+  // We reached out 3+ days ago via call
+  if (wasOutbound && d > 3 && lastType === 'call') {
+    const callMap: Record<string, string> = {
+      D: `Called ${d} days ago. Text them something specific. One sentence.`,
+      I: `Called ${d} days ago. Try a friendly text, keep it light.`,
+      S: `Called ${d} days ago. Text to check in, no pressure.`,
+      C: `Called ${d} days ago. Follow up with an email, put details in writing.`,
+    };
+    return callMap[disc || ''] || `Called ${d} days ago. Try texting instead.`;
+  }
+
+  // We reached out 3+ days ago via email
+  if (wasOutbound && d > 3 && lastType === 'email') {
+    const emailMap: Record<string, string> = {
+      D: `Emailed ${d} days ago. Call them directly, skip the inbox.`,
+      I: `Emailed ${d} days ago. Text something personal, emails get lost.`,
+      S: `Emailed ${d} days ago. Give them space, send another value-add next week.`,
+      C: `Emailed ${d} days ago. They may be reviewing. Send a follow-up email referencing the first.`,
+    };
+    return emailMap[disc || ''] || `Emailed ${d} days ago. Try calling or texting.`;
+  }
+
+  // Generic outbound fallback
+  if (wasOutbound && d > 3) {
+    return `Last contact ${d} days ago. Try a different approach this time.`;
+  }
+
+  return `Check in with ${firstName}. See where they are at.`;
 }
 
 function getDefaultSnoozeDays(disc: string | null): number {
@@ -125,14 +186,26 @@ function getDefaultSnoozeDays(disc: string | null): number {
 
 const TEMP_COLORS: Record<string, string> = { hot: '#e74c3c', warm: '#d3a971', cool: '#3498db', cold: '#95a5a6' };
 const DISC_COLORS: Record<string, string> = { D: '#c0392b', I: '#d3a971', S: '#27ae60', C: '#2980b9' };
+const ACTIVITY_EMOJI: Record<string, string> = { call: '\u{1F4DE}', text: '\u{1F4F1}', email: '\u{1F4E7}', note: '\u{1F4DD}', showing: '\u{1F3E0}', meeting: '\u{1F91D}' };
+
+function formatDealValue(v: number): string {
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `$${Math.round(v / 1_000)}K`;
+  return `$${v.toLocaleString()}`;
+}
+
+function formatSnoozeDate(dateStr: string): string {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+}
 
 type CardAction = null | 'done' | 'snooze' | 'skip';
 
 interface FollowUpsData {
   overdue: FollowUpContact[];
   today: FollowUpContact[];
-  upcoming: FollowUpContact[];
-  counts: { overdue: number; today: number; upcoming: number };
+  tomorrow: FollowUpContact[];
+  counts: { overdue: number; today: number; tomorrow: number };
   nextFuture: { name: string; date: string } | null;
 }
 
@@ -231,17 +304,12 @@ export default function DashboardPage() {
   const contactTotal = data?.contacts?.total || 0;
   const pipelineValue = data?.pipeline?.value || 0;
   const activeDeals = data?.pipeline?.activeCount || 0;
-  const fuCounts = followUps?.counts || data?.followUps?.counts || { overdue: 0, today: 0, upcoming: 0 };
-  const fuOverdue = followUps?.overdue || data?.followUps?.overdue || [];
-  const fuToday = followUps?.today || data?.followUps?.today || [];
-  const fuUpcoming = followUps?.upcoming || data?.followUps?.upcoming || [];
-
-  // Merge all follow-ups, already priority-sorted by API
-  const allFollowUps = [...fuOverdue, ...fuToday, ...fuUpcoming].filter(c => !dismissedIds.has(c.id)).slice(0, 10);
-  const overdueCount = fuCounts.overdue;
-  const hasFollowUps = allFollowUps.length > 0;
+  const fuOverdue = (followUps?.overdue || []).filter(c => !dismissedIds.has(c.id));
+  const fuToday = (followUps?.today || []).filter(c => !dismissedIds.has(c.id));
+  const fuTomorrow = (followUps?.tomorrow || []).filter(c => !dismissedIds.has(c.id));
+  const overdueCount = fuOverdue.length;
+  const hasFollowUps = fuOverdue.length > 0 || fuToday.length > 0 || fuTomorrow.length > 0;
   const nextFuture = followUps?.nextFuture || null;
-  const today = new Date().toISOString().split('T')[0];
 
   if (loading) return <DashboardSkeleton />;
 
@@ -342,7 +410,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* FOLLOW-UPS - Smart Action Cards */}
+        {/* FOLLOW-UPS - Morning Briefing */}
         <Card className={`!p-4 sm:!p-6 ${overdueCount > 0 ? '!border-red-500/30 !bg-red-500/[0.02]' : ''}`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -359,221 +427,167 @@ export default function DashboardPage() {
           </div>
 
           {hasFollowUps ? (
-            <div className="space-y-2">
-              {allFollowUps.map(c => {
-                const isOverdue = c.next_follow_up_date < today;
-                const isToday = c.next_follow_up_date === today;
-                const isExiting = exitingIds.has(c.id);
-                const currentAction = activeAction[c.id] || null;
-                const isLoading = actionLoading[c.id] || false;
-                const form = doneForm[c.id] || { type: 'text', note: '' };
-                const suggestion = getDiscSuggestion(c.disc_type, c.engagement_temperature, c.first_name);
-
-                return (
-                  <div
-                    key={c.id}
-                    className="rounded-lg border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 overflow-hidden"
-                    style={{
-                      transition: 'transform 200ms ease-out, opacity 200ms ease-out',
-                      transform: isExiting ? 'translateX(-100%)' : 'translateX(0)',
-                      opacity: isExiting ? 0 : 1,
-                    }}
-                  >
-                    {/* Default card view */}
-                    {!currentAction && (
-                      <div className="p-3">
-                        <div className="flex items-start gap-3">
-                          {/* Left: avatar + info */}
-                          <a href={`/contacts/${c.id}`} className="flex items-start gap-3 flex-1 min-w-0">
-                            <div className="w-9 h-9 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                              <span className="text-xs font-montserrat font-semibold text-gold">{c.first_name[0]}{c.last_name[0]}</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</span>
-                                {c.engagement_temperature && (
-                                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: TEMP_COLORS[c.engagement_temperature] || '#95a5a6' }} title={c.engagement_temperature} />
-                                )}
-                                {c.disc_type && (
-                                  <span className="text-[10px] font-montserrat font-bold flex-shrink-0" style={{ color: DISC_COLORS[c.disc_type] || '#95a5a6' }}>{c.disc_type}{c.disc_secondary || ''}</span>
-                                )}
-                                {isOverdue && (
-                                  <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full">{daysOverdue(c.next_follow_up_date)}d</span>
-                                )}
-                                {isToday && (
-                                  <span className="text-[10px] font-montserrat font-semibold text-gold bg-gold/10 px-1.5 py-0.5 rounded-full">today</span>
-                                )}
-                                {!isOverdue && !isToday && (
-                                  <span className="text-[10px] font-inter text-navy/30 dark:text-white/30">{new Date(c.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                                )}
-                              </div>
-                              <p className="text-xs font-inter text-navy/40 dark:text-white/40 mt-0.5 italic line-clamp-1">{suggestion}</p>
-                            </div>
-                          </a>
-                          {/* Right: 3 action buttons */}
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => { setActiveAction(prev => ({ ...prev, [c.id]: 'done' })); setDoneForm(prev => ({ ...prev, [c.id]: { type: 'text', note: '' } })); }}
-                              className="w-11 h-11 rounded-lg flex items-center justify-center transition-colors"
-                              style={{ backgroundColor: '#27ae60' }}
-                              title="Done"
-                            >
-                              <Check size={16} color="#fff" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: 'snooze' }))}
-                              className="w-11 h-11 rounded-lg flex items-center justify-center transition-colors"
-                              style={{ backgroundColor: '#d3a971' }}
-                              title="Snooze"
-                            >
-                              <Clock size={16} color="#fff" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: 'skip' }))}
-                              className="w-11 h-11 rounded-lg flex items-center justify-center transition-colors"
-                              style={{ backgroundColor: '#95a5a6' }}
-                              title="Skip"
-                            >
-                              <ArrowRight size={16} color="#fff" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* DONE inline form */}
-                    {currentAction === 'done' && (
-                      <div className="p-3 space-y-2.5">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {['call', 'text', 'email', 'note'].map(t => (
-                            <button
-                              key={t}
-                              type="button"
-                              onClick={() => setDoneForm(prev => ({ ...prev, [c.id]: { ...form, type: t } }))}
-                              className={`px-3 py-1.5 rounded-full text-xs font-montserrat font-semibold transition-colors capitalize ${form.type === t ? 'bg-navy text-white dark:bg-gold dark:text-navy' : 'bg-navy/5 dark:bg-white/10 text-navy/60 dark:text-white/60'}`}
-                            >
-                              {t}
-                            </button>
-                          ))}
-                        </div>
-                        <input
-                          type="text"
-                          placeholder="Quick note..."
-                          value={form.note}
-                          onChange={e => setDoneForm(prev => ({ ...prev, [c.id]: { ...form, note: e.target.value } }))}
-                          className="w-full px-3 py-2 rounded-lg bg-white dark:bg-dark-card border border-navy/10 dark:border-white/10 text-sm font-inter text-navy dark:text-white placeholder:text-navy/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-gold/50"
-                        />
-                        <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            disabled={isLoading}
-                            onClick={async () => {
-                              const result = await handleAction(c.id, { action: 'done', activity_type: form.type, note: form.note || undefined });
-                              if (result) {
-                                const dateStr = result.next_follow_up_date ? new Date(result.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-                                dismissCard(c.id);
-                                // Toast via simple DOM notification
-                                const el = document.getElementById('fu-toast');
-                                if (el) { el.textContent = `Logged. Next: ${dateStr}`; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2000); }
-                              }
-                            }}
-                            className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white disabled:opacity-50"
-                            style={{ backgroundColor: '#27ae60' }}
-                          >
-                            {isLoading ? 'Saving...' : 'Save'}
-                          </button>
-                          <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* SNOOZE inline pills */}
-                    {currentAction === 'snooze' && (
-                      <div className="p-3 space-y-2.5">
-                        <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Snooze {c.first_name}</p>
-                        <div className="grid grid-cols-4 gap-1.5">
-                          {[{ label: 'Tomorrow', days: 1 }, { label: '3 Days', days: 3 }, { label: '1 Week', days: 7 }, { label: '2 Weeks', days: 14 }].map(opt => (
-                            <button
-                              key={opt.days}
-                              type="button"
-                              disabled={isLoading}
-                              onClick={async () => {
-                                const result = await handleAction(c.id, { action: 'snooze', snooze_days: opt.days });
-                                if (result) {
-                                  const dateStr = result.next_follow_up_date ? new Date(result.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-                                  dismissCard(c.id);
-                                  const el = document.getElementById('fu-toast');
-                                  if (el) { el.textContent = `Snoozed until ${dateStr}`; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2000); }
-                                }
-                              }}
-                              className={`py-2.5 rounded-lg text-xs font-montserrat font-semibold transition-colors disabled:opacity-50 ${opt.days === getDefaultSnoozeDays(c.disc_type) ? 'bg-gold/20 text-gold border border-gold/30' : 'bg-navy/5 dark:bg-white/10 text-navy/60 dark:text-white/60'}`}
-                            >
-                              {opt.label}
-                            </button>
-                          ))}
-                        </div>
-                        <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">
-                          Cancel
-                        </button>
-                      </div>
-                    )}
-
-                    {/* SKIP inline confirmation */}
-                    {currentAction === 'skip' && (
-                      <div className="p-3 space-y-2.5">
-                        <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Remove follow-up for {c.first_name}?</p>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            disabled={isLoading}
-                            onClick={async () => {
-                              const result = await handleAction(c.id, { action: 'skip', skip_type: '30days' });
-                              if (result) {
-                                dismissCard(c.id);
-                                const el = document.getElementById('fu-toast');
-                                if (el) { el.textContent = 'Pushed 30 days'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2000); }
-                              }
-                            }}
-                            className="flex-1 py-2.5 rounded-lg text-xs font-montserrat font-semibold border border-gold/30 text-gold disabled:opacity-50"
-                          >
-                            30 Days
-                          </button>
-                          <button
-                            type="button"
-                            disabled={isLoading}
-                            onClick={async () => {
-                              const result = await handleAction(c.id, { action: 'skip', skip_type: 'remove' });
-                              if (result !== null) {
-                                dismissCard(c.id);
-                                const el = document.getElementById('fu-toast');
-                                if (el) { el.textContent = 'Follow-up removed'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2000); }
-                              }
-                            }}
-                            className="flex-1 py-2.5 rounded-lg text-xs font-montserrat font-semibold border border-red-500/30 text-red-500 disabled:opacity-50"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                        <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">
-                          Cancel
-                        </button>
-                      </div>
-                    )}
+            <div className="space-y-4">
+              {/* Sections: Overdue, Today, Tomorrow */}
+              {[
+                { label: 'OVERDUE', items: fuOverdue, color: '#e74c3c', borderColor: 'border-l-red-500' },
+                { label: 'TODAY', items: fuToday, color: '#d3a971', borderColor: 'border-l-gold' },
+                { label: 'TOMORROW', items: fuTomorrow, color: '#132236', borderColor: 'border-l-navy' },
+              ].filter(s => s.items.length > 0).map(section => (
+                <div key={section.label}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[10px] font-montserrat font-bold tracking-wider" style={{ color: section.color }}>{section.label}</span>
+                    <span className="text-[10px] font-montserrat font-semibold px-1.5 py-0.5 rounded-full" style={{ color: section.color, backgroundColor: `${section.color}15` }}>{section.items.length}</span>
                   </div>
-                );
-              })}
+                  <div className="space-y-2">
+                    {section.items.map(c => {
+                      const isExiting = exitingIds.has(c.id);
+                      const currentAction = activeAction[c.id] || null;
+                      const isLoading = actionLoading[c.id] || false;
+                      const form = doneForm[c.id] || { type: 'text', note: '' };
+                      const suggestion = getSmartSuggestion(c);
+                      const daysSinceActivity = c.last_activity_date ? Math.max(1, Math.floor((Date.now() - new Date(c.last_activity_date).getTime()) / (1000 * 60 * 60 * 24))) : null;
+                      const actEmoji = ACTIVITY_EMOJI[c.last_activity_type || ''] || '';
+                      const dirArrow = c.last_activity_direction === 'inbound' ? '\u2190' : '\u2192';
+
+                      return (
+                        <div
+                          key={c.id}
+                          className={`rounded-lg border-l-2 ${section.borderColor} border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 overflow-hidden`}
+                          style={{
+                            transition: 'transform 200ms ease-out, opacity 200ms ease-out',
+                            transform: isExiting ? 'translateX(-100%)' : 'translateX(0)',
+                            opacity: isExiting ? 0 : 1,
+                          }}
+                        >
+                          {/* Default card */}
+                          {!currentAction && (
+                            <div className="p-3">
+                              <div className="flex items-start gap-3">
+                                <a href={`/contacts/${c.id}`} className="flex items-start gap-2.5 flex-1 min-w-0">
+                                  <div className="w-9 h-9 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+                                    <span className="text-xs font-montserrat font-semibold text-gold">{c.first_name[0]}{c.last_name[0]}</span>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    {/* Line 1: Name + badges */}
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <span className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</span>
+                                      {c.engagement_temperature && (
+                                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: TEMP_COLORS[c.engagement_temperature] || '#95a5a6' }} title={c.engagement_temperature} />
+                                      )}
+                                      {c.disc_type && (
+                                        <span className="text-[10px] font-montserrat font-bold flex-shrink-0" style={{ color: DISC_COLORS[c.disc_type] || '#95a5a6' }}>{c.disc_type}{c.disc_secondary || ''}</span>
+                                      )}
+                                    </div>
+                                    {/* Line 2: Due indicator */}
+                                    {section.label === 'OVERDUE' && (
+                                      <p className="text-xs font-inter mt-0.5" style={{ color: '#e74c3c' }}>{daysOverdue(c.next_follow_up_date)} {daysOverdue(c.next_follow_up_date) === 1 ? 'day' : 'days'} overdue</p>
+                                    )}
+                                    {section.label === 'TODAY' && (
+                                      <p className="text-xs font-inter mt-0.5" style={{ color: '#d3a971' }}>Due today</p>
+                                    )}
+                                    {section.label === 'TOMORROW' && (
+                                      <p className="text-xs font-inter mt-0.5" style={{ color: '#132236' }}>Due tomorrow</p>
+                                    )}
+                                    {/* Line 3: Last activity context */}
+                                    {c.last_activity_type ? (
+                                      <p className="text-xs font-inter text-navy/35 dark:text-white/35 mt-0.5">{actEmoji} {c.last_activity_type} {dirArrow} {daysSinceActivity} {daysSinceActivity === 1 ? 'day' : 'days'} ago</p>
+                                    ) : (
+                                      <p className="text-xs font-inter text-navy/25 dark:text-white/25 mt-0.5">No previous contact</p>
+                                    )}
+                                    {/* Line 4: Deal indicator */}
+                                    {c.deal_value && c.deal_value > 0 && (
+                                      <p className="text-xs font-inter mt-0.5" style={{ color: '#d3a971' }}>{formatDealValue(c.deal_value)} deal{c.deal_name ? ` - ${c.deal_name}` : ''}</p>
+                                    )}
+                                    {/* Line 5: DISC suggestion */}
+                                    <p className="text-xs font-inter text-navy/40 dark:text-white/40 mt-1 italic line-clamp-2">{suggestion}</p>
+                                  </div>
+                                </a>
+                                {/* Action buttons */}
+                                <div className="flex items-center gap-1.5 flex-shrink-0 pt-1">
+                                  <button type="button" onClick={() => { setActiveAction(prev => ({ ...prev, [c.id]: 'done' })); setDoneForm(prev => ({ ...prev, [c.id]: { type: 'text', note: '' } })); }} className="w-11 h-11 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#27ae60' }} title="Done"><Check size={16} color="#fff" /></button>
+                                  <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: 'snooze' }))} className="w-11 h-11 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#d3a971' }} title="Snooze"><Clock size={16} color="#fff" /></button>
+                                  <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: 'skip' }))} className="w-11 h-11 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#95a5a6' }} title="Skip"><ArrowRight size={16} color="#fff" /></button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* DONE form */}
+                          {currentAction === 'done' && (
+                            <div className="p-3 space-y-2.5">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {['call', 'text', 'email', 'note'].map(t => (
+                                  <button key={t} type="button" onClick={() => setDoneForm(prev => ({ ...prev, [c.id]: { ...form, type: t } }))} className={`px-3 py-1.5 rounded-full text-xs font-montserrat font-semibold transition-colors capitalize ${form.type === t ? 'bg-navy text-white dark:bg-gold dark:text-navy' : 'bg-navy/5 dark:bg-white/10 text-navy/60 dark:text-white/60'}`}>{t}</button>
+                                ))}
+                              </div>
+                              <input type="text" placeholder="Quick note..." value={form.note} onChange={e => setDoneForm(prev => ({ ...prev, [c.id]: { ...form, note: e.target.value } }))} className="w-full px-3 py-2 rounded-lg bg-white dark:bg-dark-card border border-navy/10 dark:border-white/10 text-sm font-inter text-navy dark:text-white placeholder:text-navy/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-gold/50" />
+                              <div className="flex items-center gap-3">
+                                <button type="button" disabled={isLoading} onClick={async () => {
+                                  const result = await handleAction(c.id, { action: 'done', activity_type: form.type, note: form.note || undefined });
+                                  if (result) {
+                                    const dateStr = result.next_follow_up_date ? formatSnoozeDate(result.next_follow_up_date) : '';
+                                    dismissCard(c.id);
+                                    const el = document.getElementById('fu-toast');
+                                    if (el) { el.textContent = `Logged. Next: ${dateStr}`; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
+                                  }
+                                }} className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white disabled:opacity-50" style={{ backgroundColor: '#27ae60' }}>{isLoading ? 'Saving...' : 'Save'}</button>
+                                <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">Cancel</button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* SNOOZE pills */}
+                          {currentAction === 'snooze' && (
+                            <div className="p-3 space-y-2.5">
+                              <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Snooze {c.first_name}</p>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                                {[{ label: 'Tomorrow', days: 1 }, { label: '3 Days', days: 3 }, { label: '1 Week', days: 7 }, { label: '2 Weeks', days: 14 }].map(opt => (
+                                  <button key={opt.days} type="button" disabled={isLoading} onClick={async () => {
+                                    const result = await handleAction(c.id, { action: 'snooze', snooze_days: opt.days });
+                                    if (result) {
+                                      const dateStr = result.next_follow_up_date ? formatSnoozeDate(result.next_follow_up_date) : '';
+                                      dismissCard(c.id);
+                                      const el = document.getElementById('fu-toast');
+                                      if (el) { el.textContent = `Snoozed until ${dateStr}`; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
+                                    }
+                                  }} className={`py-2.5 rounded-lg text-xs font-montserrat font-semibold transition-colors disabled:opacity-50 ${opt.days === getDefaultSnoozeDays(c.disc_type) ? 'bg-gold/20 text-gold border border-gold/30' : 'bg-navy/5 dark:bg-white/10 text-navy/60 dark:text-white/60'}`}>{opt.label}</button>
+                                ))}
+                              </div>
+                              <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">Cancel</button>
+                            </div>
+                          )}
+
+                          {/* SKIP confirmation */}
+                          {currentAction === 'skip' && (
+                            <div className="p-3 space-y-2.5">
+                              <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Remove follow-up for {c.first_name}?</p>
+                              <div className="flex items-center gap-2">
+                                <button type="button" disabled={isLoading} onClick={async () => {
+                                  const result = await handleAction(c.id, { action: 'skip', skip_type: '30days' });
+                                  if (result) { dismissCard(c.id); const el = document.getElementById('fu-toast'); if (el) { el.textContent = 'Pushed 30 days'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); } }
+                                }} className="flex-1 py-2.5 rounded-lg text-xs font-montserrat font-semibold border border-gold/30 text-gold disabled:opacity-50">30 Days</button>
+                                <button type="button" disabled={isLoading} onClick={async () => {
+                                  const result = await handleAction(c.id, { action: 'skip', skip_type: 'remove' });
+                                  if (result !== null) { dismissCard(c.id); const el = document.getElementById('fu-toast'); if (el) { el.textContent = 'Follow-up removed'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); } }
+                                }} className="flex-1 py-2.5 rounded-lg text-xs font-montserrat font-semibold border border-red-500/30 text-red-500 disabled:opacity-50">Remove</button>
+                              </div>
+                              <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">Cancel</button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="flex flex-col items-center py-6 gap-2">
               <Check size={24} className="text-gold" />
               <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">All caught up</p>
               {nextFuture ? (
-                <p className="text-xs font-inter text-navy/40 dark:text-white/40">Next follow-up: {nextFuture.name} on {new Date(nextFuture.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                <p className="text-xs font-inter text-navy/40 dark:text-white/40">Next follow-up: {nextFuture.name} on {formatSnoozeDate(nextFuture.date)}</p>
               ) : (
                 <p className="text-xs font-inter text-navy/40 dark:text-white/40">No follow-ups scheduled</p>
               )}

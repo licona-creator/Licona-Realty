@@ -11,7 +11,8 @@ export function useOverdueCount() {
         const res = await fetch('/api/dashboard/follow-ups');
         if (res.ok) {
           const data = await res.json();
-          setCount((data.counts?.overdue || 0) + (data.counts?.today || 0));
+          // Only truly overdue (before today), not today or tomorrow
+          setCount(data.counts?.overdue || 0);
         }
       } catch { /* empty */ }
     }
