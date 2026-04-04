@@ -63,6 +63,14 @@ export interface Contact {
   // Preferences
   language_preference: LanguagePreference;
   disc_type: 'D' | 'I' | 'S' | 'C' | null;
+  disc_secondary: 'D' | 'I' | 'S' | 'C' | null;
+  disc_confidence: 'high' | 'medium' | 'low' | null;
+  engagement_temperature: 'hot' | 'warm' | 'cool' | 'cold' | null;
+  personality_brief: string | null;
+  communication_tips: string | null;
+  buying_motivation: string | null;
+  silence_meaning: string | null;
+  last_enriched_at: string | null;
 
   // Location for Google Maps
   latitude: number | null;
@@ -165,7 +173,10 @@ export interface ActivityEntry {
   user_id: string;
   contact_id: string;
   activity_type: string;
+  direction: 'outbound' | 'inbound' | null;
+  subject: string | null;
   description: string;
+  activity_date: string;
   metadata: Record<string, unknown> | null;
   created_at: string;
 }
