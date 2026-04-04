@@ -10,7 +10,7 @@ import {
   CheckCircle, Users, FileText, Calendar, Shield, Zap, AlertTriangle,
   Clock, DollarSign, ArrowRight, ChevronRight, Phone, PhoneCall,
   MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag, Check,
-  Send, Copy, FileArchive,
+  Send, Copy, FileArchive, Sparkles,
 } from 'lucide-react';
 import { FollowUpActionPanel } from '@/components/dashboard/FollowUpActionPanel';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
@@ -18,7 +18,7 @@ import { DashboardSkeleton } from '@/components/ui/Skeleton';
 interface FollowUpContact {
   id: string; first_name: string; last_name: string; phone: string | null;
   email: string | null; next_follow_up_date: string; follow_up_notes: string | null;
-  pipeline_stage: string; track_type: string;
+  pipeline_stage: string; track_type: string; engagement_temperature: string | null;
 }
 
 interface UpcomingEvent {
@@ -110,6 +110,8 @@ export default function DashboardPage() {
   const [expandedCampaignId, setExpandedCampaignId] = useState<string | null>(null);
   const [documentAlerts, setDocumentAlerts] = useState<Array<{ transactionId: string; address: string; daysToClose: number; percentComplete: number; cmrUploaded: number; cmrTotal: number; missingCount: number; urgency: 'red' | 'amber' }>>([]);
   const { settings } = useAgentSettings();
+  const [intelStats, setIntelStats] = useState<{ profiled: number; total: number; ready: number }>({ profiled: 0, total: 0, ready: 0 });
+  const [enrichingAll, setEnrichingAll] = useState(false);
   const displayName = settings?.profile_name || BRAND.agent.name;
 
   const fetchDashboard = useCallback(async () => {
@@ -143,6 +145,14 @@ export default function DashboardPage() {
         const daData = await docAlertRes.json();
         setDocumentAlerts(daData.alerts || []);
       }
+      // Fetch intelligence stats
+      try {
+        const intelRes = await fetch('/api/dashboard/intelligence-stats');
+        if (intelRes.ok) {
+          const iData = await intelRes.json();
+          setIntelStats(iData);
+        }
+      } catch { /* empty */ }
     } catch { /* empty */ } finally { setLoading(false); }
   }, []);
 
@@ -166,7 +176,12 @@ export default function DashboardPage() {
   const fuOverdue = followUps?.overdue || data?.followUps?.overdue || [];
   const fuToday = followUps?.today || data?.followUps?.today || [];
   const fuUpcoming = followUps?.upcoming || data?.followUps?.upcoming || [];
-  const visibleOverdue = fuOverdue.filter(c => !completedIds.has(c.id));
+  const tempOrder: Record<string, number> = { hot: 0, warm: 1, cool: 2, cold: 3 };
+  const visibleOverdue = fuOverdue.filter(c => !completedIds.has(c.id)).sort((a, b) => {
+    const aT = a.engagement_temperature;
+    const bT = b.engagement_temperature;
+    return (tempOrder[aT || ''] ?? 4) - (tempOrder[bT || ''] ?? 4);
+  });
   const visibleToday = fuToday.filter(c => !completedIds.has(c.id));
   const visibleUpcoming = fuUpcoming.filter(c => !completedIds.has(c.id));
   const hasFollowUps = visibleOverdue.length > 0 || visibleToday.length > 0 || visibleUpcoming.length > 0;
@@ -302,6 +317,15 @@ export default function DashboardPage() {
                         >
                           {/* Line 1: Name + badge */}
                           <div className="flex items-center gap-2 flex-wrap">
+                            {c.engagement_temperature && (
+                              <span
+                                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                                style={{
+                                  backgroundColor: c.engagement_temperature === 'hot' ? '#e74c3c' : c.engagement_temperature === 'warm' ? '#d3a971' : c.engagement_temperature === 'cool' ? '#3498db' : '#95a5a6',
+                                }}
+                                title={c.engagement_temperature}
+                              />
+                            )}
                             <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
                             <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full">{daysOverdue(c.next_follow_up_date)}d overdue</span>
                           </div>
@@ -672,6 +696,59 @@ export default function DashboardPage() {
               </Card>
             </div>
           )}
+
+          {/* Contact Intelligence */}
+          <Card className="!p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles size={18} style={{ color: '#d3a971' }} />
+              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">Contact Intelligence</h3>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative flex-shrink-0" style={{ width: 64, height: 64 }}>
+                <svg width="64" height="64" viewBox="0 0 64 64">
+                  <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(19,34,54,0.1)" strokeWidth="4" />
+                  <circle
+                    cx="32" cy="32" r="28" fill="none" stroke="#d3a971" strokeWidth="4"
+                    strokeDasharray={`${(intelStats.total > 0 ? intelStats.profiled / intelStats.total : 0) * 175.93} 175.93`}
+                    strokeLinecap="round"
+                    transform="rotate(-90 32 32)"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-sm font-montserrat font-bold text-navy dark:text-white">{intelStats.profiled}/{intelStats.total}</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-navy/50 dark:text-white/50 font-inter">contacts profiled</p>
+                {intelStats.ready > 0 && (
+                  <p className="text-xs font-inter mt-1" style={{ color: '#d3a971' }}>{intelStats.ready} ready for analysis</p>
+                )}
+                {intelStats.ready > 0 && (
+                  <button
+                    type="button"
+                    disabled={enrichingAll}
+                    onClick={async () => {
+                      setEnrichingAll(true);
+                      try {
+                        const res = await fetch('/api/ai/enrich-all', { method: 'POST' });
+                        if (res.ok) {
+                          const result = await res.json();
+                          const count = result.enriched || result.results?.length || 0;
+                          setIntelStats(prev => ({ ...prev, profiled: prev.profiled + count, ready: Math.max(0, prev.ready - count) }));
+                        }
+                      } catch { /* empty */ } finally {
+                        setEnrichingAll(false);
+                      }
+                    }}
+                    className="mt-2 px-3 py-1.5 rounded-full text-[11px] font-montserrat font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                    style={{ backgroundColor: '#d3a971' }}
+                  >
+                    {enrichingAll ? 'Analyzing...' : 'Run Analysis'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </Card>
 
           {/* Security */}
           <Card>

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     // Get all contacts with follow-up dates
     const { data, error } = await supabase
       .from('contacts')
-      .select('id, first_name, last_name, phone, email, next_follow_up_date, follow_up_notes, pipeline_stage, track_type')
+      .select('id, first_name, last_name, phone, email, next_follow_up_date, follow_up_notes, pipeline_stage, track_type, engagement_temperature')
       .eq('is_deleted', false)
       .not('next_follow_up_date', 'is', null)
       .order('next_follow_up_date', { ascending: true });

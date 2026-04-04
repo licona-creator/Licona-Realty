@@ -38,6 +38,9 @@ interface Contact {
   budget: string | null;
   next_follow_up_date: string | null;
   created_at: string;
+  disc_type: string | null;
+  disc_secondary: string | null;
+  engagement_temperature: string | null;
 }
 
 const STAGE_COLORS: Record<string, string> = {
@@ -297,6 +300,28 @@ export default function ContactsPage() {
                   <span className={`text-[10px] font-montserrat font-semibold px-2 py-1 rounded-full hidden sm:block flex-shrink-0 capitalize ${STAGE_COLORS[contact.pipeline_stage] || STAGE_COLORS.new}`}>
                     {contact.pipeline_stage?.replace(/_/g, ' ')}
                   </span>
+
+                  {/* AI Intelligence badges */}
+                  {contact.engagement_temperature && (
+                    <span
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0 hidden sm:block"
+                      style={{
+                        backgroundColor: contact.engagement_temperature === 'hot' ? '#e74c3c' : contact.engagement_temperature === 'warm' ? '#d3a971' : contact.engagement_temperature === 'cool' ? '#3498db' : '#95a5a6',
+                      }}
+                      title={contact.engagement_temperature}
+                    />
+                  )}
+                  {contact.disc_type && (
+                    <span
+                      className="text-[10px] font-montserrat font-bold flex-shrink-0 hidden sm:block"
+                      style={{
+                        color: contact.disc_type === 'D' ? '#c0392b' : contact.disc_type === 'I' ? '#d3a971' : contact.disc_type === 'S' ? '#27ae60' : '#2980b9',
+                      }}
+                      title={`DISC: ${contact.disc_type}${contact.disc_secondary ? contact.disc_secondary : ''}`}
+                    >
+                      {contact.disc_type}{contact.disc_secondary || ''}
+                    </span>
+                  )}
 
                   {/* Quick Actions */}
                   <div className="flex items-center gap-1 flex-shrink-0">

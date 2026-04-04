@@ -41,6 +41,14 @@ interface ContactData {
   location_preference: string | null;
   notes: string | null;
   lead_score: number;
+  disc_secondary: string | null;
+  disc_confidence: string | null;
+  engagement_temperature: string | null;
+  personality_brief: string | null;
+  communication_tips: string | null;
+  buying_motivation: string | null;
+  silence_meaning: string | null;
+  last_enriched_at: string | null;
   referral_partner_id: string | null;
   next_follow_up_date: string | null;
   last_contact_date: string | null;
@@ -134,6 +142,8 @@ export default function ContactDetailPage() {
   const [deleteActivityTarget, setDeleteActivityTarget] = useState<Activity | null>(null);
   const [showAI, setShowAI] = useState(false);
   const [insights, setInsights] = useState<Array<{ id: string; content: string; insight_type: string; is_pinned: boolean; created_at: string }>>([]);
+  const [enriching, setEnriching] = useState(false);
+  const [enrichPhase, setEnrichPhase] = useState(0);
 
   const fetchInsights = useCallback(async () => {
     try {
@@ -344,6 +354,168 @@ export default function ContactDetailPage() {
               {contact.location_preference && <div className="flex items-center gap-3"><MapPin size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Location Preference</p><p className="text-sm font-inter text-navy dark:text-white">{contact.location_preference}</p></div></div>}
               {contact.lead_source && <div className="flex items-center gap-3"><Tag size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Lead Source</p><p className="text-sm font-inter text-navy dark:text-white">{contact.lead_source}</p></div></div>}
             </div>
+          </Card>
+
+          {/* AI Intelligence Card */}
+          <Card className="!p-5" style={contact.last_enriched_at ? { borderLeft: '3px solid #d3a971' } : undefined}>
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles size={16} style={{ color: '#d3a971' }} />
+              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">AI Intelligence</h3>
+            </div>
+            {enriching ? (
+              <div className="flex flex-col items-center py-6 gap-3">
+                <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                <p className="text-xs font-inter text-navy/50 dark:text-white/50 animate-pulse">
+                  {['Reading communications...', 'Analyzing patterns...', 'Building profile...'][enrichPhase % 3]}
+                </p>
+              </div>
+            ) : contact.last_enriched_at ? (
+              <div className="space-y-3">
+                {/* DISC + confidence */}
+                {contact.disc_type && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <DISCBadge type={contact.disc_type} />
+                    {contact.disc_secondary && (
+                      <span className="text-xs font-inter text-navy/60 dark:text-white/60">with {contact.disc_secondary === 'D' ? 'Driver' : contact.disc_secondary === 'I' ? 'Influencer' : contact.disc_secondary === 'S' ? 'Stabilizer' : 'Analyst'} tendencies</span>
+                    )}
+                    {contact.disc_confidence && (
+                      <span
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: contact.disc_confidence === 'high' ? '#27ae60' : contact.disc_confidence === 'medium' ? '#d3a971' : '#95a5a6' }}
+                        title={`${contact.disc_confidence} confidence`}
+                      />
+                    )}
+                  </div>
+                )}
+                {/* Engagement temperature */}
+                {contact.engagement_temperature && (
+                  <div>
+                    <span
+                      className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-montserrat font-semibold capitalize"
+                      style={{
+                        color: contact.engagement_temperature === 'hot' ? '#e74c3c' : contact.engagement_temperature === 'warm' ? '#d3a971' : contact.engagement_temperature === 'cool' ? '#3498db' : '#95a5a6',
+                        backgroundColor: contact.engagement_temperature === 'hot' ? 'rgba(231,76,60,0.1)' : contact.engagement_temperature === 'warm' ? 'rgba(211,169,113,0.1)' : contact.engagement_temperature === 'cool' ? 'rgba(52,152,219,0.1)' : 'rgba(149,165,166,0.1)',
+                      }}
+                    >
+                      {contact.engagement_temperature}
+                    </span>
+                  </div>
+                )}
+                {/* Language badge */}
+                {contact.language_preference && contact.language_preference !== 'en' && (
+                  <div>
+                    <span
+                      className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-montserrat font-semibold text-white"
+                      style={{ backgroundColor: contact.language_preference === 'es' ? '#27ae60' : contact.language_preference === 'bilingual' ? '#d3a971' : '#132236' }}
+                    >
+                      {contact.language_preference === 'es' ? 'Spanish' : contact.language_preference === 'bilingual' ? 'Bilingual' : 'English'}
+                    </span>
+                  </div>
+                )}
+                {/* Personality brief */}
+                {contact.personality_brief && (
+                  <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(19,34,54,0.05)' }}>
+                    <p className="text-xs text-navy/40 dark:text-white/40 font-inter mb-1">Personality</p>
+                    <p className="text-sm font-inter text-navy/70 dark:text-white/70">{contact.personality_brief}</p>
+                  </div>
+                )}
+                {/* Communication tips */}
+                {contact.communication_tips && (
+                  <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(19,34,54,0.05)' }}>
+                    <p className="text-xs text-navy/40 dark:text-white/40 font-inter mb-1">Communication Tips</p>
+                    <p className="text-sm font-inter text-navy/70 dark:text-white/70">{contact.communication_tips}</p>
+                  </div>
+                )}
+                {/* Buying motivation */}
+                {contact.buying_motivation && (
+                  <p className="text-xs font-inter text-navy/50 dark:text-white/50 italic">{contact.buying_motivation}</p>
+                )}
+                {/* Silence meaning */}
+                {contact.silence_meaning && (
+                  <p className="text-xs font-inter text-navy/50 dark:text-white/50 italic">If they go quiet: {contact.silence_meaning}</p>
+                )}
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-2 border-t border-navy/5 dark:border-white/5">
+                  <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">
+                    Updated {(() => {
+                      const diff = Date.now() - new Date(contact.last_enriched_at!).getTime();
+                      const mins = Math.floor(diff / 60000);
+                      if (mins < 60) return `${mins}m ago`;
+                      const hrs = Math.floor(mins / 60);
+                      if (hrs < 24) return `${hrs}h ago`;
+                      const days = Math.floor(hrs / 24);
+                      return `${days}d ago`;
+                    })()}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setEnriching(true);
+                      setEnrichPhase(0);
+                      const interval = setInterval(() => setEnrichPhase(p => p + 1), 2000);
+                      try {
+                        const res = await fetch(`/api/ai/enrich-contact/${id}`, { method: 'POST' });
+                        if (res.ok) {
+                          toast.success('Profile Updated', `${contact.first_name}'s intelligence refreshed.`);
+                          fetchContact();
+                        } else {
+                          toast.error('Analysis Failed', 'Could not re-analyze this contact.');
+                        }
+                      } catch {
+                        toast.error('Error', 'Network error. Please try again.');
+                      } finally {
+                        clearInterval(interval);
+                        setEnriching(false);
+                      }
+                    }}
+                    className="text-[11px] font-montserrat font-medium px-2.5 py-1 rounded-full hover:bg-gold/10 transition-colors"
+                    style={{ color: '#d3a971' }}
+                  >
+                    Re-analyze
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center py-4 gap-3">
+                <Sparkles size={24} style={{ color: '#d3a971' }} />
+                <p className="text-sm font-inter text-navy/60 dark:text-white/60 text-center">
+                  Analyze {contact.first_name}&apos;s communication style
+                </p>
+                <p className="text-xs font-inter text-navy/30 dark:text-white/30">
+                  {activities.length} {activities.length === 1 ? 'interaction' : 'interactions'} available
+                </p>
+                {activities.length > 0 ? (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setEnriching(true);
+                      setEnrichPhase(0);
+                      const interval = setInterval(() => setEnrichPhase(p => p + 1), 2000);
+                      try {
+                        const res = await fetch(`/api/ai/enrich-contact/${id}`, { method: 'POST' });
+                        if (res.ok) {
+                          toast.success('Contact Profiled', `${contact.first_name} profiled.`);
+                          fetchContact();
+                        } else {
+                          toast.error('Analysis Failed', 'Could not analyze this contact.');
+                        }
+                      } catch {
+                        toast.error('Error', 'Network error. Please try again.');
+                      } finally {
+                        clearInterval(interval);
+                        setEnriching(false);
+                      }
+                    }}
+                    className="px-4 py-2 rounded-full text-sm font-montserrat font-semibold text-white transition-opacity hover:opacity-90"
+                    style={{ backgroundColor: '#d3a971' }}
+                  >
+                    Analyze Now
+                  </button>
+                ) : (
+                  <p className="text-xs font-inter text-navy/30 dark:text-white/30 italic">Not enough data yet</p>
+                )}
+              </div>
+            )}
           </Card>
 
           {contact.notes && (
