@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
+import { DISCSelector } from '@/components/shared/DISCSelector';
 import type { TrackType, PipelineStage } from '@/types/database';
 
 interface AddContactModalProps {
@@ -124,6 +125,7 @@ interface FormData {
   next_follow_up_date: string;
   follow_up_notes: string;
   referral_partner_id: string;
+  disc_type: 'D' | 'I' | 'S' | 'C' | null;
   notes: string;
 }
 
@@ -145,6 +147,7 @@ const INITIAL_FORM: FormData = {
   next_follow_up_date: '',
   follow_up_notes: '',
   referral_partner_id: '',
+  disc_type: null,
   notes: '',
 };
 
@@ -246,6 +249,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           next_follow_up_date: form.next_follow_up_date || null,
           follow_up_notes: form.follow_up_notes.trim() || null,
           referral_partner_id: form.referral_partner_id || null,
+          disc_type: form.disc_type || null,
           notes: form.notes.trim() || null,
         }),
       });
@@ -505,6 +509,13 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
             />
           </div>
         </div>
+
+        {/* DISC Personality */}
+        <DISCSelector
+          value={form.disc_type}
+          onChange={val => updateField('disc_type', val)}
+          disabled={loading}
+        />
 
         {/* Notes */}
         <div className="w-full">

@@ -24,6 +24,7 @@ const VALID_PIPELINE_STAGES = [
   'offer', 'under_contract', 'closing', 'closed', 'lost', 'on_hold',
 ];
 const VALID_LANGUAGES = ['en', 'es', 'bilingual'];
+const VALID_DISC_TYPES = ['D', 'I', 'S', 'C'];
 
 /**
  * GET /api/contacts/[id] - Get single contact
@@ -164,6 +165,15 @@ export async function PATCH(
         return NextResponse.json({ error: 'Invalid track type.' }, { status: 400 });
       }
       updates.track_type = body.track_type.toLowerCase();
+    }
+    if (body.disc_type !== undefined) {
+      if (body.disc_type === null || body.disc_type === '') {
+        updates.disc_type = null;
+      } else if (VALID_DISC_TYPES.includes(body.disc_type)) {
+        updates.disc_type = body.disc_type;
+      } else {
+        return NextResponse.json({ error: 'Invalid DISC type. Must be D, I, S, or C.' }, { status: 400 });
+      }
     }
 
     if (Object.keys(updates).length === 0) {

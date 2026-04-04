@@ -62,6 +62,7 @@ export interface Contact {
 
   // Preferences
   language_preference: LanguagePreference;
+  disc_type: 'D' | 'I' | 'S' | 'C' | null;
 
   // Location for Google Maps
   latitude: number | null;

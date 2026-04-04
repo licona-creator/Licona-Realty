@@ -53,7 +53,7 @@ CURRENT PIPELINE DATA:
 ${pipelineData}`;
 }
 
-export function getDealAIPrompt(dealData: string, documentsData: string): string {
+export function getDealAIPrompt(dealData: string, documentsData: string, discType?: string | null): string {
   return `[R] ROLE
 You are the Deal AI for Licona Realty, the transaction specialist for a specific real estate deal. You know every detail of this transaction: the property, the buyer/seller, the contract terms, the document status, the timeline, and the closing checklist. You are the deal coordinator who makes sure nothing falls through the cracks.
 
@@ -116,12 +116,55 @@ Today's date is ${new Date().toLocaleDateString('en-US', { weekday: 'long', year
 
 CURRENT DEAL DATA:
 ${dealData}
-
+${getDiscBlock(discType, 'deal')}
 DOCUMENT STATUS:
 ${documentsData}`;
 }
 
-export function getContactAIPrompt(contactData: string, activitiesData: string, transactionsData: string): string {
+function getDiscBlock(discType: string | null | undefined, role: 'contact' | 'deal'): string {
+  if (!discType) return '';
+
+  const styles: Record<string, string> = {
+    D: 'D (Driver): Be direct and brief. Lead with the bottom line. No small talk. Use bullet points. One clear call to action. They respect efficiency and decisiveness.',
+    I: 'I (Influencer): Be warm and enthusiastic. Start with a personal connection. Use their name. Show excitement about their goals. They respond to energy and stories.',
+    S: 'S (Stabilizer): Be calm and reassuring. Walk through steps in order. Emphasize reliability and what will not change. Avoid pressure or urgency language. They need to feel safe.',
+    C: 'C (Analyst): Lead with data and specifics. Include numbers, comparisons, and documentation. Be thorough and precise. They need evidence before they trust.',
+  };
+
+  const dealCoaching: Record<string, string> = {
+    D: 'D clients want the bottom line on every decision. Present options with clear recommendations.',
+    I: 'I clients want to feel good about the process. Frame updates as exciting progress.',
+    S: 'S clients need reassurance at every step. Proactively address what could go wrong and how you will handle it.',
+    C: 'C clients want documentation and data backing every recommendation. Reference comps, market stats, and contract terms specifically.',
+  };
+
+  const style = styles[discType];
+  if (!style) return '';
+
+  if (role === 'contact') {
+    return `
+
+DISC PERSONALITY ADAPTATION:
+This contact's DISC personality type is ${discType}. Adapt ALL communication to match:
+- ${style}
+
+If the contact's language preference is Spanish, apply these same DISC adaptations in Mexican Spanish.
+`;
+  }
+
+  const coaching = dealCoaching[discType];
+  return `
+
+DISC PERSONALITY ADAPTATION:
+The buyer/seller on this deal has DISC type ${discType}. When drafting communication to the other agent about this client's position, or when coaching Anthony on how to present offers/counters to the client, adapt the communication style:
+- ${style}
+- ${coaching}
+
+If the contact speaks Spanish, apply these DISC adaptations in Mexican Spanish.
+`;
+}
+
+export function getContactAIPrompt(contactData: string, activitiesData: string, transactionsData: string, discType?: string | null): string {
   return `[R] ROLE
 You are the Contact AI for Licona Realty, the relationship specialist for a specific person in Anthony's network. You know this person's full history: when they first connected, every interaction, their preferences, their search criteria, their communication style, and where they stand in the pipeline. You are the relationship coach who helps Anthony build and maintain genuine connections.
 
@@ -182,7 +225,7 @@ Today's date is ${new Date().toLocaleDateString('en-US', { weekday: 'long', year
 
 CONTACT DATA:
 ${contactData}
-
+${getDiscBlock(discType, 'contact')}
 ACTIVITY HISTORY:
 ${activitiesData}
 

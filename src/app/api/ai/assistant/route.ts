@@ -209,15 +209,17 @@ ${recentActivities || '- None'}`;
 
       // Fetch linked contact
       let contactInfo = 'No contact linked';
+      let dealContactDiscType: string | null = null;
       if (transaction.contact_id) {
         const { data: contact } = await supabase
           .from('contacts')
-          .select('first_name, last_name, phone, email, language_preference, pipeline_stage, track_type')
+          .select('first_name, last_name, phone, email, language_preference, pipeline_stage, track_type, disc_type')
           .eq('id', transaction.contact_id)
           .single();
 
         if (contact) {
-          contactInfo = `${contact.first_name} ${contact.last_name} - Phone: ${contact.phone || 'none'}, Email: ${contact.email || 'none'}, Language: ${contact.language_preference || 'en'}, Stage: ${contact.pipeline_stage}, Track: ${contact.track_type}`;
+          contactInfo = `${contact.first_name} ${contact.last_name} - Phone: ${contact.phone || 'none'}, Email: ${contact.email || 'none'}, Language: ${contact.language_preference || 'en'}, Stage: ${contact.pipeline_stage}, Track: ${contact.track_type}${contact.disc_type ? ', DISC: ' + contact.disc_type : ''}`;
+          dealContactDiscType = contact.disc_type;
         }
       }
 
@@ -310,7 +312,7 @@ ${uploadedDocDetails.length > 0 ? uploadedDocDetails.join('\n') : '- None upload
         // transaction_documents table may not exist yet
       }
 
-      systemPrompt = getDealAIPrompt(dealData, documentsData);
+      systemPrompt = getDealAIPrompt(dealData, documentsData, dealContactDiscType);
     }
 
     // ========== CONTACT MODE ==========
@@ -394,6 +396,7 @@ Email: ${contact.email || 'none'}
 Track: ${contact.track_type}
 Pipeline Stage: ${contact.pipeline_stage}
 Language: ${contact.language_preference === 'es' ? 'Spanish' : contact.language_preference === 'bilingual' ? 'Bilingual' : 'English'}
+DISC Personality: ${contact.disc_type ? contact.disc_type : 'not assessed'}
 Lead Source: ${contact.lead_source || 'unknown'}
 Budget: ${contact.budget || 'not set'}
 Location Preference: ${contact.location_preference || 'not set'}
@@ -433,7 +436,7 @@ Notes: ${contact.notes || 'none'}${insightsContext}`;
       }
       const transactionsData = txEntries.join('\n') || 'No transactions linked.';
 
-      systemPrompt = getContactAIPrompt(contactData, activitiesData, transactionsData);
+      systemPrompt = getContactAIPrompt(contactData, activitiesData, transactionsData, contact.disc_type);
     }
 
     // Build messages array

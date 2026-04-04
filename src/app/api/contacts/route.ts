@@ -28,6 +28,7 @@ const VALID_PIPELINE_STAGES = [
   'offer', 'under_contract', 'closing', 'closed', 'lost', 'on_hold',
 ];
 const VALID_LANGUAGES = ['en', 'es', 'bilingual'];
+const VALID_DISC_TYPES = ['D', 'I', 'S', 'C'];
 
 /**
  * GET /api/contacts - List contacts with optional filters
@@ -289,6 +290,7 @@ export async function POST(request: Request) {
       next_follow_up_date: body.next_follow_up_date || null,
       follow_up_notes: body.follow_up_notes ? sanitizeInput(body.follow_up_notes, 500) : null,
       referral_partner_id: body.referral_partner_id || null,
+      disc_type: body.disc_type && VALID_DISC_TYPES.includes(body.disc_type) ? body.disc_type : null,
     };
 
     const { data, error } = await supabase

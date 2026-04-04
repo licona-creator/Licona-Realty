@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
+import { DISCSelector, DISCBadge } from '@/components/shared/DISCSelector';
 import { calculateLeadScore, getScoreTailwind } from '@/lib/ai/lead-scoring';
 import { ContactDetailSkeleton } from '@/components/ui/Skeleton';
 
@@ -31,6 +32,7 @@ interface ContactData {
   pipeline_stage: PipelineStage;
   lead_source: string | null;
   language_preference: string;
+  disc_type: 'D' | 'I' | 'S' | 'C' | null;
   address_line_1: string | null;
   city: string | null;
   state: string | null;
@@ -186,6 +188,7 @@ export default function ContactDetailPage() {
       location_preference: contact.location_preference, notes: contact.notes,
       next_follow_up_date: contact.next_follow_up_date, follow_up_notes: contact.follow_up_notes,
       referral_partner_id: contact.referral_partner_id,
+      disc_type: contact.disc_type,
     });
     setEditing(true);
     fetch('/api/referral-partners').then(r => r.json()).then(d => setPartners(d.partners || [])).catch(() => {});
@@ -336,6 +339,7 @@ export default function ContactDetailPage() {
               {contact.email && <div className="flex items-center gap-3"><Mail size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Email</p><p className="text-sm font-inter text-navy dark:text-white">{contact.email}</p></div></div>}
               {(contact.address_line_1 || contact.city) && <div className="flex items-center gap-3"><MapPin size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Address</p><p className="text-sm font-inter text-navy dark:text-white">{contact.address_line_1 && <>{contact.address_line_1}<br /></>}{contact.city}{contact.state ? `, ${contact.state}` : ''} {contact.zip_code || ''}</p></div></div>}
               {contact.language_preference && <div className="flex items-center gap-3"><Globe size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Language</p><p className="text-sm font-inter text-navy dark:text-white capitalize">{contact.language_preference === 'en' ? 'English' : contact.language_preference === 'es' ? 'Spanish' : 'Bilingual'}</p></div></div>}
+              <div className="flex items-center gap-3"><Users size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">DISC Personality</p>{contact.disc_type ? <DISCBadge type={contact.disc_type} /> : <p className="text-sm font-inter text-navy/40 dark:text-white/40 italic">Not assessed</p>}</div></div>
               {contact.budget && <div className="flex items-center gap-3"><DollarSign size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Budget</p><p className="text-sm font-inter text-navy dark:text-white">{contact.budget}</p></div></div>}
               {contact.location_preference && <div className="flex items-center gap-3"><MapPin size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Location Preference</p><p className="text-sm font-inter text-navy dark:text-white">{contact.location_preference}</p></div></div>}
               {contact.lead_source && <div className="flex items-center gap-3"><Tag size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Lead Source</p><p className="text-sm font-inter text-navy dark:text-white">{contact.lead_source}</p></div></div>}
@@ -548,6 +552,11 @@ export default function ContactDetailPage() {
             <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Referral Partner</label><select value={editForm.referral_partner_id || ''} onChange={e => setEditForm(p => ({ ...p, referral_partner_id: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{partners.map(p => <option key={p.id} value={p.id}>{p.first_name} {p.last_name || ''}</option>)}</select></div>
           </div>
           <Input label="Follow-Up Notes" placeholder="Reminder notes for follow-up..." value={editForm.follow_up_notes || ''} onChange={e => setEditForm(p => ({ ...p, follow_up_notes: e.target.value }))} disabled={saving} />
+          <DISCSelector
+            value={(editForm.disc_type as 'D' | 'I' | 'S' | 'C' | null) || null}
+            onChange={val => setEditForm(p => ({ ...p, disc_type: val }))}
+            disabled={saving}
+          />
           <AddressAutocomplete
             label="Address"
             placeholder="Start typing an address..."
