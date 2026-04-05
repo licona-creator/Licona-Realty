@@ -659,7 +659,9 @@ export async function POST() {
             localIds.push(id);
             const txId = await createClosedDeal(id, 30);
 
-            // Create activity 28 days ago (within 7 days of 30-day milestone)
+            // Create activity 2 days ago (within 7 days of 30-day milestone which is today)
+            // Closing was 30 days ago, so milestone date = close + 30 = today.
+            // Activity 2 days ago is 2 days before milestone date = within 7-day window.
             const { data: act } = await supabase
               .from('activities')
               .insert({
@@ -668,7 +670,7 @@ export async function POST() {
                 activity_type: 'text',
                 direction: 'outbound',
                 description: 'QA test outreach',
-                activity_date: daysAgo(28).toISOString(),
+                activity_date: daysAgo(2).toISOString(),
               })
               .select('id')
               .single();
