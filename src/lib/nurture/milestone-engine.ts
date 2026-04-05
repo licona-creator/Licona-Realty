@@ -331,8 +331,6 @@ export function getPostCloseCheckIns(
   return results.sort((a, b) => a.days_until - b.days_until);
 }
 
-const GONE_QUIET_TRACK_TYPES = ['sphere', 'buyer', 'seller', 'landlord', 'tenant', 'investor'];
-
 function getSuggestedAction(disc: string | null): string {
   switch (disc) {
     case 'D': return 'Quick text. Something specific, not just checking in.';
@@ -360,11 +358,7 @@ export function getGoneQuietContacts(
     }
   }
 
-  const eligibleContacts = contacts.filter(
-    c => GONE_QUIET_TRACK_TYPES.includes(c.track_type)
-  );
-
-  for (const contact of eligibleContacts) {
+  for (const contact of contacts) {
     const lastActivity = lastActivityMap.get(contact.id);
 
     if (lastActivity) {

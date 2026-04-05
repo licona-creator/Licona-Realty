@@ -124,27 +124,6 @@ export default function MorePage() {
         })}
 
         <div className="border-t border-gold/15 my-3" />
-
-        <Link
-          href="/settings"
-          prefetch={false}
-          className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-gold/20 transition-colors"
-        >
-          <Settings size={20} className="text-navy/60 dark:text-white/50" />
-          <span className="font-montserrat text-sm font-medium text-navy/80 dark:text-white/70 flex-1">
-            Settings
-          </span>
-          <ChevronRight size={14} className="text-navy/20 dark:text-white/20" />
-        </Link>
-
-        <button onClick={() => setShowSignOut(true)} className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full">
-          <LogOut size={20} className="text-red-500/60" />
-          <span className="font-montserrat text-sm font-medium text-red-500/60">
-            Sign Out
-          </span>
-        </button>
-
-        <div className="border-t border-gold/15 my-3" />
         <p className="px-4 text-[10px] font-montserrat font-semibold text-navy/30 dark:text-white/30 uppercase tracking-wider mb-1">Developer Tools</p>
 
         <button
@@ -166,6 +145,27 @@ export default function MorePage() {
           <Trash2 size={20} className="text-red-500/60" />
           <span className="font-montserrat text-sm font-medium text-red-500/60 flex-1 text-left">
             {clearLoading ? 'Clearing...' : 'Clear Test Data'}
+          </span>
+        </button>
+
+        <div className="border-t border-gold/15 my-3" />
+
+        <Link
+          href="/settings"
+          prefetch={false}
+          className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-gold/20 transition-colors"
+        >
+          <Settings size={20} className="text-navy/60 dark:text-white/50" />
+          <span className="font-montserrat text-sm font-medium text-navy/80 dark:text-white/70 flex-1">
+            Settings
+          </span>
+          <ChevronRight size={14} className="text-navy/20 dark:text-white/20" />
+        </Link>
+
+        <button onClick={() => setShowSignOut(true)} className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full">
+          <LogOut size={20} className="text-red-500/60" />
+          <span className="font-montserrat text-sm font-medium text-red-500/60">
+            Sign Out
           </span>
         </button>
       </div>
