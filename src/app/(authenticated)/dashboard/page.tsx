@@ -13,6 +13,7 @@ import {
   Send, Copy, Sparkles, Heart, ChevronDown,
 } from 'lucide-react';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
+import { getDisplayName, getInitials } from '@/lib/format';
 
 interface FollowUpContact {
   id: string; first_name: string; last_name: string; phone: string | null;
@@ -591,12 +592,12 @@ export default function DashboardPage() {
                               <div className="flex items-start gap-3">
                                 <a href={`/contacts/${c.id}`} className="flex items-start gap-2.5 flex-1 min-w-0">
                                   <div className="w-9 h-9 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                                    <span className="text-xs font-montserrat font-semibold text-gold">{c.first_name[0]}{c.last_name[0]}</span>
+                                    <span className="text-xs font-montserrat font-semibold text-gold">{getInitials(c)}</span>
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     {/* Line 1: Name + badges */}
                                     <div className="flex items-center gap-1.5 flex-wrap">
-                                      <span className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</span>
+                                      <span className="text-sm font-montserrat font-medium text-navy dark:text-white">{getDisplayName(c)}</span>
                                       {c.engagement_temperature && (
                                         <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: TEMP_COLORS[c.engagement_temperature] || '#95a5a6' }} title={c.engagement_temperature} />
                                       )}
@@ -1004,7 +1005,7 @@ export default function DashboardPage() {
             <div className="space-y-2">
               {upcomingEvents.map(ev => {
                 const evDate = new Date(ev.activity_date);
-                const contactName = ev.contacts ? `${ev.contacts.first_name} ${ev.contacts.last_name}` : '';
+                const contactName = ev.contacts ? getDisplayName(ev.contacts) : '';
                 return (
                   <div key={ev.id} className="flex items-start gap-3 p-3 rounded-lg bg-surface dark:bg-navy/30">
                     <div className="w-7 h-7 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -1144,7 +1145,7 @@ export default function DashboardPage() {
                 <div className="space-y-2">
                   {data.recentActivities.map(a => {
                     const Icon = ACTIVITY_ICONS[a.activity_type] || Clock;
-                    const contactName = a.contacts ? `${a.contacts.first_name} ${a.contacts.last_name}` : '';
+                    const contactName = a.contacts ? getDisplayName(a.contacts) : '';
                     return (
                       <div key={a.id} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-surface dark:bg-navy/30">
                         <div className="w-7 h-7 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -1184,7 +1185,7 @@ export default function DashboardPage() {
                 {data.partners.map(p => (
                   <a key={p.id} href={`/partners/${p.id}`} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors touch-row">
                     <div>
-                      <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{p.first_name} {p.last_name || ''}</p>
+                      <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{getDisplayName(p)}</p>
                       <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">{p.total_leads_sent} leads, {p.total_closings} closings</p>
                     </div>
                     <span className="text-xs font-inter text-gold font-medium">${(p.total_revenue_generated || 0).toLocaleString()}</span>

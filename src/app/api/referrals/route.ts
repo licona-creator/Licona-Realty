@@ -11,6 +11,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { writeAuditLog, getClientIP, getUserAgent } from '@/lib/security/audit';
 import { validateUUID } from '@/lib/security/validation';
 import { logger } from '@/lib/security/logger';
+import { getDisplayName } from '@/lib/format';
 
 /**
  * GET /api/referrals - List all referrals with stats
@@ -53,7 +54,7 @@ export async function GET() {
         const referrer = ref.referrer as { first_name: string; last_name: string } | null;
         leaderboard[id] = {
           contactId: id,
-          name: referrer ? `${referrer.first_name} ${referrer.last_name}` : 'Unknown',
+          name: referrer ? getDisplayName(referrer) : 'Unknown',
           totalReferrals: 0,
           dealsResulted: 0,
           totalCommission: 0,

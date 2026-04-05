@@ -20,6 +20,7 @@ import {
   validateZipCode,
 } from '@/lib/security/validation';
 import { logger } from '@/lib/security/logger';
+import { getDisplayName } from '@/lib/format';
 
 // Valid track types and pipeline stages for validation
 const VALID_TRACK_TYPES = ['buyer', 'seller', 'landlord', 'tenant', 'investor', 'sphere'];
@@ -255,7 +256,7 @@ export async function POST(request: Request) {
           warning: 'duplicate_found',
           existing_contact: {
             id: dup.id,
-            name: `${dup.first_name} ${dup.last_name}`,
+            name: getDisplayName(dup),
             email: dup.email,
             phone: dup.phone,
           },

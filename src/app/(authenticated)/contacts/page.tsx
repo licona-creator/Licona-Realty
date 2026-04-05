@@ -22,6 +22,7 @@ import { ImportContactsModal } from '@/components/modals/ImportContactsModal';
 import { VCardImportModal } from '@/components/modals/VCardImportModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { calculateLeadScore, getScoreTailwind } from '@/lib/ai/lead-scoring';
+import { getDisplayName, getInitials } from '@/lib/format';
 import { SkeletonContactRow } from '@/components/ui/Skeleton';
 import type { TrackType } from '@/types/database';
 
@@ -111,7 +112,7 @@ export default function ContactsPage() {
     try {
       const res = await fetch(`/api/contacts/${contact.id}`, { method: 'DELETE' });
       if (res.ok) {
-        success('Contact Deleted', `${contact.first_name} ${contact.last_name} has been removed.`);
+        success('Contact Deleted', `${getDisplayName(contact)} has been removed.`);
         fetchContacts();
       } else {
         const json = await res.json().catch(() => ({}));
@@ -240,7 +241,7 @@ export default function ContactsPage() {
                   {/* Avatar */}
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
                     <span className="text-xs sm:text-sm font-montserrat font-semibold text-gold">
-                      {contact.first_name[0]}{contact.last_name[0]}
+                      {getInitials(contact)}
                     </span>
                   </div>
 
@@ -248,7 +249,7 @@ export default function ContactsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-montserrat font-semibold text-navy dark:text-white truncate">
-                        {contact.first_name} {contact.last_name}
+                        {getDisplayName(contact)}
                       </p>
                       {contact.lead_source && (
                         <span className="text-[10px] text-navy/50 dark:text-white/50 font-inter flex-shrink-0 hidden sm:inline">
@@ -402,7 +403,7 @@ export default function ContactsPage() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => deleteTarget && handleDelete(deleteTarget)}
         title="Delete Contact?"
-        message={deleteTarget ? `Are you sure you want to delete ${deleteTarget.first_name} ${deleteTarget.last_name}? This action cannot be undone.` : ''}
+        message={deleteTarget ? `Are you sure you want to delete ${getDisplayName(deleteTarget)}? This action cannot be undone.` : ''}
         variant="danger"
       />
 

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
+import { getDisplayName } from '@/lib/format';
 import {
   Phone, MessageCircle, Copy, Check, ChevronRight,
   Lightbulb, Clock, X,
@@ -203,7 +204,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
             className="text-base font-semibold text-navy dark:text-white hover:text-gold transition-colors inline-flex items-center gap-1"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
-            {contact.first_name} {contact.last_name}
+            {getDisplayName(contact)}
             <ChevronRight size={14} className="text-gold" />
           </a>
           <div className="flex items-center gap-2 mt-1 flex-wrap">

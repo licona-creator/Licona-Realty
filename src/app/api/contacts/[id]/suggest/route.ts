@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { validateUUID } from '@/lib/security/validation';
+import { getDisplayName } from '@/lib/format';
 
 export async function GET(
   request: Request,
@@ -50,7 +51,7 @@ export async function GET(
         .eq('id', contact.referral_partner_id)
         .single();
       if (partner) {
-        partnerName = `${partner.first_name} ${partner.last_name || ''}`.trim();
+        partnerName = getDisplayName(partner);
       }
     }
 

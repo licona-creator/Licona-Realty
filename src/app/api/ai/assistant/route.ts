@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getSystemAIPrompt, getDealAIPrompt, getContactAIPrompt } from '@/lib/ai/system-prompts';
 import { getDocumentChecklist, calculateDocumentProgress, calculateProgress } from '@/lib/documents/texas-checklist';
 import type { TransactionDocument } from '@/lib/documents/texas-checklist';
+import { getDisplayName } from '@/lib/format';
 
 type AIMode = 'system' | 'deal' | 'contact';
 
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
         .filter(c => c.next_follow_up_date && c.next_follow_up_date < today)
         .map(c => {
           const days = Math.floor((Date.now() - new Date(c.next_follow_up_date + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24));
-          return `${c.first_name} ${c.last_name} (${days}d overdue, stage: ${c.pipeline_stage})`;
+          return `${getDisplayName(c)} (${days}d overdue, stage: ${c.pipeline_stage})`;
         });
 
       // Active leads with recent activity
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
             ? Math.floor((Date.now() - new Date(c.last_contact_date + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24))
             : -1;
           return {
-            name: `${c.first_name} ${c.last_name}`,
+            name: getDisplayName(c),
             stage: c.pipeline_stage,
             track: c.track_type,
             phone: c.phone,
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
 
       // Partner stats
       const partnerStats = partners.map(p =>
-        `${p.first_name} ${p.last_name || ''}${p.company ? ` (${p.company})` : ''}`
+        `${getDisplayName(p)}${p.company ? ` (${p.company})` : ''}`
       );
 
       // Upcoming closings
@@ -163,7 +164,7 @@ export async function POST(request: NextRequest) {
       // Recent activities
       const recentActivities = activities.slice(0, 10).map(a => {
         const contact = contacts.find(c => c.id === a.contact_id);
-        const contactName = contact ? `${contact.first_name} ${contact.last_name}` : 'Unknown';
+        const contactName = contact ? getDisplayName(contact) : 'Unknown';
         return `- ${a.activity_date?.split('T')[0] || 'unknown'}: ${a.activity_type}${a.direction ? ` (${a.direction})` : ''} with ${contactName} - ${a.description || 'no description'}`;
       }).join('\n');
 
@@ -228,7 +229,7 @@ ${recentActivities || '- None'}`;
           .single();
 
         if (contact) {
-          contactInfo = `${contact.first_name} ${contact.last_name} - Phone: ${contact.phone || 'none'}, Email: ${contact.email || 'none'}, Language: ${contact.language_preference || 'en'}, Stage: ${contact.pipeline_stage}, Track: ${contact.track_type}${contact.disc_type ? ', DISC: ' + contact.disc_type : ''}`;
+          contactInfo = `${getDisplayName(contact)} - Phone: ${contact.phone || 'none'}, Email: ${contact.email || 'none'}, Language: ${contact.language_preference || 'en'}, Stage: ${contact.pipeline_stage}, Track: ${contact.track_type}${contact.disc_type ? ', DISC: ' + contact.disc_type : ''}`;
           dealContactIntel = {
             disc_type: contact.disc_type,
             disc_secondary: contact.disc_secondary,
@@ -375,7 +376,7 @@ ${uploadedDocDetails.length > 0 ? uploadedDocDetails.join('\n') : '- None upload
           .eq('id', contact.referral_partner_id)
           .single();
         if (partner) {
-          partnerName = `${partner.first_name} ${partner.last_name || ''}`.trim();
+          partnerName = getDisplayName(partner);
           if (partner.company) partnerName += ` (${partner.company})`;
         }
       }
@@ -410,7 +411,7 @@ ${uploadedDocDetails.length > 0 ? uploadedDocDetails.join('\n') : '- None upload
       const hasActiveTransaction = (transactions || []).some(t => !['closed', 'cancelled', 'lost'].includes(t.status));
 
       const contactData = `
-Name: ${contact.first_name} ${contact.last_name}
+Name: ${getDisplayName(contact)}
 Phone: ${contact.phone || 'none'}
 Email: ${contact.email || 'none'}
 Track: ${contact.track_type}

@@ -15,6 +15,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { writeAuditLog, getClientIP, getUserAgent } from '@/lib/security/audit';
 import { sanitizeInput } from '@/lib/security/validation';
 import { logger } from '@/lib/security/logger';
+import { getDisplayName } from '@/lib/format';
 
 const BATCH_SIZE = 50;
 const MAX_CONTACTS = 5000;
@@ -80,8 +81,8 @@ function buildRow(c: ImportContact, userId: string) {
 
   return {
     user_id: userId,
-    first_name: firstName || 'Unknown',
-    last_name: lastName || firstName || 'Contact',
+    first_name: firstName || lastName || 'Unknown',
+    last_name: (firstName && !lastName) ? '' : (lastName || 'Contact'),
     email: sanitizeEmail(c.email),
     phone: formatPhone(c.phone),
     track_type: 'sphere' as const,
@@ -162,7 +163,7 @@ export async function POST(request: Request) {
 
           if (singleError) {
             errorCount += 1;
-            const name = `${row.first_name} ${row.last_name}`.trim();
+            const name = getDisplayName(row);
             errorDetails.push(
               `"${name}": ${singleError.message}${singleError.code ? ` [${singleError.code}]` : ''}${singleError.details ? ` - ${singleError.details}` : ''}`
             );

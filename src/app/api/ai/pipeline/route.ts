@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getDocumentChecklist, calculateDocumentProgress } from '@/lib/documents/texas-checklist';
 import type { TransactionDocument } from '@/lib/documents/texas-checklist';
+import { getDisplayName } from '@/lib/format';
 
 export async function GET() {
   try {
@@ -83,7 +84,7 @@ export async function GET() {
       .filter(c => c.next_follow_up_date && c.next_follow_up_date < today)
       .map(c => {
         const days = Math.floor((Date.now() - new Date(c.next_follow_up_date + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24));
-        return `${c.first_name} ${c.last_name} (${days}d overdue, stage: ${c.pipeline_stage})`;
+        return `${getDisplayName(c)} (${days}d overdue, stage: ${c.pipeline_stage})`;
       });
 
     // Active leads with recent activity
@@ -102,7 +103,7 @@ export async function GET() {
           ? Math.floor((Date.now() - new Date(c.last_contact_date + 'T00:00:00').getTime()) / (1000 * 60 * 60 * 24))
           : -1;
         return {
-          name: `${c.first_name} ${c.last_name}`,
+          name: getDisplayName(c),
           stage: c.pipeline_stage,
           track: c.track_type,
           phone: c.phone,
@@ -128,7 +129,7 @@ export async function GET() {
         // We don't have referral_partner_id in this select, so skip detailed stats
         return false;
       });
-      return `${p.first_name} ${p.last_name || ''}${p.company ? ` (${p.company})` : ''}`;
+      return `${getDisplayName(p)}${p.company ? ` (${p.company})` : ''}`;
     });
 
     // Upcoming closings with document progress

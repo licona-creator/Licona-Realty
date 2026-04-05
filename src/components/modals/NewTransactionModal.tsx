@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
 import { TRANSACTION_TYPE_LABELS } from '@/lib/documents/texas-checklist';
+import { getDisplayName } from '@/lib/format';
 import type { TransactionType } from '@/lib/documents/texas-checklist';
 
 interface NewTransactionModalProps {
@@ -231,7 +232,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
                 <option value="">Select a contact</option>
                 {contacts.map(c => (
                   <option key={c.id} value={c.id}>
-                    {c.first_name} {c.last_name}
+                    {getDisplayName(c)}
                   </option>
                 ))}
               </>

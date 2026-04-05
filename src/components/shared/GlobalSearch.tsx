@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, X, Users, FileText, Handshake, Loader2 } from 'lucide-react';
 import { BRAND } from '@/lib/brand';
+import { getDisplayName } from '@/lib/format';
 
 interface ContactResult {
   id: string;
@@ -201,7 +202,7 @@ export function GlobalSearch() {
                 <ResultItem
                   key={contact.id}
                   onClick={() => navigateTo(`/contacts/${contact.id}`)}
-                  primary={`${contact.first_name} ${contact.last_name}`}
+                  primary={getDisplayName(contact)}
                   secondary={contact.email || contact.phone || ''}
                 />
               ))}
@@ -235,7 +236,7 @@ export function GlobalSearch() {
                 <ResultItem
                   key={partner.id}
                   onClick={() => navigateTo(`/partners/${partner.id}`)}
-                  primary={`${partner.first_name} ${partner.last_name}`}
+                  primary={getDisplayName(partner)}
                   secondary={partner.company || ''}
                 />
               ))}

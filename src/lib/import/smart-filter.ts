@@ -11,6 +11,7 @@
  */
 
 import type { ParsedContact, ParsedPhone } from './vcard-parser';
+import { getDisplayName } from '@/lib/format';
 
 export interface ClassifiedContact {
   first_name: string;
@@ -344,7 +345,7 @@ function checkDuplicate(
       const existing = phoneMap.get(last10);
       if (existing) {
         return {
-          existing_name: `${existing.first_name} ${existing.last_name}`,
+          existing_name: getDisplayName(existing),
           existing_id: existing.id,
           match_type: 'phone',
         };
@@ -358,7 +359,7 @@ function checkDuplicate(
     const existing = emailMap.get(lower);
     if (existing) {
       return {
-        existing_name: `${existing.first_name} ${existing.last_name}`,
+        existing_name: getDisplayName(existing),
         existing_id: existing.id,
         match_type: 'email',
       };

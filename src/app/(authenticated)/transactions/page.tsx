@@ -20,6 +20,7 @@ import {
   FileText, Plus, DollarSign, CalendarDays, CheckSquare,
   Clock, AlertTriangle, ChevronRight, User,
 } from 'lucide-react';
+import { getDisplayName } from '@/lib/format';
 
 const STAGE_LABELS: Record<string, { label: string; color: string }> = {
   new: { label: 'New', color: '#3B82F6' },
@@ -213,7 +214,7 @@ export default function TransactionsPage() {
                       {tx.contacts && (
                         <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1">
                           <User size={10} />
-                          {tx.contacts.first_name} {tx.contacts.last_name}
+                          {getDisplayName(tx.contacts)}
                         </span>
                       )}
                       {tx.contract_price && (

@@ -7,6 +7,7 @@
 
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getDisplayName } from '@/lib/format';
 
 interface CampaignMessage {
   day: number;
@@ -46,7 +47,7 @@ export async function GET() {
     const messages = enrollments.map(enrollment => {
       const contact = enrollment.contacts as unknown as Record<string, string> | null;
       const campaign = enrollment.campaign_templates as unknown as { name: string; messages: CampaignMessage[] } | null;
-      const contactName = contact ? `${contact.first_name} ${contact.last_name}` : 'Unknown';
+      const contactName = contact ? getDisplayName(contact) : 'Unknown';
       const campaignMessages = campaign?.messages || [];
       const currentMsg = campaignMessages[enrollment.current_step] || campaignMessages[0];
 

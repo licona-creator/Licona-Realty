@@ -1,4 +1,5 @@
 import type { Contact, ActivityEntry } from '@/types/database';
+import { getDisplayName } from '@/lib/format';
 
 export const DISC_PROFILER_SYSTEM_PROMPT = `You are a certified DISC behavioral analyst with 25 years assessing communication patterns. You assess both PRIMARY and SECONDARY types (most people are blended like DI, SC, CD).
 
@@ -56,7 +57,7 @@ export function buildEnrichmentPrompt(
   activities: Pick<ActivityEntry, 'activity_date' | 'activity_type' | 'direction' | 'subject' | 'description'>[]
 ): string {
   const contactInfo = [
-    `Name: ${contact.first_name} ${contact.last_name}`,
+    `Name: ${getDisplayName(contact)}`,
     contact.email ? `Email: ${contact.email}` : null,
     contact.phone ? `Phone: ${contact.phone}` : null,
     `Track: ${contact.track_type}`,

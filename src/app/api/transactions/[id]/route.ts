@@ -11,6 +11,7 @@ import { checkRateLimit } from '@/lib/security/rate-limit';
 import { validateUUID, sanitizePlainText } from '@/lib/security/validation';
 import { writeAuditLog, getClientIP, getUserAgent } from '@/lib/security/audit';
 import { createClosingCalendarEvent, createWalkthroughCalendarEvent } from '@/lib/sync/calendar-actions';
+import { getDisplayName } from '@/lib/format';
 
 export async function GET(
   request: NextRequest,
@@ -131,7 +132,7 @@ export async function PATCH(
       const newDate = body.closing_date || null;
 
       if (newDate && newDate !== oldDate && data?.contacts) {
-        const contactName = `${data.contacts.first_name} ${data.contacts.last_name}`;
+        const contactName = getDisplayName(data.contacts);
         const txData = {
           property_address: data.property_address,
           contact_name: contactName,

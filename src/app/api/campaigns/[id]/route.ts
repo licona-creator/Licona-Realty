@@ -12,6 +12,7 @@ import { writeAuditLog, getClientIP, getUserAgent } from '@/lib/security/audit';
 import { sanitizeInput, validateUUID } from '@/lib/security/validation';
 import { logger } from '@/lib/security/logger';
 import { checkRateLimit } from '@/lib/security/rate-limit';
+import { getDisplayName } from '@/lib/format';
 
 const VALID_STATUSES = ['active', 'paused', 'archived'];
 const VALID_TRACK_TYPES = ['buyer', 'seller', 'investor'];
@@ -94,7 +95,7 @@ export async function GET(
       next_message_date: e.next_message_date,
       created_at: e.created_at,
       contact_name: e.contacts
-        ? `${e.contacts.first_name || ''} ${e.contacts.last_name || ''}`.trim() || 'Unknown'
+        ? getDisplayName(e.contacts)
         : 'Unknown',
     }));
 

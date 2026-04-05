@@ -9,6 +9,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { getGoogleAccessToken } from '@/lib/google/auth';
 import { fetchRecentEmails, type GmailMessage } from '@/lib/google/gmail';
+import { getDisplayName } from '@/lib/format';
 
 const OWN_EMAILS = new Set([
   'licona@liconarealty.com',
@@ -95,7 +96,7 @@ export async function syncEmails(
       if (c.email) {
         contactMap.set(c.email.toLowerCase(), {
           id: c.id,
-          name: `${c.first_name} ${c.last_name}`,
+          name: getDisplayName(c),
         });
       }
     }

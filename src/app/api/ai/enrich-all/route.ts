@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import sanitizeHtml from 'sanitize-html';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { logger } from '@/lib/security/logger';
+import { getDisplayName } from '@/lib/format';
 import {
   DISC_PROFILER_SYSTEM_PROMPT,
   calculateEngagementTemperature,
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
         eligible.push(contact);
       } else {
         insufficientData.push(
-          `${contact.first_name} ${contact.last_name}`
+          getDisplayName(contact)
         );
       }
     }
@@ -151,7 +152,7 @@ export async function POST(request: NextRequest) {
 
         if (!anthropicResponse.ok) {
           errors.push(
-            `${contact.first_name} ${contact.last_name}: API error ${anthropicResponse.status}`
+            `${getDisplayName(contact)}: API error ${anthropicResponse.status}`
           );
           continue;
         }
@@ -168,7 +169,7 @@ export async function POST(request: NextRequest) {
 
         if (!parsed) {
           errors.push(
-            `${contact.first_name} ${contact.last_name}: Failed to parse response`
+            `${getDisplayName(contact)}: Failed to parse response`
           );
           continue;
         }
@@ -210,7 +211,7 @@ export async function POST(request: NextRequest) {
           .eq('id', contact.id);
 
         results.push({
-          name: `${contact.first_name} ${contact.last_name}`,
+          name: getDisplayName(contact),
           disc_type: (parsed.disc_type as string) ?? null,
           disc_secondary: (parsed.disc_secondary as string) ?? null,
           confidence: (parsed.disc_confidence as string) ?? null,
@@ -218,7 +219,7 @@ export async function POST(request: NextRequest) {
         });
       } catch (err) {
         errors.push(
-          `${contact.first_name} ${contact.last_name}: ${err instanceof Error ? err.message : 'Unknown error'}`
+          `${getDisplayName(contact)}: ${err instanceof Error ? err.message : 'Unknown error'}`
         );
       }
 

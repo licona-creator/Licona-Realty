@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
 import { Handshake, Plus, DollarSign, Users, TrendingUp, Phone, Mail, ChevronRight, Trash2 } from 'lucide-react';
+import { getDisplayName } from '@/lib/format';
 
 interface Partner {
   id: string;
@@ -116,7 +117,7 @@ export default function PartnersPage() {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <h3 className="font-montserrat font-semibold text-navy dark:text-white">
-                    {p.first_name} {p.last_name || ''}
+                    {getDisplayName(p)}
                   </h3>
                   {p.company && <p className="text-xs text-navy/50 dark:text-white/50 font-inter">{p.company}{p.role ? ` - ${p.role}` : ''}</p>}
                 </div>

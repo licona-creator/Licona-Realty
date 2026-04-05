@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
 import { DISCSelector } from '@/components/shared/DISCSelector';
+import { getDisplayName } from '@/lib/format';
 import type { TrackType, PipelineStage } from '@/types/database';
 
 interface AddContactModalProps {
@@ -274,7 +275,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
         throw new Error(body?.error || `Failed to create contact (${res.status})`);
       }
 
-      toast.success('Contact created', `${form.first_name} ${form.last_name} has been added.`);
+      toast.success('Contact created', `${getDisplayName(form)} has been added.`);
       resetForm();
       onSuccess?.();
       onClose();
@@ -463,7 +464,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
             >
               <option value="">None</option>
               {partners.map(p => (
-                <option key={p.id} value={p.id}>{p.first_name} {p.last_name || ''}</option>
+                <option key={p.id} value={p.id}>{getDisplayName(p)}</option>
               ))}
             </select>
           </div>

@@ -27,6 +27,7 @@ import {
   type ClassificationResult,
   type ExistingContact,
 } from '@/lib/import/smart-filter';
+import { getDisplayName } from '@/lib/format';
 
 interface VCardImportModalProps {
   open: boolean;
@@ -217,7 +218,7 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
 
       // Show current contact name
       if (batch[0]) {
-        setImportCurrentName(`${batch[0].first_name} ${batch[0].last_name}`);
+        setImportCurrentName(getDisplayName(batch[0]));
       }
 
       const payload = batch.map((c) => ({
@@ -701,7 +702,7 @@ function ContactRow({ contact, selected, onToggle }: { contact: ClassifiedContac
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-sm font-montserrat font-semibold text-navy dark:text-white truncate">
-            {contact.first_name} {contact.last_name}
+            {getDisplayName(contact)}
           </span>
           {contact.company && (
             <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter truncate hidden sm:inline">
@@ -767,7 +768,7 @@ function DuplicateRow({ contact, onImportAsNew }: { contact: ClassifiedContact; 
       </div>
       <div className="flex-1 min-w-0">
         <span className="text-sm font-montserrat font-medium text-navy dark:text-white truncate block">
-          {contact.first_name} {contact.last_name}
+          {getDisplayName(contact)}
         </span>
         {match && (
           <span className="text-xs text-navy/40 dark:text-white/40 font-inter">

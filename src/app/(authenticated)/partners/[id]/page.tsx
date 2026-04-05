@@ -11,6 +11,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
 import { BRAND } from '@/lib/brand';
 import { ArrowLeft, Edit3, Trash2, Phone, Mail, DollarSign, Users, TrendingUp, Handshake, Globe, ChevronRight } from 'lucide-react';
+import { getDisplayName } from '@/lib/format';
 
 interface PartnerData {
   id: string; first_name: string; last_name: string | null; company: string | null;
@@ -103,7 +104,7 @@ export default function PartnerDetailPage() {
   if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" /><span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading...</span></div>;
   if (error || !partner) return <div className="p-4 lg:p-8 max-w-4xl mx-auto"><button onClick={() => router.push('/partners')} className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline"><ArrowLeft size={16} /> Back</button><Card className="!p-8 text-center"><p className="text-red-500">{error || 'Not found'}</p></Card></div>;
 
-  const fullName = `${partner.first_name} ${partner.last_name || ''}`.trim();
+  const fullName = getDisplayName(partner);
 
   return (
     <div className="p-4 lg:p-8 max-w-4xl mx-auto">
@@ -164,7 +165,7 @@ export default function PartnerDetailPage() {
                 {contacts.map(c => (
                   <button key={c.id} onClick={() => router.push(`/contacts/${c.id}`)} className="w-full flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors text-left">
                     <div>
-                      <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{c.first_name} {c.last_name}</p>
+                      <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{getDisplayName(c)}</p>
                       <p className="text-xs text-navy/40 dark:text-white/40 font-inter capitalize">{c.track_type} - {c.pipeline_stage.replace(/_/g, ' ')}</p>
                     </div>
                     <ChevronRight size={14} className="text-navy/20 dark:text-white/20" />

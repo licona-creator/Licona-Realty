@@ -8,6 +8,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { getGoogleAccessToken } from '@/lib/google/auth';
 import { fetchUpcomingEvents, fetchRecentEvents, type CalendarEvent } from '@/lib/google/calendar';
+import { getDisplayName } from '@/lib/format';
 
 export async function syncCalendarEvents(
   supabase: SupabaseClient,
@@ -78,7 +79,7 @@ export async function syncCalendarEvents(
       if (c.email) {
         contactMap.set(c.email.toLowerCase(), {
           id: c.id,
-          name: `${c.first_name} ${c.last_name}`,
+          name: getDisplayName(c),
         });
       }
     }

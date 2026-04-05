@@ -19,6 +19,7 @@ import {
   Send, Plus, Users, MessageSquare, ChevronDown, ChevronUp,
   Play, Pause, Square, Trash2, UserPlus, ArrowLeft,
 } from 'lucide-react';
+import { getDisplayName } from '@/lib/format';
 
 // ============================================
 // Interfaces
@@ -503,7 +504,7 @@ function CampaignDetailView({
                 className="w-full text-left p-3 rounded-lg border border-gold/15 hover:bg-gold/10 transition-colors disabled:opacity-50"
               >
                 <p className="font-montserrat font-medium text-sm text-navy dark:text-white">
-                  {contact.first_name || ''} {contact.last_name || ''}
+                  {getDisplayName(contact)}
                 </p>
               </button>
             ))}

@@ -21,6 +21,7 @@ import {
   Building, Phone, Mail, Sparkles,
 } from 'lucide-react';
 import { DealDetailSkeleton } from '@/components/ui/Skeleton';
+import { getDisplayName } from '@/lib/format';
 
 interface TransactionData {
   id: string;
@@ -256,7 +257,7 @@ export default function TransactionDetailPage() {
     : null;
   const statusColor = STATUS_COLORS[transaction.status] || STATUS_COLORS.new;
   const contactName = transaction.contacts
-    ? `${transaction.contacts.first_name} ${transaction.contacts.last_name}`
+    ? getDisplayName(transaction.contacts)
     : 'Unknown Contact';
 
   return (
@@ -555,7 +556,7 @@ export default function TransactionDetailPage() {
                   <option value="">Select a contact</option>
                   {contacts.map(c => (
                     <option key={c.id} value={c.id}>
-                      {c.first_name} {c.last_name}
+                      {getDisplayName(c)}
                     </option>
                   ))}
                 </>

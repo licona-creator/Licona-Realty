@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/security/rate-limit';
+import { getDisplayName } from '@/lib/format';
 
 interface EnrichedFollowUp {
   id: string;
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
         .limit(1);
 
       const nextFuture = futureData && futureData.length > 0
-        ? { name: `${futureData[0].first_name} ${futureData[0].last_name}`, date: futureData[0].next_follow_up_date }
+        ? { name: getDisplayName(futureData[0]), date: futureData[0].next_follow_up_date }
         : null;
 
       return NextResponse.json({
@@ -177,7 +178,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     const nextFuture = futureData && futureData.length > 0
-      ? { name: `${futureData[0].first_name} ${futureData[0].last_name}`, date: futureData[0].next_follow_up_date }
+      ? { name: getDisplayName(futureData[0]), date: futureData[0].next_follow_up_date }
       : null;
 
     return NextResponse.json({

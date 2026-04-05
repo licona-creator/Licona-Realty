@@ -9,6 +9,7 @@
 
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getDisplayName } from '@/lib/format';
 
 function daysFromNow(days: number): Date {
   const d = new Date();
@@ -183,7 +184,7 @@ export async function POST() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const createdAgo = (def as any)._created_ago;
 
-      const fullName = `${def.first_name} ${def.last_name}`;
+      const fullName = getDisplayName(def);
       const emailAddr = def.email !== undefined
         ? def.email
         : `test-${slug(fullName)}@test.liconarealty.com`;

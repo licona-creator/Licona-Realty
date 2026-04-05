@@ -20,6 +20,7 @@ import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
 import { DISCSelector, DISCBadge } from '@/components/shared/DISCSelector';
 import { calculateLeadScore, getScoreTailwind } from '@/lib/ai/lead-scoring';
+import { getDisplayName, getInitials } from '@/lib/format';
 import { ContactDetailSkeleton } from '@/components/ui/Skeleton';
 
 interface ContactData {
@@ -244,7 +245,7 @@ export default function ContactDetailPage() {
       const data = await res.json();
       setContact(data.contact);
       setEditing(false);
-      toast.success('Contact Updated', `${data.contact.first_name} ${data.contact.last_name} has been updated.`);
+      toast.success('Contact Updated', `${getDisplayName(data.contact)} has been updated.`);
       router.refresh();
     } catch (err) {
       toast.error('Update Failed', err instanceof Error ? err.message : 'Something went wrong.');
@@ -327,10 +328,10 @@ export default function ContactDetailPage() {
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-            <span className="text-xl font-montserrat font-bold text-gold">{contact.first_name[0]}{contact.last_name[0]}</span>
+            <span className="text-xl font-montserrat font-bold text-gold">{getInitials(contact)}</span>
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.playfair }}>{contact.first_name} {contact.last_name}</h1>
+            <h1 className="text-2xl font-semibold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.playfair }}>{getDisplayName(contact)}</h1>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <span className="text-[10px] font-montserrat font-semibold uppercase px-2 py-0.5 rounded-full bg-gold/10 text-gold">{contact.track_type}</span>
               <span className={`text-[10px] font-montserrat font-semibold px-2 py-0.5 rounded-full ${stageColor}`}>{contact.pipeline_stage.replace(/_/g, ' ')}</span>
@@ -753,7 +754,7 @@ export default function ContactDetailPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Next Follow-Up Date" type="date" value={editForm.next_follow_up_date || ''} onChange={e => setEditForm(p => ({ ...p, next_follow_up_date: e.target.value }))} disabled={saving} />
-            <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Referral Partner</label><select value={editForm.referral_partner_id || ''} onChange={e => setEditForm(p => ({ ...p, referral_partner_id: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{partners.map(p => <option key={p.id} value={p.id}>{p.first_name} {p.last_name || ''}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Referral Partner</label><select value={editForm.referral_partner_id || ''} onChange={e => setEditForm(p => ({ ...p, referral_partner_id: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{partners.map(p => <option key={p.id} value={p.id}>{getDisplayName(p)}</option>)}</select></div>
           </div>
           <Input label="Follow-Up Notes" placeholder="Reminder notes for follow-up..." value={editForm.follow_up_notes || ''} onChange={e => setEditForm(p => ({ ...p, follow_up_notes: e.target.value }))} disabled={saving} />
           <DISCSelector
@@ -856,14 +857,14 @@ export default function ContactDetailPage() {
         </form>
       </Modal>
 
-      <ConfirmDialog open={showDelete} onClose={() => setShowDelete(false)} onConfirm={handleDelete} title="Delete Contact?" message={`Are you sure you want to delete ${contact.first_name} ${contact.last_name}? This action cannot be undone.`} variant="danger" />
+      <ConfirmDialog open={showDelete} onClose={() => setShowDelete(false)} onConfirm={handleDelete} title="Delete Contact?" message={`Are you sure you want to delete ${getDisplayName(contact)}? This action cannot be undone.`} variant="danger" />
       <ConfirmDialog open={!!deleteActivityTarget} onClose={() => setDeleteActivityTarget(null)} onConfirm={() => deleteActivityTarget && handleDeleteActivity(deleteActivityTarget)} title="Delete this activity?" message="This activity will be permanently removed." variant="danger" />
       <AIAssistantPanel
         open={showAI}
         onClose={() => setShowAI(false)}
         mode="contact"
         contactId={id}
-        contactName={`${contact.first_name} ${contact.last_name}`}
+        contactName={getDisplayName(contact)}
         contactStage={contact.pipeline_stage}
       />
     </div>

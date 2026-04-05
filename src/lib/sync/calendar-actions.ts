@@ -9,6 +9,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { getGoogleAccessToken } from '@/lib/google/auth';
 import { createCalendarEvent, deleteCalendarEvent } from '@/lib/google/calendar';
+import { getDisplayName } from '@/lib/format';
 
 /**
  * Create a follow-up calendar event for a contact.
@@ -29,7 +30,7 @@ export async function createFollowUpCalendarEvent(
       (contact.phone ? `\nPhone: ${contact.phone}` : '');
 
     const eventId = await createCalendarEvent(accessToken, {
-      summary: `Follow up: ${contact.first_name} ${contact.last_name}`,
+      summary: `Follow up: ${getDisplayName(contact)}`,
       description,
       startDateTime: `${followUpDate}T09:00:00`,
       endDateTime: `${followUpDate}T09:30:00`,
