@@ -10,8 +10,6 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-const ALLOWED_EMAILS = ['anthony@liconarealty.com', 'anthonyliconarealtor@gmail.com'];
-
 export async function DELETE() {
   try {
     const supabase = await createServerSupabaseClient();
@@ -19,12 +17,6 @@ export async function DELETE() {
 
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    const isDev = process.env.NODE_ENV === 'development';
-    const isAllowed = ALLOWED_EMAILS.includes(user.email || '');
-    if (!isDev && !isAllowed) {
-      return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     // Find all test seed contacts

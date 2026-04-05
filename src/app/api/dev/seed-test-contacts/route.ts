@@ -10,8 +10,6 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-const ALLOWED_EMAILS = ['anthony@liconarealty.com', 'anthonyliconarealtor@gmail.com'];
-
 function daysFromNow(days: number): Date {
   const d = new Date();
   d.setDate(d.getDate() + days);
@@ -44,12 +42,6 @@ export async function POST() {
 
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    const isDev = process.env.NODE_ENV === 'development';
-    const isAllowed = ALLOWED_EMAILS.includes(user.email || '');
-    if (!isDev && !isAllowed) {
-      return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
     const now = new Date();

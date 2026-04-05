@@ -224,9 +224,15 @@ const TEMP_COLORS: Record<string, string> = { hot: '#e74c3c', warm: '#d3a971', c
 const DISC_COLORS: Record<string, string> = { D: '#c0392b', I: '#d3a971', S: '#27ae60', C: '#2980b9' };
 const ACTIVITY_EMOJI: Record<string, string> = { call: '\u{1F4DE}', text: '\u{1F4F1}', email: '\u{1F4E7}', note: '\u{1F4DD}', showing: '\u{1F3E0}', meeting: '\u{1F91D}' };
 
-function formatDealValue(v: number): string {
-  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
-  if (v >= 1_000) return `$${Math.round(v / 1_000)}K`;
+function formatMoney(v: number): string {
+  if (v >= 1_000_000) {
+    const m = v / 1_000_000;
+    return m % 1 === 0 ? `$${m}M` : `$${m.toFixed(1)}M`;
+  }
+  if (v >= 1_000) {
+    const k = v / 1_000;
+    return k % 1 === 0 ? `$${k}K` : `$${k.toFixed(1)}K`;
+  }
   return `$${v.toLocaleString()}`;
 }
 
@@ -267,6 +273,7 @@ export default function DashboardPage() {
   const [dismissedMilestones, setDismissedMilestones] = useState<Set<string>>(new Set());
   const [exitingMilestones, setExitingMilestones] = useState<Set<string>>(new Set());
   const [milestoneLoading, setMilestoneLoading] = useState<Record<string, boolean>>({});
+  const [copiedMilestones, setCopiedMilestones] = useState<Set<string>>(new Set());
   const [showAllMilestones, setShowAllMilestones] = useState(false);
   const displayName = settings?.profile_name || BRAND.agent.name;
 
@@ -445,7 +452,7 @@ export default function DashboardPage() {
         {/* Mobile-only: compact metric pills row */}
         <div className="flex gap-2 overflow-x-auto pb-1 lg:hidden scrollbar-hide">
           <div className="flex-shrink-0 px-3 py-2 rounded-full bg-gold/10 border border-gold/20">
-            <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">${pipelineValue >= 1000 ? `${Math.round(pipelineValue / 1000)}K` : pipelineValue.toLocaleString()}</span>
+            <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{formatMoney(pipelineValue)}</span>
           </div>
           <div className="flex-shrink-0 px-3 py-2 rounded-full bg-blue-500/10 border border-blue-500/20">
             <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{data?.contacts.activeLeads || 0} Leads</span>
@@ -615,7 +622,7 @@ export default function DashboardPage() {
                                     )}
                                     {/* Line 4: Deal indicator */}
                                     {c.deal_value && c.deal_value > 0 && (
-                                      <p className="text-xs font-inter mt-0.5" style={{ color: '#d3a971' }}>{formatDealValue(c.deal_value)} deal{c.deal_name ? ` - ${c.deal_name}` : ''}</p>
+                                      <p className="text-xs font-inter mt-0.5" style={{ color: '#d3a971' }}>{formatMoney(c.deal_value)} deal{c.deal_name ? ` - ${c.deal_name}` : ''}</p>
                                     )}
                                     {/* Line 5: DISC suggestion */}
                                     <p className="text-xs font-inter text-navy/40 dark:text-white/40 mt-1 italic line-clamp-2">{suggestion}</p>
@@ -772,22 +779,37 @@ export default function DashboardPage() {
                               </div>
                             )}
                             <div className="flex items-center gap-2 mt-2">
-                              <button
-                                type="button"
-                                disabled={isLoading}
-                                onClick={async () => {
-                                  try { await navigator.clipboard.writeText(m.message || ''); } catch { /* empty */ }
-                                  const ok = await handleMilestoneAction(key, 'sent', m.contact!.id, 'birthday', 'Birthday message', m.message);
-                                  if (ok) {
+                              {!copiedMilestones.has(key) ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    try { navigator.clipboard.writeText(m.message || ''); } catch { /* empty */ }
+                                    setCopiedMilestones(prev => new Set(prev).add(key));
                                     const el = document.getElementById('nurture-toast');
-                                    if (el) { el.textContent = 'Copied and logged'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
-                                  }
-                                }}
-                                className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white disabled:opacity-50 min-h-[44px]"
-                                style={{ backgroundColor: '#d3a971' }}
-                              >
-                                {isLoading ? 'Saving...' : 'Copy & Send'}
-                              </button>
+                                    if (el) { el.textContent = 'Copied to clipboard'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
+                                  }}
+                                  className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white min-h-[44px]"
+                                  style={{ backgroundColor: '#d3a971' }}
+                                >
+                                  Copy
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={isLoading}
+                                  onClick={async () => {
+                                    const ok = await handleMilestoneAction(key, 'sent', m.contact!.id, 'birthday', 'Birthday message', m.message);
+                                    if (ok) {
+                                      const el = document.getElementById('nurture-toast');
+                                      if (el) { el.textContent = 'Logged'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
+                                    }
+                                  }}
+                                  className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white disabled:opacity-50 min-h-[44px]"
+                                  style={{ backgroundColor: '#27ae60' }}
+                                >
+                                  {isLoading ? 'Saving...' : 'Mark Sent'}
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 disabled={isLoading}
@@ -858,22 +880,37 @@ export default function DashboardPage() {
                               </div>
                             )}
                             <div className="flex items-center gap-2 mt-2">
-                              <button
-                                type="button"
-                                disabled={isLoading}
-                                onClick={async () => {
-                                  try { await navigator.clipboard.writeText(m.message || ''); } catch { /* empty */ }
-                                  const ok = await handleMilestoneAction(key, 'sent', m.contact!.id, 'post_close', m.milestone_label || '', m.message);
-                                  if (ok) {
+                              {!copiedMilestones.has(key) ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    try { navigator.clipboard.writeText(m.message || ''); } catch { /* empty */ }
+                                    setCopiedMilestones(prev => new Set(prev).add(key));
                                     const el = document.getElementById('nurture-toast');
-                                    if (el) { el.textContent = 'Copied and logged'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
-                                  }
-                                }}
-                                className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white disabled:opacity-50 min-h-[44px]"
-                                style={{ backgroundColor: '#d3a971' }}
-                              >
-                                {isLoading ? 'Saving...' : 'Copy & Send'}
-                              </button>
+                                    if (el) { el.textContent = 'Copied to clipboard'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
+                                  }}
+                                  className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white min-h-[44px]"
+                                  style={{ backgroundColor: '#d3a971' }}
+                                >
+                                  Copy
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={isLoading}
+                                  onClick={async () => {
+                                    const ok = await handleMilestoneAction(key, 'sent', m.contact!.id, 'post_close', m.milestone_label || '', m.message);
+                                    if (ok) {
+                                      const el = document.getElementById('nurture-toast');
+                                      if (el) { el.textContent = 'Logged'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
+                                    }
+                                  }}
+                                  className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white disabled:opacity-50 min-h-[44px]"
+                                  style={{ backgroundColor: '#27ae60' }}
+                                >
+                                  {isLoading ? 'Saving...' : 'Mark Sent'}
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 disabled={isLoading}
@@ -1061,7 +1098,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <DollarSign size={16} className="text-gold mb-1 lg:mb-2" />
-            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>${pipelineValue >= 1000 ? `${Math.round(pipelineValue / 1000)}K` : pipelineValue.toLocaleString()}</p>
+            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>{formatMoney(pipelineValue)}</p>
             <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Pipeline Value</p>
           </Card>
           <Card className="!p-3 lg:!p-4 min-h-[80px]">
@@ -1085,12 +1122,12 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 gap-4">
           <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <DollarSign size={16} className="text-green-500 mb-1 lg:mb-2" />
-            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>${((data?.commissionYTD || 0) >= 1000 ? `${Math.round((data?.commissionYTD || 0) / 1000)}K` : (data?.commissionYTD || 0).toLocaleString())}</p>
+            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>{formatMoney(data?.commissionYTD || 0)}</p>
             <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">YTD Income (Net)</p>
           </Card>
           <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <TrendingUp size={16} className="text-gold mb-1 lg:mb-2" />
-            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>${((data?.commissionProjected || 0) >= 1000 ? `${Math.round((data?.commissionProjected || 0) / 1000)}K` : (data?.commissionProjected || 0).toLocaleString())}</p>
+            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>{formatMoney(data?.commissionProjected || 0)}</p>
             <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Projected (Active)</p>
           </Card>
         </div>
