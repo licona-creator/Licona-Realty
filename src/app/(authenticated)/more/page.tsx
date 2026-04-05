@@ -17,7 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import {
   Send, Megaphone, MapPin, Calendar, Palette,
   Star, Calculator, Settings, LogOut, Handshake, Activity, ChevronRight,
-  Database, Trash2,
+  Database, Trash2, FlaskConical, Check, X, ChevronDown, ChevronUp, Loader2,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -37,12 +37,118 @@ const moreItems = NAV_ITEMS.filter(
   (item) => !['Dashboard', 'Approval Queue', 'Contacts', 'Deals', 'Settings'].includes(item.label)
 );
 
+interface QATestResult {
+  name: string;
+  passed: boolean;
+  error?: string;
+}
+
+interface QAGroupResult {
+  group: string;
+  tests: QATestResult[];
+  passed: number;
+  failed: number;
+}
+
+interface QAResponse {
+  total_tests: number;
+  passed: number;
+  failed: number;
+  duration_ms: number;
+  groups: QAGroupResult[];
+  all_passed: boolean;
+}
+
+function QAResultsCard({ results }: { results: QAResponse }) {
+  const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>(() => {
+    const initial: Record<number, boolean> = {};
+    results.groups.forEach((g, i) => {
+      if (g.failed > 0) initial[i] = true;
+    });
+    return initial;
+  });
+
+  function toggleGroup(idx: number) {
+    setExpandedGroups(prev => ({ ...prev, [idx]: !prev[idx] }));
+  }
+
+  return (
+    <div className="mt-2 border border-gold/20 rounded-[8px] overflow-hidden">
+      <div className={`px-4 py-3 flex items-center justify-between ${results.all_passed ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+        <div className="flex items-center gap-2">
+          {results.all_passed
+            ? <Check size={16} className="text-emerald-500" />
+            : <X size={16} className="text-red-500" />}
+          <span className="font-montserrat text-sm font-semibold text-navy dark:text-white">
+            {results.passed}/{results.total_tests} passed
+          </span>
+        </div>
+        <span className="text-[10px] font-inter text-navy/50 dark:text-white/40">
+          {results.duration_ms}ms
+        </span>
+      </div>
+
+      <div className="divide-y divide-gold/10">
+        {results.groups.map((group, gi) => (
+          <div key={gi}>
+            <button
+              onClick={() => toggleGroup(gi)}
+              className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-gold/5 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                {group.failed === 0
+                  ? <Check size={14} className="text-emerald-500" />
+                  : <X size={14} className="text-red-500" />}
+                <span className="font-montserrat text-xs font-medium text-navy dark:text-white text-left">
+                  {group.group}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-inter text-navy/40 dark:text-white/30">
+                  {group.passed}/{group.tests.length}
+                </span>
+                {expandedGroups[gi]
+                  ? <ChevronUp size={12} className="text-navy/30 dark:text-white/20" />
+                  : <ChevronDown size={12} className="text-navy/30 dark:text-white/20" />}
+              </div>
+            </button>
+
+            {expandedGroups[gi] && (
+              <div className="px-4 pb-2 space-y-1">
+                {group.tests.map((test, ti) => (
+                  <div key={ti} className="flex items-start gap-2 py-1">
+                    {test.passed
+                      ? <Check size={12} className="text-emerald-500 mt-0.5 shrink-0" />
+                      : <X size={12} className="text-red-500 mt-0.5 shrink-0" />}
+                    <div className="min-w-0">
+                      <span className="font-inter text-[11px] text-navy/70 dark:text-white/60">
+                        {test.name}
+                      </span>
+                      {test.error && (
+                        <p className="font-inter text-[10px] text-red-500 mt-0.5 break-words">
+                          {test.error}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function MorePage() {
   const [showSignOut, setShowSignOut] = useState(false);
   const [showSeedConfirm, setShowSeedConfirm] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [seedLoading, setSeedLoading] = useState(false);
   const [clearLoading, setClearLoading] = useState(false);
+  const [qaLoading, setQaLoading] = useState(false);
+  const [qaResults, setQaResults] = useState<QAResponse | null>(null);
   const { signOut } = useAuth();
   const toast = useToast();
 
@@ -62,6 +168,30 @@ export default function MorePage() {
     } finally {
       setSeedLoading(false);
       setShowSeedConfirm(false);
+    }
+  }
+
+  async function handleQA() {
+    setQaLoading(true);
+    setQaResults(null);
+    try {
+      const res = await fetch('/api/dev/run-qa', { method: 'POST' });
+      if (res.ok) {
+        const data: QAResponse = await res.json();
+        setQaResults(data);
+        if (data.all_passed) {
+          toast.success('QA Passed', `All ${data.total_tests} tests passed in ${data.duration_ms}ms.`);
+        } else {
+          toast.error('QA Failed', `${data.failed} of ${data.total_tests} tests failed.`);
+        }
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error('QA Failed', data.error || 'Something went wrong.');
+      }
+    } catch {
+      toast.error('Error', 'Network error. Please try again.');
+    } finally {
+      setQaLoading(false);
     }
   }
 
@@ -136,6 +266,21 @@ export default function MorePage() {
             {seedLoading ? 'Creating...' : 'Seed Test Data'}
           </span>
         </button>
+
+        <button
+          onClick={handleQA}
+          disabled={qaLoading}
+          className="flex items-center gap-3 px-4 py-3 rounded-[8px] hover:bg-gold/10 transition-colors w-full border border-gold/40 disabled:opacity-50"
+        >
+          {qaLoading
+            ? <Loader2 size={20} className="text-gold animate-spin" />
+            : <FlaskConical size={20} className="text-gold" />}
+          <span className="font-montserrat text-sm font-medium text-gold flex-1 text-left">
+            {qaLoading ? 'Running tests...' : 'Run QA Tests'}
+          </span>
+        </button>
+
+        {qaResults && <QAResultsCard results={qaResults} />}
 
         <button
           onClick={() => setShowClearConfirm(true)}
