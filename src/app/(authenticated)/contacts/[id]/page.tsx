@@ -53,6 +53,11 @@ interface ContactData {
   next_follow_up_date: string | null;
   last_contact_date: string | null;
   follow_up_notes: string | null;
+  birthday_month: number | null;
+  birthday_day: number | null;
+  birthday_year: number | null;
+  company: string | null;
+  job_title: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -199,6 +204,11 @@ export default function ContactDetailPage() {
       next_follow_up_date: contact.next_follow_up_date, follow_up_notes: contact.follow_up_notes,
       referral_partner_id: contact.referral_partner_id,
       disc_type: contact.disc_type,
+      birthday_month: contact.birthday_month ? String(contact.birthday_month) : '',
+      birthday_day: contact.birthday_day ? String(contact.birthday_day) : '',
+      birthday_year: contact.birthday_year ? String(contact.birthday_year) : '',
+      company: contact.company,
+      job_title: contact.job_title,
     });
     setEditing(true);
     fetch('/api/referral-partners').then(r => r.json()).then(d => setPartners(d.partners || [])).catch(() => {});
@@ -223,6 +233,11 @@ export default function ContactDetailPage() {
           notes: editForm.notes?.trim() || null, next_follow_up_date: editForm.next_follow_up_date || null,
           follow_up_notes: editForm.follow_up_notes?.trim() || null,
           referral_partner_id: editForm.referral_partner_id || null,
+          birthday_month: editForm.birthday_month ? Number(editForm.birthday_month) : null,
+          birthday_day: editForm.birthday_day ? Number(editForm.birthday_day) : null,
+          birthday_year: editForm.birthday_year ? Number(editForm.birthday_year) : null,
+          company: editForm.company?.trim() || null,
+          job_title: editForm.job_title?.trim() || null,
         }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Failed to update'); }
@@ -353,6 +368,23 @@ export default function ContactDetailPage() {
               {contact.budget && <div className="flex items-center gap-3"><DollarSign size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Budget</p><p className="text-sm font-inter text-navy dark:text-white">{contact.budget}</p></div></div>}
               {contact.location_preference && <div className="flex items-center gap-3"><MapPin size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Location Preference</p><p className="text-sm font-inter text-navy dark:text-white">{contact.location_preference}</p></div></div>}
               {contact.lead_source && <div className="flex items-center gap-3"><Tag size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Lead Source</p><p className="text-sm font-inter text-navy dark:text-white">{contact.lead_source}</p></div></div>}
+              {contact.birthday_month && contact.birthday_day && (() => {
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                const bdayLabel = `${monthNames[contact.birthday_month - 1]} ${contact.birthday_day}`;
+                const now = new Date();
+                const thisYear = now.getFullYear();
+                let bdayDate = new Date(Date.UTC(thisYear, contact.birthday_month - 1, contact.birthday_day));
+                if (bdayDate < new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))) {
+                  bdayDate = new Date(Date.UTC(thisYear + 1, contact.birthday_month - 1, contact.birthday_day));
+                }
+                const diff = Math.round((bdayDate.getTime() - Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())) / (1000 * 60 * 60 * 24));
+                const nearLabel = diff === 0 ? '(Today!)' : diff <= 7 ? `(in ${diff} days)` : '';
+                return (
+                  <div className="flex items-center gap-3"><CalendarDays size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Birthday</p><p className="text-sm font-inter text-navy dark:text-white">{bdayLabel} {nearLabel && <span style={{ color: '#d3a971' }} className="font-semibold">{nearLabel}</span>}</p></div></div>
+                );
+              })()}
+              {contact.company && <div className="flex items-center gap-3"><Briefcase size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Company</p><p className="text-sm font-inter text-navy dark:text-white">{contact.company}</p></div></div>}
+              {contact.job_title && <div className="flex items-center gap-3"><Briefcase size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Title</p><p className="text-sm font-inter text-navy dark:text-white">{contact.job_title}</p></div></div>}
             </div>
           </Card>
 
@@ -729,6 +761,55 @@ export default function ContactDetailPage() {
             onChange={val => setEditForm(p => ({ ...p, disc_type: val }))}
             disabled={saving}
           />
+          {/* Birthday */}
+          <div>
+            <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Birthday</label>
+            <div className="grid grid-cols-3 gap-2">
+              <select
+                value={editForm.birthday_month || ''}
+                onChange={e => {
+                  const month = e.target.value;
+                  setEditForm(p => {
+                    const maxDay = month ? [31,29,31,30,31,30,31,31,30,31,30,31][Number(month) - 1] : 31;
+                    const day = p.birthday_day && Number(p.birthday_day) > maxDay ? String(maxDay) : p.birthday_day;
+                    return { ...p, birthday_month: month, birthday_day: day };
+                  });
+                }}
+                className={selectClassName}
+                disabled={saving}
+              >
+                <option value="">Month</option>
+                {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((label, i) => (
+                  <option key={i + 1} value={i + 1}>{label}</option>
+                ))}
+              </select>
+              <select
+                value={editForm.birthday_day || ''}
+                onChange={e => setEditForm(p => ({ ...p, birthday_day: e.target.value }))}
+                className={selectClassName}
+                disabled={saving}
+              >
+                <option value="">Day</option>
+                {Array.from({ length: editForm.birthday_month ? [31,29,31,30,31,30,31,31,30,31,30,31][Number(editForm.birthday_month) - 1] : 31 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                ))}
+              </select>
+              <Input
+                placeholder="Year"
+                value={editForm.birthday_year || ''}
+                onChange={e => {
+                  const v = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  setEditForm(p => ({ ...p, birthday_year: v }));
+                }}
+                disabled={saving}
+              />
+            </div>
+          </div>
+          {/* Company & Job Title */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input label="Company" placeholder="Company name" value={editForm.company || ''} onChange={e => setEditForm(p => ({ ...p, company: e.target.value }))} disabled={saving} />
+            <Input label="Job Title" placeholder="Job title" value={editForm.job_title || ''} onChange={e => setEditForm(p => ({ ...p, job_title: e.target.value }))} disabled={saving} />
+          </div>
           <AddressAutocomplete
             label="Address"
             placeholder="Start typing an address..."

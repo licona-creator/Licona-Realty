@@ -175,6 +175,35 @@ export async function PATCH(
         return NextResponse.json({ error: 'Invalid DISC type. Must be D, I, S, or C.' }, { status: 400 });
       }
     }
+    if (body.birthday_month !== undefined) {
+      if (body.birthday_month === null) {
+        updates.birthday_month = null;
+      } else if (typeof body.birthday_month === 'number' && body.birthday_month >= 1 && body.birthday_month <= 12) {
+        updates.birthday_month = body.birthday_month;
+      } else {
+        return NextResponse.json({ error: 'Invalid birthday month.' }, { status: 400 });
+      }
+    }
+    if (body.birthday_day !== undefined) {
+      if (body.birthday_day === null) {
+        updates.birthday_day = null;
+      } else if (typeof body.birthday_day === 'number' && body.birthday_day >= 1 && body.birthday_day <= 31) {
+        updates.birthday_day = body.birthday_day;
+      } else {
+        return NextResponse.json({ error: 'Invalid birthday day.' }, { status: 400 });
+      }
+    }
+    if (body.birthday_year !== undefined) {
+      if (body.birthday_year === null) {
+        updates.birthday_year = null;
+      } else if (typeof body.birthday_year === 'number' && body.birthday_year >= 1900 && body.birthday_year <= 2100) {
+        updates.birthday_year = body.birthday_year;
+      } else {
+        return NextResponse.json({ error: 'Invalid birthday year.' }, { status: 400 });
+      }
+    }
+    if (body.company !== undefined) updates.company = body.company ? sanitizeInput(body.company, 200) : null;
+    if (body.job_title !== undefined) updates.job_title = body.job_title ? sanitizeInput(body.job_title, 200) : null;
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update.' }, { status: 400 });

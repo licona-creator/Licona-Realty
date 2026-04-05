@@ -291,6 +291,11 @@ export async function POST(request: Request) {
       follow_up_notes: body.follow_up_notes ? sanitizeInput(body.follow_up_notes, 500) : null,
       referral_partner_id: body.referral_partner_id || null,
       disc_type: body.disc_type && VALID_DISC_TYPES.includes(body.disc_type) ? body.disc_type : null,
+      birthday_month: typeof body.birthday_month === 'number' && body.birthday_month >= 1 && body.birthday_month <= 12 ? body.birthday_month : null,
+      birthday_day: typeof body.birthday_day === 'number' && body.birthday_day >= 1 && body.birthday_day <= 31 ? body.birthday_day : null,
+      birthday_year: typeof body.birthday_year === 'number' && body.birthday_year >= 1900 && body.birthday_year <= 2100 ? body.birthday_year : null,
+      company: body.company ? sanitizeInput(body.company, 200) : null,
+      job_title: body.job_title ? sanitizeInput(body.job_title, 200) : null,
     };
 
     const { data, error } = await supabase

@@ -127,6 +127,11 @@ interface FormData {
   referral_partner_id: string;
   disc_type: 'D' | 'I' | 'S' | 'C' | null;
   notes: string;
+  birthday_month: string;
+  birthday_day: string;
+  birthday_year: string;
+  company: string;
+  job_title: string;
 }
 
 const INITIAL_FORM: FormData = {
@@ -149,6 +154,11 @@ const INITIAL_FORM: FormData = {
   referral_partner_id: '',
   disc_type: null,
   notes: '',
+  birthday_month: '',
+  birthday_day: '',
+  birthday_year: '',
+  company: '',
+  job_title: '',
 };
 
 const selectClassName = `
@@ -251,6 +261,11 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           referral_partner_id: form.referral_partner_id || null,
           disc_type: form.disc_type || null,
           notes: form.notes.trim() || null,
+          birthday_month: form.birthday_month ? Number(form.birthday_month) : null,
+          birthday_day: form.birthday_day ? Number(form.birthday_day) : null,
+          birthday_year: form.birthday_year ? Number(form.birthday_year) : null,
+          company: form.company.trim() || null,
+          job_title: form.job_title.trim() || null,
         }),
       });
 
@@ -516,6 +531,69 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           onChange={val => updateField('disc_type', val)}
           disabled={loading}
         />
+
+        {/* Birthday */}
+        <div>
+          <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">
+            Birthday
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            <select
+              value={form.birthday_month}
+              onChange={e => {
+                const month = e.target.value;
+                const maxDay = month ? [31,29,31,30,31,30,31,31,30,31,30,31][Number(month) - 1] : 31;
+                const day = form.birthday_day && Number(form.birthday_day) > maxDay ? String(maxDay) : form.birthday_day;
+                setForm(prev => ({ ...prev, birthday_month: month, birthday_day: day }));
+              }}
+              className={selectClassName}
+              disabled={loading}
+            >
+              <option value="">Month</option>
+              {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((label, i) => (
+                <option key={i + 1} value={i + 1}>{label}</option>
+              ))}
+            </select>
+            <select
+              value={form.birthday_day}
+              onChange={e => updateField('birthday_day', e.target.value)}
+              className={selectClassName}
+              disabled={loading}
+            >
+              <option value="">Day</option>
+              {Array.from({ length: form.birthday_month ? [31,29,31,30,31,30,31,31,30,31,30,31][Number(form.birthday_month) - 1] : 31 }, (_, i) => (
+                <option key={i + 1} value={i + 1}>{i + 1}</option>
+              ))}
+            </select>
+            <Input
+              placeholder="Year"
+              value={form.birthday_year}
+              onChange={e => {
+                const v = e.target.value.replace(/\D/g, '').slice(0, 4);
+                updateField('birthday_year', v);
+              }}
+              disabled={loading}
+            />
+          </div>
+        </div>
+
+        {/* Company & Job Title */}
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            label="Company"
+            placeholder="Company name"
+            value={form.company}
+            onChange={e => updateField('company', e.target.value)}
+            disabled={loading}
+          />
+          <Input
+            label="Job Title"
+            placeholder="Job title"
+            value={form.job_title}
+            onChange={e => updateField('job_title', e.target.value)}
+            disabled={loading}
+          />
+        </div>
 
         {/* Notes */}
         <div className="w-full">

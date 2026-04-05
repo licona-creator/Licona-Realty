@@ -10,7 +10,7 @@ import {
   CheckCircle, Users, FileText, Calendar, Shield, Zap, AlertTriangle,
   Clock, DollarSign, ArrowRight, ChevronRight, Phone, PhoneCall,
   MessageCircle, Mail, Eye, Handshake, TrendingUp, Tag, Check,
-  Send, Copy, Sparkles,
+  Send, Copy, Sparkles, Heart, ChevronDown,
 } from 'lucide-react';
 import { DashboardSkeleton } from '@/components/ui/Skeleton';
 
@@ -72,6 +72,42 @@ interface CampaignMessageDue {
   contact_name: string;
   message_content: string;
   current_step: number;
+}
+
+interface NurtureMilestone {
+  type: 'birthday' | 'holiday' | 'post_close' | 'gone_quiet';
+  contact?: {
+    id: string; first_name: string; last_name: string;
+    disc_type: string | null; language_preference: string;
+    phone: string | null;
+  };
+  // birthday
+  birthday_date?: string;
+  days_until?: number;
+  turning_age?: number | null;
+  // holiday
+  name?: string;
+  name_es?: string;
+  date?: string;
+  // post_close
+  property_address?: string;
+  milestone_type?: string;
+  milestone_label?: string;
+  days_since_close?: number;
+  // gone_quiet
+  last_activity_date?: string | null;
+  days_silent?: number;
+  suggested_action?: string;
+  // generated
+  message?: string;
+  recommended_channel?: string;
+}
+
+interface MilestonesData {
+  milestones: NurtureMilestone[];
+  birthday_count_this_week: number;
+  post_close_overdue: number;
+  post_close_due_soon: number;
 }
 
 const ACTIVITY_ICONS: Record<string, typeof PhoneCall> = {
@@ -227,6 +263,11 @@ export default function DashboardPage() {
   const { settings } = useAgentSettings();
   const [intelStats, setIntelStats] = useState<{ profiled: number; total: number; ready: number }>({ profiled: 0, total: 0, ready: 0 });
   const [enrichingAll, setEnrichingAll] = useState(false);
+  const [milestonesData, setMilestonesData] = useState<MilestonesData | null>(null);
+  const [dismissedMilestones, setDismissedMilestones] = useState<Set<string>>(new Set());
+  const [exitingMilestones, setExitingMilestones] = useState<Set<string>>(new Set());
+  const [milestoneLoading, setMilestoneLoading] = useState<Record<string, boolean>>({});
+  const [showAllMilestones, setShowAllMilestones] = useState(false);
   const displayName = settings?.profile_name || BRAND.agent.name;
 
   const fetchDashboard = useCallback(async () => {
@@ -268,6 +309,14 @@ export default function DashboardPage() {
           setIntelStats(iData);
         }
       } catch { /* empty */ }
+      // Fetch milestones
+      try {
+        const msRes = await fetch('/api/dashboard/milestones');
+        if (msRes.ok) {
+          const msData = await msRes.json();
+          setMilestonesData(msData);
+        }
+      } catch { /* empty */ }
     } catch { /* empty */ } finally { setLoading(false); }
   }, []);
 
@@ -300,6 +349,44 @@ export default function DashboardPage() {
     return null;
   }, []);
 
+  const dismissMilestone = useCallback((key: string) => {
+    setExitingMilestones(prev => new Set(prev).add(key));
+    setTimeout(() => {
+      setDismissedMilestones(prev => new Set(prev).add(key));
+      setExitingMilestones(prev => { const n = new Set(prev); n.delete(key); return n; });
+    }, 200);
+  }, []);
+
+  const handleMilestoneAction = useCallback(async (
+    key: string,
+    action: 'sent' | 'skip',
+    contactId: string,
+    milestoneType: 'birthday' | 'post_close',
+    milestoneLabel: string,
+    message?: string
+  ) => {
+    setMilestoneLoading(prev => ({ ...prev, [key]: true }));
+    try {
+      const res = await fetch('/api/dashboard/milestones/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          contact_id: contactId,
+          milestone_type: milestoneType,
+          milestone_label: milestoneLabel,
+          message: message ? message.slice(0, 60) : undefined,
+        }),
+      });
+      if (res.ok) {
+        dismissMilestone(key);
+        return true;
+      }
+    } catch { /* empty */ }
+    finally { setMilestoneLoading(prev => ({ ...prev, [key]: false })); }
+    return false;
+  }, [dismissMilestone]);
+
   const approvalCount = data?.approvalQueue?.count || 0;
   const contactTotal = data?.contacts?.total || 0;
   const pipelineValue = data?.pipeline?.value || 0;
@@ -310,6 +397,32 @@ export default function DashboardPage() {
   const overdueCount = fuOverdue.length;
   const hasFollowUps = fuOverdue.length > 0 || fuToday.length > 0 || fuTomorrow.length > 0;
   const nextFuture = followUps?.nextFuture || null;
+
+  // Milestones
+  function getMilestoneKey(m: NurtureMilestone, idx: number): string {
+    if (m.type === 'birthday' && m.contact) return `bday-${m.contact.id}`;
+    if (m.type === 'post_close' && m.contact) return `pc-${m.contact.id}-${m.milestone_type}`;
+    if (m.type === 'holiday') return `hol-${m.name}`;
+    if (m.type === 'gone_quiet' && m.contact) return `gq-${m.contact.id}`;
+    return `ms-${idx}`;
+  }
+
+  const allMilestones = (milestonesData?.milestones || []).filter(
+    (m, i) => !dismissedMilestones.has(getMilestoneKey(m, i))
+  );
+  const visibleMilestones = showAllMilestones ? allMilestones : allMilestones.slice(0, 8);
+  const hasMilestones = allMilestones.length > 0;
+
+  // Count contacts for holidays
+  const contactCountForHoliday = (milestonesData?.milestones || []).filter(
+    m => m.type !== 'holiday'
+  ).length;
+  const totalContactsCount = milestonesData?.milestones
+    ? (milestonesData.milestones.filter(m => m.contact).length)
+    : 0;
+
+  // Birthday + post-close stat pill
+  const nurtureThisWeek = (milestonesData?.birthday_count_this_week || 0) + (milestonesData?.post_close_due_soon || 0);
 
   if (loading) return <DashboardSkeleton />;
 
@@ -343,6 +456,11 @@ export default function DashboardPage() {
           <div className="flex-shrink-0 px-3 py-2 rounded-full bg-surface dark:bg-navy/50 border border-navy/10 dark:border-white/10">
             <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{contactTotal} Contacts</span>
           </div>
+          {nurtureThisWeek > 0 && (
+            <div className="flex-shrink-0 px-3 py-2 rounded-full bg-gold/10 border border-gold/20">
+              <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{'\uD83C\uDF82'} {nurtureThisWeek} this week</span>
+            </div>
+          )}
         </div>
 
         {/* Mobile-only: urgent closing banners */}
@@ -597,6 +715,247 @@ export default function DashboardPage() {
           {/* Inline toast */}
           <div id="fu-toast" className="opacity-0 transition-opacity duration-300 mt-3 text-center text-xs font-montserrat font-semibold text-green-600" />
         </Card>
+
+        {/* NURTURE SECTION */}
+        {hasMilestones && (
+          <Card className="!p-4 sm:!p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Heart size={22} style={{ color: '#d3a971' }} />
+              <h2 className="text-lg font-semibold font-montserrat text-navy dark:text-white">Nurture</h2>
+              {(milestonesData?.post_close_overdue || 0) > 0 && (
+                <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
+                  {milestonesData?.post_close_overdue} overdue
+                </span>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              {visibleMilestones.map((m, idx) => {
+                const key = getMilestoneKey(m, idx);
+                const isExiting = exitingMilestones.has(key);
+                const isLoading = milestoneLoading[key] || false;
+
+                // BIRTHDAY CARD
+                if (m.type === 'birthday' && m.contact) {
+                  const daysLabel = m.days_until === 0 ? 'Today!' : m.days_until === 1 ? 'Tomorrow' : `In ${m.days_until} days`;
+                  return (
+                    <div
+                      key={key}
+                      className="rounded-lg border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 overflow-hidden"
+                      style={{
+                        transition: 'transform 200ms ease-out, opacity 200ms ease-out',
+                        transform: isExiting ? 'translateX(-100%)' : 'translateX(0)',
+                        opacity: isExiting ? 0 : 1,
+                      }}
+                    >
+                      <div className="p-3">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm">{'\uD83C\uDF82'}</span>
+                              <a href={`/contacts/${m.contact.id}`} className="text-sm font-montserrat font-medium text-navy dark:text-white hover:text-gold transition-colors">
+                                {m.contact.first_name}&apos;s birthday
+                              </a>
+                              <span
+                                className="text-[10px] font-montserrat font-semibold px-1.5 py-0.5 rounded-full"
+                                style={{
+                                  color: m.days_until === 0 ? '#d3a971' : '#132236',
+                                  backgroundColor: m.days_until === 0 ? 'rgba(211,169,113,0.15)' : 'transparent',
+                                }}
+                              >
+                                {daysLabel}
+                              </span>
+                            </div>
+                            {m.message && (
+                              <div className="mt-2 p-3 rounded-lg text-sm font-inter text-navy/70 dark:text-white/70" style={{ backgroundColor: '#f4f4f4' }}>
+                                <span className="dark:text-navy/70">{m.message}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2 mt-2">
+                              <button
+                                type="button"
+                                disabled={isLoading}
+                                onClick={async () => {
+                                  try { await navigator.clipboard.writeText(m.message || ''); } catch { /* empty */ }
+                                  const ok = await handleMilestoneAction(key, 'sent', m.contact!.id, 'birthday', 'Birthday message', m.message);
+                                  if (ok) {
+                                    const el = document.getElementById('nurture-toast');
+                                    if (el) { el.textContent = 'Copied and logged'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
+                                  }
+                                }}
+                                className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white disabled:opacity-50 min-h-[44px]"
+                                style={{ backgroundColor: '#d3a971' }}
+                              >
+                                {isLoading ? 'Saving...' : 'Copy & Send'}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isLoading}
+                                onClick={async () => {
+                                  const ok = await handleMilestoneAction(key, 'skip', m.contact!.id, 'birthday', 'Birthday message');
+                                  if (ok) {
+                                    const el = document.getElementById('nurture-toast');
+                                    if (el) { el.textContent = 'Skipped'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
+                                  }
+                                }}
+                                className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-navy/40 dark:text-white/40 bg-navy/5 dark:bg-white/10 disabled:opacity-50 min-h-[44px]"
+                              >
+                                Skip
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // POST-CLOSE CARD
+                if (m.type === 'post_close' && m.contact) {
+                  const isOverdue = (m.days_until ?? 0) < 0;
+                  const daysLabel = isOverdue
+                    ? 'Overdue'
+                    : m.days_until === 0
+                      ? 'Due today'
+                      : `In ${m.days_until} days`;
+                  const shortAddr = m.property_address
+                    ? (m.property_address.length > 40 ? m.property_address.slice(0, 40) + '...' : m.property_address)
+                    : '';
+
+                  return (
+                    <div
+                      key={key}
+                      className="rounded-lg border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 overflow-hidden"
+                      style={{
+                        transition: 'transform 200ms ease-out, opacity 200ms ease-out',
+                        transform: isExiting ? 'translateX(-100%)' : 'translateX(0)',
+                        opacity: isExiting ? 0 : 1,
+                        borderLeft: isOverdue ? '3px solid #e74c3c' : undefined,
+                      }}
+                    >
+                      <div className="p-3">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm">{'\uD83C\uDFE0'}</span>
+                              <a href={`/contacts/${m.contact.id}`} className="text-sm font-montserrat font-medium text-navy dark:text-white hover:text-gold transition-colors">
+                                {m.contact.first_name}
+                              </a>
+                              <span className="text-xs font-inter text-navy/50 dark:text-white/50">- {m.milestone_label}</span>
+                            </div>
+                            {shortAddr && (
+                              <p className="text-xs font-inter text-navy/40 dark:text-white/40 mt-0.5">{shortAddr}</p>
+                            )}
+                            <span
+                              className="text-[10px] font-montserrat font-semibold mt-0.5 inline-block"
+                              style={{ color: isOverdue ? '#e74c3c' : m.days_until === 0 ? '#d3a971' : '#132236' }}
+                            >
+                              {daysLabel}
+                            </span>
+                            {m.message && (
+                              <div className="mt-2 p-3 rounded-lg text-sm font-inter text-navy/70 dark:text-white/70" style={{ backgroundColor: '#f4f4f4' }}>
+                                <span className="dark:text-navy/70">{m.message}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2 mt-2">
+                              <button
+                                type="button"
+                                disabled={isLoading}
+                                onClick={async () => {
+                                  try { await navigator.clipboard.writeText(m.message || ''); } catch { /* empty */ }
+                                  const ok = await handleMilestoneAction(key, 'sent', m.contact!.id, 'post_close', m.milestone_label || '', m.message);
+                                  if (ok) {
+                                    const el = document.getElementById('nurture-toast');
+                                    if (el) { el.textContent = 'Copied and logged'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
+                                  }
+                                }}
+                                className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white disabled:opacity-50 min-h-[44px]"
+                                style={{ backgroundColor: '#d3a971' }}
+                              >
+                                {isLoading ? 'Saving...' : 'Copy & Send'}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isLoading}
+                                onClick={async () => {
+                                  const ok = await handleMilestoneAction(key, 'skip', m.contact!.id, 'post_close', m.milestone_label || '');
+                                  if (ok) {
+                                    const el = document.getElementById('nurture-toast');
+                                    if (el) { el.textContent = 'Skipped'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
+                                  }
+                                }}
+                                className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-navy/40 dark:text-white/40 bg-navy/5 dark:bg-white/10 disabled:opacity-50 min-h-[44px]"
+                              >
+                                Skip
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // HOLIDAY CARD
+                if (m.type === 'holiday') {
+                  return (
+                    <div
+                      key={key}
+                      className="rounded-lg border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 p-3"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{'\uD83D\uDCC5'}</span>
+                        <span className="text-sm font-montserrat font-medium text-navy dark:text-white">{m.name}</span>
+                        <span className="text-[10px] font-montserrat font-semibold text-navy/50 dark:text-white/50">In {m.days_until} days</span>
+                      </div>
+                      <p className="text-xs font-inter text-navy/40 dark:text-white/40 mt-1 ml-6">
+                        {totalContactsCount > 0 ? `${totalContactsCount} contacts to reach out to` : 'Holiday reminder'}
+                      </p>
+                    </div>
+                  );
+                }
+
+                // GONE QUIET CARD
+                if (m.type === 'gone_quiet' && m.contact) {
+                  return (
+                    <div
+                      key={key}
+                      className="rounded-lg border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 p-3"
+                    >
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm">{'\u26A0\uFE0F'}</span>
+                        <a href={`/contacts/${m.contact.id}`} className="text-sm font-montserrat font-medium text-navy dark:text-white hover:text-gold transition-colors">
+                          {m.contact.first_name}
+                        </a>
+                        <span className="text-xs font-inter text-navy/40 dark:text-white/40">- {m.days_silent} days since last contact</span>
+                      </div>
+                      {m.suggested_action && (
+                        <p className="text-xs font-inter text-navy/50 dark:text-white/50 mt-1 ml-6 italic">{m.suggested_action}</p>
+                      )}
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
+            </div>
+
+            {/* View all toggle */}
+            {allMilestones.length > 8 && (
+              <button
+                type="button"
+                onClick={() => setShowAllMilestones(prev => !prev)}
+                className="flex items-center gap-1 mt-3 text-xs font-montserrat font-semibold text-gold hover:underline"
+              >
+                {showAllMilestones ? 'Show less' : `View all (${allMilestones.length})`}
+                <ChevronDown size={12} className={`transition-transform ${showAllMilestones ? 'rotate-180' : ''}`} />
+              </button>
+            )}
+
+            {/* Nurture toast */}
+            <div id="nurture-toast" className="opacity-0 transition-opacity duration-300 mt-3 text-center text-xs font-montserrat font-semibold text-green-600" />
+          </Card>
+        )}
 
         {/* Upcoming Events */}
         <Card className="!p-6">
