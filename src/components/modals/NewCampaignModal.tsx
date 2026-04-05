@@ -128,8 +128,23 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
   }
 
   return (
-    <Modal open={open} onClose={handleClose} title="New Campaign" size="lg">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title="New Campaign"
+      size="lg"
+      footer={
+        <div className="flex items-center justify-end gap-3">
+          <Button type="button" variant="ghost" onClick={handleClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button type="submit" form="new-campaign-form" variant="accent" loading={loading}>
+            {loading ? 'Creating...' : 'Create Campaign'}
+          </Button>
+        </div>
+      }
+    >
+      <form id="new-campaign-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Campaign Name */}
         <Input
           label="Campaign Name"
@@ -238,20 +253,6 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
           </label>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" variant="accent" loading={loading}>
-            {loading ? 'Creating...' : 'Create Campaign'}
-          </Button>
-        </div>
       </form>
     </Modal>
   );

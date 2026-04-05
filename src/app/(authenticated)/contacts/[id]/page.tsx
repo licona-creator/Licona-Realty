@@ -730,7 +730,7 @@ export default function ContactDetailPage() {
       </div>
 
       {/* Edit Modal */}
-      <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Contact" size="lg">
+      <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Contact" size="lg" footer={<div className="flex justify-end gap-3"><Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button><Button variant="accent" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button></div>}>
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="First Name *" value={editForm.first_name || ''} onChange={e => setEditForm(p => ({ ...p, first_name: e.target.value }))} disabled={saving} />
@@ -833,27 +833,18 @@ export default function ContactDetailPage() {
             <div className="col-span-2"><Input label="Zip" value={editForm.zip_code || ''} onChange={e => setEditForm(p => ({ ...p, zip_code: e.target.value }))} disabled={saving} /></div>
           </div>
           <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Notes</label><textarea rows={3} value={editForm.notes || ''} onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))} disabled={saving} className={`${selectClassName} resize-none`} placeholder="Additional notes..." /></div>
-          <div className="h-4" />
-        </div>
-        <div className="flex justify-end gap-3 pt-3 border-t border-gold/10 mt-2">
-          <Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button>
-          <Button variant="accent" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button>
         </div>
       </Modal>
 
       {/* Log Activity Modal */}
-      <Modal open={showLogActivity} onClose={() => !logSaving && setShowLogActivity(false)} title="Log Activity" size="md">
-        <form onSubmit={handleLogActivity} className="space-y-4">
+      <Modal open={showLogActivity} onClose={() => !logSaving && setShowLogActivity(false)} title="Log Activity" size="md" footer={<div className="flex justify-end gap-3"><Button type="submit" form="log-activity-form" variant="accent" loading={logSaving}>{logSaving ? 'Saving...' : 'Log Activity'}</Button></div>}>
+        <form id="log-activity-form" onSubmit={handleLogActivity} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Activity Type *</label><select value={activityForm.activity_type} onChange={e => setActivityForm(p => ({ ...p, activity_type: e.target.value }))} className={selectClassName} disabled={logSaving}>{ACTIVITY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
             <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Direction</label><select value={activityForm.direction} onChange={e => setActivityForm(p => ({ ...p, direction: e.target.value }))} className={selectClassName} disabled={logSaving}><option value="outbound">Outbound</option><option value="inbound">Inbound</option></select></div>
           </div>
           <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Description *</label><textarea rows={4} value={activityForm.description} onChange={e => setActivityForm(p => ({ ...p, description: e.target.value }))} className={`${selectClassName} resize-none`} placeholder="What happened?" disabled={logSaving} /></div>
           <Input label="Date" type="datetime-local" value={activityForm.activity_date} onChange={e => setActivityForm(p => ({ ...p, activity_date: e.target.value }))} disabled={logSaving} />
-          <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setShowLogActivity(false)} disabled={logSaving}>Cancel</Button>
-            <Button type="submit" variant="accent" loading={logSaving}>{logSaving ? 'Saving...' : 'Log Activity'}</Button>
-          </div>
         </form>
       </Modal>
 

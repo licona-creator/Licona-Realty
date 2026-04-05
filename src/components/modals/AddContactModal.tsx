@@ -290,8 +290,23 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
   }
 
   return (
-    <Modal open={open} onClose={handleClose} title="Add Contact" size="lg">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title="Add Contact"
+      size="lg"
+      footer={
+        <div className="flex items-center justify-end gap-3">
+          <Button type="button" variant="ghost" onClick={handleClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button type="submit" form="add-contact-form" variant="accent" loading={loading}>
+            {loading ? 'Adding...' : 'Add Contact'}
+          </Button>
+        </div>
+      }
+    >
+      <form id="add-contact-form" onSubmit={handleSubmit} className="space-y-4">
         {/* Name row */}
         <div className="grid grid-cols-2 gap-3">
           <Input
@@ -626,21 +641,6 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           />
         </div>
 
-        {/* Actions */}
-        <div className="h-4" />
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gold/10">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" variant="accent" loading={loading}>
-            {loading ? 'Adding...' : 'Add Contact'}
-          </Button>
-        </div>
       </form>
     </Modal>
   );

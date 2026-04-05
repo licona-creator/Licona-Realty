@@ -19,6 +19,7 @@ interface ModalProps {
   title?: string;
   description?: string;
   children: ReactNode;
+  footer?: ReactNode;
   size?: 'sm' | 'md' | 'lg';
   hideClose?: boolean;
 }
@@ -35,6 +36,7 @@ export function Modal({
   title,
   description,
   children,
+  footer,
   size = 'md',
   hideClose = false,
 }: ModalProps) {
@@ -113,7 +115,14 @@ export function Modal({
             )}
 
             {/* Body - scrollable */}
-            <div className="p-5 pb-20 sm:pb-5 overflow-y-auto flex-1">{children}</div>
+            <div className="p-5 overflow-y-auto flex-1 scroll-touch">{children}</div>
+
+            {/* Footer - fixed at bottom, always visible */}
+            {footer && (
+              <div className="flex-shrink-0 border-t border-gold/10 bg-white dark:bg-dark-card p-4 sm:rounded-b-[12px]" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+                {footer}
+              </div>
+            )}
           </motion.div>
         </div>
       )}

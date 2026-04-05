@@ -205,7 +205,7 @@ export default function PartnerDetailPage() {
       </div>
 
       {/* Edit Modal */}
-      <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Partner" size="lg">
+      <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Partner" size="lg" footer={<div className="flex justify-end gap-3"><Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button><Button variant="accent" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button></div>}>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <Input label="First Name *" value={editForm.first_name || ''} onChange={e => setEditForm(p => ({ ...p, first_name: e.target.value }))} disabled={saving} />
@@ -224,11 +224,6 @@ export default function PartnerDetailPage() {
             <Input label="Fee Structure" value={editForm.referral_fee_structure || ''} onChange={e => setEditForm(p => ({ ...p, referral_fee_structure: e.target.value }))} disabled={saving} />
           </div>
           <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Notes</label><textarea rows={3} value={editForm.notes || ''} onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))} className={`${selectClassName} resize-none`} disabled={saving} /></div>
-          <div className="h-4" />
-        </div>
-        <div className="flex justify-end gap-3 pt-3 border-t border-gold/10 mt-2">
-          <Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button>
-          <Button variant="accent" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button>
         </div>
       </Modal>
 

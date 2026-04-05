@@ -538,7 +538,7 @@ export default function TransactionDetailPage() {
       </div>
 
       {/* Edit Modal */}
-      <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Deal" size="lg">
+      <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Deal" size="lg" footer={<div className="flex justify-end gap-3"><Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button><Button variant="accent" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button></div>}>
         <div className="space-y-4">
           {/* Linked Contact */}
           <div>
@@ -661,13 +661,6 @@ export default function TransactionDetailPage() {
               </select>
             </div>
           </div>
-          <div className="h-4" />
-        </div>
-        <div className="flex justify-end gap-3 pt-3 border-t border-gold/10 mt-2">
-          <Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button>
-          <Button variant="accent" onClick={handleSave} loading={saving}>
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
         </div>
       </Modal>
 

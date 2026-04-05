@@ -207,8 +207,29 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
   }
 
   return (
-    <Modal open={open} onClose={resetAndClose} title="New Deal" size="lg">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <Modal
+      open={open}
+      onClose={resetAndClose}
+      title="New Deal"
+      size="lg"
+      footer={
+        <div className="flex justify-end gap-3">
+          <Button type="button" variant="ghost" onClick={resetAndClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="new-transaction-form"
+            variant="accent"
+            loading={loading}
+            disabled={!hasContacts || contactsLoading}
+          >
+            {loading ? 'Creating...' : 'Create Deal'}
+          </Button>
+        </div>
+      }
+    >
+      <form id="new-transaction-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Contact Selector */}
         <div className="w-full">
           <label
@@ -418,21 +439,6 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
           />
         </div>
 
-        {/* Actions */}
-        <div className="h-4" />
-        <div className="flex justify-end gap-3 pt-3 border-t border-gold/10">
-          <Button type="button" variant="ghost" onClick={resetAndClose} disabled={loading}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="accent"
-            loading={loading}
-            disabled={!hasContacts || contactsLoading}
-          >
-            {loading ? 'Creating...' : 'Create Deal'}
-          </Button>
-        </div>
       </form>
     </Modal>
   );

@@ -110,7 +110,22 @@ export function ImportContactsModal({ open, onClose, onSuccess }: ImportContacts
   }, [file, toast, onSuccess, onClose, clearFile]);
 
   return (
-    <Modal open={open} onClose={onClose} title="Import Contacts" size="lg">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Import Contacts"
+      size="lg"
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button variant="accent" size="sm" onClick={handleImport} loading={loading} disabled={!file}>
+            Import Contacts
+          </Button>
+        </div>
+      }
+    >
       <div className="space-y-4">
         {/* File Upload Zone */}
         {!file ? (
@@ -206,21 +221,6 @@ export function ImportContactsModal({ open, onClose, onSuccess }: ImportContacts
           </div>
         )}
 
-        {/* Actions */}
-        <div className="flex justify-end gap-2 pt-2">
-          <Button variant="ghost" size="sm" onClick={onClose} disabled={loading}>
-            Cancel
-          </Button>
-          <Button
-            variant="accent"
-            size="sm"
-            onClick={handleImport}
-            loading={loading}
-            disabled={!file}
-          >
-            Import Contacts
-          </Button>
-        </div>
       </div>
     </Modal>
   );
