@@ -5,6 +5,7 @@
  *
  * Accepts a JSON body with an array of contacts to import from a parsed vCard file.
  * Batch inserts in groups of 50 to avoid timeouts.
+ * Falls back to individual inserts when a batch fails.
  * Triggers non-blocking geocoding for contacts with addresses.
  * Sets import_source = 'iphone_vcf' on all imported contacts.
  */
@@ -34,6 +35,72 @@ interface ImportContact {
   zip_code: string;
   notes: string;
   import_source: string;
+}
+
+function sanitizeBirthdayMonth(val: unknown): number | null {
+  if (val === null || val === undefined) return null;
+  const n = Number(val);
+  if (!Number.isInteger(n) || n < 1 || n > 12) return null;
+  return n;
+}
+
+function sanitizeBirthdayDay(val: unknown): number | null {
+  if (val === null || val === undefined) return null;
+  const n = Number(val);
+  if (!Number.isInteger(n) || n < 1 || n > 31) return null;
+  return n;
+}
+
+function sanitizeBirthdayYear(val: unknown): number | null {
+  if (val === null || val === undefined) return null;
+  const n = Number(val);
+  if (!Number.isInteger(n) || n < 1900 || n > 2100) return null;
+  return n;
+}
+
+function formatPhone(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const digits = raw.replace(/[^\d]/g, '');
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
+  if (digits.length > 0) return `+${digits}`;
+  return null;
+}
+
+function sanitizeEmail(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const trimmed = sanitizeInput(raw, 254).toLowerCase().trim();
+  if (!trimmed || !trimmed.includes('@')) return null;
+  return trimmed;
+}
+
+function buildRow(c: ImportContact, userId: string) {
+  const firstName = sanitizeInput(c.first_name || '', 100);
+  const lastName = sanitizeInput(c.last_name || '', 100);
+
+  return {
+    user_id: userId,
+    first_name: firstName || 'Unknown',
+    last_name: lastName || firstName || 'Contact',
+    email: sanitizeEmail(c.email),
+    phone: formatPhone(c.phone),
+    track_type: 'sphere' as const,
+    pipeline_stage: 'new' as const,
+    lead_score: 50,
+    language_preference: 'en' as const,
+    birthday_month: sanitizeBirthdayMonth(c.birthday_month),
+    birthday_day: sanitizeBirthdayDay(c.birthday_day),
+    birthday_year: sanitizeBirthdayYear(c.birthday_year),
+    company: c.company ? sanitizeInput(c.company, 200) : null,
+    job_title: c.job_title ? sanitizeInput(c.job_title, 200) : null,
+    address_line_1: c.address_line_1 ? sanitizeInput(c.address_line_1, 200) : null,
+    city: c.city ? sanitizeInput(c.city, 100) : null,
+    state: c.state ? sanitizeInput(c.state, 50) : null,
+    zip_code: c.zip_code ? sanitizeInput(c.zip_code, 10) : null,
+    notes: c.notes ? sanitizeInput(c.notes, 2000) : null,
+    import_source: 'iphone_vcf',
+    next_follow_up_date: null,
+  };
 }
 
 export async function POST(request: Request) {
@@ -70,48 +137,7 @@ export async function POST(request: Request) {
     // Process in batches of BATCH_SIZE
     for (let i = 0; i < contacts.length; i += BATCH_SIZE) {
       const batch = contacts.slice(i, i + BATCH_SIZE);
-
-      const rows = batch.map((c) => {
-        const firstName = sanitizeInput(c.first_name || '', 100);
-        const lastName = sanitizeInput(c.last_name || '', 100);
-
-        // Format phone to E.164 if it looks like a US number
-        let phone: string | null = null;
-        if (c.phone) {
-          const digits = c.phone.replace(/[^\d]/g, '');
-          if (digits.length === 10) {
-            phone = `+1${digits}`;
-          } else if (digits.length === 11 && digits.startsWith('1')) {
-            phone = `+${digits}`;
-          } else if (digits.length > 0) {
-            phone = `+${digits}`;
-          }
-        }
-
-        return {
-          user_id: user.id,
-          first_name: firstName || 'Unknown',
-          last_name: lastName || '',
-          email: c.email ? sanitizeInput(c.email, 254).toLowerCase() : null,
-          phone,
-          track_type: 'sphere' as const,
-          pipeline_stage: 'new' as const,
-          lead_score: 50,
-          language_preference: 'en' as const,
-          birthday_month: c.birthday_month,
-          birthday_day: c.birthday_day,
-          birthday_year: c.birthday_year,
-          company: c.company ? sanitizeInput(c.company, 200) : null,
-          job_title: c.job_title ? sanitizeInput(c.job_title, 200) : null,
-          address_line_1: c.address_line_1 ? sanitizeInput(c.address_line_1, 200) : null,
-          city: c.city ? sanitizeInput(c.city, 100) : null,
-          state: c.state ? sanitizeInput(c.state, 50) : null,
-          zip_code: c.zip_code ? sanitizeInput(c.zip_code, 10) : null,
-          notes: c.notes ? sanitizeInput(c.notes, 2000) : null,
-          import_source: 'iphone_vcf',
-          next_follow_up_date: null,
-        };
-      });
+      const rows = batch.map((c) => buildRow(c, user.id));
 
       const { data, error } = await supabase
         .from('contacts')
@@ -119,52 +145,40 @@ export async function POST(request: Request) {
         .select('id, address_line_1, city, state, zip_code');
 
       if (error) {
-        errorCount += batch.length;
-        errorDetails.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${error.message}`);
+        // Batch failed - fall back to individual inserts to save what we can
+        const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+        errorDetails.push(
+          `Batch ${batchNum} failed: ${error.message}${error.code ? ` [${error.code}]` : ''}${error.details ? ` - ${error.details}` : ''}${error.hint ? ` (hint: ${error.hint})` : ''}`
+        );
+
+        // Try each contact individually
+        for (let j = 0; j < rows.length; j++) {
+          const row = rows[j];
+          const { data: singleData, error: singleError } = await supabase
+            .from('contacts')
+            .insert(row)
+            .select('id, address_line_1, city, state, zip_code')
+            .single();
+
+          if (singleError) {
+            errorCount += 1;
+            const name = `${row.first_name} ${row.last_name}`.trim();
+            errorDetails.push(
+              `"${name}": ${singleError.message}${singleError.code ? ` [${singleError.code}]` : ''}${singleError.details ? ` - ${singleError.details}` : ''}`
+            );
+          } else if (singleData) {
+            importedCount += 1;
+            importedIds.push(singleData.id);
+            triggerGeocode(supabase, singleData);
+          }
+        }
       } else if (data) {
         importedCount += data.length;
         importedIds.push(...data.map((d) => d.id));
 
-        // Non-blocking geocoding for contacts with addresses
-        const geoKey = process.env.GOOGLE_GEOCODING_KEY;
-        if (geoKey) {
-          for (const contact of data) {
-            const fullAddress = [contact.address_line_1, contact.city, contact.state, contact.zip_code]
-              .filter(Boolean)
-              .join(', ');
-            if (fullAddress) {
-              fetch(
-                `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${geoKey}`
-              )
-                .then((res) => res.json())
-                .then((geoData) => {
-                  if (geoData.status === 'OK' && geoData.results?.[0]) {
-                    const result = geoData.results[0];
-                    const loc = result.geometry?.location;
-                    const comps = result.address_components || [];
-                    const getComp = (type: string): string | null => {
-                      const c = comps.find(
-                        (comp: { types: string[]; long_name: string }) => comp.types.includes(type)
-                      );
-                      return c ? c.long_name : null;
-                    };
-                    const geoUpdate: Record<string, unknown> = {};
-                    if (loc?.lat) geoUpdate.latitude = loc.lat;
-                    if (loc?.lng) geoUpdate.longitude = loc.lng;
-                    const neighborhood = getComp('neighborhood') || getComp('sublocality');
-                    if (neighborhood) geoUpdate.neighborhood = neighborhood;
-                    const county = getComp('administrative_area_level_2');
-                    if (county) geoUpdate.county = county;
-                    if (Object.keys(geoUpdate).length > 0) {
-                      supabase.from('contacts').update(geoUpdate).eq('id', contact.id).then(() => {});
-                    }
-                  }
-                })
-                .catch(() => {
-                  // Geocoding failure is non-blocking
-                });
-            }
-          }
+        // Non-blocking geocoding
+        for (const contact of data) {
+          triggerGeocode(supabase, contact);
         }
       }
     }
@@ -182,7 +196,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       imported: importedCount,
       errors: errorCount,
-      error_details: errorDetails,
+      error_details: errorDetails.slice(0, 20),
       contact_ids: importedIds,
     });
   } catch (err) {
@@ -192,4 +206,46 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function triggerGeocode(supabase: any, contact: { id: string; address_line_1: string | null; city: string | null; state: string | null; zip_code: string | null }) {
+  const geoKey = process.env.GOOGLE_GEOCODING_KEY;
+  if (!geoKey) return;
+
+  const fullAddress = [contact.address_line_1, contact.city, contact.state, contact.zip_code]
+    .filter(Boolean)
+    .join(', ');
+  if (!fullAddress) return;
+
+  fetch(
+    `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${geoKey}`
+  )
+    .then((res) => res.json())
+    .then((geoData) => {
+      if (geoData.status === 'OK' && geoData.results?.[0]) {
+        const result = geoData.results[0];
+        const loc = result.geometry?.location;
+        const comps = result.address_components || [];
+        const getComp = (type: string): string | null => {
+          const c = comps.find(
+            (comp: { types: string[]; long_name: string }) => comp.types.includes(type)
+          );
+          return c ? c.long_name : null;
+        };
+        const geoUpdate: Record<string, unknown> = {};
+        if (loc?.lat) geoUpdate.latitude = loc.lat;
+        if (loc?.lng) geoUpdate.longitude = loc.lng;
+        const neighborhood = getComp('neighborhood') || getComp('sublocality');
+        if (neighborhood) geoUpdate.neighborhood = neighborhood;
+        const county = getComp('administrative_area_level_2');
+        if (county) geoUpdate.county = county;
+        if (Object.keys(geoUpdate).length > 0) {
+          supabase.from('contacts').update(geoUpdate).eq('id', contact.id).then(() => {});
+        }
+      }
+    })
+    .catch(() => {
+      // Geocoding failure is non-blocking
+    });
 }

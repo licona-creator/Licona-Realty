@@ -343,7 +343,6 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
                 onToggleContact={toggleContactSelection}
                 onSelectAll={selectAll}
                 onMoveToImport={moveToImport}
-                onImport={handleImport}
               />
             )}
 
@@ -366,6 +365,22 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
             )}
           </AnimatePresence>
         </div>
+
+        {/* Fixed import button - outside scrollable area */}
+        {step === 'review' && (
+          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-white dark:bg-dark-card sm:rounded-b-[16px]" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
+            <Button
+              variant="accent"
+              size="lg"
+              className="w-full"
+              onClick={handleImport}
+              disabled={selectedCount === 0}
+            >
+              <Users size={18} />
+              Import {selectedCount} Contact{selectedCount !== 1 ? 's' : ''}
+            </Button>
+          </div>
+        )}
       </motion.div>
     </div>
   );
@@ -505,12 +520,11 @@ interface ReviewStepProps {
   onToggleContact: (idx: number) => void;
   onSelectAll: (selected: boolean) => void;
   onMoveToImport: (contact: ClassifiedContact, source: 'businesses' | 'insufficient' | 'duplicates') => void;
-  onImport: () => void;
 }
 
 function ReviewStep({
   classification, activeTab, selectedCount,
-  onTabChange, onToggleContact, onSelectAll, onMoveToImport, onImport,
+  onTabChange, onToggleContact, onSelectAll, onMoveToImport,
 }: ReviewStepProps) {
   const { people, businesses, duplicates, insufficient } = classification;
   const filteredCount = businesses.length + insufficient.length;
@@ -652,19 +666,6 @@ function ReviewStep({
         )}
       </div>
 
-      {/* Bottom Import Bar */}
-      <div className="sticky bottom-0 p-4 sm:px-6 border-t border-gold/10 bg-white dark:bg-dark-card sm:rounded-b-[16px]" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
-        <Button
-          variant="accent"
-          size="lg"
-          className="w-full"
-          onClick={onImport}
-          disabled={selectedCount === 0}
-        >
-          <Users size={18} />
-          Import {selectedCount} Contact{selectedCount !== 1 ? 's' : ''}
-        </Button>
-      </div>
     </motion.div>
   );
 }
