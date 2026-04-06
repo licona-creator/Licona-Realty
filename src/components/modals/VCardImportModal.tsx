@@ -274,33 +274,9 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
     setStep('disc');
   }, []);
 
-  const handleDiscPick = useCallback((disc: 'D' | 'I' | 'S' | 'C' | null) => {
-    setEnhancedContacts(prev => {
-      const innerCircle = prev.filter(c => c.tier === 'inner_circle');
-      if (discIndex < innerCircle.length) {
-        const targetId = innerCircle[discIndex].phone + innerCircle[discIndex].first_name;
-        return prev.map(c =>
-          (c.phone + c.first_name) === targetId ? { ...c, disc_pick: disc } : c
-        );
-      }
-      return prev;
-    });
-    const innerCircle = enhancedContacts.filter(c => c.tier === 'inner_circle');
-    if (discIndex >= innerCircle.length - 1) {
-      // Done with DISC, proceed to import
-      handleImport();
-    } else {
-      setDiscIndex(prev => prev + 1);
-    }
-  }, [discIndex, enhancedContacts]);
-
   const handleImport = useCallback(async () => {
     const toImport = enhancedContacts;
-    if (toImport.length === 0 && classification) {
-      // Fallback if somehow enhancedContacts is empty
-      const selected = classification.people.filter((c) => c._selected);
-      if (selected.length === 0) return;
-    }
+    if (toImport.length === 0) return;
     setStep('progress');
     setImportTotal(toImport.length);
     setImportProgress(0);
@@ -368,7 +344,26 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
 
     setImportResult({ imported: totalImported, errors: totalErrors });
     setStep('complete');
-  }, [classification, toast]);
+  }, [enhancedContacts, toast]);
+
+  const handleDiscPick = useCallback((disc: 'D' | 'I' | 'S' | 'C' | null) => {
+    setEnhancedContacts(prev => {
+      const innerCircle = prev.filter(c => c.tier === 'inner_circle');
+      if (discIndex < innerCircle.length) {
+        const targetId = innerCircle[discIndex].phone + innerCircle[discIndex].first_name;
+        return prev.map(c =>
+          (c.phone + c.first_name) === targetId ? { ...c, disc_pick: disc } : c
+        );
+      }
+      return prev;
+    });
+    const innerCircle = enhancedContacts.filter(c => c.tier === 'inner_circle');
+    if (discIndex >= innerCircle.length - 1) {
+      handleImport();
+    } else {
+      setDiscIndex(prev => prev + 1);
+    }
+  }, [discIndex, enhancedContacts, handleImport]);
 
   const handleClose = useCallback(() => {
     if (step === 'progress') return; // Prevent closing during import

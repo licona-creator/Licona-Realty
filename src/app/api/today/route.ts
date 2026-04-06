@@ -269,8 +269,6 @@ export async function GET() {
 
     // Birthdays this week
     if (birthdayRes.data) {
-      const todayMonth = now.getMonth() + 1;
-      const todayDay = now.getDate();
       for (const c of birthdayRes.data) {
         if (!c.phone || !c.birthday_month || !c.birthday_day) continue;
         // Check if birthday is within next 7 days

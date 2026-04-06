@@ -36,6 +36,9 @@ interface ImportContact {
   zip_code: string;
   notes: string;
   import_source: string;
+  language_preference?: string;
+  disc_type?: string;
+  next_follow_up_date?: string;
 }
 
 function sanitizeBirthdayMonth(val: unknown): number | null {
@@ -88,7 +91,8 @@ function buildRow(c: ImportContact, userId: string) {
     track_type: 'sphere' as const,
     pipeline_stage: 'new' as const,
     lead_score: 50,
-    language_preference: 'en' as const,
+    language_preference: (c.language_preference === 'es' ? 'es' : 'en') as 'en' | 'es',
+    ...(c.disc_type && ['D', 'I', 'S', 'C'].includes(c.disc_type) ? { disc_type: c.disc_type as 'D' | 'I' | 'S' | 'C' } : {}),
     birthday_month: sanitizeBirthdayMonth(c.birthday_month),
     birthday_day: sanitizeBirthdayDay(c.birthday_day),
     birthday_year: sanitizeBirthdayYear(c.birthday_year),
@@ -100,7 +104,7 @@ function buildRow(c: ImportContact, userId: string) {
     zip_code: c.zip_code ? sanitizeInput(c.zip_code, 10) : null,
     notes: c.notes ? sanitizeInput(c.notes, 2000) : null,
     import_source: 'iphone_vcf',
-    next_follow_up_date: null,
+    next_follow_up_date: c.next_follow_up_date || null,
   };
 }
 
