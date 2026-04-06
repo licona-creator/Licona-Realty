@@ -120,24 +120,26 @@ export function Modal({
             </div>
           )}
 
-          {/* Body - scrollable, takes remaining space */}
-          <div className="flex-1 overflow-y-auto min-h-0 px-5 py-4 overscroll-contain scroll-touch">
-            {children}
-          </div>
-
-          {/* Footer - never shrinks, ALWAYS visible */}
-          {footer && (
-            <div
-              className="shrink-0 px-5 py-4 border-t border-[rgba(255,255,255,0.06)] bg-[#132236] sm:rounded-b-2xl"
-              style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}
-            >
-              {footer}
+          {/* Body - scrollable, takes remaining space. Footer lives INSIDE as sticky. */}
+          <div className="flex-1 overflow-y-auto min-h-0 overscroll-contain scroll-touch">
+            <div className="px-5 py-4">
+              {children}
             </div>
-          )}
-        </div>
 
-        {/* Bottom nav spacer (mobile only) - simple fixed height, no calc */}
-        <div className="shrink-0 sm:hidden" style={{ height: '5rem' }} />
+            {/* Sticky footer - pinned to bottom of scroll viewport, ALWAYS visible */}
+            {footer && (
+              <div
+                className="sticky bottom-0 z-10 px-5 pt-4 border-t border-[rgba(255,255,255,0.06)]"
+                style={{
+                  background: '#132236',
+                  paddingBottom: 'calc(1rem + 5rem)',
+                }}
+              >
+                {footer}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
