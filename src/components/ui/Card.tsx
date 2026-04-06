@@ -1,10 +1,8 @@
 /**
  * Brand Card Component
  *
- * Light mode: #f4f4f4 background, 1px border in #d3a971 at 15% opacity
- * Dark mode: #1a2535 background
- * Border radius: 12px
- * Box shadow: brand standard
+ * White background, gold/15 border, rounded-2xl, subtle shadow.
+ * Hover elevation with scale(1.01). Gold left border for emphasis.
  */
 
 'use client';
@@ -22,12 +20,12 @@ export function Card({
   ...props
 }: CardProps) {
   const baseStyles =
-    'rounded-[12px] border border-gold/15 p-5 bg-surface dark:bg-dark-card shadow-[0_2px_12px_rgba(19,34,54,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)]';
+    'rounded-2xl border border-gold/15 p-5 bg-white dark:bg-dark-card shadow-[0_2px_8px_rgba(19,34,54,0.08)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] transition-shadow duration-150';
 
   const variantStyles = {
     default: '',
     approval: 'border-l-4 border-l-gold',
-    elevated: 'shadow-[0_4px_24px_rgba(19,34,54,0.12)]',
+    elevated: 'shadow-lg',
   };
 
   return (

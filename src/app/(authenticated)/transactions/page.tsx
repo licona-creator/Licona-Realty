@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -16,6 +16,7 @@ import { NewTransactionModal } from '@/components/modals/NewTransactionModal';
 import type { Transaction } from '@/types/database';
 import { useRouter } from 'next/navigation';
 import { DealListSkeleton } from '@/components/ui/Skeleton';
+import { useTransactions } from '@/hooks/useTransactions';
 import {
   FileText, Plus, DollarSign, CalendarDays, CheckSquare,
   Clock, AlertTriangle, ChevronRight, User,
@@ -46,35 +47,12 @@ type TransactionWithContact = Transaction & {
 
 export default function TransactionsPage() {
   const router = useRouter();
-  const [transactions, setTransactions] = useState<TransactionWithContact[]>([]);
-  const [pipelineValue, setPipelineValue] = useState(0);
-  const [closedValue, setClosedValue] = useState(0);
   const [filter, setFilter] = useState<string>('active');
-  const [loading, setLoading] = useState(true);
   const [showNewTransaction, setShowNewTransaction] = useState(false);
-  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const fetchTransactions = useCallback(async () => {
-    setFetchError(null);
-    try {
-      const res = await fetch('/api/transactions');
-      if (res.ok) {
-        const data = await res.json();
-        setTransactions(data.transactions || []);
-        setPipelineValue(data.pipelineValue || 0);
-        setClosedValue(data.closedValue || 0);
-      } else {
-        const data = await res.json().catch(() => ({}));
-        setFetchError(data.error || `Failed to load transactions (${res.status})`);
-      }
-    } catch {
-      setFetchError('Network error. Please check your connection and try again.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchTransactions(); }, [fetchTransactions]);
+  const { transactions: rawTransactions, pipelineValue, closedValue, isLoading: loading, error: fetchErrorObj, mutate } = useTransactions();
+  const transactions = rawTransactions as unknown as TransactionWithContact[];
+  const fetchError = fetchErrorObj ? (fetchErrorObj as Error).message : null;
 
   const filtered = transactions.filter(t => {
     if (filter === 'active') return !['closed', 'lost'].includes(t.status);
@@ -175,7 +153,7 @@ export default function TransactionsPage() {
           <p className="text-sm text-red-600 dark:text-red-400 font-inter">{fetchError}</p>
           <button
             type="button"
-            onClick={fetchTransactions}
+            onClick={() => mutate()}
             className="text-xs text-red-500 hover:underline font-inter mt-1"
           >
             Try again
@@ -266,7 +244,7 @@ export default function TransactionsPage() {
       <NewTransactionModal
         open={showNewTransaction}
         onClose={() => setShowNewTransaction(false)}
-        onSuccess={fetchTransactions}
+        onSuccess={() => mutate()}
       />
 
       {/* Mobile FAB */}

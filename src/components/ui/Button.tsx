@@ -1,10 +1,9 @@
 /**
  * Brand Button Component
  *
- * Primary: #132236 background, #d3a971 text, Montserrat medium
- * Accent: #d3a971 background, #132236 text, Montserrat semibold
- * All interactive elements: gold hover state, 200ms ease transition
- * Border radius: 8px
+ * Primary (gold bg, navy text), Secondary (navy bg, gold text),
+ * Ghost (transparent), Danger (red). Press animation: scale(0.97).
+ * Border radius: rounded-xl. Montserrat semibold.
  */
 
 'use client';
@@ -19,13 +18,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles = {
   primary:
-    'bg-navy text-gold font-montserrat font-medium hover:bg-navy/90',
+    'bg-navy text-gold font-montserrat font-semibold hover:bg-navy/90',
   accent:
-    'bg-gold text-navy font-montserrat font-semibold hover:bg-gold/90',
+    'bg-gold text-navy font-montserrat font-semibold hover:brightness-105',
   ghost:
-    'bg-transparent text-navy dark:text-white font-montserrat font-medium hover:bg-gold/20 border border-gold/15',
+    'bg-transparent text-navy dark:text-white font-montserrat font-medium hover:bg-gold/10 border border-gold/15',
   danger:
-    'bg-red-600 text-white font-montserrat font-medium hover:bg-red-700',
+    'bg-red-600 text-white font-montserrat font-semibold hover:bg-red-700',
 };
 
 const sizeStyles = {
@@ -42,10 +41,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         type={type}
         className={`
           inline-flex items-center justify-center gap-2
-          rounded-[8px] transition-all duration-200 ease-in-out
+          rounded-xl transition-all duration-150 ease-out
           focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2
           disabled:opacity-50 disabled:cursor-not-allowed
-          active:scale-[0.98]
+          active:scale-[0.97]
           ${variantStyles[variant]}
           ${sizeStyles[size]}
           ${className}

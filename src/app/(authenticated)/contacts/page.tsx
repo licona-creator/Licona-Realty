@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -24,6 +24,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { calculateLeadScore, getScoreTailwind } from '@/lib/ai/lead-scoring';
 import { getDisplayName, getInitials } from '@/lib/format';
 import { SkeletonContactRow } from '@/components/ui/Skeleton';
+import { useContacts } from '@/hooks/useContacts';
 import type { TrackType } from '@/types/database';
 
 interface Contact {
@@ -76,44 +77,20 @@ export default function ContactsPage() {
   const [showVCardImportModal, setShowVCardImportModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Contact | null>(null);
-  const [fetchError, setFetchError] = useState<string | null>(null);
   const { success, error: showError } = useToast();
 
-  const fetchContacts = useCallback(async () => {
-    setFetchError(null);
-    try {
-      const params = new URLSearchParams();
-      if (activeTrack !== 'all') params.set('track_type', activeTrack);
-      const res = await fetch(`/api/contacts?${params}`);
-      if (res.ok) {
-        const json = await res.json();
-        setContacts(json.contacts || []);
-      } else {
-        const json = await res.json().catch(() => ({}));
-        setFetchError(json.error || `Failed to load contacts (${res.status})`);
-      }
-    } catch {
-      setFetchError('Network error. Please check your connection and try again.');
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTrack]);
-
-  useEffect(() => {
-    setLoading(true);
-    fetchContacts();
-  }, [fetchContacts]);
+  const { contacts: rawContacts, isLoading: loading, error: fetchErrorObj, mutate } = useContacts(activeTrack);
+  const contacts = rawContacts as unknown as Contact[];
+  const fetchError = fetchErrorObj ? (fetchErrorObj as Error).message : null;
 
   async function handleDelete(contact: Contact) {
     try {
       const res = await fetch(`/api/contacts/${contact.id}`, { method: 'DELETE' });
       if (res.ok) {
         success('Contact Deleted', `${getDisplayName(contact)} has been removed.`);
-        fetchContacts();
+        mutate();
       } else {
         const json = await res.json().catch(() => ({}));
         showError('Delete Failed', json.error || 'Could not delete contact.');
@@ -137,7 +114,7 @@ export default function ContactsPage() {
   });
 
   return (
-    <div className="p-3 pt-2 lg:p-8 max-w-7xl mx-auto">
+    <div className="p-3 pt-2 lg:p-8 max-w-7xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <div className="flex items-center gap-3">
@@ -213,7 +190,7 @@ export default function ContactsPage() {
           <p className="text-sm text-red-600 dark:text-red-400 font-inter">{fetchError}</p>
           <button
             type="button"
-            onClick={() => { setLoading(true); fetchContacts(); }}
+            onClick={() => mutate()}
             className="text-xs text-red-500 hover:underline font-inter mt-1"
           >
             Try again
@@ -230,11 +207,12 @@ export default function ContactsPage() {
         </div>
       ) : filtered.length > 0 ? (
         <div className="space-y-2">
-          {filtered.map((contact) => (
+          {filtered.map((contact, idx) => (
             <motion.div
               key={contact.id}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: Math.min(idx * 0.03, 0.3), duration: 0.2 }}
             >
               <Card className="!p-2.5 sm:!p-4 cursor-pointer hover:shadow-md transition-shadow touch-card" onClick={() => router.push(`/contacts/${contact.id}`)}>
                 <div className="flex items-center gap-3 sm:gap-4">
@@ -386,17 +364,17 @@ export default function ContactsPage() {
       <AddContactModal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onSuccess={fetchContacts}
+        onSuccess={() => mutate()}
       />
       <ImportContactsModal
         open={showImportModal}
         onClose={() => setShowImportModal(false)}
-        onSuccess={fetchContacts}
+        onSuccess={() => mutate()}
       />
       <VCardImportModal
         open={showVCardImportModal}
         onClose={() => setShowVCardImportModal(false)}
-        onSuccess={fetchContacts}
+        onSuccess={() => mutate()}
       />
       <ConfirmDialog
         open={!!deleteTarget}
