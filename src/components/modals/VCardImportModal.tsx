@@ -276,7 +276,7 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-50">
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -286,15 +286,23 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
         onClick={handleClose}
       />
 
-      {/* Modal */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ duration: 0.2 }}
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-2xl bg-white dark:bg-dark-card sm:rounded-[16px] rounded-t-[16px] border border-gold/15 shadow-[0_8px_32px_rgba(19,34,54,0.2)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col max-h-[85vh] sm:max-h-[calc(100vh-80px)]"
+      {/* Positioning wrapper: mobile edge-anchored above nav, desktop centered */}
+      <div
+        className="absolute inset-x-0 sm:static sm:h-full sm:flex sm:items-center sm:justify-center sm:p-4"
+        style={{
+          top: 'env(safe-area-inset-top, 0px)',
+          bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
+        }}
       >
+        {/* Modal card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          transition={{ duration: 0.2 }}
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full h-full sm:h-auto max-w-2xl bg-white dark:bg-dark-card sm:rounded-[16px] rounded-t-[16px] border border-gold/15 shadow-[0_8px_32px_rgba(19,34,54,0.2)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col sm:max-h-[calc(100vh-80px)]"
+        >
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 pb-3 sticky top-0 z-10 bg-white dark:bg-dark-card sm:rounded-t-[16px] rounded-t-[16px] border-b border-gold/10">
           <div className="flex items-center gap-2">
@@ -369,7 +377,7 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
 
         {/* Fixed footer - outside scrollable area, always visible */}
         {step === 'review' && (
-          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-white dark:bg-dark-card sm:rounded-b-[16px]" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-white dark:bg-dark-card sm:rounded-b-[16px]">
             <Button
               variant="accent"
               size="lg"
@@ -383,7 +391,7 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
           </div>
         )}
         {step === 'complete' && importResult && (
-          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-white dark:bg-dark-card sm:rounded-b-[16px]" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-white dark:bg-dark-card sm:rounded-b-[16px]">
             <Button
               variant="accent"
               size="lg"
@@ -395,7 +403,8 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
             </Button>
           </div>
         )}
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
