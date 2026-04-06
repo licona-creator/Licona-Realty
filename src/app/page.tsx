@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
 
 /**
- * Root page redirects to dashboard (authenticated) or login.
+ * Root page redirects to today (authenticated) or login.
  * The middleware handles auth checking.
  */
 export default function Home() {
-  redirect('/dashboard');
+  redirect('/today');
 }

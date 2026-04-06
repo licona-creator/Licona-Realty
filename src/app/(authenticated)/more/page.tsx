@@ -15,12 +15,14 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
 import {
-  Send, Megaphone, MapPin, Calendar, Palette,
-  Star, Calculator, Settings, LogOut, Handshake, Activity, ChevronRight,
+  Send, Megaphone, MapPin, Calendar, Palette, Sparkles,
+  Star, Calculator, Settings, LogOut, Handshake, Activity, ChevronRight, Home,
   Database, Trash2, FlaskConical, Check, X, ChevronDown, ChevronUp, Loader2,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  sparkles: Sparkles,
+  home: Home,
   send: Send,
   handshake: Handshake,
   megaphone: Megaphone,
@@ -34,7 +36,7 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
 
 // Show items not in mobile bottom nav
 const moreItems = NAV_ITEMS.filter(
-  (item) => !['Dashboard', 'Approval Queue', 'Contacts', 'Deals', 'Settings'].includes(item.label)
+  (item) => !['Today', 'Approval Queue', 'Contacts', 'Deals', 'Settings'].includes(item.label)
 );
 
 interface QATestResult {

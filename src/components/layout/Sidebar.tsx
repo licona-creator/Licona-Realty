@@ -28,9 +28,11 @@ import {
   Settings,
   Handshake,
   Activity,
+  Sparkles,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  sparkles: Sparkles,
   home: Home,
   'check-circle': CheckCircle,
   users: Users,

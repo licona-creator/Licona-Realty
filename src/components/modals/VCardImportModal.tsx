@@ -35,13 +35,63 @@ interface VCardImportModalProps {
   onSuccess?: () => void;
 }
 
-type ImportStep = 'upload' | 'review' | 'progress' | 'complete';
+type ImportStep = 'upload' | 'review' | 'language' | 'disc' | 'progress' | 'complete';
 type ReviewTab = 'ready' | 'filtered' | 'duplicates';
+type TierType = 'inner_circle' | 'sphere' | 'outer_circle';
 
 const MONTH_NAMES = [
   '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ];
+
+const DFW_AREA_CODES = ['469', '972', '214', '817', '682', '940'];
+
+function getAreaCode(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 11 && digits[0] === '1') return digits.slice(1, 4);
+  if (digits.length >= 10) return digits.slice(0, 3);
+  return '';
+}
+
+function isDFW(phone: string): boolean {
+  return DFW_AREA_CODES.includes(getAreaCode(phone));
+}
+
+const HISPANIC_SURNAMES = new Set([
+  'serrano', 'garcia', 'rodriguez', 'lopez', 'martinez', 'hernandez', 'gonzalez',
+  'perez', 'sanchez', 'ramirez', 'torres', 'flores', 'rivera', 'gomez', 'diaz',
+  'reyes', 'cruz', 'morales', 'ortiz', 'gutierrez', 'chavez', 'ramos', 'vargas',
+  'castillo', 'jimenez', 'delgadillo', 'montalvo', 'fuentes', 'mendoza', 'ruiz',
+  'aguilar', 'medina', 'dominguez', 'castro', 'romero', 'alvarez', 'salazar',
+  'espinoza', 'contreras', 'soto', 'vega', 'figueroa', 'campos', 'cervantes',
+  'silva', 'nunez', 'sandoval', 'herrera', 'guerrero', 'maldonado', 'vasquez',
+  'camacho', 'luna', 'mora', 'rojas', 'rios',
+]);
+
+function isHispanicSurname(lastName: string): boolean {
+  return HISPANIC_SURNAMES.has(lastName.toLowerCase().trim());
+}
+
+function assignTier(contact: ClassifiedContact): TierType {
+  const hasDFW = contact.phone ? isDFW(contact.phone) : false;
+  if (contact.email && contact.phone && hasDFW) return 'inner_circle';
+  if (contact.phone && hasDFW) return 'sphere';
+  return 'outer_circle';
+}
+
+function getFollowUpDate(tier: TierType): string {
+  const d = new Date();
+  if (tier === 'inner_circle') d.setDate(d.getDate() + 7);
+  else if (tier === 'sphere') d.setDate(d.getDate() + 30);
+  else d.setDate(d.getDate() + 90);
+  return d.toISOString().split('T')[0];
+}
+
+interface EnhancedContact extends ClassifiedContact {
+  tier: TierType;
+  is_spanish: boolean;
+  disc_pick?: 'D' | 'I' | 'S' | 'C' | null;
+}
 
 export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalProps) {
   const [step, setStep] = useState<ImportStep>('upload');
@@ -56,6 +106,8 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
   const [importCurrentName, setImportCurrentName] = useState('');
   const [importResult, setImportResult] = useState<{ imported: number; errors: number } | null>(null);
   const [emailCount, setEmailCount] = useState(0);
+  const [enhancedContacts, setEnhancedContacts] = useState<EnhancedContact[]>([]);
+  const [discIndex, setDiscIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
 
@@ -75,6 +127,8 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
         setImportCurrentName('');
         setImportResult(null);
         setEmailCount(0);
+        setEnhancedContacts([]);
+        setDiscIndex(0);
       }, 200);
     }
   }, [open]);
@@ -196,15 +250,57 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
 
   const selectedCount = classification?.people.filter((c) => c._selected).length ?? 0;
 
-  const handleImport = useCallback(async () => {
+  const handleProceedToLanguage = useCallback(() => {
     if (!classification) return;
-
-    const toImport = classification.people.filter((c) => c._selected);
-    if (toImport.length === 0) {
+    const selected = classification.people.filter((c) => c._selected);
+    if (selected.length === 0) {
       toast.warning('No Contacts Selected', 'Please select at least one contact to import.');
       return;
     }
+    // Build enhanced contacts with tier + language detection
+    const enhanced: EnhancedContact[] = selected.map((c) => ({
+      ...c,
+      tier: assignTier(c),
+      is_spanish: isHispanicSurname(c.last_name),
+      disc_pick: null,
+    }));
+    setEnhancedContacts(enhanced);
+    const hasSpanish = enhanced.some(c => c.is_spanish);
+    setStep(hasSpanish ? 'language' : 'disc');
+  }, [classification, toast]);
 
+  const handleProceedToDisc = useCallback(() => {
+    setDiscIndex(0);
+    setStep('disc');
+  }, []);
+
+  const handleDiscPick = useCallback((disc: 'D' | 'I' | 'S' | 'C' | null) => {
+    setEnhancedContacts(prev => {
+      const innerCircle = prev.filter(c => c.tier === 'inner_circle');
+      if (discIndex < innerCircle.length) {
+        const targetId = innerCircle[discIndex].phone + innerCircle[discIndex].first_name;
+        return prev.map(c =>
+          (c.phone + c.first_name) === targetId ? { ...c, disc_pick: disc } : c
+        );
+      }
+      return prev;
+    });
+    const innerCircle = enhancedContacts.filter(c => c.tier === 'inner_circle');
+    if (discIndex >= innerCircle.length - 1) {
+      // Done with DISC, proceed to import
+      handleImport();
+    } else {
+      setDiscIndex(prev => prev + 1);
+    }
+  }, [discIndex, enhancedContacts]);
+
+  const handleImport = useCallback(async () => {
+    const toImport = enhancedContacts;
+    if (toImport.length === 0 && classification) {
+      // Fallback if somehow enhancedContacts is empty
+      const selected = classification.people.filter((c) => c._selected);
+      if (selected.length === 0) return;
+    }
     setStep('progress');
     setImportTotal(toImport.length);
     setImportProgress(0);
@@ -221,23 +317,29 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
         setImportCurrentName(getDisplayName(batch[0]));
       }
 
-      const payload = batch.map((c) => ({
-        first_name: c.first_name,
-        last_name: c.last_name,
-        phone: c.phone,
-        email: c.email,
-        birthday_month: c.birthday_month,
-        birthday_day: c.birthday_day,
-        birthday_year: c.birthday_year,
-        company: c.company,
-        job_title: c.job_title,
-        address_line_1: c.address_line_1,
-        city: c.city,
-        state: c.state,
-        zip_code: c.zip_code,
-        notes: c.notes,
-        import_source: 'iphone_vcf',
-      }));
+      const payload = batch.map((c) => {
+        const enhanced = c as EnhancedContact;
+        return {
+          first_name: c.first_name,
+          last_name: c.last_name,
+          phone: c.phone,
+          email: c.email,
+          birthday_month: c.birthday_month,
+          birthday_day: c.birthday_day,
+          birthday_year: c.birthday_year,
+          company: c.company,
+          job_title: c.job_title,
+          address_line_1: c.address_line_1,
+          city: c.city,
+          state: c.state,
+          zip_code: c.zip_code,
+          notes: c.notes,
+          import_source: 'iphone_vcf',
+          language_preference: enhanced.is_spanish ? 'es' : 'en',
+          disc_type: enhanced.disc_pick || undefined,
+          next_follow_up_date: enhanced.tier ? getFollowUpDate(enhanced.tier) : undefined,
+        };
+      });
 
       try {
         const res = await fetch('/api/contacts/import/vcf', {
@@ -355,6 +457,29 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
               />
             )}
 
+            {step === 'language' && (
+              <LanguageStep
+                key="language"
+                contacts={enhancedContacts}
+                onToggleLanguage={(idx) => {
+                  setEnhancedContacts(prev => prev.map((c, i) => i === idx ? { ...c, is_spanish: !c.is_spanish } : c));
+                }}
+                onSelectAll={(val) => {
+                  setEnhancedContacts(prev => prev.map(c => isHispanicSurname(c.last_name) ? { ...c, is_spanish: val } : c));
+                }}
+              />
+            )}
+
+            {step === 'disc' && (
+              <DISCStep
+                key="disc"
+                contacts={enhancedContacts.filter(c => c.tier === 'inner_circle')}
+                currentIndex={discIndex}
+                onPick={handleDiscPick}
+                onSkipAll={handleImport}
+              />
+            )}
+
             {step === 'progress' && (
               <ProgressStep
                 key="progress"
@@ -382,11 +507,19 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
               variant="accent"
               size="lg"
               className="w-full"
-              onClick={handleImport}
+              onClick={handleProceedToLanguage}
               disabled={selectedCount === 0}
             >
-              <Users size={18} />
-              Import {selectedCount} Contact{selectedCount !== 1 ? 's' : ''}
+              <ArrowRight size={18} />
+              Continue with {selectedCount} Contact{selectedCount !== 1 ? 's' : ''}
+            </Button>
+          </div>
+        )}
+        {step === 'language' && (
+          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-white dark:bg-dark-card sm:rounded-b-[16px]">
+            <Button variant="accent" size="lg" className="w-full" onClick={handleProceedToDisc}>
+              <ArrowRight size={18} />
+              Continue
             </Button>
           </div>
         )}
@@ -932,6 +1065,245 @@ function CompleteStep({ result, emailCount, onClose }: { result: { imported: num
         </div>
       )}
 
+    </motion.div>
+  );
+}
+
+// ============================================
+// Language Detection Step
+// ============================================
+
+function LanguageStep({
+  contacts,
+  onToggleLanguage,
+  onSelectAll,
+}: {
+  contacts: EnhancedContact[];
+  onToggleLanguage: (idx: number) => void;
+  onSelectAll: (val: boolean) => void;
+}) {
+  const spanishContacts = contacts
+    .map((c, i) => ({ contact: c, originalIndex: i }))
+    .filter(({ contact }) => isHispanicSurname(contact.last_name));
+
+  const spanishCount = contacts.filter(c => c.is_spanish).length;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="p-4 sm:p-6"
+    >
+      <h3 className="text-lg font-playfair font-bold text-navy dark:text-white mb-1">
+        Spanish-speaking contacts
+      </h3>
+      <p className="text-sm text-navy/60 dark:text-white/60 font-inter mb-4">
+        {spanishContacts.length} contacts with Hispanic surnames detected. {spanishCount} marked as Spanish.
+      </p>
+
+      {spanishContacts.length > 0 && (
+        <div className="flex items-center gap-2 mb-3">
+          <button
+            type="button"
+            onClick={() => onSelectAll(true)}
+            className="text-xs font-montserrat font-medium text-gold hover:underline"
+          >
+            Select All
+          </button>
+          <span className="text-navy/20 dark:text-white/20">|</span>
+          <button
+            type="button"
+            onClick={() => onSelectAll(false)}
+            className="text-xs font-montserrat font-medium text-navy/50 dark:text-white/50 hover:underline"
+          >
+            Clear All
+          </button>
+        </div>
+      )}
+
+      <div className="space-y-1 max-h-[40vh] overflow-y-auto">
+        {spanishContacts.map(({ contact, originalIndex }) => (
+          <div
+            key={originalIndex}
+            className="flex items-center justify-between gap-3 p-2.5 rounded-lg hover:bg-gold/5 transition-colors"
+          >
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-montserrat font-semibold text-navy dark:text-white truncate">
+                {getDisplayName(contact)}
+              </p>
+              {contact.phone && (
+                <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+                  {formatDisplayPhone(contact.phone)}
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => onToggleLanguage(originalIndex)}
+              className={`px-3 py-1.5 rounded-full text-xs font-montserrat font-semibold min-w-[80px] text-center transition-colors ${
+                contact.is_spanish
+                  ? 'bg-gold/10 text-gold'
+                  : 'bg-navy/5 dark:bg-white/5 text-navy/40 dark:text-white/40'
+              }`}
+            >
+              {contact.is_spanish ? 'Spanish' : 'English'}
+            </button>
+          </div>
+        ))}
+        {spanishContacts.length === 0 && (
+          <p className="text-sm text-navy/40 dark:text-white/40 font-inter text-center py-8">
+            No Hispanic surnames detected. You can skip this step.
+          </p>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// DISC Quick-Pick Step
+// ============================================
+
+function DISCStep({
+  contacts,
+  currentIndex,
+  onPick,
+  onSkipAll,
+}: {
+  contacts: EnhancedContact[];
+  currentIndex: number;
+  onPick: (disc: 'D' | 'I' | 'S' | 'C' | null) => void;
+  onSkipAll: () => void;
+}) {
+  if (contacts.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="p-6 sm:p-8 flex flex-col items-center justify-center gap-4"
+      >
+        <p className="text-sm text-navy/50 dark:text-white/50 font-inter">
+          No Inner Circle contacts to tag.
+        </p>
+        <Button variant="accent" onClick={onSkipAll}>
+          Continue to Import
+        </Button>
+      </motion.div>
+    );
+  }
+
+  const contact = contacts[currentIndex];
+  if (!contact) {
+    // All done
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="p-6 sm:p-8 flex flex-col items-center justify-center gap-4"
+      >
+        <CheckCircle2 size={32} className="text-gold" />
+        <p className="font-montserrat font-semibold text-navy dark:text-white">All tagged.</p>
+        <Button variant="accent" onClick={onSkipAll}>
+          Continue to Import
+        </Button>
+      </motion.div>
+    );
+  }
+
+  const progress = ((currentIndex + 1) / contacts.length) * 100;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="p-4 sm:p-6"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-lg font-playfair font-bold text-navy dark:text-white">
+            Tag your top contacts
+          </h3>
+          <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-0.5">
+            Skip anyone you are not sure about
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onSkipAll}
+          className="text-xs font-montserrat font-medium text-navy/50 dark:text-white/50 hover:text-gold transition-colors"
+        >
+          Skip All
+        </button>
+      </div>
+
+      {/* Progress bar */}
+      <div className="w-full h-1.5 bg-navy/10 dark:bg-white/10 rounded-full overflow-hidden mb-6">
+        <div
+          className="h-full rounded-full bg-gold transition-all duration-300"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      {/* Contact card */}
+      <div className="rounded-2xl bg-surface dark:bg-navy/30 border border-gold/15 p-5 text-center mb-6">
+        <div className="w-14 h-14 rounded-full bg-navy mx-auto flex items-center justify-center mb-3">
+          <span className="text-lg font-montserrat font-bold text-gold">
+            {contact.first_name?.[0]?.toUpperCase() || '?'}{contact.last_name?.[0]?.toUpperCase() || ''}
+          </span>
+        </div>
+        <p className="font-montserrat font-semibold text-navy dark:text-white">
+          {getDisplayName(contact)}
+        </p>
+        {contact.phone && (
+          <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-1">
+            {formatDisplayPhone(contact.phone)}
+          </p>
+        )}
+        <span className="inline-block mt-2 text-[10px] font-montserrat font-semibold uppercase px-2.5 py-1 rounded-full bg-gold/10 text-gold">
+          Inner Circle
+        </span>
+      </div>
+
+      {/* DISC Buttons */}
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        {([
+          { disc: 'D' as const, color: '#c0392b', label: 'Dominant' },
+          { disc: 'I' as const, color: '#d3a971', label: 'Influencing' },
+          { disc: 'S' as const, color: '#27ae60', label: 'Stabilizing' },
+          { disc: 'C' as const, color: '#2980b9', label: 'Cautious' },
+        ]).map(({ disc, color, label }) => (
+          <button
+            key={disc}
+            type="button"
+            onClick={() => onPick(disc)}
+            className="flex flex-col items-center gap-1 p-3 rounded-xl border-2 hover:shadow-md active:scale-[0.97] transition-all min-h-[70px]"
+            style={{ borderColor: color + '40' }}
+          >
+            <span className="text-xl font-montserrat font-bold" style={{ color }}>
+              {disc}
+            </span>
+            <span className="text-[9px] font-montserrat font-medium text-navy/60 dark:text-white/60">
+              {label}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onPick(null)}
+        className="w-full text-center py-2.5 text-sm font-montserrat font-medium text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white transition-colors"
+      >
+        Skip
+      </button>
+
+      <p className="text-center text-[10px] text-navy/30 dark:text-white/30 font-inter mt-2">
+        {currentIndex + 1} of {contacts.length}
+      </p>
     </motion.div>
   );
 }
