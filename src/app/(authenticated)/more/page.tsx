@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BRAND } from '@/lib/brand';
 import { LRMonogram } from '@/components/ui/LRMonogram';
@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Settings, LogOut, Handshake, Activity, ChevronRight,
-  Upload, FlaskConical, Check, X, ChevronDown, ChevronUp, Loader2,
+  Upload, FlaskConical, Check, X, ChevronDown, ChevronUp, Loader2, Sparkles,
 } from 'lucide-react';
 import { VCardImportModal } from '@/components/modals/VCardImportModal';
 
@@ -71,8 +71,46 @@ export default function MorePage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [qaLoading, setQaLoading] = useState(false);
   const [qaResults, setQaResults] = useState<QAResponse | null>(null);
+  const [discStats, setDiscStats] = useState<{ total: number; profiled: number } | null>(null);
+  const [discRunning, setDiscRunning] = useState(false);
+  const [discProgress, setDiscProgress] = useState({ current: 0, total: 0, success: 0 });
+  const [discDone, setDiscDone] = useState(false);
   const { signOut } = useAuth();
   const toast = useToast();
+
+  useEffect(() => {
+    fetch('/api/dashboard/intelligence-stats')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setDiscStats({ total: data.total, profiled: data.profiled }); })
+      .catch(() => {});
+  }, []);
+
+  async function handleDiscAnalysis() {
+    setDiscRunning(true);
+    setDiscDone(false);
+    setDiscProgress({ current: 0, total: 0, success: 0 });
+    try {
+      const res = await fetch('/api/contacts');
+      if (!res.ok) { toast.error('Error', 'Could not load contacts.'); setDiscRunning(false); return; }
+      const data = await res.json();
+      const contacts = (data.contacts || data || []).filter((c: { disc_type?: string | null }) => !c.disc_type);
+      if (contacts.length === 0) { toast.success('All Done', 'All contacts already have DISC profiles.'); setDiscRunning(false); return; }
+      setDiscProgress({ current: 0, total: contacts.length, success: 0 });
+      let success = 0;
+      for (let i = 0; i < contacts.length; i++) {
+        try {
+          const r = await fetch(`/api/ai/enrich-contact/${contacts[i].id}`, { method: 'POST' });
+          if (r.ok) success++;
+        } catch { /* skip failures */ }
+        setDiscProgress({ current: i + 1, total: contacts.length, success });
+        if (i < contacts.length - 1) await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      setDiscDone(true);
+      toast.success('Analysis Complete', `${success} of ${contacts.length} contacts profiled.`);
+      setDiscStats(prev => prev ? { ...prev, profiled: prev.profiled + success } : null);
+    } catch { toast.error('Error', 'Network error.'); }
+    finally { if (!discDone) setDiscRunning(false); }
+  }
 
   async function handleQA() {
     setQaLoading(true);
@@ -134,6 +172,63 @@ export default function MorePage() {
         </button>
 
         {qaResults && <QAResultsCard results={qaResults} />}
+
+        {/* DISC Bulk Analysis */}
+        {discRunning || discDone ? (
+          <div className="rounded-xl border border-[rgba(211,169,113,0.2)] p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Sparkles size={16} className="text-[#d3a971]" />
+              <span className="font-montserrat text-sm font-semibold text-white">
+                {discDone ? 'Analysis Complete' : 'Analyzing Contacts...'}
+              </span>
+            </div>
+            {!discDone && discProgress.total > 0 && (
+              <>
+                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{ width: `${(discProgress.current / discProgress.total) * 100}%`, backgroundColor: '#d3a971' }}
+                  />
+                </div>
+                <p className="text-xs font-inter text-white/50">
+                  Analyzed {discProgress.current} of {discProgress.total} contacts...
+                </p>
+              </>
+            )}
+            {discDone && (
+              <>
+                <p className="text-sm font-inter text-white/70">
+                  {discProgress.success} of {discProgress.total} contacts profiled successfully.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setDiscDone(false); setDiscRunning(false); }}
+                  className="w-full py-2.5 rounded-xl text-sm font-montserrat font-medium text-white/50 bg-white/5 active:scale-95 transition-transform"
+                >
+                  Done
+                </button>
+              </>
+            )}
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={handleDiscAnalysis}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[rgba(211,169,113,0.1)] transition-colors w-full active:scale-[0.98]"
+            style={{ minHeight: 44 }}
+          >
+            <Sparkles size={18} className="text-[#d3a971]" />
+            <div className="flex-1 text-left">
+              <span className="font-montserrat text-sm font-medium text-white block">Run DISC Analysis</span>
+              <span className="font-inter text-[11px] text-white/40">Analyze personality for all contacts</span>
+            </div>
+            {discStats && (
+              <span className="text-[11px] font-montserrat font-semibold text-[#d3a971]">
+                {discStats.profiled}/{discStats.total}
+              </span>
+            )}
+          </button>
+        )}
       </div>
 
       {/* BUSINESS */}

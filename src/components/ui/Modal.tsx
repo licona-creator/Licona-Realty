@@ -1,18 +1,24 @@
 /**
  * Brand Modal Component
  *
- * Reusable overlay dialog with brand styling.
- * Accessible: focus trap, Escape to close, backdrop click.
- * Uses Framer Motion for smooth enter/exit.
+ * Bulletproof modal that guarantees footer buttons are ALWAYS visible
+ * above the iPhone bottom nav bar.
  *
- * Mobile: edge-anchored above the bottom nav bar (no vh calculations).
- * Desktop: centered with max-height constraint.
+ * Architecture:
+ *   overlay (fixed inset-0)
+ *     backdrop
+ *     container (flex col, maxHeight with marginBottom for nav clearance)
+ *       header (shrink-0)
+ *       body (flex-1 overflow-y-auto min-h-0)
+ *       footer (shrink-0) -- NEVER scrolls, ALWAYS visible
+ *
+ * Mobile: slides up from bottom, sits above 5rem nav + safe area
+ * Desktop: centered with max-height constraint
  */
 
 'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -26,10 +32,10 @@ interface ModalProps {
   hideClose?: boolean;
 }
 
-const sizeStyles = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
+const sizeMap = {
+  sm: 'sm:max-w-sm',
+  md: 'sm:max-w-md',
+  lg: 'sm:max-w-lg',
 };
 
 export function Modal({
@@ -42,105 +48,91 @@ export function Modal({
   size = 'md',
   hideClose = false,
 }: ModalProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
 
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-
     document.addEventListener('keydown', handleKeyDown);
-    document.body.style.overflow = 'hidden';
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [open, onClose]);
 
+  if (!open) return null;
+
   return (
-    <AnimatePresence>
-      {open && (
-        <div className="fixed inset-0 z-50">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="absolute inset-0 bg-black/70"
-            onClick={e => {
-              if ((e.target as HTMLElement).closest('.pac-container')) return;
-              onClose();
-            }}
-          />
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+      onClick={(e) => {
+        if (e.target === overlayRef.current) onClose();
+      }}
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={(e) => {
+          if ((e.target as HTMLElement).closest('.pac-container')) return;
+          onClose();
+        }}
+      />
 
-          {/*
-            Positioning wrapper:
-            Mobile: pin edges so modal sits between status bar and bottom nav.
-            Desktop (sm+): center with padding, let modal size itself.
-          */}
-          <div
-            className="absolute inset-x-0 sm:static sm:h-full sm:flex sm:items-center sm:justify-center sm:p-4"
-            style={{
-              top: 'env(safe-area-inset-top, 0px)',
-              bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
-            }}
-          >
-            {/* Content card */}
-            <motion.div
-              ref={contentRef}
-              initial={{ opacity: 0, scale: 0.95, y: 8 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 8 }}
-              transition={{ duration: 0.15 }}
-              onClick={e => e.stopPropagation()}
-              onMouseDown={e => e.stopPropagation()}
-              className={`relative w-full h-full sm:h-auto ${sizeStyles[size]} bg-[var(--lr-depth-1)] rounded-t-[12px] sm:rounded-[12px] border border-[rgba(255,255,255,0.06)] shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col sm:max-h-[calc(100vh-80px)]`}
-            >
-              {/* Header */}
-              {(title || !hideClose) && (
-                <div className="flex items-start justify-between p-5 pb-3 flex-shrink-0 bg-[var(--lr-depth-1)] rounded-t-[12px] border-b border-[rgba(255,255,255,0.06)]">
-                  <div>
-                    {title && (
-                      <h2 className="text-lg font-montserrat font-semibold text-white">
-                        {title}
-                      </h2>
-                    )}
-                    {description && (
-                      <p className="text-sm text-white/50 font-inter mt-1">
-                        {description}
-                      </p>
-                    )}
-                  </div>
-                  {!hideClose && (
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="ml-4 p-1 rounded-md text-white/30 hover:text-white/60 hover:bg-white/[0.06] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                      aria-label="Close"
-                    >
-                      <X size={18} />
-                    </button>
-                  )}
-                </div>
+      {/* Modal container */}
+      <div
+        className={`relative w-full ${sizeMap[size]} flex flex-col bg-[#132236] border border-[rgba(255,255,255,0.08)] rounded-t-2xl sm:rounded-2xl`}
+        style={{
+          maxHeight: 'calc(100dvh - 5rem - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px))',
+          marginBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
+        }}
+      >
+        {/* Header - never shrinks */}
+        {(title || !hideClose) && (
+          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)] shrink-0">
+            <div>
+              {title && (
+                <h2 className="text-lg font-montserrat font-semibold text-white">
+                  {title}
+                </h2>
               )}
-
-              {/* Body - scrollable */}
-              <div className="p-5 overflow-y-auto flex-1 min-h-0 scroll-touch">{children}</div>
-
-              {/* Footer - always visible */}
-              {footer && (
-                <div className="flex-shrink-0 border-t border-[rgba(255,255,255,0.06)] bg-[var(--lr-depth-1)] p-4 sm:rounded-b-[12px]">
-                  {footer}
-                </div>
+              {description && (
+                <p className="text-sm text-white/50 font-inter mt-1">
+                  {description}
+                </p>
               )}
-            </motion.div>
+            </div>
+            {!hideClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="ml-4 w-10 h-10 flex items-center justify-center rounded-full text-white/30 hover:text-white/60 hover:bg-white/[0.06] transition-colors"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            )}
           </div>
+        )}
+
+        {/* Body - scrollable, takes remaining space */}
+        <div className="flex-1 overflow-y-auto min-h-0 px-5 py-4 scroll-touch">
+          {children}
         </div>
-      )}
-    </AnimatePresence>
+
+        {/* Footer - never shrinks, ALWAYS visible above bottom nav */}
+        {footer && (
+          <div className="shrink-0 px-5 py-4 border-t border-[rgba(255,255,255,0.06)] bg-[#132236] sm:rounded-b-2xl">
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

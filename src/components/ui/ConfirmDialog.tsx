@@ -35,19 +35,12 @@ export function ConfirmDialog({
   loading = false,
 }: ConfirmDialogProps) {
   return (
-    <Modal open={open} onClose={onClose} size="sm" hideClose>
-      <div className="text-center">
-        {variant === 'danger' && (
-          <div className="w-12 h-12 rounded-full bg-red-900/20 flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle size={24} className="text-red-500" />
-          </div>
-        )}
-        <h3 className="text-lg font-montserrat font-semibold text-white mb-2">
-          {title}
-        </h3>
-        <p className="text-sm text-white/60 font-inter mb-6">
-          {message}
-        </p>
+    <Modal
+      open={open}
+      onClose={onClose}
+      size="sm"
+      hideClose
+      footer={
         <div className="flex items-center gap-3 justify-center">
           <Button variant="ghost" size="sm" onClick={onClose} disabled={loading}>
             {cancelLabel}
@@ -64,6 +57,20 @@ export function ConfirmDialog({
             {confirmLabel}
           </Button>
         </div>
+      }
+    >
+      <div className="text-center">
+        {variant === 'danger' && (
+          <div className="w-12 h-12 rounded-full bg-red-900/20 flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle size={24} className="text-red-500" />
+          </div>
+        )}
+        <h3 className="text-lg font-montserrat font-semibold text-white mb-2">
+          {title}
+        </h3>
+        <p className="text-sm text-white/60 font-inter mb-6">
+          {message}
+        </p>
       </div>
     </Modal>
   );

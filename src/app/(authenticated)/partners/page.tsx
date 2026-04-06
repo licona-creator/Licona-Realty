@@ -160,8 +160,13 @@ export default function PartnersPage() {
         </Card>
       )}
 
-      <Modal open={showAdd} onClose={() => !saving && setShowAdd(false)} title="Add Referral Partner" size="lg">
-        <form onSubmit={handleAdd} className="space-y-4">
+      <Modal open={showAdd} onClose={() => !saving && setShowAdd(false)} title="Add Referral Partner" size="lg" footer={
+        <div className="flex justify-end gap-3">
+          <Button type="button" variant="ghost" onClick={() => setShowAdd(false)} disabled={saving}>Cancel</Button>
+          <Button type="submit" form="add-partner-form" variant="accent" loading={saving}>{saving ? 'Saving...' : 'Add Partner'}</Button>
+        </div>
+      }>
+        <form id="add-partner-form" onSubmit={handleAdd} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <Input label="First Name *" value={form.first_name} onChange={e => setForm(p => ({ ...p, first_name: e.target.value }))} disabled={saving} />
             <Input label="Last Name" value={form.last_name} onChange={e => setForm(p => ({ ...p, last_name: e.target.value }))} disabled={saving} />
@@ -188,11 +193,6 @@ export default function PartnersPage() {
           <div>
             <label className="block text-sm font-montserrat font-medium text-white mb-1.5">Notes</label>
             <textarea rows={3} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} disabled={saving} placeholder="Additional notes..." className={`${selectClassName} resize-none placeholder:text-white/40`} />
-          </div>
-          <div className="h-4" />
-          <div className="flex justify-end gap-3 pt-3 border-t border-gold/10">
-            <Button type="button" variant="ghost" onClick={() => setShowAdd(false)} disabled={saving}>Cancel</Button>
-            <Button type="submit" variant="accent" loading={saving}>{saving ? 'Adding...' : 'Add Partner'}</Button>
           </div>
         </form>
       </Modal>

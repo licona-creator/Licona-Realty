@@ -296,6 +296,19 @@ export default function CanvaPage() {
           onClose={() => setSelectedTemplate(null)}
           title={CANVA_TEMPLATE_TYPES[selectedTemplate]}
           size="lg"
+          footer={
+            <div className="flex items-center gap-3">
+              <a href="https://www.canva.com" target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost">
+                  <ExternalLink size={14} className="mr-1.5" />
+                  Open in Canva
+                </Button>
+              </a>
+              <Button variant="accent" onClick={handleConnect}>
+                Connect Canva Account
+              </Button>
+            </div>
+          }
         >
           <div className="space-y-5">
             {/* Preview Area */}
@@ -334,19 +347,6 @@ export default function CanvaPage() {
                   </span>
                 ))}
               </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-3 pt-2">
-              <a href="https://www.canva.com" target="_blank" rel="noopener noreferrer">
-                <Button variant="ghost">
-                  <ExternalLink size={14} className="mr-1.5" />
-                  Open in Canva
-                </Button>
-              </a>
-              <Button variant="accent" onClick={handleConnect}>
-                Connect Canva Account
-              </Button>
             </div>
           </div>
         </Modal>

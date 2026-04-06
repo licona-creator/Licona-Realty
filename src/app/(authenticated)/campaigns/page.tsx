@@ -489,6 +489,9 @@ function CampaignDetailView({
         title="Enroll Contact"
         description="Select a contact to enroll in this campaign."
         size="md"
+        footer={
+          <button type="button" onClick={() => setShowContactPicker(false)} className="w-full py-3 rounded-xl text-white/50 bg-[rgba(255,255,255,0.05)] font-montserrat font-medium text-sm active:scale-95 transition-transform">Close</button>
+        }
       >
         {contactsLoading ? (
           <p className="text-sm text-white/50 font-inter text-center py-4">
@@ -622,6 +625,12 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
       title="New Campaign"
       description="Create a drip campaign with text message steps."
       size="lg"
+      footer={
+        <div className="flex justify-end gap-3">
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={saving}>Cancel</Button>
+          <Button variant="accent" size="sm" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Campaign'}</Button>
+        </div>
+      }
     >
       <div className="space-y-4">
         {/* Name */}
@@ -763,15 +772,6 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant="accent" size="sm" onClick={handleSave} loading={saving}>
-            Save Campaign
-          </Button>
-        </div>
       </div>
     </Modal>
   );
