@@ -112,7 +112,6 @@ export const SEO_FOOTER = `${BRAND.agent.name} | ${BRAND.agent.title} | ${BRAND.
 // Nav items for the platform
 export const NAV_ITEMS = [
   { label: 'Today', href: '/today', icon: 'sparkles' },
-  { label: 'Dashboard', href: '/dashboard', icon: 'home' },
   { label: 'Approval Queue', href: '/approval-queue', icon: 'check-circle', badge: true },
   { label: 'Contacts', href: '/contacts', icon: 'users' },
   { label: 'Partners', href: '/partners', icon: 'handshake' },

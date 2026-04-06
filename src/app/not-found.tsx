@@ -60,10 +60,10 @@ export default function NotFound() {
       {/* Auth-aware CTA */}
       {isAuthenticated ? (
         <Link
-          href="/dashboard"
+          href="/today"
           className="mt-8 inline-flex items-center justify-center gap-2 rounded-[8px] bg-gold px-7 py-3 text-base font-montserrat font-semibold text-navy transition-all duration-200 ease-in-out hover:bg-gold/90 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
         >
-          Back to Dashboard
+          Back to Today
         </Link>
       ) : (
         <Link

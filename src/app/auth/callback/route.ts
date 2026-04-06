@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       if (type === 'recovery') {
         return NextResponse.redirect(`${origin}/auth/update-password`);
       }
-      return NextResponse.redirect(`${origin}/dashboard`);
+      return NextResponse.redirect(`${origin}/today`);
     }
 
     console.error('[auth/callback] Code exchange failed:', error.message);
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
       if (type === 'recovery') {
         return NextResponse.redirect(`${origin}/auth/update-password`);
       }
-      return NextResponse.redirect(`${origin}/dashboard`);
+      return NextResponse.redirect(`${origin}/today`);
     }
 
     console.error('[auth/callback] Token hash verification failed:', error.message);

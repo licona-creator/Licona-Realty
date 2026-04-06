@@ -305,7 +305,7 @@ export default function MFASetupPage() {
               disabled={!savedBackupCodes}
               onClick={() => {
                 setStep('complete');
-                router.push('/dashboard');
+                router.push('/today');
                 router.refresh();
               }}
             >

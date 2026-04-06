@@ -112,7 +112,7 @@ export function Sidebar({ approvalCount = 0, overdueCount = 0 }: SidebarProps) {
                     {'badge' in item && item.badge && approvalCount > 0 && (
                       <Badge count={approvalCount} variant="gold" className="ml-auto" />
                     )}
-                    {item.href === '/dashboard' && overdueCount > 0 && (
+                    {item.href === '/today' && overdueCount > 0 && (
                       <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[9px] font-montserrat font-bold flex items-center justify-center">
                         {overdueCount > 99 ? '99+' : overdueCount}
                       </span>

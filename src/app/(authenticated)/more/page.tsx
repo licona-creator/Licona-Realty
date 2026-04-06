@@ -217,7 +217,7 @@ export default function MorePage() {
   }
 
   return (
-    <div className="p-3 pt-2 lg:p-8 max-w-lg mx-auto animate-fade-in">
+    <div className="p-3 pt-2 pb-28 lg:p-8 lg:pb-8 max-w-lg mx-auto animate-fade-in">
       <div className="flex items-center gap-3 mb-4 lg:mb-6">
         <LRMonogram size="md" />
         <div>

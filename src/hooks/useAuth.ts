@@ -34,7 +34,7 @@ export function useAuth() {
         window.location.href = '/auth/login';
       }
       if (event === 'SIGNED_IN' && window.location.pathname.startsWith('/auth/login')) {
-        window.location.href = '/dashboard';
+        window.location.href = '/today';
       }
     });
 

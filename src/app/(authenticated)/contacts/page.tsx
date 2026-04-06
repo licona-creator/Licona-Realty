@@ -114,7 +114,7 @@ export default function ContactsPage() {
   });
 
   return (
-    <div className="p-3 pt-2 lg:p-8 max-w-7xl mx-auto animate-fade-in">
+    <div className="p-3 pt-2 pb-32 lg:p-8 lg:pb-8 max-w-7xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <div className="flex items-center gap-3">
@@ -389,8 +389,8 @@ export default function ContactsPage() {
       <button
         type="button"
         onClick={() => setShowAddModal(true)}
-        className="lg:hidden fixed z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform right-4 bottom-[88px]"
-        style={{ backgroundColor: BRAND.colors.gold }}
+        className="lg:hidden fixed z-40 w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+        style={{ backgroundColor: '#d3a971', right: '1.25rem', bottom: 'calc(6rem + env(safe-area-inset-bottom, 0px))' }}
         aria-label="Add Contact"
       >
         <Plus size={20} color="#fff" />

@@ -9,7 +9,13 @@ import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 function getGreeting(): string {
-  const hour = new Date().getHours();
+  // Use Central Time (America/Chicago)
+  const ctHour = Number(new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    hour12: false,
+    timeZone: 'America/Chicago',
+  }).format(new Date()));
+
   const spanishGreetings = [
     'Buenos dias, Anthony',
     'Buenas tardes, Anthony',
@@ -21,22 +27,23 @@ function getGreeting(): string {
     'Good evening, Anthony',
   ];
 
-  // Alternate: ~20% chance Spanish
+  // ~20% chance Spanish
   const useSpanish = Math.random() < 0.2;
   const greetings = useSpanish ? spanishGreetings : englishGreetings;
 
-  if (hour < 12) return greetings[0];
-  if (hour < 17) return greetings[1];
+  if (ctHour >= 5 && ctHour < 12) return greetings[0];
+  if (ctHour >= 12 && ctHour < 17) return greetings[1];
   return greetings[2];
 }
 
 function formatDate(): string {
-  return new Date().toLocaleDateString('en-US', {
+  return new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  });
+    timeZone: 'America/Chicago',
+  }).format(new Date());
 }
 
 function generateSuggestedMessage(
@@ -323,6 +330,7 @@ export async function GET() {
       description: string;
     }> = [];
 
+    // Only show grow items based on real data - no placeholder content
     if (recentClosedRes.data && recentClosedRes.data.length > 0) {
       for (const deal of recentClosedRes.data) {
         grow.push({
@@ -331,21 +339,6 @@ export async function GET() {
           description: `Share the win for ${deal.property_address || 'your recent closing'}. Tag the happy buyer and thank your team.`,
         });
       }
-    }
-
-    // Static content ideas
-    const contentIdeas = [
-      { title: 'Market Update', description: 'Share what you are seeing in the DFW market this week. Prices, inventory, buyer demand.' },
-      { title: 'Tip of the Week', description: 'Share a home buying or selling tip. Keep it simple and helpful.' },
-      { title: 'Behind the Scenes', description: 'Show what a day looks like. Inspections, showings, paperwork - the real stuff.' },
-      { title: 'Client Spotlight', description: 'With permission, share a client success story or testimonial.' },
-    ];
-    const dayIndex = now.getDay();
-    if (grow.length === 0) {
-      grow.push({
-        type: 'content_idea',
-        ...contentIdeas[dayIndex % contentIdeas.length],
-      });
     }
 
     // Stats

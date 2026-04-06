@@ -63,7 +63,7 @@ export default function TodayPage() {
   }
 
   return (
-    <div className="p-4 pb-24 pt-4 lg:p-8 lg:pb-8 max-w-7xl mx-auto animate-fade-in">
+    <div className="p-4 pb-28 pt-4 lg:p-8 lg:pb-8 max-w-7xl mx-auto animate-fade-in">
       {/* Greeting */}
       <div className="mb-6">
         <h1 className="text-2xl font-playfair font-bold text-navy dark:text-white">

@@ -38,7 +38,7 @@ export function MobileNav({ overdueCount = 0 }: MobileNavProps) {
       className="lg:hidden fixed bottom-0 left-0 right-0 z-50"
       style={{
         backgroundColor: '#132236',
-        borderTop: '1px solid #d3a971',
+        borderTop: '1px solid rgba(211, 169, 113, 0.2)',
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >

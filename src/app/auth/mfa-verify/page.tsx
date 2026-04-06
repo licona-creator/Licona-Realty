@@ -54,7 +54,7 @@ export default function MFAVerifyPage() {
       await verifyMFAChallenge(factorId, challengeId, code);
       // Set MFA grace period cookie (4 hours) - client-readable timestamp
       document.cookie = `mfa_verified_at=${Date.now()};path=/;max-age=${4 * 60 * 60};SameSite=Strict${window.location.protocol === 'https:' ? ';Secure' : ''}`;
-      router.push('/dashboard');
+      router.push('/today');
       router.refresh();
     } catch {
       const newAttempts = attempts + 1;
