@@ -15,6 +15,7 @@ import {
   ArrowLeft, Edit3, Trash2, Phone, Mail, MapPin, DollarSign,
   Tag, Globe, Briefcase, MessageSquare, Clock, PhoneCall,
   MessageCircle, FileText, Eye, Users, CalendarDays, Plus, Sparkles,
+  ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { AIAssistantPanel } from '@/components/ai/AIAssistantPanel';
 import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
@@ -100,6 +101,188 @@ const LEAD_SOURCES = ['Qazzoo', 'Referral', 'Social Media', 'Website', 'Sphere',
 const LANGUAGES = [
   { value: 'en', label: 'English' }, { value: 'es', label: 'Spanish' }, { value: 'bilingual', label: 'Bilingual' },
 ];
+
+function generateVoiceMessage(firstName: string, discType: string | null, language: string | null, reason: 'followup' | 'birthday'): string {
+  const isSpanish = language === 'es' || language === 'spanish';
+  if (reason === 'birthday') {
+    return isSpanish
+      ? `Feliz cumple ${firstName}! Espero que la pases increible.`
+      : `Happy birthday ${firstName}! Hope you have a great one.`;
+  }
+  if (isSpanish) {
+    switch (discType) {
+      case 'D': return `Que onda ${firstName}, te tengo unos datos del mercado en tu area. Te los mando?`;
+      case 'I': return `Que onda ${firstName}, como andas? Cualquier cosa que necesites con bienes raices, aqui andamos.`;
+      case 'S': return `Hola ${firstName}, nomas pasando a saludar. Sin prisa, nomas queria ver como andabas.`;
+      case 'C': return `Que tal ${firstName}, tengo unos numeros del mercado de tu zona. Te interesa que los revisemos?`;
+      default: return `Que onda ${firstName}, nomas queria saludar. Cualquier cosa que ocupes con bienes raices, aqui andamos.`;
+    }
+  }
+  switch (discType) {
+    case 'D': return `Hey ${firstName}, quick update on the market in your area. Want me to send you some numbers?`;
+    case 'I': return `Hey ${firstName}, been a minute! How's everything going? Let me know if you need anything on the real estate side.`;
+    case 'S': return `Hi ${firstName}, just checking in. No rush on anything, just wanted to see how you're doing.`;
+    case 'C': return `Hey ${firstName}, pulled some market data for your area. Happy to walk through the numbers if you're interested.`;
+    default: return `Hey ${firstName}, just wanted to check in and see how things are going. Anything I can help with on the real estate side?`;
+  }
+}
+
+function SuggestedAction({ contact, transactions, activities }: { contact: ContactData; transactions: LinkedTransaction[]; activities: Activity[] }) {
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  let actionText = '';
+  let message = '';
+  let buttonType: 'sms' | 'call' | 'link' = 'sms';
+  let href = '';
+
+  const activeDeal = transactions.find(t => !['closed', 'cancelled', 'lost'].includes(t.status));
+
+  // Priority: New lead
+  const createdAt = new Date(contact.created_at);
+  const hoursSinceCreated = (now.getTime() - createdAt.getTime()) / 3600000;
+  if (hoursSinceCreated < 48 && (contact.track_type === 'buyer' || contact.track_type === 'seller')) {
+    actionText = 'New lead. Call within 24 hours.';
+    buttonType = 'call';
+    href = contact.phone ? `tel:${contact.phone.replace(/\D/g, '')}` : '';
+  }
+  // Birthday within 7 days
+  else if (contact.birthday_month && contact.birthday_day) {
+    const bDate = new Date(now.getFullYear(), contact.birthday_month - 1, contact.birthday_day);
+    if (bDate < new Date(now.getFullYear(), now.getMonth(), now.getDate())) bDate.setFullYear(bDate.getFullYear() + 1);
+    const diffDays = Math.floor((bDate.getTime() - new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) / 86400000);
+    if (diffDays >= 0 && diffDays <= 7) {
+      const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      actionText = `Birthday on ${months[contact.birthday_month - 1]} ${contact.birthday_day}`;
+      message = generateVoiceMessage(contact.first_name, contact.disc_type, contact.language_preference, 'birthday');
+      buttonType = 'sms';
+      href = contact.phone ? `sms:${contact.phone.replace(/\D/g, '')}&body=${encodeURIComponent(message)}` : '';
+    }
+  }
+  // Active deal closing soon
+  if (!actionText && activeDeal && activeDeal.closing_date) {
+    const daysToClose = Math.floor((new Date(activeDeal.closing_date + 'T00:00:00').getTime() - now.getTime()) / 86400000);
+    if (daysToClose <= 30) {
+      actionText = `Deal at ${activeDeal.property_address} closes in ${daysToClose} day${daysToClose !== 1 ? 's' : ''}`;
+      buttonType = 'link';
+      href = `/transactions/${activeDeal.id}`;
+    }
+  }
+  // Overdue follow-up
+  if (!actionText && contact.next_follow_up_date && contact.next_follow_up_date < todayStr) {
+    const daysOverdue = Math.floor((now.getTime() - new Date(contact.next_follow_up_date + 'T00:00:00').getTime()) / 86400000);
+    actionText = `Follow up is ${daysOverdue} day${daysOverdue !== 1 ? 's' : ''} overdue`;
+    message = generateVoiceMessage(contact.first_name, contact.disc_type, contact.language_preference, 'followup');
+    buttonType = 'sms';
+    href = contact.phone ? `sms:${contact.phone.replace(/\D/g, '')}&body=${encodeURIComponent(message)}` : '';
+  }
+  // Due today
+  else if (!actionText && contact.next_follow_up_date === todayStr) {
+    actionText = 'Follow up due today';
+    message = generateVoiceMessage(contact.first_name, contact.disc_type, contact.language_preference, 'followup');
+    buttonType = 'sms';
+    href = contact.phone ? `sms:${contact.phone.replace(/\D/g, '')}&body=${encodeURIComponent(message)}` : '';
+  }
+  // No activity 30+ days
+  else if (!actionText && contact.last_contact_date) {
+    const daysSilent = Math.floor((now.getTime() - new Date(contact.last_contact_date).getTime()) / 86400000);
+    if (daysSilent >= 30) {
+      actionText = `It's been ${daysSilent} days since you connected`;
+      message = generateVoiceMessage(contact.first_name, contact.disc_type, contact.language_preference, 'followup');
+      buttonType = 'sms';
+      href = contact.phone ? `sms:${contact.phone.replace(/\D/g, '')}&body=${encodeURIComponent(message)}` : '';
+    }
+  }
+
+  if (!actionText) return null;
+
+  return (
+    <div className="mb-4 rounded-2xl p-4 border-l-4 border-l-gold" style={{ backgroundColor: 'rgba(255,255,255,0.05)', boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}>
+      <p className="font-montserrat font-semibold text-[10px] uppercase tracking-widest text-gold mb-1">Suggested Action</p>
+      <p className="font-inter text-sm text-navy dark:text-white mb-2">{actionText}</p>
+      {message && (
+        <p className="font-inter text-xs text-navy/60 dark:text-white/60 bg-surface dark:bg-navy/40 rounded-lg p-2 italic mb-2">
+          &ldquo;{message}&rdquo;
+        </p>
+      )}
+      {href && (
+        <a
+          href={buttonType === 'link' ? undefined : href}
+          onClick={buttonType === 'link' ? (e: React.MouseEvent) => { e.preventDefault(); window.location.href = href; } : undefined}
+          className="inline-flex items-center gap-1.5 bg-gold text-navy font-montserrat font-semibold text-xs rounded-xl px-4 py-2.5 active:scale-95 transition-transform"
+        >
+          {buttonType === 'call' ? <><PhoneCall size={13} /> Call Now</> : buttonType === 'sms' ? <><MessageCircle size={13} /> Send</> : <>Open Deal</>}
+        </a>
+      )}
+    </div>
+  );
+}
+
+function CallPrepSection({ contact, transactions, activities }: { contact: ContactData; transactions: LinkedTransaction[]; activities: Activity[] }) {
+  const activeDeal = transactions.find(t => !['closed', 'cancelled', 'lost'].includes(t.status));
+  const [expanded, setExpanded] = useState(!!activeDeal);
+  const lastActivity = activities[0];
+
+  const discTips: Record<string, string> = {
+    D: 'D - Keep it short, focus on results',
+    I: 'I - Be warm, ask about their life',
+    S: 'S - Be patient, no pressure',
+    C: 'C - Come with data and specifics',
+  };
+
+  return (
+    <div className="mb-4">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-between py-2 text-left"
+      >
+        <span className="font-montserrat font-semibold text-xs uppercase tracking-wider text-navy/60 dark:text-white/60">Call Prep</span>
+        {expanded ? <ChevronUp size={14} className="text-navy/30 dark:text-white/30" /> : <ChevronDown size={14} className="text-navy/30 dark:text-white/30" />}
+      </button>
+      <div
+        style={{
+          maxHeight: expanded ? 400 : 0,
+          overflow: 'hidden',
+          transition: 'max-height 300ms ease-out, opacity 300ms ease-out',
+          opacity: expanded ? 1 : 0,
+        }}
+      >
+        <div className="rounded-2xl p-4 space-y-3" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+          {lastActivity && (
+            <div>
+              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter uppercase">Last Activity</p>
+              <p className="text-xs font-inter text-navy/70 dark:text-white/70">
+                {lastActivity.activity_type} on {new Date(lastActivity.activity_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                {lastActivity.description ? `: ${lastActivity.description.slice(0, 100)}` : ''}
+              </p>
+            </div>
+          )}
+          {contact.disc_type && discTips[contact.disc_type] && (
+            <div>
+              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter uppercase">DISC Tip</p>
+              <p className="text-xs font-inter text-gold">{discTips[contact.disc_type]}</p>
+            </div>
+          )}
+          {activeDeal && (
+            <div>
+              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter uppercase">Deal Context</p>
+              <p className="text-xs font-inter text-navy/70 dark:text-white/70">
+                Active deal at {activeDeal.property_address}
+                {activeDeal.closing_date && `, closing in ${Math.floor((new Date(activeDeal.closing_date + 'T00:00:00').getTime() - Date.now()) / 86400000)} days`}
+              </p>
+            </div>
+          )}
+          {contact.notes && (
+            <div>
+              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter uppercase">Notes</p>
+              <p className="text-xs font-inter text-navy/60 dark:text-white/60">{contact.notes.slice(0, 200)}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const ACTIVITY_TYPES = [
   { value: 'call', label: 'Call', icon: PhoneCall },
@@ -355,14 +538,37 @@ export default function ContactDetailPage() {
         </div>
       </div>
 
+      {/* Suggested Action Card */}
+      <SuggestedAction contact={contact} transactions={transactions} activities={activities} />
+
+      {/* Quick Action Row */}
+      <div className="flex items-center gap-2 mb-4">
+        {contact.phone && (
+          <a href={`tel:${contact.phone.replace(/\D/g, '')}`} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-dark-card border border-gold/15 text-gold font-montserrat font-semibold text-sm active:scale-95 transition-transform" style={{ minHeight: 44 }}>
+            <PhoneCall size={16} /> Call
+          </a>
+        )}
+        {contact.phone && (
+          <a href={`sms:${contact.phone.replace(/\D/g, '')}`} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-dark-card border border-gold/15 text-gold font-montserrat font-semibold text-sm active:scale-95 transition-transform" style={{ minHeight: 44 }}>
+            <MessageCircle size={16} /> Text
+          </a>
+        )}
+        <button type="button" onClick={() => setShowLogActivity(true)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-dark-card border border-gold/15 text-gold font-montserrat font-semibold text-sm active:scale-95 transition-transform" style={{ minHeight: 44 }}>
+          <FileText size={16} /> Note
+        </button>
+      </div>
+
+      {/* Call Prep */}
+      <CallPrepSection contact={contact} transactions={transactions} activities={activities} />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         <div className="lg:col-span-2 space-y-4">
           {/* Contact Info */}
           <Card className="!p-5">
             <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-4">Contact Information</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {contact.phone && <div className="flex items-center gap-3"><Phone size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Phone</p><p className="text-sm font-inter text-navy dark:text-white">{contact.phone}</p></div></div>}
-              {contact.email && <div className="flex items-center gap-3"><Mail size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Email</p><p className="text-sm font-inter text-navy dark:text-white">{contact.email}</p></div></div>}
+              {contact.phone && <div className="flex items-center gap-3"><Phone size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Phone</p><a href={`tel:${contact.phone.replace(/\D/g, '')}`} className="text-sm font-inter text-gold active:opacity-70">{contact.phone}</a></div></div>}
+              {contact.email && <div className="flex items-center gap-3"><Mail size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Email</p><a href={`mailto:${contact.email}`} className="text-sm font-inter text-gold active:opacity-70">{contact.email}</a></div></div>}
               {(contact.address_line_1 || contact.city) && <div className="flex items-center gap-3"><MapPin size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Address</p><p className="text-sm font-inter text-navy dark:text-white">{contact.address_line_1 && <>{contact.address_line_1}<br /></>}{contact.city}{contact.state ? `, ${contact.state}` : ''} {contact.zip_code || ''}</p></div></div>}
               {contact.language_preference && <div className="flex items-center gap-3"><Globe size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Language</p><p className="text-sm font-inter text-navy dark:text-white capitalize">{contact.language_preference === 'en' ? 'English' : contact.language_preference === 'es' ? 'Spanish' : 'Bilingual'}</p></div></div>}
               <div className="flex items-center gap-3"><Users size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">DISC Personality</p>{contact.disc_type ? <DISCBadge type={contact.disc_type} /> : <p className="text-sm font-inter text-navy/40 dark:text-white/40 italic">Not assessed</p>}</div></div>

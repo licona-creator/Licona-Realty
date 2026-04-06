@@ -15,10 +15,12 @@ import { AddressAutocomplete } from '@/components/shared/AddressAutocomplete';
 import { DocumentVault } from '@/components/transactions/DocumentVault';
 import { TRANSACTION_TYPE_LABELS } from '@/lib/documents/texas-checklist';
 import type { TransactionType } from '@/lib/documents/texas-checklist';
+import { FINANCIALS, calculateTrueNet } from '@/lib/financials';
+import { createCallLink, createSMSLink } from '@/lib/sms';
 import {
   ArrowLeft, Edit3, Trash2, DollarSign, Calendar,
   CheckSquare, Square, User, FileText, Clock, AlertTriangle,
-  Building, Phone, Mail, Sparkles,
+  Building, Phone, Mail, Sparkles, MessageCircle, Check,
 } from 'lucide-react';
 import { DealDetailSkeleton } from '@/components/ui/Skeleton';
 import { getDisplayName } from '@/lib/format';
@@ -51,6 +53,8 @@ interface TransactionData {
     last_name: string;
     email: string | null;
     phone: string | null;
+    language_preference?: string | null;
+    referred_by_contact_id?: string | null;
   };
 }
 
@@ -260,30 +264,62 @@ export default function TransactionDetailPage() {
     ? getDisplayName(transaction.contacts)
     : 'Unknown Contact';
 
+  const price = transaction.contract_price || 0;
+  const gross = transaction.commission_gross || Math.round(price * (transaction.commission_rate || 3) / 100);
+  const referralFee = transaction.referral_fee || 0;
+  const trueNet = calculateTrueNet(gross, referralFee);
+  const isClosable = transaction.status === 'clear_to_close';
+  const isClosed = transaction.status === 'closed';
+
+  // Closing countdown color
+  const countdownColor = isClosed ? '#22c55e' : daysToClose !== null && daysToClose <= 7 ? '#ef4444' : daysToClose !== null && daysToClose <= 14 ? '#f59e0b' : '#d3a971';
+
   return (
-    <div className="p-3 pt-2 lg:p-8 max-w-4xl mx-auto animate-fade-in">
+    <div className="p-3 pt-2 pb-28 lg:p-8 lg:pb-8 max-w-4xl mx-auto animate-fade-in">
       {/* Back button */}
       <button
         type="button"
         onClick={() => router.push('/transactions')}
-        className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-6 hover:underline"
+        className="flex items-center gap-2 text-sm text-gold font-montserrat font-medium mb-4 hover:underline"
       >
         <ArrowLeft size={16} /> Back to Deals
       </button>
 
+      {/* Closing Countdown */}
+      <div className="text-center mb-5">
+        {isClosed ? (
+          <>
+            <p className="text-3xl font-bold font-playfair" style={{ color: '#22c55e' }}>CLOSED</p>
+            {transaction.closing_date && (
+              <p className="text-sm text-white/50 font-inter mt-1">
+                {new Date(transaction.closing_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              </p>
+            )}
+          </>
+        ) : daysToClose !== null ? (
+          <>
+            <p className="text-3xl font-bold font-playfair" style={{ color: countdownColor }}>
+              {daysToClose >= 0 ? `${daysToClose} days to closing` : `${Math.abs(daysToClose)} days overdue`}
+            </p>
+            {transaction.closing_date && (
+              <p className="text-sm text-white/50 font-inter mt-1">
+                {new Date(transaction.closing_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              </p>
+            )}
+          </>
+        ) : null}
+      </div>
+
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between mb-5">
         <div>
-          <h1
-            className="text-2xl font-semibold text-navy dark:text-white"
-            style={{ fontFamily: BRAND.fonts.playfair }}
-          >
+          <h1 className="text-xl font-semibold text-white" style={{ fontFamily: BRAND.fonts.playfair }}>
             {transaction.property_address}
           </h1>
-          <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
+          <p className="text-sm text-white/50 font-inter mt-0.5">
             {transaction.property_city}{transaction.property_state ? `, ${transaction.property_state}` : ''} {transaction.property_zip || ''}
           </p>
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-1.5">
             <span className={`text-[10px] font-montserrat font-semibold px-2 py-0.5 rounded-full ${statusColor}`}>
               {transaction.status.replace(/_/g, ' ')}
             </span>
@@ -294,248 +330,208 @@ export default function TransactionDetailPage() {
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
-            onClick={() => {
-              // Dispatch a custom event to open AI panel from AppShell
-              window.dispatchEvent(new CustomEvent('open-ai-panel'));
-            }}
+            onClick={() => window.dispatchEvent(new CustomEvent('open-ai-panel'))}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-montserrat font-semibold text-white transition-colors hover:opacity-90"
             style={{ backgroundColor: '#3B8BD4' }}
           >
             <Sparkles size={12} />
-            Ask Deal AI
+            <span className="hidden sm:inline">Ask Deal AI</span>
           </button>
           <Button variant="ghost" size="sm" onClick={startEdit}>
             <Edit3 size={14} />
-            <span className="hidden sm:inline ml-1">Edit</span>
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setShowDelete(true)} className="!text-red-500 hover:!bg-red-500/10">
             <Trash2 size={14} />
-            <span className="hidden sm:inline ml-1">Delete</span>
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Key Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <Card className="!p-4">
-              <DollarSign size={14} className="text-gold mb-1" />
-              <p className="text-lg font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>
-                {transaction.contract_price ? `$${transaction.contract_price.toLocaleString()}` : 'TBD'}
-              </p>
-              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">Contract Price</p>
-            </Card>
-            <Card className="!p-4">
-              <Calendar size={14} className="text-gold mb-1" />
-              <p className="text-lg font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>
-                {transaction.closing_date ? new Date(transaction.closing_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBD'}
-              </p>
-              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">Closing Date</p>
-            </Card>
-            <Card className="!p-4">
-              <Clock size={14} className={daysToClose !== null && daysToClose <= 7 ? 'text-red-500 mb-1' : daysToClose !== null && daysToClose <= 14 ? 'text-gold mb-1' : 'text-gold mb-1'} />
-              <p className={`text-lg font-bold ${daysToClose !== null && daysToClose <= 7 ? 'text-red-500' : 'text-navy dark:text-white'}`} style={{ fontFamily: BRAND.fonts.dmSerif }}>
-                {daysToClose !== null ? (daysToClose >= 0 ? `${daysToClose}d` : 'Overdue') : 'N/A'}
-              </p>
-              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">Days to Close</p>
-            </Card>
+      {/* Key Parties */}
+      {transaction.parties && transaction.parties.length > 0 && (
+        <section className="mb-5">
+          <div className="flex items-center gap-2 mb-2">
+            <Building size={14} className="text-gold" />
+            <h2 className="font-montserrat font-semibold text-[11px] uppercase tracking-wider text-white">Key Parties</h2>
           </div>
-
-          {/* Checklist */}
-          <Card className="!p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 flex items-center gap-2">
-                <CheckSquare size={14} className="text-gold" />
-                Checklist
-                {totalItems > 0 && (
-                  <span className="text-xs text-navy/40 dark:text-white/40 font-inter">
-                    {completedItems}/{totalItems}
-                  </span>
-                )}
-              </h3>
-              {totalItems > 0 && (
-                <div className="w-24 h-2 bg-navy/10 dark:bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gold rounded-full transition-all"
-                    style={{ width: `${totalItems > 0 ? (completedItems / totalItems) * 100 : 0}%` }}
-                  />
+          <div className="space-y-2">
+            {transaction.parties.map(party => (
+              <div key={party.id} className="rounded-xl p-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] text-white/40 font-inter uppercase">{party.role?.replace(/_/g, ' ')}</p>
+                  <p className="text-sm font-montserrat font-medium text-white">{party.name}</p>
+                  {party.company && <p className="text-xs text-white/50 font-inter">{party.company}</p>}
                 </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {party.phone && (
+                    <a href={createCallLink(party.phone)} className="p-2.5 rounded-lg bg-white/5 text-gold active:scale-95 transition-transform" style={{ minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Phone size={16} />
+                    </a>
+                  )}
+                  {party.email && (
+                    <a href={`mailto:${party.email}`} className="p-2.5 rounded-lg bg-white/5 text-gold active:scale-95 transition-transform" style={{ minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Mail size={16} />
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Commission Card */}
+      <section className="mb-5">
+        <Card className="!p-5">
+          <h3 className="text-sm font-montserrat font-semibold text-white/70 mb-3 flex items-center gap-2">
+            <DollarSign size={14} className="text-gold" />
+            Commission
+          </h3>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-xs text-white/40 font-inter">Gross Commission</span>
+              <span className="text-sm font-inter text-white">${gross.toLocaleString()}</span>
+            </div>
+            {referralFee > 0 && (
+              <div className="flex justify-between">
+                <span className="text-xs text-white/40 font-inter">Ana Referral Fee</span>
+                <span className="text-sm font-inter text-red-400">-${referralFee.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-xs text-white/40 font-inter">CMR Transaction Fee</span>
+              <span className="text-sm font-inter text-red-400">-${FINANCIALS.CMR_TRANSACTION_FEE.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between border-t border-white/10 pt-2">
+              <span className="text-xs font-montserrat font-semibold text-white/60">True Take-Home</span>
+              <span className="text-sm font-montserrat font-bold text-gold">${trueNet.toLocaleString()}</span>
+            </div>
+            {price > 0 && transaction.commission_rate && (
+              <p className="text-[10px] text-white/30 font-inter text-right">
+                {transaction.commission_rate}% of ${price.toLocaleString()}
+              </p>
+            )}
+          </div>
+          <CommissionSection transaction={transaction} onUpdate={fetchTransaction} />
+        </Card>
+      </section>
+
+      {/* Document Checklist */}
+      <section className="mb-5">
+        <Card className="!p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-montserrat font-semibold text-white/70 flex items-center gap-2">
+              <CheckSquare size={14} className="text-gold" />
+              Documents
+            </h3>
+            {totalItems > 0 && (
+              <span className="text-xs text-white/40 font-inter">{completedItems} of {totalItems}</span>
+            )}
+          </div>
+          {totalItems > 0 && (
+            <div className="w-full h-1.5 bg-white/10 rounded-full mb-3 overflow-hidden">
+              <div className="h-full bg-gold rounded-full transition-all" style={{ width: `${(completedItems / totalItems) * 100}%` }} />
+            </div>
+          )}
+          {transaction.checklist && transaction.checklist.length > 0 ? (
+            <div className="space-y-1">
+              {transaction.checklist.map(item => (
+                <button
+                  type="button"
+                  key={item.id}
+                  onClick={() => toggleChecklist(item.id)}
+                  disabled={checklistSaving}
+                  className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors text-left disabled:opacity-50"
+                  style={{ minHeight: 44 }}
+                >
+                  {item.is_completed ? (
+                    <CheckSquare size={16} className="text-gold flex-shrink-0" />
+                  ) : (
+                    <Square size={16} className="text-white/30 flex-shrink-0" />
+                  )}
+                  <span className={`text-sm font-inter ${item.is_completed ? 'line-through text-white/40' : 'text-white'}`}>
+                    {item.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-white/40 font-inter">No checklist items.</p>
+          )}
+        </Card>
+      </section>
+
+      {/* Document Vault */}
+      <section className="mb-5">
+        <Card className="!p-5">
+          <DocumentVault transactionId={id} trackType={transaction.track_type} transactionType={transaction.transaction_type || 'buyers_agent_sale'} />
+        </Card>
+      </section>
+
+      {/* Linked Contact */}
+      <section className="mb-5">
+        <Card className="!p-4">
+          <button
+            type="button"
+            onClick={() => router.push(`/contacts/${transaction.contact_id}`)}
+            className="w-full flex items-center gap-3 text-left active:bg-white/5 transition-colors rounded-lg"
+          >
+            <User size={16} className="text-gold flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-montserrat font-medium text-white">{contactName}</p>
+              {transaction.contacts?.phone && (
+                <p className="text-xs text-white/40 font-inter">{transaction.contacts.phone}</p>
               )}
             </div>
-            {transaction.checklist && transaction.checklist.length > 0 ? (
-              <div className="space-y-1">
-                {transaction.checklist.map(item => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    onClick={() => toggleChecklist(item.id)}
-                    disabled={checklistSaving}
-                    className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors text-left disabled:opacity-50 touch-row"
-                  >
-                    {item.is_completed ? (
-                      <CheckSquare size={16} className="text-gold flex-shrink-0" />
-                    ) : (
-                      <Square size={16} className="text-navy/30 dark:text-white/30 flex-shrink-0" />
-                    )}
-                    <span className={`text-sm font-inter ${item.is_completed ? 'line-through text-navy/40 dark:text-white/40' : 'text-navy dark:text-white'}`}>
-                      {item.label}
-                    </span>
-                    {item.due_date && (
-                      <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter ml-auto">
-                        {new Date(item.due_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-navy/40 dark:text-white/40 font-inter">No checklist items.</p>
-            )}
-          </Card>
-
-          {/* Document Vault */}
-          <Card className="!p-5">
-            <DocumentVault transactionId={id} trackType={transaction.track_type} transactionType={transaction.transaction_type || 'buyers_agent_sale'} />
-          </Card>
-
-          {/* Notes */}
-          {transaction.notes && transaction.notes.length > 0 && (
-            <Card className="!p-5">
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3 flex items-center gap-2">
-                <FileText size={14} className="text-gold" />
-                Notes
-              </h3>
-              <div className="space-y-2">
-                {transaction.notes.map(note => (
-                  <div key={note.id} className="p-3 rounded-lg bg-surface dark:bg-navy/30">
-                    <p className="text-sm font-inter text-navy/70 dark:text-white/70 whitespace-pre-wrap">{note.content}</p>
-                    <p className="text-[10px] text-navy/30 dark:text-white/30 font-inter mt-1">
-                      {new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-
-          {/* Parties */}
-          {transaction.parties && transaction.parties.length > 0 && (
-            <Card className="!p-5">
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3 flex items-center gap-2">
-                <Building size={14} className="text-gold" />
-                Deal Parties
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {transaction.parties.map(party => (
-                  <div key={party.id} className="p-3 rounded-lg bg-surface dark:bg-navy/30">
-                    <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter uppercase">{party.role}</p>
-                    <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{party.name}</p>
-                    {party.company && <p className="text-xs text-navy/50 dark:text-white/50 font-inter">{party.company}</p>}
-                    <div className="flex items-center gap-3 mt-1">
-                      {party.phone && (
-                        <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter flex items-center gap-1">
-                          <Phone size={8} /> {party.phone}
-                        </span>
-                      )}
-                      {party.email && (
-                        <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter flex items-center gap-1">
-                          <Mail size={8} /> {party.email}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-4">
-          {/* Linked Contact */}
-          <Card className="!p-5">
-            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3 flex items-center gap-2">
-              <User size={14} className="text-gold" />
-              Contact
-            </h3>
-            <button
-              type="button"
-              onClick={() => router.push(`/contacts/${transaction.contact_id}`)}
-              className="w-full text-left p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors"
-            >
-              <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{contactName}</p>
-              {transaction.contacts?.email && (
-                <p className="text-xs text-navy/40 dark:text-white/40 font-inter flex items-center gap-1 mt-0.5">
-                  <Mail size={10} /> {transaction.contacts.email}
-                </p>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {transaction.contacts?.phone && (
+                <a href={createCallLink(transaction.contacts.phone)} onClick={e => e.stopPropagation()} className="p-2 rounded-lg bg-white/5 text-gold active:scale-95 transition-transform">
+                  <Phone size={14} />
+                </a>
               )}
               {transaction.contacts?.phone && (
-                <p className="text-xs text-navy/40 dark:text-white/40 font-inter flex items-center gap-1 mt-0.5">
-                  <Phone size={10} /> {transaction.contacts.phone}
-                </p>
+                <a href={createSMSLink(transaction.contacts.phone)} onClick={e => e.stopPropagation()} className="p-2 rounded-lg bg-white/5 text-gold active:scale-95 transition-transform">
+                  <MessageCircle size={14} />
+                </a>
               )}
-            </button>
-          </Card>
+            </div>
+          </button>
+        </Card>
+      </section>
 
-          {/* Commission Tracker */}
+      {/* Post-Closing Checklist */}
+      {(isClosable || isClosed) && (
+        <PostClosingChecklist transaction={transaction} onUpdate={fetchTransaction} />
+      )}
+
+      {/* Mark as Closed Button */}
+      {isClosable && (
+        <MarkAsClosedButton transaction={transaction} onUpdate={() => { fetchTransaction(); router.refresh(); }} />
+      )}
+
+      {/* Notes */}
+      {transaction.notes && transaction.notes.length > 0 && (
+        <section className="mb-5">
           <Card className="!p-5">
-            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3 flex items-center gap-2">
-              <DollarSign size={14} className="text-gold" />
-              Commission
+            <h3 className="text-sm font-montserrat font-semibold text-white/70 mb-3 flex items-center gap-2">
+              <FileText size={14} className="text-gold" />
+              Notes
             </h3>
-            <CommissionSection transaction={transaction} onUpdate={fetchTransaction} />
-          </Card>
-
-          {/* Key Dates */}
-          {transaction.key_dates && Object.keys(transaction.key_dates).length > 0 && (
-            <Card className="!p-5">
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3 flex items-center gap-2">
-                <Calendar size={14} className="text-gold" />
-                Key Dates
-              </h3>
-              <div className="space-y-2">
-                {Object.entries(transaction.key_dates).map(([key, val]) => (
-                  <div key={key} className="flex justify-between">
-                    <span className="text-xs text-navy/40 dark:text-white/40 font-inter capitalize">{key.replace(/_/g, ' ')}</span>
-                    <span className="text-xs font-inter text-navy dark:text-white">
-                      {new Date(val + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-
-          {/* Details */}
-          <Card className="!p-5">
-            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3">Details</h3>
             <div className="space-y-2">
-              <div>
-                <p className="text-xs text-navy/40 dark:text-white/40 font-inter">Created</p>
-                <p className="text-sm font-inter text-navy dark:text-white">
-                  {new Date(transaction.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-navy/40 dark:text-white/40 font-inter">Last Updated</p>
-                <p className="text-sm font-inter text-navy dark:text-white">
-                  {new Date(transaction.updated_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </p>
-              </div>
+              {transaction.notes.map(note => (
+                <div key={note.id} className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                  <p className="text-sm font-inter text-white/70 whitespace-pre-wrap">{note.content}</p>
+                  <p className="text-[10px] text-white/30 font-inter mt-1">
+                    {new Date(note.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                </div>
+              ))}
             </div>
           </Card>
-        </div>
-      </div>
-
-      {/* End of deal details */}
-      <div className="mt-8 pb-12 flex justify-center">
-        <span className="text-[10px] text-navy/20 dark:text-white/20 font-inter">End of deal details</span>
-      </div>
+        </section>
+      )}
 
       {/* Edit Modal */}
       <Modal open={editing} onClose={() => !saving && setEditing(false)} title="Edit Deal" size="lg" footer={<div className="flex justify-end gap-3"><Button variant="ghost" onClick={() => setEditing(false)} disabled={saving}>Cancel</Button><Button variant="accent" onClick={handleSave} loading={saving}>{saving ? 'Saving...' : 'Save Changes'}</Button></div>}>
@@ -685,9 +681,9 @@ function CommissionSection({ transaction, onUpdate }: { transaction: Transaction
 
   const price = transaction.contract_price || 0;
   const commissionRate = parseFloat(rate) || 0;
-  const referralFee = parseFloat(fee) || 0;
+  const referralFeeVal = parseFloat(fee) || 0;
   const gross = Math.round(price * commissionRate / 100);
-  const net = gross - referralFee;
+  const net = gross - referralFeeVal;
 
   async function saveCommission() {
     setSaving(true);
@@ -697,7 +693,7 @@ function CommissionSection({ transaction, onUpdate }: { transaction: Transaction
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           commission_rate: commissionRate,
-          referral_fee: referralFee,
+          referral_fee: referralFeeVal,
           commission_gross: gross,
           commission_net: net,
         }),
@@ -713,43 +709,233 @@ function CommissionSection({ transaction, onUpdate }: { transaction: Transaction
   }
 
   return (
-    <div className="space-y-3">
-      <div>
-        <label className="text-[10px] text-navy/40 dark:text-white/40 font-inter block mb-1">Commission Rate (%)</label>
-        <input
-          type="number"
-          step="0.1"
-          value={rate}
-          onChange={e => setRate(e.target.value)}
-          className="w-full px-3 py-1.5 rounded-[8px] border border-gold/15 bg-white dark:bg-dark-card text-sm font-inter text-navy dark:text-white focus:outline-none focus:ring-1 focus:ring-gold/50"
-        />
-      </div>
-      <div>
-        <label className="text-[10px] text-navy/40 dark:text-white/40 font-inter block mb-1">Referral Fee ($)</label>
-        <input
-          type="number"
-          value={fee}
-          onChange={e => setFee(e.target.value)}
-          className="w-full px-3 py-1.5 rounded-[8px] border border-gold/15 bg-white dark:bg-dark-card text-sm font-inter text-navy dark:text-white focus:outline-none focus:ring-1 focus:ring-gold/50"
-        />
-      </div>
-      <div className="pt-2 border-t border-gold/10 space-y-1.5">
-        <div className="flex justify-between">
-          <span className="text-xs text-navy/40 dark:text-white/40 font-inter">Gross Commission</span>
-          <span className="text-sm font-inter text-navy dark:text-white">${gross.toLocaleString()}</span>
+    <div className="space-y-3 mt-4 pt-3 border-t border-white/10">
+      <p className="text-[10px] text-white/30 font-inter uppercase">Edit Commission</p>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-[10px] text-white/40 font-inter block mb-1">Rate (%)</label>
+          <input type="number" step="0.1" value={rate} onChange={e => setRate(e.target.value)} className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-sm font-inter text-white focus:outline-none focus:ring-1 focus:ring-gold/50" />
         </div>
-        <div className="flex justify-between">
-          <span className="text-xs text-navy/40 dark:text-white/40 font-inter">Referral Fee</span>
-          <span className="text-sm font-inter text-red-500">-${referralFee.toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between border-t border-gold/10 pt-1.5">
-          <span className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Net Commission</span>
-          <span className="text-sm font-montserrat font-bold text-gold">${net.toLocaleString()}</span>
+        <div>
+          <label className="text-[10px] text-white/40 font-inter block mb-1">Referral Fee ($)</label>
+          <input type="number" value={fee} onChange={e => setFee(e.target.value)} className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-sm font-inter text-white focus:outline-none focus:ring-1 focus:ring-gold/50" />
         </div>
       </div>
       <Button variant="accent" size="sm" onClick={saveCommission} loading={saving} className="w-full">
         {saving ? 'Saving...' : 'Save Commission'}
       </Button>
     </div>
+  );
+}
+
+// Post-Closing Checklist
+const POST_CLOSE_ITEMS = [
+  { id: 'google_review', label: 'Google Review ask (Day 3)', day: 3, messageType: 'review' as const },
+  { id: 'referral_ask', label: 'Referral ask (Day 5)', day: 5, messageType: 'referral' as const },
+  { id: 'thank_referrer', label: 'Thank referral partner (Day 10)', day: 10, messageType: 'thank_referrer' as const },
+  { id: 'check_in_30', label: '30-day check-in', day: 30, messageType: 'check_30' as const },
+  { id: 'market_update_90', label: '90-day market update', day: 90, messageType: 'market_90' as const },
+];
+
+function getPostCloseMessage(
+  type: 'review' | 'referral' | 'thank_referrer' | 'check_30' | 'market_90',
+  contactName: string,
+  referrerName: string,
+  isSpanish: boolean
+): string {
+  if (isSpanish) {
+    switch (type) {
+      case 'review': return `Hola ${contactName}, felicidades de nuevo por tu nueva casa! Si tienes un momento, me ayudaria mucho si pudieras dejar una resena en Google. Es super rapido y me ayuda a seguir ayudando a mas familias.`;
+      case 'referral': return `Hola ${contactName}, espero que te estes acomodando bien! Pregunta rapida, conoces a alguien que este buscando comprar o vender casa? Me encantaria ayudar a quien me mandes.`;
+      case 'thank_referrer': return `Hola ${referrerName}, queria avisarte que ya cerramos con ${contactName}. Todo salio perfecto. Muchas gracias por la confianza. Si tienes mas personas que necesiten ayuda, aqui estoy siempre.`;
+      case 'check_30': return `Hola ${contactName}, como va todo con la casa nueva? Espero que todo este bien. Cualquier cosa que necesites, aqui andamos.`;
+      case 'market_90': return `Hola ${contactName}, nomas queria saludar y contarte que las casas en tu zona se estan vendiendo a buen precio. Cualquier pregunta, aqui andamos.`;
+    }
+  }
+  switch (type) {
+    case 'review': return `Hey ${contactName}, congrats again on the new home! If you get a chance, it would mean a lot if you could leave me a quick Google review. Takes 30 seconds and really helps me out.`;
+    case 'referral': return `Hey ${contactName}, hope you're settling in! Quick question, do you know anyone else looking to buy or sell? I'd love to help anyone you send my way.`;
+    case 'thank_referrer': return `Hey ${referrerName}, just wanted to let you know we closed with ${contactName}. Everything went great. Thanks for the trust, and if you have anyone else who needs help, I'm always here.`;
+    case 'check_30': return `Hey ${contactName}, how's the new place? Hope everything is going well. Let me know if you need anything.`;
+    case 'market_90': return `Hey ${contactName}, just checking in! Homes in your area have been moving. Let me know if you ever have any questions about the market.`;
+  }
+}
+
+function PostClosingChecklist({ transaction, onUpdate }: { transaction: TransactionData; onUpdate: () => void }) {
+  const toast = useToast();
+  const [referrerData, setReferrerData] = useState<{ first_name: string; phone: string | null } | null>(null);
+  const [checkedItems, setCheckedItems] = useState<string[]>(() => {
+    const keyDates = transaction.key_dates as Record<string, unknown> | null;
+    return (keyDates?.post_closing_completed as string[]) || [];
+  });
+
+  const contactFirstName = transaction.contacts?.first_name || 'there';
+  const isSpanish = transaction.contacts?.language_preference === 'es' || transaction.contacts?.language_preference === 'spanish';
+  const contactPhone = transaction.contacts?.phone;
+  const hasReferrer = !!transaction.contacts?.referred_by_contact_id;
+
+  useEffect(() => {
+    if (hasReferrer && transaction.contacts?.referred_by_contact_id) {
+      fetch(`/api/contacts/${transaction.contacts.referred_by_contact_id}`)
+        .then(r => r.json())
+        .then(d => {
+          if (d.contact) setReferrerData({ first_name: d.contact.first_name, phone: d.contact.phone });
+        })
+        .catch(() => {});
+    }
+  }, [hasReferrer, transaction.contacts?.referred_by_contact_id]);
+
+  async function toggleItem(itemId: string) {
+    const isCompleted = checkedItems.includes(itemId);
+    const updated = isCompleted ? checkedItems.filter(i => i !== itemId) : [...checkedItems, itemId];
+    setCheckedItems(updated);
+
+    try {
+      const currentKeyDates = (transaction.key_dates || {}) as Record<string, unknown>;
+      const res = await fetch(`/api/transactions/${transaction.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key_dates: { ...currentKeyDates, post_closing_completed: updated },
+        }),
+      });
+      if (!res.ok) throw new Error('Failed');
+
+      if (!isCompleted) {
+        await fetch('/api/activities', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contact_id: transaction.contact_id,
+            activity_type: 'note',
+            description: `Post-closing: ${itemId.replace(/_/g, ' ')} completed`,
+          }),
+        });
+      }
+      onUpdate();
+    } catch {
+      setCheckedItems(checkedItems);
+      toast.error('Error', 'Could not update.');
+    }
+  }
+
+  const visibleItems = POST_CLOSE_ITEMS.filter(item => {
+    if (item.id === 'thank_referrer' && !hasReferrer) return false;
+    return true;
+  });
+
+  return (
+    <section className="mb-5">
+      <Card className="!p-5">
+        <h3 className="text-sm font-montserrat font-semibold text-white/70 mb-3">After Closing</h3>
+        <div className="space-y-1">
+          {visibleItems.map(item => {
+            const done = checkedItems.includes(item.id);
+            const message = getPostCloseMessage(
+              item.messageType,
+              contactFirstName,
+              referrerData?.first_name || 'Ana',
+              isSpanish
+            );
+            const phone = item.id === 'thank_referrer' ? referrerData?.phone : contactPhone;
+
+            return (
+              <div key={item.id} className="flex items-center gap-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => toggleItem(item.id)}
+                  className="flex-shrink-0"
+                >
+                  {done ? (
+                    <Check size={18} className="text-green-500" />
+                  ) : (
+                    <Square size={18} className="text-white/30" />
+                  )}
+                </button>
+                <span className={`text-sm font-inter flex-1 ${done ? 'line-through text-white/40' : 'text-white'}`}>
+                  {item.label}
+                </span>
+                {phone && !done && (
+                  <a
+                    href={createSMSLink(phone, message)}
+                    className="p-2 rounded-lg bg-gold/10 text-gold active:scale-95 transition-transform flex-shrink-0"
+                    style={{ minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <MessageCircle size={14} />
+                  </a>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+    </section>
+  );
+}
+
+function MarkAsClosedButton({ transaction, onUpdate }: { transaction: TransactionData; onUpdate: () => void }) {
+  const toast = useToast();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  async function handleClose() {
+    setClosing(true);
+    try {
+      // 1. Update transaction status
+      const res = await fetch(`/api/transactions/${transaction.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'closed' }),
+      });
+      if (!res.ok) throw new Error('Failed to close deal');
+
+      // 2. Update contact to sphere
+      await fetch(`/api/contacts/${transaction.contact_id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ track_type: 'sphere' }),
+      }).catch(() => {});
+
+      // 3. Log activity
+      await fetch('/api/activities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contact_id: transaction.contact_id,
+          activity_type: 'status_change',
+          description: `Deal closed at ${transaction.property_address}`,
+        }),
+      }).catch(() => {});
+
+      toast.success('Deal Closed', 'Commission tracker updated. Post-closing sequence started.');
+      onUpdate();
+    } catch {
+      toast.error('Error', 'Could not close deal.');
+    } finally {
+      setClosing(false);
+      setShowConfirm(false);
+    }
+  }
+
+  return (
+    <>
+      <div className="mb-5">
+        <button
+          type="button"
+          onClick={() => setShowConfirm(true)}
+          className="w-full py-3.5 bg-gold text-navy font-montserrat font-semibold text-sm rounded-xl active:scale-95 transition-transform"
+        >
+          Mark as Closed
+        </button>
+      </div>
+      <ConfirmDialog
+        open={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={handleClose}
+        title="Close this deal?"
+        message="Commission tracker updates and post-closing sequence starts."
+        confirmLabel={closing ? 'Closing...' : 'Close Deal'}
+      />
+    </>
   );
 }
