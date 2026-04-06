@@ -69,69 +69,75 @@ export function Modal({
   if (!open) return null;
 
   return (
-    <div
-      ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-      onClick={(e) => {
-        if (e.target === overlayRef.current) onClose();
-      }}
-    >
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
       {/* Backdrop */}
       <div
+        ref={overlayRef}
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={(e) => {
           if ((e.target as HTMLElement).closest('.pac-container')) return;
-          onClose();
+          if (e.target === overlayRef.current) onClose();
         }}
       />
 
-      {/* Modal container */}
-      <div
-        className={`relative w-full ${sizeMap[size]} flex flex-col bg-[#132236] border border-[rgba(255,255,255,0.08)] rounded-t-2xl sm:rounded-2xl`}
-        style={{
-          maxHeight: 'calc(100dvh - 5rem - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px))',
-          marginBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
-        }}
-      >
-        {/* Header - never shrinks */}
-        {(title || !hideClose) && (
-          <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)] shrink-0">
-            <div>
-              {title && (
-                <h2 className="text-lg font-montserrat font-semibold text-white">
-                  {title}
-                </h2>
-              )}
-              {description && (
-                <p className="text-sm text-white/50 font-inter mt-1">
-                  {description}
-                </p>
+      {/*
+        Mobile: full-screen flex column. No calc() margin/maxHeight.
+        Desktop: centered card with max-height constraint.
+      */}
+      <div className="relative z-10 flex flex-col h-full sm:items-center sm:justify-center sm:p-4">
+        {/* Status bar spacer (mobile only) */}
+        <div className="shrink-0 sm:hidden" style={{ height: 'env(safe-area-inset-top, 0px)' }} />
+
+        {/* Modal container */}
+        <div
+          className={`flex flex-col flex-1 sm:flex-initial w-full ${sizeMap[size]} bg-[#132236] sm:border sm:border-[rgba(255,255,255,0.08)] sm:rounded-2xl sm:max-h-[80vh] overflow-hidden`}
+        >
+          {/* Header - never shrinks */}
+          {(title || !hideClose) && (
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)] shrink-0">
+              <div className="min-w-0">
+                {title && (
+                  <h2 className="text-lg font-montserrat font-semibold text-white truncate">
+                    {title}
+                  </h2>
+                )}
+                {description && (
+                  <p className="text-sm text-white/50 font-inter mt-1">
+                    {description}
+                  </p>
+                )}
+              </div>
+              {!hideClose && (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="ml-4 shrink-0 w-10 h-10 flex items-center justify-center rounded-full text-white/30 hover:text-white/60 hover:bg-white/[0.06] transition-colors"
+                  aria-label="Close"
+                >
+                  <X size={18} />
+                </button>
               )}
             </div>
-            {!hideClose && (
-              <button
-                type="button"
-                onClick={onClose}
-                className="ml-4 w-10 h-10 flex items-center justify-center rounded-full text-white/30 hover:text-white/60 hover:bg-white/[0.06] transition-colors"
-                aria-label="Close"
-              >
-                <X size={18} />
-              </button>
-            )}
-          </div>
-        )}
+          )}
 
-        {/* Body - scrollable, takes remaining space */}
-        <div className="flex-1 overflow-y-auto min-h-0 px-5 py-4 scroll-touch">
-          {children}
+          {/* Body - scrollable, takes remaining space */}
+          <div className="flex-1 overflow-y-auto min-h-0 px-5 py-4 overscroll-contain scroll-touch">
+            {children}
+          </div>
+
+          {/* Footer - never shrinks, ALWAYS visible */}
+          {footer && (
+            <div
+              className="shrink-0 px-5 py-4 border-t border-[rgba(255,255,255,0.06)] bg-[#132236] sm:rounded-b-2xl"
+              style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}
+            >
+              {footer}
+            </div>
+          )}
         </div>
 
-        {/* Footer - never shrinks, ALWAYS visible above bottom nav */}
-        {footer && (
-          <div className="shrink-0 px-5 py-4 border-t border-[rgba(255,255,255,0.06)] bg-[#132236] sm:rounded-b-2xl">
-            {footer}
-          </div>
-        )}
+        {/* Bottom nav spacer (mobile only) - simple fixed height, no calc */}
+        <div className="shrink-0 sm:hidden" style={{ height: '5rem' }} />
       </div>
     </div>
   );
