@@ -159,7 +159,7 @@ export default function CampaignsPage() {
         <div className="flex items-center gap-3">
           <Send size={24} className="text-gold" />
           <h1
-            className="text-2xl font-semibold text-navy dark:text-white"
+            className="text-2xl font-semibold text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             Campaigns
@@ -191,12 +191,12 @@ export default function CampaignsPage() {
                         className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                         style={{ backgroundColor: color }}
                       />
-                      <h3 className="font-montserrat font-semibold text-navy dark:text-white truncate">
+                      <h3 className="font-montserrat font-semibold text-white truncate">
                         {campaign.name}
                       </h3>
                     </div>
                     {campaign.description && (
-                      <p className="text-xs text-navy/50 dark:text-white/50 font-inter line-clamp-2">
+                      <p className="text-xs text-white/50 font-inter line-clamp-2">
                         {campaign.description}
                       </p>
                     )}
@@ -207,13 +207,13 @@ export default function CampaignsPage() {
                 </div>
 
                 <div className="flex items-center gap-4 flex-wrap">
-                  <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1 capitalize">
+                  <span className="text-xs font-inter text-white/60 flex items-center gap-1 capitalize">
                     <Users size={10} /> {campaign.track_type}
                   </span>
-                  <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1">
+                  <span className="text-xs font-inter text-white/60 flex items-center gap-1">
                     <Users size={10} /> {campaign.enrolled_count} enrolled
                   </span>
-                  <span className="text-xs font-inter text-navy/60 dark:text-white/60 flex items-center gap-1">
+                  <span className="text-xs font-inter text-white/60 flex items-center gap-1">
                     <MessageSquare size={10} /> {messageCount} message{messageCount !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -224,10 +224,10 @@ export default function CampaignsPage() {
       ) : !loading ? (
         <Card className="!p-8 text-center">
           <Send size={40} className="text-gold mx-auto mb-4 opacity-50" />
-          <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
+          <h2 className="text-lg font-montserrat font-semibold text-white mb-2">
             Campaign Library
           </h2>
-          <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto mb-4">
+          <p className="text-sm text-white/50 font-inter max-w-md mx-auto mb-4">
             Create drip campaign sequences with text message steps.
             Use variable placeholders to personalize each message.
           </p>
@@ -355,19 +355,19 @@ function CampaignDetailView({
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={onBack}
-          className="p-2 rounded-lg hover:bg-gold/10 transition-colors text-navy dark:text-white"
+          className="p-2 rounded-lg hover:bg-gold/10 transition-colors text-white"
         >
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 min-w-0">
           <h1
-            className="text-2xl font-semibold text-navy dark:text-white truncate"
+            className="text-2xl font-semibold text-white truncate"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             {campaign.name}
           </h1>
           {campaign.description && (
-            <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
+            <p className="text-sm text-white/50 font-inter mt-1">
               {campaign.description}
             </p>
           )}
@@ -379,7 +379,7 @@ function CampaignDetailView({
 
       {/* Message Sequence */}
       <Card className="!p-5 mb-6">
-        <h2 className="font-montserrat font-semibold text-navy dark:text-white mb-4 flex items-center gap-2">
+        <h2 className="font-montserrat font-semibold text-white mb-4 flex items-center gap-2">
           <MessageSquare size={16} className="text-gold" />
           Message Sequence ({sortedMessages.length} step{sortedMessages.length !== 1 ? 's' : ''})
         </h2>
@@ -388,7 +388,7 @@ function CampaignDetailView({
             {sortedMessages.map((msg, i) => (
               <div
                 key={i}
-                className="border border-gold/15 rounded-lg p-4 bg-surface dark:bg-navy/30"
+                className="border border-gold/15 rounded-lg p-4 bg-white/5"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span
@@ -397,19 +397,19 @@ function CampaignDetailView({
                   >
                     {i + 1}
                   </span>
-                  <span className="text-xs font-montserrat font-medium text-navy/60 dark:text-white/60">
+                  <span className="text-xs font-montserrat font-medium text-white/60">
                     Day {msg.day}
                   </span>
                   <Badge variant="navy">Text</Badge>
                 </div>
-                <p className="text-sm font-inter text-navy dark:text-white whitespace-pre-wrap">
+                <p className="text-sm font-inter text-white whitespace-pre-wrap">
                   {msg.content}
                 </p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-navy/50 dark:text-white/50 font-inter">
+          <p className="text-sm text-white/50 font-inter">
             No message steps defined.
           </p>
         )}
@@ -418,7 +418,7 @@ function CampaignDetailView({
       {/* Enrolled Contacts */}
       <Card className="!p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-montserrat font-semibold text-navy dark:text-white flex items-center gap-2">
+          <h2 className="font-montserrat font-semibold text-white flex items-center gap-2">
             <Users size={16} className="text-gold" />
             Enrolled Contacts ({campaign.enrollments.length})
           </h2>
@@ -433,13 +433,13 @@ function CampaignDetailView({
             {campaign.enrollments.map(enrollment => (
               <div
                 key={enrollment.id}
-                className="flex items-center justify-between p-3 border border-gold/15 rounded-lg bg-surface dark:bg-navy/30 gap-3 flex-wrap"
+                className="flex items-center justify-between p-3 border border-gold/15 rounded-lg bg-white/5 gap-3 flex-wrap"
               >
                 <div className="min-w-0">
-                  <p className="font-montserrat font-medium text-sm text-navy dark:text-white truncate">
+                  <p className="font-montserrat font-medium text-sm text-white truncate">
                     {enrollment.contact_name}
                   </p>
-                  <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+                  <p className="text-xs text-white/50 font-inter">
                     Step {enrollment.current_step} of {sortedMessages.length} - {enrollment.status}
                   </p>
                 </div>
@@ -447,7 +447,7 @@ function CampaignDetailView({
                   {enrollment.status === 'active' && (
                     <button
                       onClick={() => updateEnrollmentStatus(enrollment.id, 'paused')}
-                      className="p-1.5 rounded-md hover:bg-gold/10 transition-colors text-navy/60 dark:text-white/60"
+                      className="p-1.5 rounded-md hover:bg-gold/10 transition-colors text-white/60"
                       title="Pause"
                     >
                       <Pause size={14} />
@@ -456,7 +456,7 @@ function CampaignDetailView({
                   {enrollment.status === 'paused' && (
                     <button
                       onClick={() => updateEnrollmentStatus(enrollment.id, 'active')}
-                      className="p-1.5 rounded-md hover:bg-gold/10 transition-colors text-navy/60 dark:text-white/60"
+                      className="p-1.5 rounded-md hover:bg-gold/10 transition-colors text-white/60"
                       title="Resume"
                     >
                       <Play size={14} />
@@ -476,7 +476,7 @@ function CampaignDetailView({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-navy/50 dark:text-white/50 font-inter text-center py-4">
+          <p className="text-sm text-white/50 font-inter text-center py-4">
             No contacts enrolled yet.
           </p>
         )}
@@ -491,7 +491,7 @@ function CampaignDetailView({
         size="md"
       >
         {contactsLoading ? (
-          <p className="text-sm text-navy/50 dark:text-white/50 font-inter text-center py-4">
+          <p className="text-sm text-white/50 font-inter text-center py-4">
             Loading contacts...
           </p>
         ) : contacts.length > 0 ? (
@@ -503,14 +503,14 @@ function CampaignDetailView({
                 disabled={enrolling}
                 className="w-full text-left p-3 rounded-lg border border-gold/15 hover:bg-gold/10 transition-colors disabled:opacity-50"
               >
-                <p className="font-montserrat font-medium text-sm text-navy dark:text-white">
+                <p className="font-montserrat font-medium text-sm text-white">
                   {getDisplayName(contact)}
                 </p>
               </button>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-navy/50 dark:text-white/50 font-inter text-center py-4">
+          <p className="text-sm text-white/50 font-inter text-center py-4">
             No contacts found.
           </p>
         )}
@@ -635,13 +635,13 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
 
         {/* Track Type */}
         <div>
-          <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">
+          <label className="block text-sm font-montserrat font-medium text-white mb-1.5">
             Track Type
           </label>
           <select
             value={trackType}
             onChange={e => setTrackType(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-[8px] bg-white dark:bg-dark-card border border-gold/15 text-navy dark:text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200"
+            className="w-full px-4 py-2.5 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200"
           >
             <option value="buyer">Buyer</option>
             <option value="seller">Seller</option>
@@ -651,7 +651,7 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">
+          <label className="block text-sm font-montserrat font-medium text-white mb-1.5">
             Description
           </label>
           <textarea
@@ -659,14 +659,14 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
             onChange={e => setDescription(e.target.value)}
             placeholder="Optional description of this campaign"
             rows={2}
-            className="w-full px-4 py-2.5 rounded-[8px] bg-white dark:bg-dark-card border border-gold/15 text-navy dark:text-white font-inter text-sm placeholder:text-navy/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 resize-none"
+            className="w-full px-4 py-2.5 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 resize-none"
           />
         </div>
 
         {/* Message Steps */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-montserrat font-medium text-navy dark:text-white">
+            <label className="block text-sm font-montserrat font-medium text-white">
               Message Sequence
             </label>
             <Button variant="ghost" size="sm" onClick={addStep}>
@@ -675,7 +675,7 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
             </Button>
           </div>
 
-          <p className="text-xs text-navy/50 dark:text-white/50 font-inter mb-3">
+          <p className="text-xs text-white/50 font-inter mb-3">
             Variables: {VARIABLE_PLACEHOLDERS.join(', ')}
           </p>
 
@@ -685,7 +685,7 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
               return (
                 <div
                   key={index}
-                  className="border border-gold/15 rounded-lg overflow-hidden bg-surface dark:bg-navy/30"
+                  className="border border-gold/15 rounded-lg overflow-hidden bg-white/5"
                 >
                   {/* Step Header */}
                   <button
@@ -700,7 +700,7 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
                       >
                         {index + 1}
                       </span>
-                      <span className="text-sm font-montserrat font-medium text-navy dark:text-white">
+                      <span className="text-sm font-montserrat font-medium text-white">
                         Day {step.day} - Text
                       </span>
                     </div>
@@ -718,9 +718,9 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
                         </button>
                       )}
                       {isExpanded ? (
-                        <ChevronUp size={16} className="text-navy/40 dark:text-white/40" />
+                        <ChevronUp size={16} className="text-white/40" />
                       ) : (
-                        <ChevronDown size={16} className="text-navy/40 dark:text-white/40" />
+                        <ChevronDown size={16} className="text-white/40" />
                       )}
                     </div>
                   </button>
@@ -729,7 +729,7 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
                   {isExpanded && (
                     <div className="p-3 pt-0 space-y-3">
                       <div>
-                        <label className="block text-xs font-montserrat font-medium text-navy/60 dark:text-white/60 mb-1">
+                        <label className="block text-xs font-montserrat font-medium text-white/60 mb-1">
                           Send on Day
                         </label>
                         <input
@@ -737,11 +737,11 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
                           min={0}
                           value={step.day}
                           onChange={e => updateStep(index, 'day', parseInt(e.target.value, 10) || 0)}
-                          className="w-24 px-3 py-2 rounded-[8px] bg-white dark:bg-dark-card border border-gold/15 text-navy dark:text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200"
+                          className="w-24 px-3 py-2 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-montserrat font-medium text-navy/60 dark:text-white/60 mb-1">
+                        <label className="block text-xs font-montserrat font-medium text-white/60 mb-1">
                           Message Content
                         </label>
                         <textarea
@@ -749,9 +749,9 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
                           onChange={e => updateStep(index, 'content', e.target.value)}
                           placeholder="Hi {first_name}, I noticed you were looking in {location_preference}..."
                           rows={4}
-                          className="w-full px-3 py-2 rounded-[8px] bg-white dark:bg-dark-card border border-gold/15 text-navy dark:text-white font-inter text-sm placeholder:text-navy/40 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 resize-none"
+                          className="w-full px-3 py-2 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 resize-none"
                         />
-                        <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-1">
+                        <p className="text-[10px] text-white/40 font-inter mt-1">
                           Supports: {VARIABLE_PLACEHOLDERS.join(', ')}
                         </p>
                       </div>

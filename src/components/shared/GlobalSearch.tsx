@@ -150,7 +150,7 @@ export function GlobalSearch() {
       }}
     >
       <div
-        className="w-full h-full flex flex-col bg-white
+        className="w-full h-full flex flex-col bg-[var(--lr-depth-1)]
           min-[430px]:h-auto min-[430px]:mt-[15vh] min-[430px]:mx-4 min-[430px]:max-w-xl min-[430px]:rounded-xl min-[430px]:shadow-2xl"
       >
         {/* Search input */}
@@ -158,7 +158,7 @@ export function GlobalSearch() {
           className="flex items-center gap-3 px-4 py-3 border-b"
           style={{ borderColor: BRAND.colors.gold + '30' }}
         >
-          <Search size={20} style={{ color: BRAND.colors.navy }} />
+          <Search size={20} style={{ color: BRAND.colors.gold }} />
           <input
             ref={inputRef}
             type="text"
@@ -181,9 +181,9 @@ export function GlobalSearch() {
           <button
             onClick={close}
             aria-label="Close search"
-            className="p-1 rounded-md transition-colors hover:bg-gray-100"
+            className="p-1 rounded-md transition-colors hover:bg-white/10"
           >
-            <X size={18} style={{ color: BRAND.colors.navy }} />
+            <X size={18} className="text-white/60" />
           </button>
         </div>
 
@@ -285,7 +285,7 @@ function ResultSection({
       <div
         className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide"
         style={{
-          color: BRAND.colors.navy,
+          color: BRAND.colors.gold,
           fontFamily: BRAND.fonts.montserrat,
         }}
       >
@@ -309,12 +309,11 @@ function ResultItem({
   return (
     <button
       onClick={onClick}
-      className="w-full text-left px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50 flex flex-col gap-0.5"
+      className="w-full text-left px-3 py-2.5 rounded-lg transition-colors hover:bg-white/5 flex flex-col gap-0.5"
     >
       <span
-        className="text-sm font-medium truncate"
+        className="text-sm font-medium truncate text-white"
         style={{
-          color: BRAND.colors.navy,
           fontFamily: BRAND.fonts.inter,
         }}
       >

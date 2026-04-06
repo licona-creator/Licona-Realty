@@ -59,7 +59,7 @@ export function ContentEditor({
     <div className="space-y-4">
       {/* Tone Mode Selector */}
       <div>
-        <label className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60 mb-2 block">
+        <label className="text-xs font-montserrat font-semibold text-white/60 mb-2 block">
           Tone Mode
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -71,7 +71,7 @@ export function ContentEditor({
                 ${
                   toneMode === profile.mode
                     ? 'bg-navy text-gold'
-                    : 'bg-white dark:bg-dark-card text-navy/50 dark:text-white/50 border border-gold/15 hover:bg-gold/20'
+                    : 'bg-[var(--lr-depth-2)] text-white/50 border border-gold/15 hover:bg-gold/20'
                 }
               `}
             >
@@ -79,14 +79,14 @@ export function ContentEditor({
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-1">
+        <p className="text-[10px] text-white/40 font-inter mt-1">
           {VOICE_TONE_PROFILES[toneMode].description}
         </p>
       </div>
 
       {/* Language Toggle */}
       <div className="flex items-center gap-2">
-        <Globe size={14} className="text-navy/40 dark:text-white/40" />
+        <Globe size={14} className="text-white/40" />
         <div className="flex gap-1">
           {languages.map((lang) => (
             <button
@@ -96,7 +96,7 @@ export function ContentEditor({
                 ${
                   language === lang.value
                     ? 'bg-gold text-navy'
-                    : 'text-navy/40 dark:text-white/40 hover:text-gold'
+                    : 'text-white/40 hover:text-gold'
                 }
               `}
             >
@@ -110,8 +110,8 @@ export function ContentEditor({
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="w-full min-h-[200px] p-4 rounded-[8px] bg-white dark:bg-dark-card
-          border border-gold/15 text-navy dark:text-white font-inter text-sm
+        className="w-full min-h-[200px] p-4 rounded-[8px] bg-[var(--lr-depth-2)]
+          border border-gold/15 text-white font-inter text-sm
           focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
           transition-all duration-200 resize-y"
         placeholder="Edit the content..."
@@ -119,10 +119,10 @@ export function ContentEditor({
 
       {/* Banned Phrase Warnings */}
       {violations.length > 0 && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-[8px] p-3">
+        <div className="bg-red-900/20 border border-red-800 rounded-[8px] p-3">
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle size={14} className="text-red-500" />
-            <p className="text-xs font-montserrat font-semibold text-red-600 dark:text-red-400">
+            <p className="text-xs font-montserrat font-semibold text-red-400">
               Voice Engine Warning
             </p>
           </div>
@@ -138,7 +138,7 @@ export function ContentEditor({
 
       {/* Quick Adjustments */}
       <div>
-        <label className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60 mb-2 block">
+        <label className="text-xs font-montserrat font-semibold text-white/60 mb-2 block">
           Quick Adjustments
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -147,7 +147,7 @@ export function ContentEditor({
               key={adj}
               onClick={() => setContent(prev => `[${adj}] ${prev}`)}
               className="px-3 py-1.5 rounded-full text-xs font-inter
-                bg-white dark:bg-dark-card text-navy/50 dark:text-white/50
+                bg-[var(--lr-depth-2)] text-white/50
                 border border-gold/15 hover:bg-gold/20 hover:text-gold
                 transition-all duration-200"
             >
@@ -158,7 +158,7 @@ export function ContentEditor({
       </div>
 
       {/* Character / Word Count */}
-      <div className="flex items-center justify-between text-[10px] text-navy/30 dark:text-white/30 font-inter">
+      <div className="flex items-center justify-between text-[10px] text-white/30 font-inter">
         <span>{content.length} characters</span>
         <span>{content.split(/\s+/).filter(Boolean).length} words</span>
       </div>

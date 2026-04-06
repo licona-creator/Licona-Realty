@@ -102,23 +102,23 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 40, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className={`pointer-events-auto w-80 bg-white dark:bg-dark-card rounded-[8px] border border-gold/15 border-l-4 ${BORDERS[toast.type]} shadow-[0_4px_24px_rgba(19,34,54,0.15)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)] p-3`}
+                className={`pointer-events-auto w-80 bg-[var(--lr-depth-1)] rounded-[8px] border border-[rgba(255,255,255,0.06)] border-l-4 ${BORDERS[toast.type]} shadow-[0_4px_24px_rgba(0,0,0,0.4)] p-3`}
               >
                 <div className="flex items-start gap-2.5">
                   <Icon size={18} className={`${COLORS[toast.type]} mt-0.5 flex-shrink-0`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">
+                    <p className="text-sm font-montserrat font-semibold text-white">
                       {toast.title}
                     </p>
                     {toast.message && (
-                      <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-0.5">
+                      <p className="text-xs text-white/50 font-inter mt-0.5">
                         {toast.message}
                       </p>
                     )}
                   </div>
                   <button
                     onClick={() => removeToast(toast.id)}
-                    className="text-navy/30 dark:text-white/30 hover:text-navy/60 dark:hover:text-white/60 transition-colors"
+                    className="text-white/30 hover:text-white/60 transition-colors"
                   >
                     <X size={14} />
                   </button>

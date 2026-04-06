@@ -173,12 +173,12 @@ export default function SystemHealthPage() {
           </div>
           <div>
             <h1
-              className="text-2xl lg:text-3xl font-semibold text-navy dark:text-white"
+              className="text-2xl lg:text-3xl font-semibold text-white"
               style={{ fontFamily: BRAND.fonts.playfair }}
             >
               System Health
             </h1>
-            <p className="text-sm text-navy/50 dark:text-white/50 font-inter">
+            <p className="text-sm text-white/50 font-inter">
               Run a full diagnostic to check every system component
             </p>
           </div>
@@ -211,7 +211,7 @@ export default function SystemHealthPage() {
         <div className="p-4 rounded-[12px] bg-red-500/10 border border-red-500/20 mb-6">
           <div className="flex items-center gap-2">
             <XCircle size={16} className="text-red-500" />
-            <p className="text-sm text-red-600 dark:text-red-400 font-inter">{error}</p>
+            <p className="text-sm text-red-400 font-inter">{error}</p>
           </div>
         </div>
       )}
@@ -219,7 +219,7 @@ export default function SystemHealthPage() {
       {/* Sync Result Message */}
       {syncMessage && (
         <div className="p-3 rounded-[12px] bg-gold/10 border border-gold/20 mb-6">
-          <p className="text-sm text-navy dark:text-white font-inter">{syncMessage}</p>
+          <p className="text-sm text-white font-inter">{syncMessage}</p>
         </div>
       )}
 
@@ -238,7 +238,7 @@ export default function SystemHealthPage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1, duration: 0.3, ease: 'easeOut' }}
-                className="rounded-[12px] border border-gold/15 p-4 bg-surface dark:bg-dark-card shadow-[0_2px_12px_rgba(19,34,54,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)]"
+                className="rounded-[12px] border border-gold/15 p-4 bg-[var(--lr-depth-2)] shadow-[0_2px_12px_rgba(0,0,0,0.3)]"
               >
                 <div className="flex items-center gap-3">
                   {/* Status icon */}
@@ -253,21 +253,21 @@ export default function SystemHealthPage() {
                   </div>
 
                   {/* Card icon + content */}
-                  <div className="flex-shrink-0 w-8 h-8 rounded-[8px] bg-gold/10 dark:bg-white/10 flex items-center justify-center text-gold">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-[8px] bg-white/10 flex items-center justify-center text-gold">
                     {card.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">
+                    <p className="text-sm font-montserrat font-semibold text-white">
                       {card.name}
                     </p>
-                    <p className="text-xs text-navy/50 dark:text-white/50 font-inter truncate">
+                    <p className="text-xs text-white/50 font-inter truncate">
                       {card.detail}
                     </p>
                   </div>
 
                   {/* Response time */}
                   {card.responseMs !== undefined && (
-                    <span className="text-xs text-navy/30 dark:text-white/30 font-mono flex-shrink-0">
+                    <span className="text-xs text-white/30 font-mono flex-shrink-0">
                       {card.responseMs}ms
                     </span>
                   )}

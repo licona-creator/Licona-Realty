@@ -36,9 +36,9 @@ const TONE_OPTIONS: { value: CampaignTone; label: string }[] = [
 
 const selectClasses = `
   w-full px-4 py-2.5 rounded-[8px]
-  bg-white dark:bg-dark-card
+  bg-[var(--lr-depth-1)]
   border border-gold/15
-  text-navy dark:text-white
+  text-white
   font-inter text-sm
   focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
   transition-all duration-200 ease-in-out
@@ -48,11 +48,11 @@ const selectClasses = `
 
 const textareaClasses = `
   w-full px-4 py-2.5 rounded-[8px]
-  bg-white dark:bg-dark-card
+  bg-[var(--lr-depth-1)]
   border border-gold/15
-  text-navy dark:text-white
+  text-white
   font-inter text-sm
-  placeholder:text-navy/40 dark:placeholder:text-white/40
+  placeholder:text-white/40
   focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
   transition-all duration-200 ease-in-out
   disabled:opacity-50 disabled:cursor-not-allowed
@@ -163,7 +163,7 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
         <div className="w-full">
           <label
             htmlFor="campaign-description"
-            className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-white mb-1.5"
           >
             Description
           </label>
@@ -182,7 +182,7 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
         <div className="w-full">
           <label
             htmlFor="campaign-track-type"
-            className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-white mb-1.5"
           >
             Track Type
           </label>
@@ -205,7 +205,7 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
         <div className="w-full">
           <label
             htmlFor="campaign-tone"
-            className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-white mb-1.5"
           >
             Tone
           </label>
@@ -237,7 +237,7 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
               border-2 border-transparent transition-colors duration-200 ease-in-out
               focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2
               disabled:opacity-50 disabled:cursor-not-allowed
-              ${isActive ? 'bg-gold' : 'bg-navy/20 dark:bg-white/20'}
+              ${isActive ? 'bg-gold' : 'bg-white/20'}
             `}
           >
             <span
@@ -248,7 +248,7 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
               `}
             />
           </button>
-          <label className="text-sm font-montserrat font-medium text-navy dark:text-white">
+          <label className="text-sm font-montserrat font-medium text-white">
             Active
           </label>
         </div>

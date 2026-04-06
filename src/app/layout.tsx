@@ -38,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         {/* Apple PWA meta tags */}
         <meta name="apple-mobile-web-app-capable" content="yes" />

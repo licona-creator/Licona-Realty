@@ -112,11 +112,11 @@ export function MFAVerifyModal({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 z-50 flex items-center justify-center px-4"
           >
-            <div className="bg-white dark:bg-dark-card rounded-[16px] shadow-xl w-full max-w-sm p-6 relative">
+            <div className="bg-dark-card rounded-[16px] shadow-xl w-full max-w-sm p-6 relative">
               {/* Close button */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 text-navy/30 dark:text-white/30 hover:text-navy/60 dark:hover:text-white/60 transition-colors"
+                className="absolute top-4 right-4 text-white/30 hover:text-white/60 transition-colors"
               >
                 <X size={18} />
               </button>
@@ -124,12 +124,12 @@ export function MFAVerifyModal({
               {/* Header */}
               <div className="flex items-center gap-2 mb-4">
                 <Shield size={20} className="text-gold" />
-                <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white">
+                <h2 className="text-lg font-montserrat font-semibold text-white">
                   Verify Identity
                 </h2>
               </div>
 
-              <p className="text-sm text-navy/50 dark:text-white/50 font-inter mb-6">
+              <p className="text-sm text-white/50 font-inter mb-6">
                 Enter the 6-digit code from your authenticator app to confirm{' '}
                 {actionDescription}.
               </p>

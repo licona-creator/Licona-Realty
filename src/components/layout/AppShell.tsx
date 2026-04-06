@@ -108,7 +108,7 @@ export function AppShell({ children, approvalCount = 0, overdueCount = 0 }: AppS
   const modeColor = MODE_COLORS[aiMode];
 
   return (
-    <div className="min-h-screen bg-surface dark:bg-navy">
+    <div className="min-h-screen">
       <SessionTimeoutWarning />
 
       {/* Desktop Sidebar */}
@@ -123,9 +123,8 @@ export function AppShell({ children, approvalCount = 0, overdueCount = 0 }: AppS
 
       {/* Mobile Top Bar - AI + Search + Notifications */}
       <div
-        className="lg:hidden flex items-center justify-end gap-1 px-4 pb-2 sticky top-0 z-30"
+        className="lg:hidden flex items-center justify-end gap-1 px-4 pb-2 sticky top-0 z-30 lr-glass"
         style={{
-          backgroundColor: BRAND.colors.primary,
           paddingTop: 'calc(env(safe-area-inset-top, 0px) + 8px)',
         }}
       >
@@ -161,7 +160,7 @@ export function AppShell({ children, approvalCount = 0, overdueCount = 0 }: AppS
           <Sparkles size={20} color={aiMode === 'system' ? BRAND.colors.primary : '#ffffff'} />
         </button>
         <span
-          className="fixed z-[51] text-[9px] font-montserrat font-semibold pointer-events-none bottom-[14px] right-[30px] text-navy/50 dark:text-white/50"
+          className="fixed z-[51] text-[9px] font-montserrat font-semibold pointer-events-none bottom-[14px] right-[30px] text-white/50"
         >
           AI
         </span>

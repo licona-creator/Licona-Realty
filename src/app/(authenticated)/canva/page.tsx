@@ -69,7 +69,7 @@ export default function CanvaPage() {
         <div className="flex items-center gap-3">
           <Palette size={24} className="text-gold" />
           <h1
-            className="text-2xl font-semibold text-navy dark:text-white"
+            className="text-2xl font-semibold text-white"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             Canva Studio
@@ -89,21 +89,21 @@ export default function CanvaPage() {
 
       {/* Search and View Toggle */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2 bg-surface dark:bg-navy/50 rounded-lg px-3 py-2 flex-1 max-w-md">
-          <Search size={16} className="text-navy/40 dark:text-white/40" />
+        <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2 flex-1 max-w-md">
+          <Search size={16} className="text-white/40" />
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search templates and designs..."
-            className="bg-transparent text-sm font-inter outline-none flex-1 text-navy dark:text-white"
+            className="bg-transparent text-sm font-inter outline-none flex-1 text-white"
           />
         </div>
         <div className="flex items-center gap-1 ml-4">
           <button
             onClick={() => setView('grid')}
             className={`p-2 rounded-lg transition-colors ${
-              view === 'grid' ? 'bg-navy text-white' : 'text-navy/40 dark:text-white/40 hover:bg-surface dark:hover:bg-navy/50'
+              view === 'grid' ? 'bg-navy text-white' : 'text-white/40 hover:bg-white/5'
             }`}
           >
             <Grid size={16} />
@@ -111,7 +111,7 @@ export default function CanvaPage() {
           <button
             onClick={() => setView('list')}
             className={`p-2 rounded-lg transition-colors ${
-              view === 'list' ? 'bg-navy text-white' : 'text-navy/40 dark:text-white/40 hover:bg-surface dark:hover:bg-navy/50'
+              view === 'list' ? 'bg-navy text-white' : 'text-white/40 hover:bg-white/5'
             }`}
           >
             <List size={16} />
@@ -121,7 +121,7 @@ export default function CanvaPage() {
 
       {/* Quick Create */}
       <div className="mb-8">
-        <h2 className="text-sm font-montserrat font-semibold text-navy/60 dark:text-white/60 uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-montserrat font-semibold text-white/60 uppercase tracking-wider mb-4">
           Quick Create
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -135,7 +135,7 @@ export default function CanvaPage() {
             <button
               key={item.key}
               onClick={() => setSelectedTemplate(item.key as CanvaTemplateType)}
-              className="p-4 rounded-[12px] text-center hover:shadow-md transition-all border border-gold/15 bg-white dark:bg-dark-card"
+              className="p-4 rounded-[12px] text-center hover:shadow-md transition-all border border-gold/15 bg-[var(--lr-depth-2)]"
             >
               <div
                 className="w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center"
@@ -143,8 +143,8 @@ export default function CanvaPage() {
               >
                 <Sparkles size={18} className="text-gold" />
               </div>
-              <p className="text-xs font-montserrat font-semibold text-navy dark:text-white">{item.label}</p>
-              <p className="text-[9px] text-navy/40 dark:text-white/40 font-inter mt-0.5">{item.specs}</p>
+              <p className="text-xs font-montserrat font-semibold text-white">{item.label}</p>
+              <p className="text-[9px] text-white/40 font-inter mt-0.5">{item.specs}</p>
             </button>
           ))}
         </div>
@@ -152,38 +152,38 @@ export default function CanvaPage() {
 
       {/* Brand Guidelines */}
       <div className="mb-8">
-        <h2 className="text-sm font-montserrat font-semibold text-navy/60 dark:text-white/60 uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-montserrat font-semibold text-white/60 uppercase tracking-wider mb-4">
           Brand Guidelines
         </h2>
         <Card className="!p-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60 mb-2">Colors</p>
+              <p className="text-xs font-montserrat font-semibold text-white/60 mb-2">Colors</p>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full" style={{ backgroundColor: BRAND.colors.navy }} />
-                  <span className="text-xs font-inter text-navy/60 dark:text-white/60">Navy #132236</span>
+                  <span className="text-xs font-inter text-white/60">Navy #132236</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full" style={{ backgroundColor: BRAND.colors.gold }} />
-                  <span className="text-xs font-inter text-navy/60 dark:text-white/60">Gold #d3a971</span>
+                  <span className="text-xs font-inter text-white/60">Gold #d3a971</span>
                 </div>
               </div>
             </div>
             <div>
-              <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60 mb-2">Typography</p>
+              <p className="text-xs font-montserrat font-semibold text-white/60 mb-2">Typography</p>
               <div className="space-y-1">
-                <p className="text-xs font-inter text-navy/60 dark:text-white/60"><span className="font-semibold">Headings:</span> Playfair Display</p>
-                <p className="text-xs font-inter text-navy/60 dark:text-white/60"><span className="font-semibold">Nav/Buttons:</span> Montserrat</p>
-                <p className="text-xs font-inter text-navy/60 dark:text-white/60"><span className="font-semibold">Body:</span> Inter</p>
+                <p className="text-xs font-inter text-white/60"><span className="font-semibold">Headings:</span> Playfair Display</p>
+                <p className="text-xs font-inter text-white/60"><span className="font-semibold">Nav/Buttons:</span> Montserrat</p>
+                <p className="text-xs font-inter text-white/60"><span className="font-semibold">Body:</span> Inter</p>
               </div>
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-gold/10">
-            <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60 mb-2">Required Elements</p>
+            <p className="text-xs font-montserrat font-semibold text-white/60 mb-2">Required Elements</p>
             <div className="flex flex-wrap gap-2">
               {['LR Monogram (top-right)', 'Contact footer bar', 'TREC License', 'Brand colors only'].map(el => (
-                <span key={el} className="flex items-center gap-1 text-[10px] font-inter text-navy/50 dark:text-white/50 bg-gold/10 px-2 py-1 rounded-full">
+                <span key={el} className="flex items-center gap-1 text-[10px] font-inter text-white/50 bg-gold/10 px-2 py-1 rounded-full">
                   <Check size={10} className="text-green-500" /> {el}
                 </span>
               ))}
@@ -198,8 +198,8 @@ export default function CanvaPage() {
           <div className="flex items-start gap-3">
             <ExternalLink size={18} className="text-gold flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-montserrat font-semibold text-navy dark:text-white mb-1">Connect Your Canva Account</p>
-              <p className="text-xs font-inter text-navy/60 dark:text-white/60">
+              <p className="text-sm font-montserrat font-semibold text-white mb-1">Connect Your Canva Account</p>
+              <p className="text-xs font-inter text-white/60">
                 Link your Canva account to create branded designs directly from this dashboard.
                 Templates auto-fill with your brand colors, fonts, and contact information.
                 Designs can be exported to your social media approval queue.
@@ -214,7 +214,7 @@ export default function CanvaPage() {
 
       {/* Template Library */}
       <div className="mb-8">
-        <h2 className="text-sm font-montserrat font-semibold text-navy/60 dark:text-white/60 uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-montserrat font-semibold text-white/60 uppercase tracking-wider mb-4">
           Template Library
         </h2>
         <div className={
@@ -238,10 +238,10 @@ export default function CanvaPage() {
                   </div>
                 </div>
                 <div className="p-3">
-                  <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">
+                  <p className="text-sm font-montserrat font-semibold text-white">
                     {label}
                   </p>
-                  <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-1">
+                  <p className="text-[10px] text-white/40 font-inter mt-1">
                     Brand template
                   </p>
                 </div>
@@ -255,10 +255,10 @@ export default function CanvaPage() {
                   <Icon size={20} className="text-gold" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">
+                  <p className="text-sm font-montserrat font-semibold text-white">
                     {label}
                   </p>
-                  <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+                  <p className="text-xs text-white/40 font-inter">
                     Auto-fill with contact data
                   </p>
                 </div>
@@ -273,15 +273,15 @@ export default function CanvaPage() {
 
       {/* Recent Designs */}
       <div>
-        <h2 className="text-sm font-montserrat font-semibold text-navy/60 dark:text-white/60 uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-montserrat font-semibold text-white/60 uppercase tracking-wider mb-4">
           Recent Designs
         </h2>
         <Card className="!p-8 text-center">
           <Image size={40} className="text-gold mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">
+          <h3 className="text-lg font-montserrat font-semibold text-white mb-2">
             No Designs Yet
           </h3>
-          <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto">
+          <p className="text-sm text-white/50 font-inter max-w-md mx-auto">
             {isConnected
               ? 'Create your first design from a template above. Designs auto-fill with your brand colors and contact data.'
               : 'Connect your Canva account to start creating branded designs with auto-fill templates.'}
@@ -318,18 +318,18 @@ export default function CanvaPage() {
             </div>
 
             {/* Description */}
-            <p className="text-sm font-inter text-navy/80 dark:text-white/80">
+            <p className="text-sm font-inter text-white/80">
               {TEMPLATE_DESCRIPTIONS[selectedTemplate] || 'A branded template for your real estate marketing.'}
             </p>
 
             {/* Brand Elements */}
             <div>
-              <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60 mb-2">
+              <p className="text-xs font-montserrat font-semibold text-white/60 mb-2">
                 Brand Elements
               </p>
               <div className="flex flex-wrap gap-3">
                 {['LR Monogram: Top Right', 'Contact Footer Bar', 'TREC License', 'Brand Colors'].map(el => (
-                  <span key={el} className="flex items-center gap-1 text-xs font-inter text-navy/60 dark:text-white/60">
+                  <span key={el} className="flex items-center gap-1 text-xs font-inter text-white/60">
                     <Check size={12} className="text-green-500" /> {el}
                   </span>
                 ))}

@@ -198,9 +198,9 @@ function SuggestedAction({ contact, transactions, activities }: { contact: Conta
   return (
     <div className="mb-4 rounded-2xl p-4 border-l-4 border-l-gold" style={{ backgroundColor: 'rgba(255,255,255,0.05)', boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }}>
       <p className="font-montserrat font-semibold text-[10px] uppercase tracking-widest text-gold mb-1">Suggested Action</p>
-      <p className="font-inter text-sm text-navy dark:text-white mb-2">{actionText}</p>
+      <p className="font-inter text-sm text-white mb-2">{actionText}</p>
       {message && (
-        <p className="font-inter text-xs text-navy/60 dark:text-white/60 bg-surface dark:bg-navy/40 rounded-lg p-2 italic mb-2">
+        <p className="font-inter text-xs text-white/60 bg-white/5 rounded-lg p-2 italic mb-2">
           &ldquo;{message}&rdquo;
         </p>
       )}
@@ -236,8 +236,8 @@ function CallPrepSection({ contact, transactions, activities }: { contact: Conta
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between py-2 text-left"
       >
-        <span className="font-montserrat font-semibold text-xs uppercase tracking-wider text-navy/60 dark:text-white/60">Call Prep</span>
-        {expanded ? <ChevronUp size={14} className="text-navy/30 dark:text-white/30" /> : <ChevronDown size={14} className="text-navy/30 dark:text-white/30" />}
+        <span className="font-montserrat font-semibold text-xs uppercase tracking-wider text-white/60">Call Prep</span>
+        {expanded ? <ChevronUp size={14} className="text-white/30" /> : <ChevronDown size={14} className="text-white/30" />}
       </button>
       <div
         style={{
@@ -250,8 +250,8 @@ function CallPrepSection({ contact, transactions, activities }: { contact: Conta
         <div className="rounded-2xl p-4 space-y-3" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
           {lastActivity && (
             <div>
-              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter uppercase">Last Activity</p>
-              <p className="text-xs font-inter text-navy/70 dark:text-white/70">
+              <p className="text-[10px] text-white/40 font-inter uppercase">Last Activity</p>
+              <p className="text-xs font-inter text-white/70">
                 {lastActivity.activity_type} on {new Date(lastActivity.activity_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 {lastActivity.description ? `: ${lastActivity.description.slice(0, 100)}` : ''}
               </p>
@@ -259,14 +259,14 @@ function CallPrepSection({ contact, transactions, activities }: { contact: Conta
           )}
           {contact.disc_type && discTips[contact.disc_type] && (
             <div>
-              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter uppercase">DISC Tip</p>
+              <p className="text-[10px] text-white/40 font-inter uppercase">DISC Tip</p>
               <p className="text-xs font-inter text-gold">{discTips[contact.disc_type]}</p>
             </div>
           )}
           {activeDeal && (
             <div>
-              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter uppercase">Deal Context</p>
-              <p className="text-xs font-inter text-navy/70 dark:text-white/70">
+              <p className="text-[10px] text-white/40 font-inter uppercase">Deal Context</p>
+              <p className="text-xs font-inter text-white/70">
                 Active deal at {activeDeal.property_address}
                 {activeDeal.closing_date && `, closing in ${Math.floor((new Date(activeDeal.closing_date + 'T00:00:00').getTime() - Date.now()) / 86400000)} days`}
               </p>
@@ -274,8 +274,8 @@ function CallPrepSection({ contact, transactions, activities }: { contact: Conta
           )}
           {contact.notes && (
             <div>
-              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter uppercase">Notes</p>
-              <p className="text-xs font-inter text-navy/60 dark:text-white/60">{contact.notes.slice(0, 200)}</p>
+              <p className="text-[10px] text-white/40 font-inter uppercase">Notes</p>
+              <p className="text-xs font-inter text-white/60">{contact.notes.slice(0, 200)}</p>
             </div>
           )}
         </div>
@@ -305,10 +305,10 @@ const STAGE_COLORS: Record<string, string> = {
   showing: 'bg-orange-500/10 text-orange-600', offer: 'bg-pink-500/10 text-pink-600',
   under_contract: 'bg-green-500/10 text-green-600', closing: 'bg-gold/10 text-gold',
   closed: 'bg-emerald-500/10 text-emerald-600', lost: 'bg-red-500/10 text-red-600',
-  on_hold: 'bg-gray-500/10 text-gray-600',
+  on_hold: 'bg-white/10 text-white/60',
 };
 
-const selectClassName = `w-full px-4 py-2.5 rounded-[8px] bg-white dark:bg-dark-card border border-gold/15 text-navy dark:text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 ease-in-out appearance-none`;
+const selectClassName = `w-full px-4 py-2.5 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 ease-in-out appearance-none`;
 
 export default function ContactDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -514,7 +514,7 @@ export default function ContactDetailPage() {
             <span className="text-xl font-montserrat font-bold text-gold">{getInitials(contact)}</span>
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.playfair }}>{getDisplayName(contact)}</h1>
+            <h1 className="text-2xl font-semibold text-white" style={{ fontFamily: BRAND.fonts.playfair }}>{getDisplayName(contact)}</h1>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <span className="text-[10px] font-montserrat font-semibold uppercase px-2 py-0.5 rounded-full bg-gold/10 text-gold">{contact.track_type}</span>
               <span className={`text-[10px] font-montserrat font-semibold px-2 py-0.5 rounded-full ${stageColor}`}>{contact.pipeline_stage.replace(/_/g, ' ')}</span>
@@ -544,16 +544,16 @@ export default function ContactDetailPage() {
       {/* Quick Action Row */}
       <div className="flex items-center gap-2 mb-4">
         {contact.phone && (
-          <a href={`tel:${contact.phone.replace(/\D/g, '')}`} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-dark-card border border-gold/15 text-gold font-montserrat font-semibold text-sm active:scale-95 transition-transform" style={{ minHeight: 44 }}>
+          <a href={`tel:${contact.phone.replace(/\D/g, '')}`} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[var(--lr-depth-2)] border border-gold/15 text-gold font-montserrat font-semibold text-sm active:scale-95 transition-transform" style={{ minHeight: 44 }}>
             <PhoneCall size={16} /> Call
           </a>
         )}
         {contact.phone && (
-          <a href={`sms:${contact.phone.replace(/\D/g, '')}`} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-dark-card border border-gold/15 text-gold font-montserrat font-semibold text-sm active:scale-95 transition-transform" style={{ minHeight: 44 }}>
+          <a href={`sms:${contact.phone.replace(/\D/g, '')}`} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[var(--lr-depth-2)] border border-gold/15 text-gold font-montserrat font-semibold text-sm active:scale-95 transition-transform" style={{ minHeight: 44 }}>
             <MessageCircle size={16} /> Text
           </a>
         )}
-        <button type="button" onClick={() => setShowLogActivity(true)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-dark-card border border-gold/15 text-gold font-montserrat font-semibold text-sm active:scale-95 transition-transform" style={{ minHeight: 44 }}>
+        <button type="button" onClick={() => setShowLogActivity(true)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[var(--lr-depth-2)] border border-gold/15 text-gold font-montserrat font-semibold text-sm active:scale-95 transition-transform" style={{ minHeight: 44 }}>
           <FileText size={16} /> Note
         </button>
       </div>
@@ -565,16 +565,16 @@ export default function ContactDetailPage() {
         <div className="lg:col-span-2 space-y-4">
           {/* Contact Info */}
           <Card className="!p-5">
-            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-4">Contact Information</h3>
+            <h3 className="text-sm font-montserrat font-semibold text-white/70 mb-4">Contact Information</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {contact.phone && <div className="flex items-center gap-3"><Phone size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Phone</p><a href={`tel:${contact.phone.replace(/\D/g, '')}`} className="text-sm font-inter text-gold active:opacity-70">{contact.phone}</a></div></div>}
-              {contact.email && <div className="flex items-center gap-3"><Mail size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Email</p><a href={`mailto:${contact.email}`} className="text-sm font-inter text-gold active:opacity-70">{contact.email}</a></div></div>}
-              {(contact.address_line_1 || contact.city) && <div className="flex items-center gap-3"><MapPin size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Address</p><p className="text-sm font-inter text-navy dark:text-white">{contact.address_line_1 && <>{contact.address_line_1}<br /></>}{contact.city}{contact.state ? `, ${contact.state}` : ''} {contact.zip_code || ''}</p></div></div>}
-              {contact.language_preference && <div className="flex items-center gap-3"><Globe size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Language</p><p className="text-sm font-inter text-navy dark:text-white capitalize">{contact.language_preference === 'en' ? 'English' : contact.language_preference === 'es' ? 'Spanish' : 'Bilingual'}</p></div></div>}
-              <div className="flex items-center gap-3"><Users size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">DISC Personality</p>{contact.disc_type ? <DISCBadge type={contact.disc_type} /> : <p className="text-sm font-inter text-navy/40 dark:text-white/40 italic">Not assessed</p>}</div></div>
-              {contact.budget && <div className="flex items-center gap-3"><DollarSign size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Budget</p><p className="text-sm font-inter text-navy dark:text-white">{contact.budget}</p></div></div>}
-              {contact.location_preference && <div className="flex items-center gap-3"><MapPin size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Location Preference</p><p className="text-sm font-inter text-navy dark:text-white">{contact.location_preference}</p></div></div>}
-              {contact.lead_source && <div className="flex items-center gap-3"><Tag size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Lead Source</p><p className="text-sm font-inter text-navy dark:text-white">{contact.lead_source}</p></div></div>}
+              {contact.phone && <div className="flex items-center gap-3"><Phone size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">Phone</p><a href={`tel:${contact.phone.replace(/\D/g, '')}`} className="text-sm font-inter text-gold active:opacity-70">{contact.phone}</a></div></div>}
+              {contact.email && <div className="flex items-center gap-3"><Mail size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">Email</p><a href={`mailto:${contact.email}`} className="text-sm font-inter text-gold active:opacity-70">{contact.email}</a></div></div>}
+              {(contact.address_line_1 || contact.city) && <div className="flex items-center gap-3"><MapPin size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">Address</p><p className="text-sm font-inter text-white">{contact.address_line_1 && <>{contact.address_line_1}<br /></>}{contact.city}{contact.state ? `, ${contact.state}` : ''} {contact.zip_code || ''}</p></div></div>}
+              {contact.language_preference && <div className="flex items-center gap-3"><Globe size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">Language</p><p className="text-sm font-inter text-white capitalize">{contact.language_preference === 'en' ? 'English' : contact.language_preference === 'es' ? 'Spanish' : 'Bilingual'}</p></div></div>}
+              <div className="flex items-center gap-3"><Users size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">DISC Personality</p>{contact.disc_type ? <DISCBadge type={contact.disc_type} /> : <p className="text-sm font-inter text-white/40 italic">Not assessed</p>}</div></div>
+              {contact.budget && <div className="flex items-center gap-3"><DollarSign size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">Budget</p><p className="text-sm font-inter text-white">{contact.budget}</p></div></div>}
+              {contact.location_preference && <div className="flex items-center gap-3"><MapPin size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">Location Preference</p><p className="text-sm font-inter text-white">{contact.location_preference}</p></div></div>}
+              {contact.lead_source && <div className="flex items-center gap-3"><Tag size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">Lead Source</p><p className="text-sm font-inter text-white">{contact.lead_source}</p></div></div>}
               {contact.birthday_month && contact.birthday_day && (() => {
                 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                 const bdayLabel = `${monthNames[contact.birthday_month - 1]} ${contact.birthday_day}`;
@@ -587,11 +587,11 @@ export default function ContactDetailPage() {
                 const diff = Math.round((bdayDate.getTime() - Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())) / (1000 * 60 * 60 * 24));
                 const nearLabel = diff === 0 ? '(Today!)' : diff <= 7 ? `(in ${diff} days)` : '';
                 return (
-                  <div className="flex items-center gap-3"><CalendarDays size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Birthday</p><p className="text-sm font-inter text-navy dark:text-white">{bdayLabel} {nearLabel && <span style={{ color: '#d3a971' }} className="font-semibold">{nearLabel}</span>}</p></div></div>
+                  <div className="flex items-center gap-3"><CalendarDays size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">Birthday</p><p className="text-sm font-inter text-white">{bdayLabel} {nearLabel && <span style={{ color: '#d3a971' }} className="font-semibold">{nearLabel}</span>}</p></div></div>
                 );
               })()}
-              {contact.company && <div className="flex items-center gap-3"><Briefcase size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Company</p><p className="text-sm font-inter text-navy dark:text-white">{contact.company}</p></div></div>}
-              {contact.job_title && <div className="flex items-center gap-3"><Briefcase size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Title</p><p className="text-sm font-inter text-navy dark:text-white">{contact.job_title}</p></div></div>}
+              {contact.company && <div className="flex items-center gap-3"><Briefcase size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">Company</p><p className="text-sm font-inter text-white">{contact.company}</p></div></div>}
+              {contact.job_title && <div className="flex items-center gap-3"><Briefcase size={14} className="text-gold flex-shrink-0" /><div><p className="text-xs text-white/40 font-inter">Title</p><p className="text-sm font-inter text-white">{contact.job_title}</p></div></div>}
             </div>
           </Card>
 
@@ -599,12 +599,12 @@ export default function ContactDetailPage() {
           <Card className="!p-5" style={contact.last_enriched_at ? { borderLeft: '3px solid #d3a971' } : undefined}>
             <div className="flex items-center gap-2 mb-4">
               <Sparkles size={16} style={{ color: '#d3a971' }} />
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">AI Intelligence</h3>
+              <h3 className="text-sm font-montserrat font-semibold text-white/70">AI Intelligence</h3>
             </div>
             {enriching ? (
               <div className="flex flex-col items-center py-6 gap-3">
                 <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
-                <p className="text-xs font-inter text-navy/50 dark:text-white/50 animate-pulse">
+                <p className="text-xs font-inter text-white/50 animate-pulse">
                   {['Reading communications...', 'Analyzing patterns...', 'Building profile...'][enrichPhase % 3]}
                 </p>
               </div>
@@ -615,7 +615,7 @@ export default function ContactDetailPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <DISCBadge type={contact.disc_type} />
                     {contact.disc_secondary && (
-                      <span className="text-xs font-inter text-navy/60 dark:text-white/60">with {contact.disc_secondary === 'D' ? 'Driver' : contact.disc_secondary === 'I' ? 'Influencer' : contact.disc_secondary === 'S' ? 'Stabilizer' : 'Analyst'} tendencies</span>
+                      <span className="text-xs font-inter text-white/60">with {contact.disc_secondary === 'D' ? 'Driver' : contact.disc_secondary === 'I' ? 'Influencer' : contact.disc_secondary === 'S' ? 'Stabilizer' : 'Analyst'} tendencies</span>
                     )}
                     {contact.disc_confidence && (
                       <span
@@ -654,28 +654,28 @@ export default function ContactDetailPage() {
                 {/* Personality brief */}
                 {contact.personality_brief && (
                   <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(19,34,54,0.05)' }}>
-                    <p className="text-xs text-navy/40 dark:text-white/40 font-inter mb-1">Personality</p>
-                    <p className="text-sm font-inter text-navy/70 dark:text-white/70">{contact.personality_brief}</p>
+                    <p className="text-xs text-white/40 font-inter mb-1">Personality</p>
+                    <p className="text-sm font-inter text-white/70">{contact.personality_brief}</p>
                   </div>
                 )}
                 {/* Communication tips */}
                 {contact.communication_tips && (
                   <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(19,34,54,0.05)' }}>
-                    <p className="text-xs text-navy/40 dark:text-white/40 font-inter mb-1">Communication Tips</p>
-                    <p className="text-sm font-inter text-navy/70 dark:text-white/70">{contact.communication_tips}</p>
+                    <p className="text-xs text-white/40 font-inter mb-1">Communication Tips</p>
+                    <p className="text-sm font-inter text-white/70">{contact.communication_tips}</p>
                   </div>
                 )}
                 {/* Buying motivation */}
                 {contact.buying_motivation && (
-                  <p className="text-xs font-inter text-navy/50 dark:text-white/50 italic">{contact.buying_motivation}</p>
+                  <p className="text-xs font-inter text-white/50 italic">{contact.buying_motivation}</p>
                 )}
                 {/* Silence meaning */}
                 {contact.silence_meaning && (
-                  <p className="text-xs font-inter text-navy/50 dark:text-white/50 italic">If they go quiet: {contact.silence_meaning}</p>
+                  <p className="text-xs font-inter text-white/50 italic">If they go quiet: {contact.silence_meaning}</p>
                 )}
                 {/* Footer */}
-                <div className="flex items-center justify-between pt-2 border-t border-navy/5 dark:border-white/5">
-                  <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">
+                <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                  <span className="text-[10px] text-white/30 font-inter">
                     Updated {(() => {
                       const diff = Date.now() - new Date(contact.last_enriched_at!).getTime();
                       const mins = Math.floor(diff / 60000);
@@ -717,10 +717,10 @@ export default function ContactDetailPage() {
             ) : (
               <div className="flex flex-col items-center py-4 gap-3">
                 <Sparkles size={24} style={{ color: '#d3a971' }} />
-                <p className="text-sm font-inter text-navy/60 dark:text-white/60 text-center">
+                <p className="text-sm font-inter text-white/60 text-center">
                   Analyze {contact.first_name}&apos;s communication style
                 </p>
-                <p className="text-xs font-inter text-navy/30 dark:text-white/30">
+                <p className="text-xs font-inter text-white/30">
                   {activities.length} {activities.length === 1 ? 'interaction' : 'interactions'} available
                 </p>
                 {activities.length > 0 ? (
@@ -751,7 +751,7 @@ export default function ContactDetailPage() {
                     Analyze Now
                   </button>
                 ) : (
-                  <p className="text-xs font-inter text-navy/30 dark:text-white/30 italic">Not enough data yet</p>
+                  <p className="text-xs font-inter text-white/30 italic">Not enough data yet</p>
                 )}
               </div>
             )}
@@ -759,15 +759,15 @@ export default function ContactDetailPage() {
 
           {contact.notes && (
             <Card className="!p-5">
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3"><MessageSquare size={14} className="inline mr-2 text-gold" />Notes</h3>
-              <p className="text-sm font-inter text-navy/70 dark:text-white/70 whitespace-pre-wrap">{contact.notes}</p>
+              <h3 className="text-sm font-montserrat font-semibold text-white/70 mb-3"><MessageSquare size={14} className="inline mr-2 text-gold" />Notes</h3>
+              <p className="text-sm font-inter text-white/70 whitespace-pre-wrap">{contact.notes}</p>
             </Card>
           )}
 
           {/* Activity Timeline */}
           <Card className="!p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 flex items-center gap-2">
+              <h3 className="text-sm font-montserrat font-semibold text-white/70 flex items-center gap-2">
                 <Clock size={14} className="text-gold" /> Activity Timeline
               </h3>
               <Button variant="ghost" size="sm" onClick={() => setShowLogActivity(true)}><Plus size={12} /> Log</Button>
@@ -777,28 +777,28 @@ export default function ContactDetailPage() {
                 {activities.map(activity => {
                   const Icon = ACTIVITY_ICONS[activity.activity_type] || Clock;
                   return (
-                    <div key={activity.id} className="group flex gap-3 p-3 rounded-lg bg-surface dark:bg-navy/30">
+                    <div key={activity.id} className="group flex gap-3 p-3 rounded-lg bg-white/5">
                       <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <Icon size={14} className="text-gold" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                          <span className="text-xs font-montserrat font-semibold text-navy dark:text-white capitalize">{activity.activity_type}</span>
+                          <span className="text-xs font-montserrat font-semibold text-white capitalize">{activity.activity_type}</span>
                           {activity.direction && (
                             <span className={`text-[10px] font-montserrat font-medium px-1.5 py-0.5 rounded-full ${activity.direction === 'outbound' ? 'bg-blue-500/10 text-blue-600' : 'bg-green-500/10 text-green-600'}`}>
                               {activity.direction}
                             </span>
                           )}
                         </div>
-                        <p className="text-sm font-inter text-navy/70 dark:text-white/70 whitespace-pre-wrap">{activity.description}</p>
-                        <p className="text-[10px] text-navy/30 dark:text-white/30 font-inter mt-1">
+                        <p className="text-sm font-inter text-white/70 whitespace-pre-wrap">{activity.description}</p>
+                        <p className="text-[10px] text-white/30 font-inter mt-1">
                           {new Date(activity.activity_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(activity.activity_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => setDeleteActivityTarget(activity)}
-                        className="p-1.5 rounded hover:bg-red-500/10 text-navy/20 dark:text-white/20 hover:text-red-500 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex-shrink-0 self-start"
+                        className="p-1.5 rounded hover:bg-red-500/10 text-white/20 hover:text-red-500 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex-shrink-0 self-start"
                         title="Delete activity"
                       >
                         <Trash2 size={14} />
@@ -808,7 +808,7 @@ export default function ContactDetailPage() {
                 })}
               </div>
             ) : (
-              <p className="text-sm text-navy/40 dark:text-white/40 font-inter">No activities logged yet. Use the Log Activity button to start tracking interactions.</p>
+              <p className="text-sm text-white/40 font-inter">No activities logged yet. Use the Log Activity button to start tracking interactions.</p>
             )}
           </Card>
 
@@ -816,20 +816,20 @@ export default function ContactDetailPage() {
           {insights.length > 0 && (
             <Card className="!p-5">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 flex items-center gap-2">
+                <h3 className="text-sm font-montserrat font-semibold text-white/70 flex items-center gap-2">
                   <Sparkles size={14} className="text-gold" /> AI Insights
                 </h3>
-                <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">{insights.length} saved</span>
+                <span className="text-[10px] text-white/30 font-inter">{insights.length} saved</span>
               </div>
               <div className="space-y-2">
                 {insights.map(insight => (
-                  <div key={insight.id} className={`p-3 rounded-lg bg-surface dark:bg-navy/30 ${insight.is_pinned ? 'border border-gold/20' : ''}`}>
+                  <div key={insight.id} className={`p-3 rounded-lg bg-white/5 ${insight.is_pinned ? 'border border-gold/20' : ''}`}>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-[10px] font-montserrat font-semibold text-gold uppercase">{insight.insight_type.replace(/_/g, ' ')}</span>
                       {insight.is_pinned && <span className="text-[9px] text-gold font-inter">Pinned</span>}
                     </div>
-                    <p className="text-xs font-inter text-navy/70 dark:text-white/70 whitespace-pre-wrap line-clamp-4">{insight.content}</p>
-                    <p className="text-[10px] text-navy/30 dark:text-white/30 font-inter mt-1">
+                    <p className="text-xs font-inter text-white/70 whitespace-pre-wrap line-clamp-4">{insight.content}</p>
+                    <p className="text-[10px] text-white/30 font-inter mt-1">
                       {new Date(insight.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </p>
                   </div>
@@ -840,20 +840,20 @@ export default function ContactDetailPage() {
 
           {/* Linked Transactions */}
           <Card className="!p-5">
-            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3"><Briefcase size={14} className="inline mr-2 text-gold" />Deals</h3>
+            <h3 className="text-sm font-montserrat font-semibold text-white/70 mb-3"><Briefcase size={14} className="inline mr-2 text-gold" />Deals</h3>
             {transactions.length > 0 ? (
               <div className="space-y-2">
                 {transactions.map(tx => (
-                  <button type="button" key={tx.id} onClick={() => router.push(`/transactions/${tx.id}`)} className="w-full flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-left">
+                  <button type="button" key={tx.id} onClick={() => router.push(`/transactions/${tx.id}`)} className="w-full flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-gold/5 transition-colors touch-row text-left">
                     <div>
-                      <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{tx.property_address}</p>
-                      <p className="text-xs text-navy/40 dark:text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'No price set'}{tx.closing_date ? ` - Closes ${new Date(tx.closing_date + 'T00:00:00').toLocaleDateString()}` : ''}</p>
+                      <p className="text-sm font-montserrat font-medium text-white">{tx.property_address}</p>
+                      <p className="text-xs text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'No price set'}{tx.closing_date ? ` - Closes ${new Date(tx.closing_date + 'T00:00:00').toLocaleDateString()}` : ''}</p>
                     </div>
                     <Badge variant={tx.status === 'closed' ? 'success' : tx.status === 'lost' ? 'danger' : 'gold'}>{tx.status}</Badge>
                   </button>
                 ))}
               </div>
-            ) : <p className="text-sm text-navy/40 dark:text-white/40 font-inter">No deals linked.</p>}
+            ) : <p className="text-sm text-white/40 font-inter">No deals linked.</p>}
           </Card>
         </div>
 
@@ -862,22 +862,22 @@ export default function ContactDetailPage() {
           {/* Follow-up */}
           {contact.next_follow_up_date && (
             <Card className={`!p-5 ${new Date(contact.next_follow_up_date + 'T00:00:00') < new Date(new Date().toISOString().split('T')[0] + 'T00:00:00') ? '!border-red-500/30 !bg-red-500/5' : ''}`}>
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-2 flex items-center gap-2"><CalendarDays size={14} className="text-gold" />Follow-Up</h3>
-              <p className={`text-sm font-inter font-medium ${new Date(contact.next_follow_up_date + 'T00:00:00') < new Date(new Date().toISOString().split('T')[0] + 'T00:00:00') ? 'text-red-500' : 'text-navy dark:text-white'}`}>
+              <h3 className="text-sm font-montserrat font-semibold text-white/70 mb-2 flex items-center gap-2"><CalendarDays size={14} className="text-gold" />Follow-Up</h3>
+              <p className={`text-sm font-inter font-medium ${new Date(contact.next_follow_up_date + 'T00:00:00') < new Date(new Date().toISOString().split('T')[0] + 'T00:00:00') ? 'text-red-500' : 'text-white'}`}>
                 {new Date(contact.next_follow_up_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
               </p>
               {new Date(contact.next_follow_up_date + 'T00:00:00') < new Date(new Date().toISOString().split('T')[0] + 'T00:00:00') && (
                 <p className="text-xs text-red-500 font-inter mt-1">Overdue</p>
               )}
-              {contact.follow_up_notes && <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-2">{contact.follow_up_notes}</p>}
+              {contact.follow_up_notes && <p className="text-xs text-white/50 font-inter mt-2">{contact.follow_up_notes}</p>}
             </Card>
           )}
 
           <Card className="!p-5">
-            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3">Details</h3>
+            <h3 className="text-sm font-montserrat font-semibold text-white/70 mb-3">Details</h3>
             <div className="space-y-3">
-              <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Track Type</p><p className="text-sm font-inter text-navy dark:text-white capitalize">{contact.track_type}</p></div>
-              <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Pipeline Stage</p><p className="text-sm font-inter text-navy dark:text-white capitalize">{contact.pipeline_stage.replace(/_/g, ' ')}</p></div>
+              <div><p className="text-xs text-white/40 font-inter">Track Type</p><p className="text-sm font-inter text-white capitalize">{contact.track_type}</p></div>
+              <div><p className="text-xs text-white/40 font-inter">Pipeline Stage</p><p className="text-sm font-inter text-white capitalize">{contact.pipeline_stage.replace(/_/g, ' ')}</p></div>
               {(() => {
                 const inboundCount = activities.filter(a => a.direction === 'inbound').length;
                 const hasActiveTx = transactions.some(t => !['closed', 'cancelled', 'lost'].includes(t.status));
@@ -894,7 +894,7 @@ export default function ContactDetailPage() {
                 const colors = getScoreTailwind(scoreData.score);
                 return (
                   <div>
-                    <p className="text-xs text-navy/40 dark:text-white/40 font-inter mb-2">Lead Score</p>
+                    <p className="text-xs text-white/40 font-inter mb-2">Lead Score</p>
                     <div className="flex items-center gap-3">
                       <div className={`w-12 h-12 rounded-full ${colors.bg} ${colors.text} flex items-center justify-center font-montserrat font-bold text-lg ring-2 ${colors.ring}`}>
                         {scoreData.score}
@@ -906,25 +906,25 @@ export default function ContactDetailPage() {
                           </p>
                         ))}
                         {scoreData.factors.length > 4 && (
-                          <p className="text-[10px] font-inter text-navy/30 dark:text-white/30">+{scoreData.factors.length - 4} more factors</p>
+                          <p className="text-[10px] font-inter text-white/30">+{scoreData.factors.length - 4} more factors</p>
                         )}
                       </div>
                     </div>
                   </div>
                 );
               })()}
-              {contact.last_contact_date && <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Last Contact</p><p className="text-sm font-inter text-navy dark:text-white">{new Date(contact.last_contact_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p></div>}
-              <div><p className="text-xs text-navy/40 dark:text-white/40 font-inter">Date Added</p><p className="text-sm font-inter text-navy dark:text-white">{new Date(contact.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p></div>
+              {contact.last_contact_date && <div><p className="text-xs text-white/40 font-inter">Last Contact</p><p className="text-sm font-inter text-white">{new Date(contact.last_contact_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p></div>}
+              <div><p className="text-xs text-white/40 font-inter">Date Added</p><p className="text-sm font-inter text-white">{new Date(contact.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p></div>
             </div>
           </Card>
 
           {/* Quick Actions */}
           <Card className="!p-5">
-            <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70 mb-3">Quick Actions</h3>
+            <h3 className="text-sm font-montserrat font-semibold text-white/70 mb-3">Quick Actions</h3>
             <div className="space-y-2">
-              {contact.phone && <a href={`tel:${contact.phone}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-navy dark:text-white"><PhoneCall size={14} className="text-gold" />Call {contact.first_name}</a>}
-              {contact.phone && <a href={`sms:${contact.phone}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-navy dark:text-white"><MessageCircle size={14} className="text-gold" />Text {contact.first_name}</a>}
-              <button type="button" onClick={() => setShowLogActivity(true)} className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-navy dark:text-white text-left"><FileText size={14} className="text-gold" />Log Activity</button>
+              {contact.phone && <a href={`tel:${contact.phone}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-white/5 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-white"><PhoneCall size={14} className="text-gold" />Call {contact.first_name}</a>}
+              {contact.phone && <a href={`sms:${contact.phone}`} className="flex items-center gap-3 p-2.5 rounded-lg bg-white/5 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-white"><MessageCircle size={14} className="text-gold" />Text {contact.first_name}</a>}
+              <button type="button" onClick={() => setShowLogActivity(true)} className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-white/5 hover:bg-gold/5 transition-colors touch-row text-sm font-inter text-white text-left"><FileText size={14} className="text-gold" />Log Activity</button>
             </div>
           </Card>
         </div>
@@ -932,7 +932,7 @@ export default function ContactDetailPage() {
 
       {/* End of contact details */}
       <div className="mt-8 pb-12 flex justify-center">
-        <span className="text-[10px] text-navy/20 dark:text-white/20 font-inter">End of contact details</span>
+        <span className="text-[10px] text-white/20 font-inter">End of contact details</span>
       </div>
 
       {/* Edit Modal */}
@@ -947,12 +947,12 @@ export default function ContactDetailPage() {
             <Input label="Phone" type="tel" value={editForm.phone || ''} onChange={e => setEditForm(p => ({ ...p, phone: e.target.value }))} disabled={saving} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Track Type</label><select value={editForm.track_type || 'buyer'} onChange={e => setEditForm(p => ({ ...p, track_type: e.target.value }))} className={selectClassName} disabled={saving}>{TRACK_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
-            <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Pipeline Stage</label><select value={editForm.pipeline_stage || 'new'} onChange={e => setEditForm(p => ({ ...p, pipeline_stage: e.target.value }))} className={selectClassName} disabled={saving}>{PIPELINE_STAGES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Track Type</label><select value={editForm.track_type || 'buyer'} onChange={e => setEditForm(p => ({ ...p, track_type: e.target.value }))} className={selectClassName} disabled={saving}>{TRACK_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Pipeline Stage</label><select value={editForm.pipeline_stage || 'new'} onChange={e => setEditForm(p => ({ ...p, pipeline_stage: e.target.value }))} className={selectClassName} disabled={saving}>{PIPELINE_STAGES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Lead Source</label><select value={editForm.lead_source || ''} onChange={e => setEditForm(p => ({ ...p, lead_source: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{LEAD_SOURCES.map(s => <option key={s} value={s.toLowerCase()}>{s}</option>)}</select></div>
-            <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Language</label><select value={editForm.language_preference || 'en'} onChange={e => setEditForm(p => ({ ...p, language_preference: e.target.value }))} className={selectClassName} disabled={saving}>{LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Lead Source</label><select value={editForm.lead_source || ''} onChange={e => setEditForm(p => ({ ...p, lead_source: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{LEAD_SOURCES.map(s => <option key={s} value={s.toLowerCase()}>{s}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Language</label><select value={editForm.language_preference || 'en'} onChange={e => setEditForm(p => ({ ...p, language_preference: e.target.value }))} className={selectClassName} disabled={saving}>{LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}</select></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Budget" placeholder="$300k - $450k" value={editForm.budget || ''} onChange={e => setEditForm(p => ({ ...p, budget: e.target.value }))} disabled={saving} />
@@ -960,7 +960,7 @@ export default function ContactDetailPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Next Follow-Up Date" type="date" value={editForm.next_follow_up_date || ''} onChange={e => setEditForm(p => ({ ...p, next_follow_up_date: e.target.value }))} disabled={saving} />
-            <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Referral Partner</label><select value={editForm.referral_partner_id || ''} onChange={e => setEditForm(p => ({ ...p, referral_partner_id: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{partners.map(p => <option key={p.id} value={p.id}>{getDisplayName(p)}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Referral Partner</label><select value={editForm.referral_partner_id || ''} onChange={e => setEditForm(p => ({ ...p, referral_partner_id: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{partners.map(p => <option key={p.id} value={p.id}>{getDisplayName(p)}</option>)}</select></div>
           </div>
           <Input label="Follow-Up Notes" placeholder="Reminder notes for follow-up..." value={editForm.follow_up_notes || ''} onChange={e => setEditForm(p => ({ ...p, follow_up_notes: e.target.value }))} disabled={saving} />
           <DISCSelector
@@ -970,7 +970,7 @@ export default function ContactDetailPage() {
           />
           {/* Birthday */}
           <div>
-            <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Birthday</label>
+            <label className="block text-sm font-montserrat font-medium text-white mb-1.5">Birthday</label>
             <div className="grid grid-cols-3 gap-2">
               <select
                 value={editForm.birthday_month || ''}
@@ -1038,7 +1038,7 @@ export default function ContactDetailPage() {
             <div className="col-span-1"><Input label="State" value={editForm.state || ''} onChange={e => setEditForm(p => ({ ...p, state: e.target.value }))} disabled={saving} /></div>
             <div className="col-span-2"><Input label="Zip" value={editForm.zip_code || ''} onChange={e => setEditForm(p => ({ ...p, zip_code: e.target.value }))} disabled={saving} /></div>
           </div>
-          <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Notes</label><textarea rows={3} value={editForm.notes || ''} onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))} disabled={saving} className={`${selectClassName} resize-none`} placeholder="Additional notes..." /></div>
+          <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Notes</label><textarea rows={3} value={editForm.notes || ''} onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))} disabled={saving} className={`${selectClassName} resize-none`} placeholder="Additional notes..." /></div>
         </div>
       </Modal>
 
@@ -1046,10 +1046,10 @@ export default function ContactDetailPage() {
       <Modal open={showLogActivity} onClose={() => !logSaving && setShowLogActivity(false)} title="Log Activity" size="md" footer={<div className="flex justify-end gap-3"><Button type="submit" form="log-activity-form" variant="accent" loading={logSaving}>{logSaving ? 'Saving...' : 'Log Activity'}</Button></div>}>
         <form id="log-activity-form" onSubmit={handleLogActivity} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Activity Type *</label><select value={activityForm.activity_type} onChange={e => setActivityForm(p => ({ ...p, activity_type: e.target.value }))} className={selectClassName} disabled={logSaving}>{ACTIVITY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
-            <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Direction</label><select value={activityForm.direction} onChange={e => setActivityForm(p => ({ ...p, direction: e.target.value }))} className={selectClassName} disabled={logSaving}><option value="outbound">Outbound</option><option value="inbound">Inbound</option></select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Activity Type *</label><select value={activityForm.activity_type} onChange={e => setActivityForm(p => ({ ...p, activity_type: e.target.value }))} className={selectClassName} disabled={logSaving}>{ACTIVITY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Direction</label><select value={activityForm.direction} onChange={e => setActivityForm(p => ({ ...p, direction: e.target.value }))} className={selectClassName} disabled={logSaving}><option value="outbound">Outbound</option><option value="inbound">Inbound</option></select></div>
           </div>
-          <div><label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Description *</label><textarea rows={4} value={activityForm.description} onChange={e => setActivityForm(p => ({ ...p, description: e.target.value }))} className={`${selectClassName} resize-none`} placeholder="What happened?" disabled={logSaving} /></div>
+          <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Description *</label><textarea rows={4} value={activityForm.description} onChange={e => setActivityForm(p => ({ ...p, description: e.target.value }))} className={`${selectClassName} resize-none`} placeholder="What happened?" disabled={logSaving} /></div>
           <Input label="Date" type="datetime-local" value={activityForm.activity_date} onChange={e => setActivityForm(p => ({ ...p, activity_date: e.target.value }))} disabled={logSaving} />
         </form>
       </Modal>

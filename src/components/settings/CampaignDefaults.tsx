@@ -51,7 +51,7 @@ function Toggle({
         className={`
           relative w-10 h-5 rounded-full flex-shrink-0 mt-0.5
           transition-colors duration-200 cursor-pointer
-          ${enabled ? 'bg-gold' : 'bg-navy/20 dark:bg-white/20'}
+          ${enabled ? 'bg-gold' : 'bg-white/20'}
         `}
       >
         <div
@@ -63,9 +63,9 @@ function Toggle({
         />
       </button>
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-navy dark:text-white font-inter">{label}</p>
+        <p className="text-sm text-white font-inter">{label}</p>
         {description && (
-          <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-0.5">{description}</p>
+          <p className="text-xs text-white/50 font-inter mt-0.5">{description}</p>
         )}
       </div>
     </div>
@@ -140,12 +140,12 @@ export function CampaignDefaults() {
       {/* Section Header */}
       <div>
         <h2
-          className="text-xl font-semibold text-navy dark:text-white"
+          className="text-xl font-semibold text-white"
           style={{ fontFamily: BRAND.fonts.playfair }}
         >
           Campaign Defaults
         </h2>
-        <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
+        <p className="text-sm text-white/50 font-inter mt-1">
           Configure default language, tone, timing, and voice engine preferences for each campaign track.
           These are starting defaults. You can always override on each individual campaign.
         </p>
@@ -155,16 +155,16 @@ export function CampaignDefaults() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Languages size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Default Language per Track</h3>
+          <h3 className="text-base font-montserrat font-semibold text-white">Default Language per Track</h3>
         </div>
         <div className="space-y-3">
           {TRACKS.map((track) => (
             <div key={track} className="flex items-center gap-4">
-              <span className="text-sm text-navy/70 dark:text-white/70 font-inter w-24">{track}:</span>
+              <span className="text-sm text-white/70 font-inter w-24">{track}:</span>
               <select
                 value={languages[track]}
                 onChange={(e) => setLanguages({ ...languages, [track]: e.target.value })}
-                className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5 flex-1 max-w-xs"
+                className="text-sm font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-3 py-1.5 flex-1 max-w-xs"
               >
                 <option value="english">English</option>
                 <option value="spanish">Spanish</option>
@@ -179,20 +179,20 @@ export function CampaignDefaults() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <MessageSquare size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Default Tone per Track</h3>
+          <h3 className="text-base font-montserrat font-semibold text-white">Default Tone per Track</h3>
         </div>
-        <p className="text-xs text-navy/50 dark:text-white/50 font-inter mb-4">
+        <p className="text-xs text-white/50 font-inter mb-4">
           The default tone the system recommends when surfacing campaign options.
           You always have the option to select a different tone.
         </p>
         <div className="space-y-3">
           {TRACKS.map((track) => (
             <div key={track} className="flex items-center gap-4">
-              <span className="text-sm text-navy/70 dark:text-white/70 font-inter w-24">{track}:</span>
+              <span className="text-sm text-white/70 font-inter w-24">{track}:</span>
               <select
                 value={tones[track]}
                 onChange={(e) => setTones({ ...tones, [track]: e.target.value })}
-                className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5 flex-1 max-w-xs"
+                className="text-sm font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-3 py-1.5 flex-1 max-w-xs"
               >
                 {TONE_OPTIONS.map((tone) => (
                   <option key={tone} value={tone}>{tone}</option>
@@ -207,21 +207,21 @@ export function CampaignDefaults() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Clock size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Campaign Timing</h3>
+          <h3 className="text-base font-montserrat font-semibold text-white">Campaign Timing</h3>
         </div>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <label className="text-sm text-navy/70 dark:text-white/70 font-inter w-52">Default send time:</label>
+            <label className="text-sm text-white/70 font-inter w-52">Default send time:</label>
             <input
               type="time"
               value={defaultSendTime}
               onChange={(e) => setDefaultSendTime(e.target.value)}
-              className="text-sm font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-3 py-1.5"
+              className="text-sm font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-3 py-1.5"
             />
-            <span className="text-xs text-navy/60 dark:text-white/50 font-inter">local time</span>
+            <span className="text-xs text-white/50 font-inter">local time</span>
           </div>
 
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
+          <div className="border-t border-gold/15 pt-4">
             <Toggle
               label="Respect quiet hours"
               description="No campaign messages send during quiet hours"
@@ -230,25 +230,25 @@ export function CampaignDefaults() {
             />
             {respectQuietHours && (
               <div className="flex items-center gap-3 mt-3 ml-13 pl-[52px]">
-                <span className="text-xs text-navy/50 dark:text-white/50 font-inter">From</span>
+                <span className="text-xs text-white/50 font-inter">From</span>
                 <input
                   type="time"
                   value={quietStart}
                   onChange={(e) => setQuietStart(e.target.value)}
-                  className="text-xs font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-1"
+                  className="text-xs font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-2 py-1"
                 />
-                <span className="text-xs text-navy/50 dark:text-white/50 font-inter">to</span>
+                <span className="text-xs text-white/50 font-inter">to</span>
                 <input
                   type="time"
                   value={quietEnd}
                   onChange={(e) => setQuietEnd(e.target.value)}
-                  className="text-xs font-inter rounded-[8px] border border-gold/15 bg-surface dark:bg-navy/50 text-navy dark:text-white px-2 py-1"
+                  className="text-xs font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-2 py-1"
                 />
               </div>
             )}
           </div>
 
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
+          <div className="border-t border-gold/15 pt-4">
             <Toggle
               label="Weekend sending"
               description="If off, messages scheduled on weekends automatically reschedule to Monday morning"
@@ -263,12 +263,12 @@ export function CampaignDefaults() {
       <Card>
         <div className="flex items-center gap-2 mb-5">
           <Mic size={18} className="text-gold" />
-          <h3 className="text-base font-montserrat font-semibold text-navy dark:text-white">Voice Engine Preferences</h3>
+          <h3 className="text-base font-montserrat font-semibold text-white">Voice Engine Preferences</h3>
         </div>
         <div className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm text-navy/70 dark:text-white/70 font-inter">Voice accuracy threshold</label>
+              <label className="text-sm text-white/70 font-inter">Voice accuracy threshold</label>
               <span className="text-sm font-montserrat font-semibold text-gold">{voiceThreshold}%</span>
             </div>
             <input
@@ -279,12 +279,12 @@ export function CampaignDefaults() {
               onChange={(e) => setVoiceThreshold(Number(e.target.value))}
               className="w-full accent-gold"
             />
-            <p className="text-xs text-navy/60 dark:text-white/50 font-inter mt-1">
+            <p className="text-xs text-white/50 font-inter mt-1">
               Messages below this confidence level are flagged for heavier review in the approval queue.
             </p>
           </div>
 
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
+          <div className="border-t border-gold/15 pt-4">
             <Toggle
               label="Auto-apply voice edits"
               description="If you make the same edit 3 or more times, the voice engine asks if it should apply this as a permanent rule"
@@ -293,7 +293,7 @@ export function CampaignDefaults() {
             />
           </div>
 
-          <div className="border-t border-gold/15 dark:border-white/10 pt-4">
+          <div className="border-t border-gold/15 pt-4">
             <Toggle
               label="Monthly voice report"
               description="Receive a monthly summary of voice engine accuracy and learned patterns"

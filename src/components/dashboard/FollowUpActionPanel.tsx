@@ -64,10 +64,10 @@ const STAGE_COLORS: Record<string, string> = {
   closing: 'bg-gold/10 text-gold',
   closed: 'bg-emerald-500/10 text-emerald-600',
   lost: 'bg-red-500/10 text-red-600',
-  on_hold: 'bg-gray-500/10 text-gray-600',
+  on_hold: 'bg-white/10 text-white/60',
 };
 
-const selectClassName = `w-full px-3 py-2.5 rounded-[8px] bg-white dark:bg-dark-card border border-gold/15 text-navy dark:text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 appearance-none min-h-[44px]`;
+const selectClassName = `w-full px-3 py-2.5 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 appearance-none min-h-[44px]`;
 
 interface FollowUpActionPanelProps {
   contact: FollowUpContact;
@@ -201,7 +201,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
         <div className="flex-1 min-w-0">
           <a
             href={`/contacts/${contact.id}`}
-            className="text-base font-semibold text-navy dark:text-white hover:text-gold transition-colors inline-flex items-center gap-1"
+            className="text-base font-semibold text-white hover:text-gold transition-colors inline-flex items-center gap-1"
             style={{ fontFamily: BRAND.fonts.playfair }}
           >
             {getDisplayName(contact)}
@@ -215,26 +215,26 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
               {contact.track_type}
             </span>
             {sd?.contact.lead_source && (
-              <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter">
+              <span className="text-[10px] text-white/40 font-inter">
                 via {sd.contact.lead_source}
               </span>
             )}
           </div>
 
           {contact.phone && (
-            <a href={`tel:${contact.phone}`} className="text-xs text-navy/50 dark:text-white/50 font-inter mt-1 block hover:text-gold">
+            <a href={`tel:${contact.phone}`} className="text-xs text-white/50 font-inter mt-1 block hover:text-gold">
               {contact.phone}
             </a>
           )}
 
           {sd?.partnerName && (
-            <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">
+            <p className="text-xs text-white/40 font-inter mt-0.5">
               Referred by {sd.partnerName}
             </p>
           )}
 
           {contact.follow_up_notes && (
-            <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-1 italic">
+            <p className="text-xs text-white/50 font-inter mt-1 italic">
               &ldquo;{contact.follow_up_notes}&rdquo;
             </p>
           )}
@@ -242,7 +242,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
 
         <button
           onClick={onClose}
-          className="p-1.5 rounded hover:bg-navy/5 dark:hover:bg-white/5 text-navy/30 dark:text-white/30 hover:text-navy dark:hover:text-white transition-colors flex-shrink-0"
+          className="p-1.5 rounded hover:bg-white/5 text-white/30 hover:text-white transition-colors flex-shrink-0"
         >
           <X size={16} />
         </button>
@@ -252,13 +252,13 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
       {!loadingSuggest && sd && (
         <div className="flex items-center gap-3 flex-wrap text-xs font-inter">
           {sd.daysSinceContact >= 0 && (
-            <span className={`flex items-center gap-1 ${sd.daysSinceContact > 7 ? 'text-red-500' : 'text-navy/50 dark:text-white/50'}`}>
+            <span className={`flex items-center gap-1 ${sd.daysSinceContact > 7 ? 'text-red-500' : 'text-white/50'}`}>
               <Clock size={10} />
               {sd.daysSinceContact === 0 ? 'Contacted today' : `${sd.daysSinceContact}d since last contact`}
             </span>
           )}
           {sd.lastActivity && (
-            <span className="text-navy/40 dark:text-white/40 truncate">
+            <span className="text-white/40 truncate">
               Last: {sd.lastActivity.activity_type} {sd.lastActivity.direction ? `(${sd.lastActivity.direction})` : ''} - &ldquo;{sd.lastActivity.description.substring(0, 60)}{sd.lastActivity.description.length > 60 ? '...' : ''}&rdquo;
             </span>
           )}
@@ -272,13 +272,13 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
             <Lightbulb size={14} className="text-gold flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-montserrat font-semibold text-gold mb-0.5">Suggested Action</p>
-              <p className="text-sm font-inter text-navy/70 dark:text-white/70">{sd.suggestion}</p>
+              <p className="text-sm font-inter text-white/70">{sd.suggestion}</p>
             </div>
           </div>
           {sd.draftMessage && (
-            <div className="mt-2 p-2 rounded bg-white dark:bg-navy/30 border border-gold/10">
-              <p className="text-xs text-navy/40 dark:text-white/40 font-inter mb-1">Draft message:</p>
-              <p className="text-sm font-inter text-navy dark:text-white">{sd.draftMessage}</p>
+            <div className="mt-2 p-2 rounded bg-white/5 border border-gold/10">
+              <p className="text-xs text-white/40 font-inter mb-1">Draft message:</p>
+              <p className="text-sm font-inter text-white">{sd.draftMessage}</p>
             </div>
           )}
         </div>
@@ -287,7 +287,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
       {loadingSuggest && (
         <div className="p-3 rounded-lg bg-gold/5 border border-gold/15 flex items-center gap-2">
           <div className="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs text-navy/50 dark:text-white/50 font-inter">Loading suggestion...</span>
+          <span className="text-xs text-white/50 font-inter">Loading suggestion...</span>
         </div>
       )}
 
@@ -302,7 +302,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
             Call
           </a>
         ) : (
-          <div className="flex items-center justify-center gap-1.5 py-2.5 rounded-[8px] border-2 border-navy/10 text-navy/30 dark:text-white/30 font-montserrat font-semibold text-sm min-h-[44px] cursor-not-allowed">
+          <div className="flex items-center justify-center gap-1.5 py-2.5 rounded-[8px] border-2 border-white/10 text-white/30 font-montserrat font-semibold text-sm min-h-[44px] cursor-not-allowed">
             <Phone size={14} />
             Call
           </div>
@@ -310,13 +310,13 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
         {contact.phone ? (
           <a
             href={`sms:${contact.phone}`}
-            className="flex items-center justify-center gap-1.5 py-2.5 rounded-[8px] bg-navy dark:bg-gold/90 text-white dark:text-navy font-montserrat font-semibold text-sm hover:opacity-90 transition-opacity min-h-[44px]"
+            className="flex items-center justify-center gap-1.5 py-2.5 rounded-[8px] bg-gold/90 text-navy font-montserrat font-semibold text-sm hover:opacity-90 transition-opacity min-h-[44px]"
           >
             <MessageCircle size={14} />
             Text
           </a>
         ) : (
-          <div className="flex items-center justify-center gap-1.5 py-2.5 rounded-[8px] bg-navy/10 text-navy/30 dark:text-white/30 font-montserrat font-semibold text-sm min-h-[44px] cursor-not-allowed">
+          <div className="flex items-center justify-center gap-1.5 py-2.5 rounded-[8px] bg-white/10 text-white/30 font-montserrat font-semibold text-sm min-h-[44px] cursor-not-allowed">
             <MessageCircle size={14} />
             Text
           </div>
@@ -324,7 +324,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
         <button
           onClick={handleCopyDraft}
           disabled={!sd?.draftMessage}
-          className="flex items-center justify-center gap-1.5 py-2.5 rounded-[8px] border border-gold/30 text-navy/70 dark:text-white/70 font-montserrat font-semibold text-sm hover:bg-gold/10 transition-colors min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex items-center justify-center gap-1.5 py-2.5 rounded-[8px] border border-gold/30 text-white/70 font-montserrat font-semibold text-sm hover:bg-gold/10 transition-colors min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
           {copied ? 'Copied' : 'Copy Draft'}
@@ -332,10 +332,10 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
       </div>
 
       {/* SECTION D - Log and Complete */}
-      <div className="space-y-3 p-3 rounded-lg bg-surface dark:bg-navy/20 border border-gold/10">
+      <div className="space-y-3 p-3 rounded-lg bg-white/5 border border-gold/10">
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-[10px] font-montserrat font-semibold text-navy/50 dark:text-white/50 mb-1 uppercase tracking-wider">Type</label>
+            <label className="block text-[10px] font-montserrat font-semibold text-white/50 mb-1 uppercase tracking-wider">Type</label>
             <select
               value={activityType}
               onChange={e => setActivityType(e.target.value)}
@@ -349,7 +349,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
             </select>
           </div>
           <div>
-            <label className="block text-[10px] font-montserrat font-semibold text-navy/50 dark:text-white/50 mb-1 uppercase tracking-wider">Direction</label>
+            <label className="block text-[10px] font-montserrat font-semibold text-white/50 mb-1 uppercase tracking-wider">Direction</label>
             <select
               value={direction}
               onChange={e => setDirection(e.target.value)}
@@ -363,7 +363,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
         </div>
 
         <div>
-          <label className="block text-[10px] font-montserrat font-semibold text-navy/50 dark:text-white/50 mb-1 uppercase tracking-wider">What happened</label>
+          <label className="block text-[10px] font-montserrat font-semibold text-white/50 mb-1 uppercase tracking-wider">What happened</label>
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
@@ -375,7 +375,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
         </div>
 
         <div>
-          <label className="block text-[10px] font-montserrat font-semibold text-navy/50 dark:text-white/50 mb-1 uppercase tracking-wider">Next follow-up</label>
+          <label className="block text-[10px] font-montserrat font-semibold text-white/50 mb-1 uppercase tracking-wider">Next follow-up</label>
           <input
             type="date"
             value={nextFollowUpDate}
@@ -411,7 +411,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
             <button
               type="button"
               onClick={() => setQuickDate('none')}
-              className="text-[11px] font-inter font-medium py-1.5 px-2 rounded-md bg-navy/5 dark:bg-white/5 text-navy/50 dark:text-white/50 hover:bg-navy/10 dark:hover:bg-white/10 transition-colors min-h-[32px]"
+              className="text-[11px] font-inter font-medium py-1.5 px-2 rounded-md bg-white/5 text-white/50 hover:bg-white/10 transition-colors min-h-[32px]"
               disabled={saving}
             >
               No follow-up
@@ -432,7 +432,7 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
         {/* SECTION E - Skip */}
         <button
           onClick={onClose}
-          className="w-full text-center text-xs text-navy/40 dark:text-white/40 font-inter hover:text-navy/60 dark:hover:text-white/60 transition-colors py-1"
+          className="w-full text-center text-xs text-white/40 font-inter hover:text-white/60 transition-colors py-1"
           disabled={saving}
         >
           Skip for now

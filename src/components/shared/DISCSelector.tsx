@@ -63,7 +63,7 @@ const DISC_OPTIONS: Array<{
 export function DISCSelector({ value, onChange, disabled }: DISCSelectorProps) {
   return (
     <div>
-      <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">
+      <label className="block text-sm font-montserrat font-medium text-white mb-1.5">
         DISC Personality
       </label>
       <div className="grid grid-cols-2 gap-2">
@@ -80,7 +80,7 @@ export function DISCSelector({ value, onChange, disabled }: DISCSelectorProps) {
                 disabled:opacity-50 disabled:cursor-not-allowed
                 ${isSelected
                   ? `${opt.bg} ${opt.border} ring-1 ${opt.ring}`
-                  : 'border-gold/15 hover:border-gold/30 bg-white dark:bg-dark-card'
+                  : 'border-gold/15 hover:border-gold/30 bg-dark-card'
                 }
               `}
             >
@@ -91,11 +91,11 @@ export function DISCSelector({ value, onChange, disabled }: DISCSelectorProps) {
                 {opt.letter}
               </span>
               <div className="min-w-0">
-                <p className="text-xs font-montserrat font-semibold text-navy dark:text-white leading-tight">
+                <p className="text-xs font-montserrat font-semibold text-white leading-tight">
                   {opt.label}
                 </p>
                 {isSelected && (
-                  <p className="text-[10px] text-navy/50 dark:text-white/50 font-inter mt-0.5 leading-snug">
+                  <p className="text-[10px] text-white/50 font-inter mt-0.5 leading-snug">
                     {opt.description}
                   </p>
                 )}
@@ -109,7 +109,7 @@ export function DISCSelector({ value, onChange, disabled }: DISCSelectorProps) {
           type="button"
           disabled={disabled}
           onClick={() => onChange(null)}
-          className="text-[10px] text-navy/40 dark:text-white/40 hover:text-navy/60 dark:hover:text-white/60 font-inter mt-1.5 transition-colors"
+          className="text-[10px] text-white/40 hover:text-white/60 font-inter mt-1.5 transition-colors"
         >
           Clear DISC type
         </button>

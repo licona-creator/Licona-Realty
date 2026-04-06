@@ -379,7 +379,7 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-navy/60 dark:bg-black/70"
+        className="absolute inset-0 bg-black/70"
         onClick={handleClose}
       />
 
@@ -398,13 +398,13 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full h-full sm:h-auto max-w-2xl bg-white dark:bg-dark-card sm:rounded-[16px] rounded-t-[16px] border border-gold/15 shadow-[0_8px_32px_rgba(19,34,54,0.2)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col sm:max-h-[calc(100vh-80px)]"
+          className="relative w-full h-full sm:h-auto max-w-2xl bg-[var(--lr-depth-1)] sm:rounded-[16px] rounded-t-[16px] border border-gold/15 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col sm:max-h-[calc(100vh-80px)]"
         >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 pb-3 sticky top-0 z-10 bg-white dark:bg-dark-card sm:rounded-t-[16px] rounded-t-[16px] border-b border-gold/10">
+        <div className="flex items-center justify-between p-4 sm:p-5 pb-3 sticky top-0 z-10 bg-[var(--lr-depth-1)] sm:rounded-t-[16px] rounded-t-[16px] border-b border-gold/10">
           <div className="flex items-center gap-2">
             <Smartphone size={20} className="text-gold" />
-            <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white">
+            <h2 className="text-lg font-montserrat font-semibold text-white">
               Import iPhone Contacts
             </h2>
           </div>
@@ -412,7 +412,7 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
             <button
               type="button"
               onClick={handleClose}
-              className="p-1 rounded-md text-navy/30 dark:text-white/30 hover:text-navy/60 dark:hover:text-white/60 hover:bg-gold/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-1 rounded-md text-white/30 hover:text-white/60 hover:bg-gold/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label="Close"
             >
               <X size={18} />
@@ -497,7 +497,7 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
 
         {/* Fixed footer - outside scrollable area, always visible */}
         {step === 'review' && (
-          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-white dark:bg-dark-card sm:rounded-b-[16px]">
+          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-[var(--lr-depth-1)] sm:rounded-b-[16px]">
             <Button
               variant="accent"
               size="lg"
@@ -511,7 +511,7 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
           </div>
         )}
         {step === 'language' && (
-          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-white dark:bg-dark-card sm:rounded-b-[16px]">
+          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-[var(--lr-depth-1)] sm:rounded-b-[16px]">
             <Button variant="accent" size="lg" className="w-full" onClick={handleProceedToDisc}>
               <ArrowRight size={18} />
               Continue
@@ -519,7 +519,7 @@ export function VCardImportModal({ open, onClose, onSuccess }: VCardImportModalP
           </div>
         )}
         {step === 'complete' && importResult && (
-          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-white dark:bg-dark-card sm:rounded-b-[16px]">
+          <div className="shrink-0 p-4 sm:px-6 border-t border-gold/10 bg-[var(--lr-depth-1)] sm:rounded-b-[16px]">
             <Button
               variant="accent"
               size="lg"
@@ -565,7 +565,7 @@ function UploadStep({
       exit={{ opacity: 0 }}
       className="p-4 sm:p-6 space-y-4"
     >
-      <p className="text-sm text-navy/60 dark:text-white/60 font-inter text-center">
+      <p className="text-sm text-white/60 font-inter text-center">
         Export your contacts from your iPhone as a .vcf file and upload here
       </p>
 
@@ -592,10 +592,10 @@ function UploadStep({
             <Upload size={24} style={{ color: BRAND.colors.gold }} />
           </div>
           <div className="text-center">
-            <p className="font-montserrat font-semibold text-sm text-navy dark:text-white">
+            <p className="font-montserrat font-semibold text-sm text-white">
               {file ? file.name : 'Drop your .vcf file here or tap to browse'}
             </p>
-            <p className="font-inter text-xs text-navy/40 dark:text-white/40 mt-1">
+            <p className="font-inter text-xs text-white/40 mt-1">
               Supports .vcf files exported from iPhone Contacts
             </p>
           </div>
@@ -610,10 +610,10 @@ function UploadStep({
       ) : (
         <div className="flex flex-col items-center justify-center gap-3 p-10 sm:p-12 border-2 border-dashed border-gold/30 rounded-[12px]">
           <Loader2 size={32} className="text-gold animate-spin" />
-          <p className="font-montserrat font-semibold text-sm text-navy dark:text-white">
+          <p className="font-montserrat font-semibold text-sm text-white">
             Processing {file?.name}...
           </p>
-          <p className="font-inter text-xs text-navy/40 dark:text-white/40">
+          <p className="font-inter text-xs text-white/40">
             Parsing contacts and checking for duplicates
           </p>
         </div>
@@ -626,13 +626,13 @@ function UploadStep({
           onClick={onToggleInstructions}
           className="w-full flex items-center justify-between p-3 text-left hover:bg-gold/5 transition-colors"
         >
-          <span className="font-montserrat font-medium text-sm text-navy dark:text-white">
+          <span className="font-montserrat font-medium text-sm text-white">
             How to export contacts from iPhone
           </span>
           {showInstructions ? (
-            <ChevronUp size={16} className="text-navy/40 dark:text-white/40" />
+            <ChevronUp size={16} className="text-white/40" />
           ) : (
-            <ChevronDown size={16} className="text-navy/40 dark:text-white/40" />
+            <ChevronDown size={16} className="text-white/40" />
           )}
         </button>
         <AnimatePresence>
@@ -644,7 +644,7 @@ function UploadStep({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <ol className="px-4 pb-3 space-y-2 font-inter text-sm text-navy/70 dark:text-white/70 list-decimal list-inside">
+              <ol className="px-4 pb-3 space-y-2 font-inter text-sm text-white/70 list-decimal list-inside">
                 <li>Open the <strong>Contacts</strong> app on your iPhone</li>
                 <li>Select <strong>All Contacts</strong></li>
                 <li>Tap <strong>Share</strong></li>
@@ -705,8 +705,8 @@ function ReviewStep({
         <StatBadge
           count={businesses.length}
           label="businesses filtered"
-          color="text-navy/50 dark:text-white/50"
-          bgColor="bg-navy/5 dark:bg-white/5"
+          color="text-white/50"
+          bgColor="bg-white/5"
         />
         <StatBadge
           count={duplicates.length}
@@ -717,8 +717,8 @@ function ReviewStep({
         <StatBadge
           count={insufficient.length}
           label="insufficient data"
-          color="text-navy/40 dark:text-white/40"
-          bgColor="bg-navy/5 dark:bg-white/5"
+          color="text-white/40"
+          bgColor="bg-white/5"
         />
       </div>
 
@@ -734,7 +734,7 @@ function ReviewStep({
               transition-all duration-200
               ${activeTab === tab.id
                 ? 'bg-navy text-gold'
-                : 'text-navy/60 dark:text-white/60 hover:bg-gold/10'
+                : 'text-white/60 hover:bg-gold/10'
               }
             `}
           >
@@ -756,7 +756,7 @@ function ReviewStep({
                 >
                   {allSelected ? 'Deselect All' : 'Select All'}
                 </button>
-                <span className="text-xs font-inter text-navy/40 dark:text-white/40">
+                <span className="text-xs font-inter text-white/40">
                   {selectedCount} selected
                 </span>
               </div>
@@ -833,7 +833,7 @@ function ContactRow({ contact, selected, onToggle }: { contact: ClassifiedContac
   return (
     <div
       className={`flex items-center gap-3 p-2.5 rounded-[8px] transition-colors cursor-pointer ${
-        selected ? 'bg-gold/5' : 'hover:bg-navy/5 dark:hover:bg-white/5'
+        selected ? 'bg-gold/5' : 'hover:bg-white/5'
       }`}
       onClick={onToggle}
     >
@@ -842,7 +842,7 @@ function ContactRow({ contact, selected, onToggle }: { contact: ClassifiedContac
         className={`w-[44px] h-[44px] sm:w-5 sm:h-5 rounded flex-shrink-0 flex items-center justify-center border transition-colors ${
           selected
             ? 'bg-gold border-gold'
-            : 'border-navy/20 dark:border-white/20'
+            : 'border-white/20'
         }`}
       >
         {selected && <Check size={14} className="text-navy" />}
@@ -851,23 +851,23 @@ function ContactRow({ contact, selected, onToggle }: { contact: ClassifiedContac
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-montserrat font-semibold text-navy dark:text-white truncate">
+          <span className="text-sm font-montserrat font-semibold text-white truncate">
             {getDisplayName(contact)}
           </span>
           {contact.company && (
-            <span className="text-[10px] text-navy/40 dark:text-white/40 font-inter truncate hidden sm:inline">
+            <span className="text-[10px] text-white/40 font-inter truncate hidden sm:inline">
               {contact.company}
             </span>
           )}
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {contact.phone && (
-            <span className="text-xs text-navy/50 dark:text-white/50 font-inter">
+            <span className="text-xs text-white/50 font-inter">
               {formatDisplayPhone(contact.phone)}
             </span>
           )}
           {contact.email && (
-            <span className="text-xs text-navy/50 dark:text-white/50 font-inter truncate hidden sm:inline">
+            <span className="text-xs text-white/50 font-inter truncate hidden sm:inline">
               {contact.email}
             </span>
           )}
@@ -876,7 +876,7 @@ function ContactRow({ contact, selected, onToggle }: { contact: ClassifiedContac
 
       {/* Birthday */}
       {contact.birthday_month && contact.birthday_day && (
-        <span className="flex items-center gap-1 text-xs text-navy/50 dark:text-white/50 font-inter flex-shrink-0">
+        <span className="flex items-center gap-1 text-xs text-white/50 font-inter flex-shrink-0">
           <Cake size={12} />
           {MONTH_NAMES[contact.birthday_month]} {contact.birthday_day}
         </span>
@@ -888,15 +888,15 @@ function ContactRow({ contact, selected, onToggle }: { contact: ClassifiedContac
 function FilteredRow({ contact, reason, onImportAnyway }: { contact: ClassifiedContact; reason: string; onImportAnyway: () => void }) {
   const name = contact.full_name || contact.company || 'Unknown';
   return (
-    <div className="flex items-center gap-3 p-2.5 rounded-[8px] hover:bg-navy/5 dark:hover:bg-white/5">
-      <div className="w-8 h-8 rounded-full bg-navy/5 dark:bg-white/5 flex items-center justify-center flex-shrink-0">
-        <Building2 size={14} className="text-navy/30 dark:text-white/30" />
+    <div className="flex items-center gap-3 p-2.5 rounded-[8px] hover:bg-white/5">
+      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
+        <Building2 size={14} className="text-white/30" />
       </div>
       <div className="flex-1 min-w-0">
-        <span className="text-sm font-montserrat font-medium text-navy/70 dark:text-white/70 truncate block">
+        <span className="text-sm font-montserrat font-medium text-white/70 truncate block">
           {name}
         </span>
-        <span className="text-xs text-navy/40 dark:text-white/40 font-inter">{reason}</span>
+        <span className="text-xs text-white/40 font-inter">{reason}</span>
       </div>
       <button
         type="button"
@@ -912,16 +912,16 @@ function FilteredRow({ contact, reason, onImportAnyway }: { contact: ClassifiedC
 function DuplicateRow({ contact, onImportAsNew }: { contact: ClassifiedContact; onImportAsNew: () => void }) {
   const match = contact.duplicate_match;
   return (
-    <div className="flex items-center gap-3 p-2.5 rounded-[8px] hover:bg-navy/5 dark:hover:bg-white/5">
+    <div className="flex items-center gap-3 p-2.5 rounded-[8px] hover:bg-white/5">
       <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
         <Copy size={14} className="text-gold" />
       </div>
       <div className="flex-1 min-w-0">
-        <span className="text-sm font-montserrat font-medium text-navy dark:text-white truncate block">
+        <span className="text-sm font-montserrat font-medium text-white truncate block">
           {getDisplayName(contact)}
         </span>
         {match && (
-          <span className="text-xs text-navy/40 dark:text-white/40 font-inter">
+          <span className="text-xs text-white/40 font-inter">
             Matches {match.existing_name} by {match.match_type}
           </span>
         )}
@@ -940,8 +940,8 @@ function DuplicateRow({ contact, onImportAsNew }: { contact: ClassifiedContact; 
 function EmptyTabMessage({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center py-8 text-center">
-      <AlertCircle size={24} className="text-navy/20 dark:text-white/20 mb-2" />
-      <p className="text-sm text-navy/40 dark:text-white/40 font-inter">{message}</p>
+      <AlertCircle size={24} className="text-white/20 mb-2" />
+      <p className="text-sm text-white/40 font-inter">{message}</p>
     </div>
   );
 }
@@ -963,16 +963,16 @@ function ProgressStep({ progress, total, currentName }: { progress: number; tota
       <Loader2 size={40} className="text-gold animate-spin" />
 
       <div className="text-center">
-        <p className="font-montserrat font-semibold text-navy dark:text-white">
+        <p className="font-montserrat font-semibold text-white">
           Importing Contacts
         </p>
-        <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
+        <p className="text-sm text-white/50 font-inter mt-1">
           {progress} of {total}
         </p>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full max-w-sm h-2 bg-navy/10 dark:bg-white/10 rounded-full overflow-hidden">
+      <div className="w-full max-w-sm h-2 bg-white/10 rounded-full overflow-hidden">
         <motion.div
           className="h-full rounded-full"
           style={{ backgroundColor: BRAND.colors.gold }}
@@ -983,7 +983,7 @@ function ProgressStep({ progress, total, currentName }: { progress: number; tota
       </div>
 
       {currentName && (
-        <p className="text-xs text-navy/40 dark:text-white/40 font-inter truncate max-w-xs">
+        <p className="text-xs text-white/40 font-inter truncate max-w-xs">
           {currentName}
         </p>
       )}
@@ -1011,7 +1011,7 @@ function CompleteStep({ result, emailCount, onClose }: { result: { imported: num
       </div>
 
       <div className="text-center">
-        <h3 className="text-xl font-montserrat font-semibold text-navy dark:text-white">
+        <h3 className="text-xl font-montserrat font-semibold text-white">
           Imported {result.imported} Contact{result.imported !== 1 ? 's' : ''}
         </h3>
         {result.errors > 0 && (
@@ -1033,10 +1033,10 @@ function CompleteStep({ result, emailCount, onClose }: { result: { imported: num
           <div className="flex items-start gap-3">
             <Sparkles size={20} style={{ color: BRAND.colors.gold }} className="flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">
+              <p className="text-sm font-montserrat font-semibold text-white">
                 {emailCount} contact{emailCount !== 1 ? 's' : ''} {emailCount !== 1 ? 'have' : 'has'} enough data for AI personality analysis
               </p>
-              <p className="text-xs text-navy/60 dark:text-white/60 font-inter mt-1">
+              <p className="text-xs text-white/60 font-inter mt-1">
                 Run it now to get DISC profiles and communication tips
               </p>
               <div className="flex gap-2 mt-3">
@@ -1090,10 +1090,10 @@ function LanguageStep({
       exit={{ opacity: 0 }}
       className="p-4 sm:p-6"
     >
-      <h3 className="text-lg font-playfair font-bold text-navy dark:text-white mb-1">
+      <h3 className="text-lg font-playfair font-bold text-white mb-1">
         Spanish-speaking contacts
       </h3>
-      <p className="text-sm text-navy/60 dark:text-white/60 font-inter mb-4">
+      <p className="text-sm text-white/60 font-inter mb-4">
         {spanishContacts.length} contacts with Hispanic surnames detected. {spanishCount} marked as Spanish.
       </p>
 
@@ -1106,11 +1106,11 @@ function LanguageStep({
           >
             Select All
           </button>
-          <span className="text-navy/20 dark:text-white/20">|</span>
+          <span className="text-white/20">|</span>
           <button
             type="button"
             onClick={() => onSelectAll(false)}
-            className="text-xs font-montserrat font-medium text-navy/50 dark:text-white/50 hover:underline"
+            className="text-xs font-montserrat font-medium text-white/50 hover:underline"
           >
             Clear All
           </button>
@@ -1124,11 +1124,11 @@ function LanguageStep({
             className="flex items-center justify-between gap-3 p-2.5 rounded-lg hover:bg-gold/5 transition-colors"
           >
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-montserrat font-semibold text-navy dark:text-white truncate">
+              <p className="text-sm font-montserrat font-semibold text-white truncate">
                 {getDisplayName(contact)}
               </p>
               {contact.phone && (
-                <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+                <p className="text-xs text-white/50 font-inter">
                   {formatDisplayPhone(contact.phone)}
                 </p>
               )}
@@ -1139,7 +1139,7 @@ function LanguageStep({
               className={`px-3 py-1.5 rounded-full text-xs font-montserrat font-semibold min-w-[80px] text-center transition-colors ${
                 contact.is_spanish
                   ? 'bg-gold/10 text-gold'
-                  : 'bg-navy/5 dark:bg-white/5 text-navy/40 dark:text-white/40'
+                  : 'bg-white/5 text-white/40'
               }`}
             >
               {contact.is_spanish ? 'Spanish' : 'English'}
@@ -1147,7 +1147,7 @@ function LanguageStep({
           </div>
         ))}
         {spanishContacts.length === 0 && (
-          <p className="text-sm text-navy/40 dark:text-white/40 font-inter text-center py-8">
+          <p className="text-sm text-white/40 font-inter text-center py-8">
             No Hispanic surnames detected. You can skip this step.
           </p>
         )}
@@ -1179,7 +1179,7 @@ function DISCStep({
         exit={{ opacity: 0 }}
         className="p-6 sm:p-8 flex flex-col items-center justify-center gap-4"
       >
-        <p className="text-sm text-navy/50 dark:text-white/50 font-inter">
+        <p className="text-sm text-white/50 font-inter">
           No Inner Circle contacts to tag.
         </p>
         <Button variant="accent" onClick={onSkipAll}>
@@ -1200,7 +1200,7 @@ function DISCStep({
         className="p-6 sm:p-8 flex flex-col items-center justify-center gap-4"
       >
         <CheckCircle2 size={32} className="text-gold" />
-        <p className="font-montserrat font-semibold text-navy dark:text-white">All tagged.</p>
+        <p className="font-montserrat font-semibold text-white">All tagged.</p>
         <Button variant="accent" onClick={onSkipAll}>
           Continue to Import
         </Button>
@@ -1219,24 +1219,24 @@ function DISCStep({
     >
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-playfair font-bold text-navy dark:text-white">
+          <h3 className="text-lg font-playfair font-bold text-white">
             Tag your top contacts
           </h3>
-          <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-0.5">
+          <p className="text-xs text-white/50 font-inter mt-0.5">
             Skip anyone you are not sure about
           </p>
         </div>
         <button
           type="button"
           onClick={onSkipAll}
-          className="text-xs font-montserrat font-medium text-navy/50 dark:text-white/50 hover:text-gold transition-colors"
+          className="text-xs font-montserrat font-medium text-white/50 hover:text-gold transition-colors"
         >
           Skip All
         </button>
       </div>
 
       {/* Progress bar */}
-      <div className="w-full h-1.5 bg-navy/10 dark:bg-white/10 rounded-full overflow-hidden mb-6">
+      <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mb-6">
         <div
           className="h-full rounded-full bg-gold transition-all duration-300"
           style={{ width: `${progress}%` }}
@@ -1244,17 +1244,17 @@ function DISCStep({
       </div>
 
       {/* Contact card */}
-      <div className="rounded-2xl bg-surface dark:bg-navy/30 border border-gold/15 p-5 text-center mb-6">
+      <div className="rounded-2xl bg-navy/30 border border-gold/15 p-5 text-center mb-6">
         <div className="w-14 h-14 rounded-full bg-navy mx-auto flex items-center justify-center mb-3">
           <span className="text-lg font-montserrat font-bold text-gold">
             {contact.first_name?.[0]?.toUpperCase() || '?'}{contact.last_name?.[0]?.toUpperCase() || ''}
           </span>
         </div>
-        <p className="font-montserrat font-semibold text-navy dark:text-white">
+        <p className="font-montserrat font-semibold text-white">
           {getDisplayName(contact)}
         </p>
         {contact.phone && (
-          <p className="text-xs text-navy/50 dark:text-white/50 font-inter mt-1">
+          <p className="text-xs text-white/50 font-inter mt-1">
             {formatDisplayPhone(contact.phone)}
           </p>
         )}
@@ -1281,7 +1281,7 @@ function DISCStep({
             <span className="text-xl font-montserrat font-bold" style={{ color }}>
               {disc}
             </span>
-            <span className="text-[9px] font-montserrat font-medium text-navy/60 dark:text-white/60">
+            <span className="text-[9px] font-montserrat font-medium text-white/60">
               {label}
             </span>
           </button>
@@ -1291,12 +1291,12 @@ function DISCStep({
       <button
         type="button"
         onClick={() => onPick(null)}
-        className="w-full text-center py-2.5 text-sm font-montserrat font-medium text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white transition-colors"
+        className="w-full text-center py-2.5 text-sm font-montserrat font-medium text-white/40 hover:text-white transition-colors"
       >
         Skip
       </button>
 
-      <p className="text-center text-[10px] text-navy/30 dark:text-white/30 font-inter mt-2">
+      <p className="text-center text-[10px] text-white/30 font-inter mt-2">
         {currentIndex + 1} of {contacts.length}
       </p>
     </motion.div>

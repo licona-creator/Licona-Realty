@@ -20,7 +20,7 @@ export function Card({
   ...props
 }: CardProps) {
   const baseStyles =
-    'rounded-2xl border border-gold/15 p-5 bg-white dark:bg-dark-card shadow-[0_2px_8px_rgba(19,34,54,0.08)] dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] transition-shadow duration-150';
+    'rounded-2xl border border-gold/15 p-5 bg-dark-card shadow-[0_2px_8px_rgba(0,0,0,0.2)] transition-shadow duration-150';
 
   const variantStyles = {
     default: '',

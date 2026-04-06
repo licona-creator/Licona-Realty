@@ -13,7 +13,7 @@ interface SkeletonProps {
 export function SkeletonBox({ className = '', style }: SkeletonProps) {
   return (
     <div
-      className={`skeleton-pulse rounded-[8px] bg-navy/[0.06] dark:bg-white/[0.06] ${className}`}
+      className={`skeleton-pulse rounded-[8px] bg-white/[0.06] ${className}`}
       style={style}
     />
   );
@@ -22,7 +22,7 @@ export function SkeletonBox({ className = '', style }: SkeletonProps) {
 export function SkeletonCircle({ className = '' }: SkeletonProps) {
   return (
     <div
-      className={`skeleton-pulse rounded-full bg-navy/[0.06] dark:bg-white/[0.06] ${className}`}
+      className={`skeleton-pulse rounded-full bg-white/[0.06] ${className}`}
     />
   );
 }
@@ -33,7 +33,7 @@ export function SkeletonText({ className = '', lines = 1 }: SkeletonProps & { li
       {Array.from({ length: lines }).map((_, i) => (
         <div
           key={i}
-          className={`skeleton-pulse rounded bg-navy/[0.06] dark:bg-white/[0.06] h-3 ${
+          className={`skeleton-pulse rounded bg-white/[0.06] h-3 ${
             i === lines - 1 && lines > 1 ? 'w-3/4' : 'w-full'
           }`}
         />
@@ -45,7 +45,7 @@ export function SkeletonText({ className = '', lines = 1 }: SkeletonProps & { li
 /** Skeleton that matches a stat card: icon + big number + label */
 export function SkeletonStatCard() {
   return (
-    <div className="rounded-[12px] border border-gold/15 p-3 lg:p-4 bg-surface dark:bg-dark-card min-h-[80px]">
+    <div className="rounded-[12px] border border-[rgba(255,255,255,0.06)] p-3 lg:p-4 bg-[var(--lr-depth-1)] min-h-[80px]">
       <SkeletonBox className="w-4 h-4 mb-2 rounded-full" />
       <SkeletonBox className="w-20 h-6 mb-1" />
       <SkeletonBox className="w-16 h-3" />
@@ -56,7 +56,7 @@ export function SkeletonStatCard() {
 /** Skeleton that matches a contact list row */
 export function SkeletonContactRow() {
   return (
-    <div className="rounded-[12px] border border-gold/15 p-2.5 sm:p-4 bg-surface dark:bg-dark-card flex items-center gap-3 sm:gap-4 min-h-[56px]">
+    <div className="rounded-[12px] border border-[rgba(255,255,255,0.06)] p-2.5 sm:p-4 bg-[var(--lr-depth-1)] flex items-center gap-3 sm:gap-4 min-h-[56px]">
       <SkeletonCircle className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0" />
       <div className="flex-1 min-w-0 space-y-1.5">
         <SkeletonBox className="w-32 h-3.5" />
@@ -70,7 +70,7 @@ export function SkeletonContactRow() {
 /** Skeleton that matches a deal list row */
 export function SkeletonDealRow() {
   return (
-    <div className="rounded-[12px] border border-gold/15 p-4 bg-surface dark:bg-dark-card min-h-[72px]">
+    <div className="rounded-[12px] border border-[rgba(255,255,255,0.06)] p-4 bg-[var(--lr-depth-1)] min-h-[72px]">
       <div className="flex items-start justify-between">
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
@@ -91,7 +91,7 @@ export function SkeletonDealRow() {
 /** Skeleton for a follow-up row in dashboard */
 export function SkeletonFollowUpRow() {
   return (
-    <div className="flex items-center gap-3 p-3 rounded-lg bg-surface dark:bg-navy/30 min-h-[52px]">
+    <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.04] min-h-[52px]">
       <div className="flex-1 min-w-0 space-y-1.5">
         <SkeletonBox className="w-28 h-3.5" />
         <SkeletonBox className="w-48 h-3" />
@@ -104,7 +104,7 @@ export function SkeletonFollowUpRow() {
 /** Skeleton for an activity item in dashboard/contact detail */
 export function SkeletonActivityRow() {
   return (
-    <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-surface dark:bg-navy/30 min-h-[48px]">
+    <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/[0.04] min-h-[48px]">
       <SkeletonCircle className="w-7 h-7 flex-shrink-0" />
       <div className="flex-1 min-w-0 space-y-1.5">
         <SkeletonBox className="w-24 h-3.5" />
@@ -118,7 +118,7 @@ export function SkeletonActivityRow() {
 /** Skeleton for info card on detail pages */
 export function SkeletonDetailCard({ rows = 4 }: { rows?: number }) {
   return (
-    <div className="rounded-[12px] border border-gold/15 p-5 bg-surface dark:bg-dark-card">
+    <div className="rounded-[12px] border border-[rgba(255,255,255,0.06)] p-5 bg-[var(--lr-depth-1)]">
       <SkeletonBox className="w-32 h-4 mb-4" />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {Array.from({ length: rows }).map((_, i) => (
@@ -155,7 +155,7 @@ export function DashboardSkeleton() {
       </div>
       {/* Follow-ups card */}
       <div className="space-y-6 mb-6">
-        <div className="rounded-[12px] border border-gold/15 p-5 bg-surface dark:bg-dark-card">
+        <div className="rounded-[12px] border border-[rgba(255,255,255,0.06)] p-5 bg-[var(--lr-depth-1)]">
           <SkeletonBox className="w-28 h-5 mb-4" />
           <div className="space-y-2">
             <SkeletonFollowUpRow />
@@ -172,7 +172,7 @@ export function DashboardSkeleton() {
         <SkeletonStatCard />
       </div>
       {/* Activity */}
-      <div className="rounded-[12px] border border-gold/15 p-5 bg-surface dark:bg-dark-card">
+      <div className="rounded-[12px] border border-[rgba(255,255,255,0.06)] p-5 bg-[var(--lr-depth-1)]">
         <SkeletonBox className="w-28 h-5 mb-4" />
         <div className="space-y-2">
           <SkeletonActivityRow />
@@ -257,7 +257,7 @@ export function ContactDetailSkeleton() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         <div className="lg:col-span-2 space-y-4">
           <SkeletonDetailCard rows={6} />
-          <div className="rounded-[12px] border border-gold/15 p-5 bg-surface dark:bg-dark-card">
+          <div className="rounded-[12px] border border-[rgba(255,255,255,0.06)] p-5 bg-[var(--lr-depth-1)]">
             <SkeletonBox className="w-32 h-4 mb-4" />
             <div className="space-y-2">
               <SkeletonActivityRow />
@@ -267,7 +267,7 @@ export function ContactDetailSkeleton() {
           </div>
         </div>
         <div className="space-y-4">
-          <div className="rounded-[12px] border border-gold/15 p-5 bg-surface dark:bg-dark-card">
+          <div className="rounded-[12px] border border-[rgba(255,255,255,0.06)] p-5 bg-[var(--lr-depth-1)]">
             <SkeletonBox className="w-20 h-4 mb-3" />
             <SkeletonBox className="w-full h-4" />
             <SkeletonBox className="w-24 h-3 mt-2" />
@@ -300,7 +300,7 @@ export function DealDetailSkeleton() {
             <SkeletonStatCard />
             <SkeletonStatCard />
           </div>
-          <div className="rounded-[12px] border border-gold/15 p-5 bg-surface dark:bg-dark-card">
+          <div className="rounded-[12px] border border-[rgba(255,255,255,0.06)] p-5 bg-[var(--lr-depth-1)]">
             <SkeletonBox className="w-24 h-4 mb-4" />
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (

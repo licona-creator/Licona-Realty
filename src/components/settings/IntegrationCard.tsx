@@ -33,7 +33,7 @@ const STATUS_CONFIG: Record<
   connected: { color: '#22C55E', label: 'Connected', dotClass: 'bg-green-500' },
   partial: { color: '#F59E0B', label: 'Setup Required', dotClass: 'bg-amber-500' },
   pending: { color: '#3B82F6', label: 'Pending Approval', dotClass: 'bg-blue-500' },
-  not_connected: { color: '#9CA3AF', label: 'Not Connected', dotClass: 'bg-gray-400' },
+  not_connected: { color: '#9CA3AF', label: 'Not Connected', dotClass: 'bg-white/40' },
   error: { color: '#EF4444', label: 'Error', dotClass: 'bg-red-500' },
 };
 
@@ -97,18 +97,18 @@ export function IntegrationCard({
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-4 text-left cursor-pointer group"
       >
-        <div className="w-10 h-10 rounded-[8px] bg-gold/10 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-[8px] bg-white/10 flex items-center justify-center flex-shrink-0">
           {icon}
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-montserrat font-semibold text-navy dark:text-white">{name}</h4>
+          <h4 className="text-sm font-montserrat font-semibold text-white">{name}</h4>
           <div className="flex items-center gap-2 mt-0.5">
             <div className={`w-2 h-2 rounded-full ${config.dotClass}`} />
             <span className="text-xs font-inter" style={{ color: config.color }}>
               {config.label}
             </span>
             {lastVerified && (
-              <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">
+              <span className="text-[10px] text-white/30 font-inter">
                 Last verified: {lastVerified}
               </span>
             )}
@@ -125,7 +125,7 @@ export function IntegrationCard({
           <motion.div
             animate={{ rotate: expanded ? 180 : 0 }}
             transition={{ duration: 0.2 }}
-            className="text-navy/40 dark:text-white/40 group-hover:text-gold transition-colors p-1"
+            className="text-white/40 group-hover:text-gold transition-colors p-1"
           >
             <ChevronDown size={18} />
           </motion.div>
@@ -182,7 +182,7 @@ export function IntegrationCard({
       {/* Error Message */}
       {status === 'error' && errorMessage && (
         <div className="mt-3 p-3 rounded-[8px] bg-red-500/10 border border-red-500/20">
-          <p className="text-xs text-red-600 dark:text-red-400 font-inter">{errorMessage}</p>
+          <p className="text-xs text-red-400 font-inter">{errorMessage}</p>
         </div>
       )}
 
@@ -196,7 +196,7 @@ export function IntegrationCard({
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             style={{ overflow: 'hidden' }}
           >
-            <div className="mt-4 pt-4 border-t border-gold/15 dark:border-white/10">
+            <div className="mt-4 pt-4 border-t border-white/10">
               {children}
             </div>
           </motion.div>

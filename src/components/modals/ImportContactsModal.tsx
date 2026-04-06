@@ -146,10 +146,10 @@ export function ImportContactsModal({ open, onClose, onSuccess }: ImportContacts
           >
             <Upload size={32} className="text-gold/60" />
             <div className="text-center">
-              <p className="font-montserrat font-semibold text-sm text-navy dark:text-white">
+              <p className="font-montserrat font-semibold text-sm text-white">
                 Drop your file here or click to browse
               </p>
-              <p className="font-inter text-xs text-navy/50 dark:text-white/50 mt-1">
+              <p className="font-inter text-xs text-white/50 mt-1">
                 Supports CSV and XLSX files
               </p>
             </div>
@@ -165,13 +165,13 @@ export function ImportContactsModal({ open, onClose, onSuccess }: ImportContacts
           <div className="flex items-center justify-between gap-3 p-3 bg-gold/5 border border-gold/15 rounded-[8px]">
             <div className="flex items-center gap-2 min-w-0">
               <FileSpreadsheet size={20} className="text-gold flex-shrink-0" />
-              <span className="font-inter text-sm text-navy dark:text-white truncate">
+              <span className="font-inter text-sm text-white truncate">
                 {file.name}
               </span>
             </div>
             <button
               onClick={clearFile}
-              className="p-1 rounded-md text-navy/30 dark:text-white/30 hover:text-navy/60 dark:hover:text-white/60 hover:bg-gold/10 transition-colors flex-shrink-0"
+              className="p-1 rounded-md text-white/30 hover:text-white/60 hover:bg-gold/10 transition-colors flex-shrink-0"
               aria-label="Remove file"
             >
               <X size={16} />
@@ -182,17 +182,17 @@ export function ImportContactsModal({ open, onClose, onSuccess }: ImportContacts
         {/* Preview Table */}
         {preview && preview.length > 0 && (
           <div className="space-y-2">
-            <p className="font-montserrat font-semibold text-xs text-navy dark:text-white">
+            <p className="font-montserrat font-semibold text-xs text-white">
               Preview
             </p>
             <div className="overflow-x-auto rounded-[8px] border border-gold/15">
               <table className="w-full text-xs font-inter">
                 <thead>
-                  <tr className="bg-navy/5 dark:bg-white/5">
+                  <tr className="bg-white/5">
                     {preview[0].map((header, i) => (
                       <th
                         key={i}
-                        className="px-3 py-2 text-left font-semibold text-navy dark:text-white whitespace-nowrap"
+                        className="px-3 py-2 text-left font-semibold text-white whitespace-nowrap"
                       >
                         {header}
                       </th>
@@ -208,7 +208,7 @@ export function ImportContactsModal({ open, onClose, onSuccess }: ImportContacts
                       {row.map((cell, cellIdx) => (
                         <td
                           key={cellIdx}
-                          className="px-3 py-1.5 text-navy/70 dark:text-white/70 whitespace-nowrap"
+                          className="px-3 py-1.5 text-white/70 whitespace-nowrap"
                         >
                           {cell}
                         </td>

@@ -28,8 +28,8 @@ interface Partner {
 }
 
 const selectClassName = `
-  w-full px-4 py-2.5 rounded-[8px] bg-white dark:bg-dark-card border border-gold/15
-  text-navy dark:text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50
+  w-full px-4 py-2.5 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15
+  text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50
   focus:border-gold transition-all duration-200 ease-in-out appearance-none
 `.replace(/\n\s+/g, ' ').trim();
 
@@ -93,11 +93,11 @@ export default function PartnersPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Handshake size={24} className="text-gold" />
-          <h1 className="text-2xl font-semibold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.playfair }}>
+          <h1 className="text-2xl font-semibold text-white" style={{ fontFamily: BRAND.fonts.playfair }}>
             Referral Partners
           </h1>
           {partners.length > 0 && (
-            <span className="text-sm text-navy/40 dark:text-white/40 font-inter">({partners.length})</span>
+            <span className="text-sm text-white/40 font-inter">({partners.length})</span>
           )}
         </div>
         <Button variant="accent" size="sm" onClick={() => setShowAdd(true)}>
@@ -108,7 +108,7 @@ export default function PartnersPage() {
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="w-6 h-6 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-          <span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading partners...</span>
+          <span className="ml-2 text-sm text-white/50 font-inter">Loading partners...</span>
         </div>
       ) : partners.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -116,34 +116,34 @@ export default function PartnersPage() {
             <Card key={p.id} className="!p-5 cursor-pointer hover:shadow-md transition-shadow" onClick={() => router.push(`/partners/${p.id}`)}>
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-montserrat font-semibold text-navy dark:text-white">
+                  <h3 className="font-montserrat font-semibold text-white">
                     {getDisplayName(p)}
                   </h3>
-                  {p.company && <p className="text-xs text-navy/50 dark:text-white/50 font-inter">{p.company}{p.role ? ` - ${p.role}` : ''}</p>}
+                  {p.company && <p className="text-xs text-white/50 font-inter">{p.company}{p.role ? ` - ${p.role}` : ''}</p>}
                 </div>
                 <div className="flex items-center gap-1">
-                  <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(p); }} className="p-1.5 rounded hover:bg-red-500/10 text-navy/30 dark:text-white/30 hover:text-red-500 transition-colors">
+                  <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(p); }} className="p-1.5 rounded hover:bg-red-500/10 text-white/30 hover:text-red-500 transition-colors">
                     <Trash2 size={14} />
                   </button>
-                  <ChevronRight size={14} className="text-navy/20 dark:text-white/20" />
+                  <ChevronRight size={14} className="text-white/20" />
                 </div>
               </div>
               <div className="flex items-center gap-3 mb-3 flex-wrap">
-                {p.phone && <span className="text-xs text-navy/50 dark:text-white/50 font-inter flex items-center gap-1"><Phone size={10} />{p.phone}</span>}
-                {p.email && <span className="text-xs text-navy/50 dark:text-white/50 font-inter flex items-center gap-1"><Mail size={10} />{p.email}</span>}
+                {p.phone && <span className="text-xs text-white/50 font-inter flex items-center gap-1"><Phone size={10} />{p.phone}</span>}
+                {p.email && <span className="text-xs text-white/50 font-inter flex items-center gap-1"><Mail size={10} />{p.email}</span>}
               </div>
               <div className="grid grid-cols-3 gap-2 pt-3 border-t border-gold/10">
                 <div className="text-center">
-                  <p className="text-lg font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{p.total_leads_sent}</p>
-                  <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">Leads</p>
+                  <p className="text-lg font-bold text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{p.total_leads_sent}</p>
+                  <p className="text-[10px] text-white/40 font-inter">Leads</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-lg font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{p.total_closings}</p>
-                  <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">Closings</p>
+                  <p className="text-lg font-bold text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{p.total_closings}</p>
+                  <p className="text-[10px] text-white/40 font-inter">Closings</p>
                 </div>
                 <div className="text-center">
                   <p className="text-lg font-bold text-gold" style={{ fontFamily: BRAND.fonts.dmSerif }}>${(p.total_revenue_generated || 0).toLocaleString()}</p>
-                  <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">Revenue</p>
+                  <p className="text-[10px] text-white/40 font-inter">Revenue</p>
                 </div>
               </div>
             </Card>
@@ -152,8 +152,8 @@ export default function PartnersPage() {
       ) : (
         <Card className="!p-8 text-center">
           <Handshake size={40} className="text-gold mx-auto mb-4 opacity-50" />
-          <h2 className="text-lg font-montserrat font-semibold text-navy dark:text-white mb-2">No Referral Partners Yet</h2>
-          <p className="text-sm text-navy/50 dark:text-white/50 font-inter max-w-md mx-auto mb-6">
+          <h2 className="text-lg font-montserrat font-semibold text-white mb-2">No Referral Partners Yet</h2>
+          <p className="text-sm text-white/50 font-inter max-w-md mx-auto mb-6">
             Add your referral partners to track who sends you leads and measure their performance.
           </p>
           <Button variant="accent" onClick={() => setShowAdd(true)}><Plus size={16} /> Add Partner</Button>
@@ -176,7 +176,7 @@ export default function PartnersPage() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Language</label>
+              <label className="block text-sm font-montserrat font-medium text-white mb-1.5">Language</label>
               <select value={form.language_preference} onChange={e => setForm(p => ({ ...p, language_preference: e.target.value }))} className={selectClassName} disabled={saving}>
                 <option value="spanish">Spanish</option>
                 <option value="english">English</option>
@@ -186,8 +186,8 @@ export default function PartnersPage() {
             <Input label="Fee Structure" placeholder="e.g. 25% referral fee" value={form.referral_fee_structure} onChange={e => setForm(p => ({ ...p, referral_fee_structure: e.target.value }))} disabled={saving} />
           </div>
           <div>
-            <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Notes</label>
-            <textarea rows={3} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} disabled={saving} placeholder="Additional notes..." className={`${selectClassName} resize-none placeholder:text-navy/40 dark:placeholder:text-white/40`} />
+            <label className="block text-sm font-montserrat font-medium text-white mb-1.5">Notes</label>
+            <textarea rows={3} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} disabled={saving} placeholder="Additional notes..." className={`${selectClassName} resize-none placeholder:text-white/40`} />
           </div>
           <div className="h-4" />
           <div className="flex justify-end gap-3 pt-3 border-t border-gold/10">

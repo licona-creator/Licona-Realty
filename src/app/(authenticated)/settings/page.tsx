@@ -81,17 +81,17 @@ function SettingsContent() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
       data-testid="settings-page"
-      className="min-h-screen bg-surface dark:bg-navy"
+      className="min-h-screen"
     >
       {/* Page Header */}
       <div className="px-3 sm:px-6 lg:px-8 pt-2 lg:pt-6 pb-3 lg:pb-4">
         <h1
-          className="text-2xl lg:text-3xl font-semibold text-navy dark:text-white"
+          className="text-2xl lg:text-3xl font-semibold text-white"
           style={{ fontFamily: BRAND.fonts.playfair }}
         >
           Settings
         </h1>
-        <p className="text-sm text-navy/70 dark:text-white/60 font-inter mt-1">
+        <p className="text-sm text-white/60 font-inter mt-1">
           Manage your platform, integrations, and brand assets
         </p>
       </div>
@@ -112,7 +112,7 @@ function SettingsContent() {
                   font-montserrat text-[11px] sm:text-xs font-medium transition-all duration-200 relative flex-shrink-0
                   ${isActive
                     ? 'bg-gold/15 text-gold'
-                    : 'text-navy/70 dark:text-white/60 hover:text-navy dark:hover:text-white hover:bg-white/80 dark:hover:bg-white/5'
+                    : 'text-white/60 hover:text-white hover:bg-white/5'
                   }
                 `}
               >
@@ -190,8 +190,8 @@ export default function SettingsPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-surface dark:bg-navy flex items-center justify-center">
-          <div className="text-navy/50 dark:text-white/50 font-inter text-sm">Loading settings...</div>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-white/50 font-inter text-sm">Loading settings...</div>
         </div>
       }
     >

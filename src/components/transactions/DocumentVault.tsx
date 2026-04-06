@@ -200,7 +200,7 @@ export function DocumentVault({ transactionId, trackType, transactionType }: Doc
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 size={20} className="animate-spin text-gold" />
-        <span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading documents...</span>
+        <span className="ml-2 text-sm text-white/50 font-inter">Loading documents...</span>
       </div>
     );
   }
@@ -208,7 +208,7 @@ export function DocumentVault({ transactionId, trackType, transactionType }: Doc
   if (fetchError) {
     return (
       <div className="py-8 text-center">
-        <p className="text-sm text-navy/50 dark:text-white/50 font-inter mb-4">
+        <p className="text-sm text-white/50 font-inter mb-4">
           Unable to load documents. Please check your connection and try again.
         </p>
         <button
@@ -241,10 +241,10 @@ export function DocumentVault({ transactionId, trackType, transactionType }: Doc
             <AlertTriangle size={18} className="text-red-500 flex-shrink-0" />
           )}
           <div className="flex-1 min-w-0">
-            <h3 className={`text-sm font-montserrat font-bold ${cmrAllDone ? 'text-green-700 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            <h3 className={`text-sm font-montserrat font-bold ${cmrAllDone ? 'text-green-400' : 'text-red-400'}`}>
               {cmrAllDone ? 'Broker Documents Complete' : 'Required by Broker'}
             </h3>
-            <p className="text-[10px] text-navy/50 dark:text-white/50 font-inter">
+            <p className="text-[10px] text-white/50 font-inter">
               Email completed documents to da@centralmetro.com
             </p>
           </div>
@@ -255,7 +255,7 @@ export function DocumentVault({ transactionId, trackType, transactionType }: Doc
 
         {/* CMR Progress Bar */}
         <div className="px-3 pt-3 pb-2">
-          <div className="w-full h-2.5 bg-navy/10 dark:bg-white/10 rounded-full overflow-hidden">
+          <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{
@@ -264,7 +264,7 @@ export function DocumentVault({ transactionId, trackType, transactionType }: Doc
               }}
             />
           </div>
-          <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-1">
+          <p className="text-[10px] text-white/40 font-inter mt-1">
             {progress.cmr.uploaded} of {progress.cmr.total} required documents collected ({progress.cmr.percent}%)
           </p>
         </div>
@@ -282,24 +282,24 @@ export function DocumentVault({ transactionId, trackType, transactionType }: Doc
           <button
             type="button"
             onClick={() => setGoodToSaveExpanded(!goodToSaveExpanded)}
-            className="w-full flex items-center gap-3 p-3 rounded-[8px] bg-navy/5 dark:bg-white/5 hover:bg-navy/8 dark:hover:bg-white/8 transition-colors min-h-[44px]"
+            className="w-full flex items-center gap-3 p-3 rounded-[8px] bg-white/5 hover:bg-white/8 transition-colors min-h-[44px]"
           >
-            <Archive size={16} className="text-navy/40 dark:text-white/40 flex-shrink-0" />
+            <Archive size={16} className="text-white/40 flex-shrink-0" />
             <div className="flex-1 min-w-0 text-left">
-              <h3 className="text-sm font-montserrat font-semibold text-navy/60 dark:text-white/60">
+              <h3 className="text-sm font-montserrat font-semibold text-white/60">
                 Good to Save
               </h3>
-              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">
+              <p className="text-[10px] text-white/40 font-inter">
                 Not required by CMR but protects you and your client
               </p>
             </div>
-            <span className="text-xs text-navy/40 dark:text-white/40 font-inter mr-2">
+            <span className="text-xs text-white/40 font-inter mr-2">
               {progress.good.uploaded}/{progress.good.total}
             </span>
             {goodToSaveExpanded ? (
-              <ChevronDown size={14} className="text-navy/30 dark:text-white/30" />
+              <ChevronDown size={14} className="text-white/30" />
             ) : (
-              <ChevronRight size={14} className="text-navy/30 dark:text-white/30" />
+              <ChevronRight size={14} className="text-white/30" />
             )}
           </button>
 
@@ -362,19 +362,19 @@ function renderDocumentsByCategory(
         <button
           type="button"
           onClick={() => toggleCategory(catKey)}
-          className="w-full flex items-center gap-3 p-3 hover:bg-surface dark:hover:bg-navy/30 transition-colors min-h-[44px]"
+          className="w-full flex items-center gap-3 p-3 hover:bg-white/5 transition-colors min-h-[44px]"
         >
           <IconComp size={14} className="text-gold flex-shrink-0" />
-          <span className="text-sm font-montserrat font-medium text-navy dark:text-white flex-1 text-left">
+          <span className="text-sm font-montserrat font-medium text-white flex-1 text-left">
             {catMeta.label}
           </span>
-          <span className="text-xs text-navy/40 dark:text-white/40 font-inter mr-2">
+          <span className="text-xs text-white/40 font-inter mr-2">
             {catUploaded}/{catItems.length}
           </span>
           {isExpanded ? (
-            <ChevronDown size={14} className="text-navy/30 dark:text-white/30" />
+            <ChevronDown size={14} className="text-white/30" />
           ) : (
-            <ChevronRight size={14} className="text-navy/30 dark:text-white/30" />
+            <ChevronRight size={14} className="text-white/30" />
           )}
         </button>
 
@@ -434,11 +434,11 @@ function DocumentRow({
         <div>
           <div className="flex items-start gap-2 flex-wrap">
             <div className="flex-1 min-w-0">
-              <span className="text-sm font-inter text-navy dark:text-white">
+              <span className="text-sm font-inter text-white">
                 {labelWithForm}
               </span>
               {item.conditional && (
-                <span className="text-[10px] italic text-navy/40 dark:text-white/40 font-inter ml-1">
+                <span className="text-[10px] italic text-white/40 font-inter ml-1">
                   ({item.conditional})
                 </span>
               )}
@@ -453,13 +453,13 @@ function DocumentRow({
                 {STATUS_STYLES[doc.status]?.label || doc.status}
               </button>
               {statusDropdown === doc.id && (
-                <div className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-dark-card border border-gold/15 rounded-[8px] shadow-lg py-1 min-w-[120px]">
+                <div className="absolute right-0 top-full mt-1 z-20 bg-[var(--lr-depth-2)] border border-gold/15 rounded-[8px] shadow-lg py-1 min-w-[120px]">
                   {STATUS_ORDER.map(s => (
                     <button
                       type="button"
                       key={s}
                       onClick={() => handleStatusChange(doc.id, s)}
-                      className={`w-full text-left px-3 py-2 text-xs font-inter hover:bg-surface dark:hover:bg-navy/30 transition-colors min-h-[36px] ${doc.status === s ? 'text-gold font-semibold' : 'text-navy dark:text-white'}`}
+                      className={`w-full text-left px-3 py-2 text-xs font-inter hover:bg-white/5 transition-colors min-h-[36px] ${doc.status === s ? 'text-gold font-semibold' : 'text-white'}`}
                     >
                       {STATUS_STYLES[s]?.label || s}
                     </button>
@@ -470,13 +470,13 @@ function DocumentRow({
           </div>
           {/* File Details */}
           <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-            <span className="text-xs text-navy/40 dark:text-white/40 font-inter truncate max-w-[200px]">
+            <span className="text-xs text-white/40 font-inter truncate max-w-[200px]">
               {doc.document_name}
             </span>
-            <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">
+            <span className="text-[10px] text-white/30 font-inter">
               {formatFileSize(doc.file_size)}
             </span>
-            <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter">
+            <span className="text-[10px] text-white/30 font-inter">
               {new Date(doc.uploaded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </span>
           </div>
@@ -501,7 +501,7 @@ function DocumentRow({
             <button
               type="button"
               onClick={() => fileInputRefs.current[item.type]?.click()}
-              className="p-2 rounded-[8px] bg-navy/5 dark:bg-white/5 text-navy/50 dark:text-white/50 hover:bg-navy/10 dark:hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 rounded-[8px] bg-white/5 text-white/50 hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Replace"
             >
               <Upload size={14} />
@@ -524,7 +524,7 @@ function DocumentRow({
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex-1 min-w-0">
-              <span className="text-sm font-inter text-navy dark:text-white">
+              <span className="text-sm font-inter text-white">
                 {labelWithForm}
               </span>
             </div>
@@ -537,12 +537,12 @@ function DocumentRow({
                 {item.conditional}
               </span>
             ) : (
-              <span className="text-[10px] font-montserrat font-semibold px-2 py-0.5 rounded-full bg-navy/5 dark:bg-white/5 text-navy/40 dark:text-white/40">
+              <span className="text-[10px] font-montserrat font-semibold px-2 py-0.5 rounded-full bg-white/5 text-white/40">
                 Optional
               </span>
             )}
           </div>
-          <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-0.5">
+          <p className="text-xs text-white/40 font-inter mt-0.5">
             {item.description}
           </p>
           <button

@@ -80,9 +80,9 @@ const STATUS_OPTIONS = [
 
 const selectClasses = `
   w-full px-4 py-2.5 rounded-[8px]
-  bg-white dark:bg-dark-card
+  bg-[var(--lr-depth-1)]
   border border-gold/15
-  text-navy dark:text-white
+  text-white
   font-inter text-sm
   focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
   transition-all duration-200 ease-in-out
@@ -234,7 +234,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         <div className="w-full">
           <label
             htmlFor="transaction-contact"
-            className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-white mb-1.5"
           >
             Contact *
           </label>
@@ -338,7 +338,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         <div className="w-full">
           <label
             htmlFor="transaction-type"
-            className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-white mb-1.5"
           >
             Transaction Type *
           </label>
@@ -360,7 +360,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
           <div className="w-full">
             <label
               htmlFor="transaction-track-type"
-              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-white mb-1.5"
             >
               Track Type
             </label>
@@ -380,7 +380,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
           <div className="w-full">
             <label
               htmlFor="transaction-status"
-              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-white mb-1.5"
             >
               Status
             </label>
@@ -399,7 +399,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
 
         {/* Listing Agent */}
         <div className="border-t border-gold/10 pt-4">
-          <p className="text-xs font-montserrat font-semibold text-navy/50 dark:text-white/50 mb-3 uppercase tracking-wider">Listing Agent</p>
+          <p className="text-xs font-montserrat font-semibold text-white/50 mb-3 uppercase tracking-wider">Listing Agent</p>
           <div className="grid grid-cols-3 gap-3">
             <Input label="Name" placeholder="Agent name" value={form.listing_agent_name} onChange={e => update('listing_agent_name', e.target.value)} />
             <Input label="Email" type="email" placeholder="Email" value={form.listing_agent_email} onChange={e => update('listing_agent_email', e.target.value)} />
@@ -410,12 +410,12 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         {/* Lender & Title */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <p className="text-xs font-montserrat font-semibold text-navy/50 dark:text-white/50 mb-3 uppercase tracking-wider">Lender</p>
+            <p className="text-xs font-montserrat font-semibold text-white/50 mb-3 uppercase tracking-wider">Lender</p>
             <Input label="Lender Name" placeholder="Lender name" value={form.lender_name} onChange={e => update('lender_name', e.target.value)} className="mb-3" />
             <Input label="Lender Contact" placeholder="Phone or email" value={form.lender_contact} onChange={e => update('lender_contact', e.target.value)} />
           </div>
           <div>
-            <p className="text-xs font-montserrat font-semibold text-navy/50 dark:text-white/50 mb-3 uppercase tracking-wider">Title Company</p>
+            <p className="text-xs font-montserrat font-semibold text-white/50 mb-3 uppercase tracking-wider">Title Company</p>
             <Input label="Title Company" placeholder="Company name" value={form.title_company} onChange={e => update('title_company', e.target.value)} className="mb-3" />
             <Input label="Title Contact" placeholder="Phone or email" value={form.title_contact} onChange={e => update('title_contact', e.target.value)} />
           </div>
@@ -425,7 +425,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         <div className="w-full">
           <label
             htmlFor="transaction-notes"
-            className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-white mb-1.5"
           >
             Notes
           </label>
@@ -435,7 +435,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
             placeholder="Additional notes..."
             value={form.notes}
             onChange={e => update('notes', e.target.value)}
-            className={`${selectClasses} placeholder:text-navy/40 dark:placeholder:text-white/40 resize-none`}
+            className={`${selectClasses} placeholder:text-white/40 resize-none`}
           />
         </div>
 

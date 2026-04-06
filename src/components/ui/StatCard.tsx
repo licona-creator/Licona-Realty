@@ -17,20 +17,20 @@ export function StatCard({ label, value, icon, trend, trendLabel, accent, compac
   return (
     <div
       className={`
-        rounded-2xl bg-white dark:bg-dark-card border border-gold/15
-        shadow-[0_2px_8px_rgba(19,34,54,0.08)]
+        rounded-2xl bg-[var(--lr-depth-1)] border border-[rgba(255,255,255,0.06)]
+        shadow-[0_2px_8px_rgba(0,0,0,0.3)]
         ${accent ? 'border-l-4 border-l-gold' : ''}
         ${compact ? 'p-3' : 'p-4'}
         transition-shadow duration-150
       `}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="font-montserrat text-[10px] font-semibold uppercase tracking-wider text-navy/40 dark:text-white/40">
+        <span className="font-montserrat text-[10px] font-semibold uppercase tracking-wider text-white/40">
           {label}
         </span>
         {icon && <span className="text-gold">{icon}</span>}
       </div>
-      <p className="font-playfair font-bold text-xl text-navy dark:text-white">
+      <p className="font-playfair font-bold text-xl text-white">
         {value}
       </p>
       {trend && (

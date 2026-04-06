@@ -83,9 +83,9 @@ const STATUS_COLORS: Record<string, string> = {
 
 const selectClassName = `
   w-full px-4 py-2.5 rounded-[8px]
-  bg-white dark:bg-dark-card
+  bg-[var(--lr-depth-2)]
   border border-gold/15
-  text-navy dark:text-white
+  text-white
   font-inter text-sm
   focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
   transition-all duration-200 ease-in-out
@@ -538,7 +538,7 @@ export default function TransactionDetailPage() {
         <div className="space-y-4">
           {/* Linked Contact */}
           <div>
-            <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Linked Contact</label>
+            <label className="block text-sm font-montserrat font-medium text-white mb-1.5">Linked Contact</label>
             <select
               value={(editForm.contact_id as string) || ''}
               onChange={e => setEditForm(prev => ({ ...prev, contact_id: e.target.value }))}
@@ -612,7 +612,7 @@ export default function TransactionDetailPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Transaction Type *</label>
+            <label className="block text-sm font-montserrat font-medium text-white mb-1.5">Transaction Type *</label>
             <select
               value={(editForm.transaction_type as string) || 'buyers_agent_sale'}
               onChange={e => setEditForm(prev => ({ ...prev, transaction_type: e.target.value }))}
@@ -631,7 +631,7 @@ export default function TransactionDetailPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Status</label>
+              <label className="block text-sm font-montserrat font-medium text-white mb-1.5">Status</label>
               <select
                 value={(editForm.status as string) || 'active'}
                 onChange={e => setEditForm(prev => ({ ...prev, status: e.target.value }))}
@@ -642,7 +642,7 @@ export default function TransactionDetailPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">Track Type</label>
+              <label className="block text-sm font-montserrat font-medium text-white mb-1.5">Track Type</label>
               <select
                 value={(editForm.track_type as string) || 'buyer'}
                 onChange={e => setEditForm(prev => ({ ...prev, track_type: e.target.value }))}

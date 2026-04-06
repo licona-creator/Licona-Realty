@@ -164,9 +164,9 @@ const INITIAL_FORM: FormData = {
 
 const selectClassName = `
   w-full px-4 py-2.5 rounded-[8px]
-  bg-white dark:bg-dark-card
+  bg-[var(--lr-depth-1)]
   border border-gold/15
-  text-navy dark:text-white
+  text-white
   font-inter text-sm
   focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
   transition-all duration-200 ease-in-out
@@ -353,7 +353,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           <div className="w-full">
             <label
               htmlFor="track-type"
-              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-white mb-1.5"
             >
               Track Type
             </label>
@@ -374,7 +374,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           <div className="w-full">
             <label
               htmlFor="pipeline-stage"
-              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-white mb-1.5"
             >
               Pipeline Stage
             </label>
@@ -417,7 +417,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           <div className="w-full">
             <label
               htmlFor="lead-source"
-              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-white mb-1.5"
             >
               Lead Source
             </label>
@@ -436,7 +436,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           <div className="w-full">
             <label
               htmlFor="language-pref"
-              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-white mb-1.5"
             >
               Language
             </label>
@@ -466,7 +466,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           <div className="w-full">
             <label
               htmlFor="referral-partner"
-              className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-white mb-1.5"
             >
               Referral Partner
             </label>
@@ -550,7 +550,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
 
         {/* Birthday */}
         <div>
-          <label className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5">
+          <label className="block text-sm font-montserrat font-medium text-white mb-1.5">
             Birthday
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -615,7 +615,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
         <div className="w-full">
           <label
             htmlFor="contact-notes"
-            className="block text-sm font-montserrat font-medium text-navy dark:text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-white mb-1.5"
           >
             Notes
           </label>
@@ -628,11 +628,11 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
             disabled={loading}
             className={`
               w-full px-4 py-2.5 rounded-[8px]
-              bg-white dark:bg-dark-card
+              bg-[var(--lr-depth-1)]
               border border-gold/15
-              text-navy dark:text-white
+              text-white
               font-inter text-sm
-              placeholder:text-navy/40 dark:placeholder:text-white/40
+              placeholder:text-white/40
               focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
               transition-all duration-200 ease-in-out
               disabled:opacity-50 disabled:cursor-not-allowed

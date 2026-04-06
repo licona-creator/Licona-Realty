@@ -120,9 +120,9 @@ export function NotificationBell() {
         <div
           className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl shadow-lg border z-50"
           style={{
-            backgroundColor: BRAND.colors.white,
-            borderColor: BRAND.colors.gold + '30',
-            boxShadow: BRAND.design.shadow.light,
+            backgroundColor: 'var(--lr-depth-1)',
+            borderColor: 'rgba(255,255,255,0.06)',
+            boxShadow: BRAND.design.shadow.dark,
           }}
         >
           {/* Header */}
@@ -133,7 +133,7 @@ export function NotificationBell() {
             <h3
               className="text-sm font-semibold"
               style={{
-                color: BRAND.colors.navy,
+                color: '#ffffff',
                 fontFamily: BRAND.fonts.montserrat,
               }}
             >
@@ -161,14 +161,14 @@ export function NotificationBell() {
                 <button
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
-                  className="w-full text-left px-4 py-3 border-b last:border-b-0 transition-colors hover:bg-gray-50"
+                  className="w-full text-left px-4 py-3 border-b last:border-b-0 transition-colors hover:bg-white/5"
                   style={{ borderColor: BRAND.colors.gold + '10' }}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p
                       className="text-sm font-medium truncate"
                       style={{
-                        color: BRAND.colors.navy,
+                        color: '#ffffff',
                         fontFamily: BRAND.fonts.inter,
                       }}
                     >

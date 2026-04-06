@@ -76,7 +76,7 @@ const STAGE_COLORS: Record<string, string> = {
   closing: 'bg-gold/10 text-gold',
   closed: 'bg-emerald-500/10 text-emerald-600',
   lost: 'bg-red-500/10 text-red-600',
-  on_hold: 'bg-gray-500/10 text-gray-600',
+  on_hold: 'bg-white/10 text-white/60',
 };
 
 function sanitizeAIText(text: string): string {
@@ -256,18 +256,18 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
 
       {/* Panel */}
       <div
-        className="fixed top-0 right-0 bottom-0 z-[61] w-full sm:w-[420px] bg-white dark:bg-dark-card flex flex-col shadow-2xl animate-in slide-in-from-right duration-300"
+        className="fixed top-0 right-0 bottom-0 z-[61] w-full sm:w-[420px] bg-[var(--lr-depth-1)] flex flex-col shadow-2xl animate-in slide-in-from-right duration-300"
         style={{ maxHeight: '100vh' }}
       >
         {/* Header - sticky */}
-        <div className="flex items-start justify-between p-4 border-b border-gold/15 sticky top-0 z-10 bg-white dark:bg-dark-card" style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 12px)' }}>
+        <div className="flex items-start justify-between p-4 border-b border-gold/15 sticky top-0 z-10 bg-[var(--lr-depth-1)]" style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 12px)' }}>
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
               <Sparkles size={16} className="text-gold" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm font-montserrat font-semibold text-navy dark:text-white">
+                <h2 className="text-sm font-montserrat font-semibold text-white">
                   AI Assistant
                   {mode === 'contact' && contactName && <span className="text-gold"> - {contactName}</span>}
                 </h2>
@@ -287,7 +287,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
                   {modeConfig.label}
                 </span>
               </div>
-              <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-1">
+              <p className="text-[10px] text-white/40 font-inter mt-1">
                 {modeConfig.description}
               </p>
             </div>
@@ -295,7 +295,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded hover:bg-navy/5 dark:hover:bg-white/5 text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white transition-colors flex-shrink-0"
+            className="p-1.5 rounded hover:bg-white/5 text-white/40 hover:text-white transition-colors flex-shrink-0"
             style={{ marginTop: 'max(env(safe-area-inset-top, 0px), 0px)' }}
           >
             <X size={18} />
@@ -312,7 +312,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
                   key={action}
                   onClick={() => sendMessage(action)}
                   disabled={thinking}
-                  className="text-[11px] font-inter text-left px-2.5 py-2 rounded-lg border border-gold/20 text-navy/70 dark:text-white/70 hover:bg-gold/5 hover:border-gold/40 transition-colors disabled:opacity-50 min-h-[44px] flex items-center"
+                  className="text-[11px] font-inter text-left px-2.5 py-2 rounded-lg border border-gold/20 text-white/70 hover:bg-gold/5 hover:border-gold/40 transition-colors disabled:opacity-50 min-h-[44px] flex items-center"
                 >
                   {action}
                 </button>
@@ -326,7 +326,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
           {messages.length === 0 && !error && (
             <div className="text-center py-8">
               <Sparkles size={32} className="text-gold/40 mx-auto mb-3" />
-              <p className="text-sm text-navy/40 dark:text-white/40 font-inter">
+              <p className="text-sm text-white/40 font-inter">
                 {mode === 'contact'
                   ? `Ask me about ${contactName || 'this contact'}, or pick a quick action above.`
                   : mode === 'deal'
@@ -346,11 +346,11 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
                   className={`rounded-2xl px-3.5 py-2.5 text-sm font-inter break-words ${
                     msg.role === 'user'
                       ? 'bg-gold text-navy rounded-br-md'
-                      : 'bg-[#f4f4f4] dark:bg-navy/40 text-navy dark:text-white rounded-bl-md'
+                      : 'bg-white/10 text-white rounded-bl-md'
                   }`}
                 >
                   {msg.role === 'assistant' ? (
-                    <div className="ai-markdown prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:text-navy dark:prose-headings:text-white prose-strong:text-navy dark:prose-strong:text-white">
+                    <div className="ai-markdown prose prose-sm max-w-none prose-invert prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:text-white prose-strong:text-white">
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
                   ) : (
@@ -367,7 +367,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
                       className={`flex items-center gap-1 text-[10px] font-inter transition-colors ${
                         msg.saved
                           ? 'text-gold'
-                          : 'text-navy/25 dark:text-white/25 hover:text-gold'
+                          : 'text-white/25 hover:text-gold'
                       }`}
                       title={msg.saved ? 'Insight saved' : 'Save insight'}
                     >
@@ -383,7 +383,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
           {/* Thinking indicator */}
           {thinking && (
             <div className="flex justify-start">
-              <div className="bg-[#f4f4f4] dark:bg-navy/40 rounded-2xl rounded-bl-md px-4 py-3">
+              <div className="bg-white/10 rounded-2xl rounded-bl-md px-4 py-3">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 bg-gold/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-2 h-2 bg-gold/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -396,7 +396,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
           {/* Error */}
           {error && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 overflow-x-auto">
-              <p className="text-xs text-red-600 dark:text-red-400 font-inter whitespace-pre-wrap break-words">{error}</p>
+              <p className="text-xs text-red-400 font-inter whitespace-pre-wrap break-words">{error}</p>
               {error.includes('API key') && (
                 <p className="text-[10px] text-red-500/70 font-inter mt-1">
                   To enable your AI assistant, add your Anthropic API key in Vercel. Go to Vercel &gt; Settings &gt; Environment Variables &gt; Add ANTHROPIC_API_KEY
@@ -409,7 +409,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
         </div>
 
         {/* Input Area - sticky bottom */}
-        <div className="border-t border-gold/15 p-3 sticky bottom-0 z-10 bg-white dark:bg-dark-card" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
+        <div className="border-t border-gold/15 p-3 sticky bottom-0 z-10 bg-[var(--lr-depth-1)]" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
           <div className="flex items-center gap-2">
             <input
               ref={inputRef}
@@ -425,7 +425,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
                   : 'Ask about your pipeline, the market, or strategy...'
               }
               disabled={thinking}
-              className="flex-1 px-3 py-2.5 rounded-lg bg-surface dark:bg-navy/30 border border-gold/15 text-sm font-inter text-navy dark:text-white placeholder:text-navy/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-50 min-h-[44px]"
+              className="flex-1 px-3 py-2.5 rounded-lg bg-white/5 border border-gold/15 text-sm font-inter text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-50 min-h-[44px]"
             />
             <button
               type="button"
@@ -441,7 +441,7 @@ export function AIAssistantPanel({ open, onClose, mode = 'system', contactId, co
             <button
               type="button"
               onClick={clearChat}
-              className="flex items-center gap-1 text-[10px] text-navy/30 dark:text-white/30 hover:text-navy/50 dark:hover:text-white/50 font-inter mt-1.5 ml-1 transition-colors"
+              className="flex items-center gap-1 text-[10px] text-white/30 hover:text-white/50 font-inter mt-1.5 ml-1 transition-colors"
             >
               <Trash2 size={10} />
               Clear Chat

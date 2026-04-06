@@ -6,7 +6,7 @@ export default function AuthenticatedLoading() {
           className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin"
           style={{ borderColor: '#d3a971', borderTopColor: 'transparent' }}
         />
-        <span className="text-sm text-navy/40 dark:text-white/40 font-inter">
+        <span className="text-sm text-white/40 font-inter">
           Loading...
         </span>
       </div>

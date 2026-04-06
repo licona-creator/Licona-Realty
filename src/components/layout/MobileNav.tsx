@@ -35,10 +35,8 @@ export function MobileNav({ overdueCount = 0 }: MobileNavProps) {
   return (
     <nav
       data-testid="bottom-tab-bar"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-50"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 lr-glass-bottom"
       style={{
-        backgroundColor: '#132236',
-        borderTop: '1px solid rgba(211, 169, 113, 0.2)',
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >

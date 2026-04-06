@@ -439,10 +439,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 lg:mb-8">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-semibold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.playfair }}>
+          <h1 className="text-2xl lg:text-3xl font-semibold text-white" style={{ fontFamily: BRAND.fonts.playfair }}>
             {getGreeting()}, {displayName.split(' ')[0]}
           </h1>
-          <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
+          <p className="text-sm text-white/50 font-inter mt-1">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} &middot; {BRAND.tagline}
           </p>
         </div>
@@ -453,20 +453,20 @@ export default function DashboardPage() {
         {/* Mobile-only: compact metric pills row */}
         <div className="flex gap-2 overflow-x-auto pb-1 lg:hidden scrollbar-hide">
           <div className="flex-shrink-0 px-3 py-2 rounded-full bg-gold/10 border border-gold/20">
-            <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{formatMoney(pipelineValue)}</span>
+            <span className="text-xs font-montserrat font-semibold text-white">{formatMoney(pipelineValue)}</span>
           </div>
           <div className="flex-shrink-0 px-3 py-2 rounded-full bg-blue-500/10 border border-blue-500/20">
-            <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{data?.contacts.activeLeads || 0} Leads</span>
+            <span className="text-xs font-montserrat font-semibold text-white">{data?.contacts.activeLeads || 0} Leads</span>
           </div>
           <div className="flex-shrink-0 px-3 py-2 rounded-full bg-green-500/10 border border-green-500/20">
-            <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{activeDeals} {activeDeals === 1 ? 'Deal' : 'Deals'}</span>
+            <span className="text-xs font-montserrat font-semibold text-white">{activeDeals} {activeDeals === 1 ? 'Deal' : 'Deals'}</span>
           </div>
-          <div className="flex-shrink-0 px-3 py-2 rounded-full bg-surface dark:bg-navy/50 border border-navy/10 dark:border-white/10">
-            <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{contactTotal} Contacts</span>
+          <div className="flex-shrink-0 px-3 py-2 rounded-full bg-white/5 border border-white/10">
+            <span className="text-xs font-montserrat font-semibold text-white">{contactTotal} Contacts</span>
           </div>
           {nurtureThisWeek > 0 && (
             <div className="flex-shrink-0 px-3 py-2 rounded-full bg-gold/10 border border-gold/20">
-              <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">{'\uD83C\uDF82'} {nurtureThisWeek} this week</span>
+              <span className="text-xs font-montserrat font-semibold text-white">{'\uD83C\uDF82'} {nurtureThisWeek} this week</span>
             </div>
           )}
         </div>
@@ -491,14 +491,14 @@ export default function DashboardPage() {
                 >
                   <AlertTriangle size={16} className={isUrgent ? 'text-red-500 flex-shrink-0' : 'text-yellow-500 flex-shrink-0'} />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-montserrat font-semibold ${isUrgent ? 'text-red-600' : 'text-yellow-700 dark:text-yellow-400'}`}>
+                    <p className={`text-sm font-montserrat font-semibold ${isUrgent ? 'text-red-600' : 'text-yellow-400'}`}>
                       {days < 0 ? `${Math.abs(days)} ${Math.abs(days) === 1 ? 'day' : 'days'} overdue` : days === 0 ? 'Closing today' : `Closing in ${days} ${days === 1 ? 'day' : 'days'}`}
                     </p>
-                    <p className="text-xs font-inter text-navy/70 dark:text-white/70 truncate">
+                    <p className="text-xs font-inter text-white/70 truncate">
                       {tx.property_address} {closingDateStr && `- ${closingDateStr}`}
                     </p>
                   </div>
-                  <ChevronRight size={14} className="text-navy/30 dark:text-white/30 flex-shrink-0" />
+                  <ChevronRight size={14} className="text-white/30 flex-shrink-0" />
                 </a>
               );
             })}
@@ -522,14 +522,14 @@ export default function DashboardPage() {
                 >
                   <AlertTriangle size={16} className={isRed ? 'text-red-500 flex-shrink-0' : 'text-amber-500 flex-shrink-0'} />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-montserrat font-semibold ${isRed ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'}`}>
+                    <p className={`text-sm font-montserrat font-semibold ${isRed ? 'text-red-400' : 'text-amber-400'}`}>
                       {alert.address}: {alert.cmrUploaded} of {alert.cmrTotal} broker-required documents collected
                     </p>
-                    <p className="text-xs font-inter text-navy/70 dark:text-white/70">
+                    <p className="text-xs font-inter text-white/70">
                       {alert.daysToClose < 0 ? `${Math.abs(alert.daysToClose)} ${Math.abs(alert.daysToClose) === 1 ? 'day' : 'days'} overdue` : alert.daysToClose === 0 ? 'Closing today' : `Closing in ${alert.daysToClose} ${alert.daysToClose === 1 ? 'day' : 'days'}`}. {alert.missingCount} CMR-required {alert.missingCount === 1 ? 'doc' : 'docs'} still needed for payment.
                     </p>
                   </div>
-                  <ChevronRight size={14} className="text-navy/30 dark:text-white/30 flex-shrink-0" />
+                  <ChevronRight size={14} className="text-white/30 flex-shrink-0" />
                 </a>
               );
             })}
@@ -541,7 +541,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <Clock size={22} className={overdueCount > 0 ? 'text-red-500' : 'text-gold'} />
-              <h2 className="text-lg font-semibold font-montserrat text-navy dark:text-white">Follow-Ups</h2>
+              <h2 className="text-lg font-semibold font-montserrat text-white">Follow-Ups</h2>
               {overdueCount > 0 && <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">{overdueCount} overdue</span>}
             </div>
             {completedToday > 0 && (
@@ -579,7 +579,7 @@ export default function DashboardPage() {
                       return (
                         <div
                           key={c.id}
-                          className={`rounded-lg border-l-2 ${section.borderColor} border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 overflow-hidden`}
+                          className={`rounded-lg border-l-2 ${section.borderColor} border border-white/5 bg-white/5 overflow-hidden`}
                           style={{
                             transition: 'transform 200ms ease-out, opacity 200ms ease-out',
                             transform: isExiting ? 'translateX(-100%)' : 'translateX(0)',
@@ -597,7 +597,7 @@ export default function DashboardPage() {
                                   <div className="flex-1 min-w-0">
                                     {/* Line 1: Name + badges */}
                                     <div className="flex items-center gap-1.5 flex-wrap">
-                                      <span className="text-sm font-montserrat font-medium text-navy dark:text-white">{getDisplayName(c)}</span>
+                                      <span className="text-sm font-montserrat font-medium text-white">{getDisplayName(c)}</span>
                                       {c.engagement_temperature && (
                                         <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: TEMP_COLORS[c.engagement_temperature] || '#95a5a6' }} title={c.engagement_temperature} />
                                       )}
@@ -617,16 +617,16 @@ export default function DashboardPage() {
                                     )}
                                     {/* Line 3: Last activity context */}
                                     {c.last_activity_type ? (
-                                      <p className="text-xs font-inter text-navy/35 dark:text-white/35 mt-0.5">{actEmoji} {c.last_activity_type} {dirArrow} {daysSinceActivity} {daysSinceActivity === 1 ? 'day' : 'days'} ago</p>
+                                      <p className="text-xs font-inter text-white/35 mt-0.5">{actEmoji} {c.last_activity_type} {dirArrow} {daysSinceActivity} {daysSinceActivity === 1 ? 'day' : 'days'} ago</p>
                                     ) : (
-                                      <p className="text-xs font-inter text-navy/25 dark:text-white/25 mt-0.5">No previous contact</p>
+                                      <p className="text-xs font-inter text-white/25 mt-0.5">No previous contact</p>
                                     )}
                                     {/* Line 4: Deal indicator */}
                                     {c.deal_value && c.deal_value > 0 && (
                                       <p className="text-xs font-inter mt-0.5" style={{ color: '#d3a971' }}>{formatMoney(c.deal_value)} deal{c.deal_name ? ` - ${c.deal_name}` : ''}</p>
                                     )}
                                     {/* Line 5: DISC suggestion */}
-                                    <p className="text-xs font-inter text-navy/40 dark:text-white/40 mt-1 italic line-clamp-2">{suggestion}</p>
+                                    <p className="text-xs font-inter text-white/40 mt-1 italic line-clamp-2">{suggestion}</p>
                                   </div>
                                 </a>
                                 {/* Action buttons */}
@@ -644,10 +644,10 @@ export default function DashboardPage() {
                             <div className="p-3 space-y-2.5">
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 {['call', 'text', 'email', 'note'].map(t => (
-                                  <button key={t} type="button" onClick={() => setDoneForm(prev => ({ ...prev, [c.id]: { ...form, type: t } }))} className={`px-3 py-1.5 rounded-full text-xs font-montserrat font-semibold transition-colors capitalize ${form.type === t ? 'bg-navy text-white dark:bg-gold dark:text-navy' : 'bg-navy/5 dark:bg-white/10 text-navy/60 dark:text-white/60'}`}>{t}</button>
+                                  <button key={t} type="button" onClick={() => setDoneForm(prev => ({ ...prev, [c.id]: { ...form, type: t } }))} className={`px-3 py-1.5 rounded-full text-xs font-montserrat font-semibold transition-colors capitalize ${form.type === t ? 'bg-gold text-navy' : 'bg-white/10 text-white/60'}`}>{t}</button>
                                 ))}
                               </div>
-                              <input type="text" placeholder="Quick note..." value={form.note} onChange={e => setDoneForm(prev => ({ ...prev, [c.id]: { ...form, note: e.target.value } }))} className="w-full px-3 py-2 rounded-lg bg-white dark:bg-dark-card border border-navy/10 dark:border-white/10 text-sm font-inter text-navy dark:text-white placeholder:text-navy/30 dark:placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-gold/50" />
+                              <input type="text" placeholder="Quick note..." value={form.note} onChange={e => setDoneForm(prev => ({ ...prev, [c.id]: { ...form, note: e.target.value } }))} className="w-full px-3 py-2 rounded-lg bg-[var(--lr-depth-2)] border border-white/10 text-sm font-inter text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-gold/50" />
                               <div className="flex items-center gap-3">
                                 <button type="button" disabled={isLoading} onClick={async () => {
                                   const result = await handleAction(c.id, { action: 'done', activity_type: form.type, note: form.note || undefined });
@@ -658,7 +658,7 @@ export default function DashboardPage() {
                                     if (el) { el.textContent = `Logged. Next: ${dateStr}`; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
                                   }
                                 }} className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white disabled:opacity-50" style={{ backgroundColor: '#27ae60' }}>{isLoading ? 'Saving...' : 'Save'}</button>
-                                <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">Cancel</button>
+                                <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-white/40 hover:text-white">Cancel</button>
                               </div>
                             </div>
                           )}
@@ -666,7 +666,7 @@ export default function DashboardPage() {
                           {/* SNOOZE pills */}
                           {currentAction === 'snooze' && (
                             <div className="p-3 space-y-2.5">
-                              <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Snooze {c.first_name}</p>
+                              <p className="text-xs font-montserrat font-semibold text-white/60">Snooze {c.first_name}</p>
                               <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                                 {[{ label: 'Tomorrow', days: 1 }, { label: '3 Days', days: 3 }, { label: '1 Week', days: 7 }, { label: '2 Weeks', days: 14 }].map(opt => (
                                   <button key={opt.days} type="button" disabled={isLoading} onClick={async () => {
@@ -677,17 +677,17 @@ export default function DashboardPage() {
                                       const el = document.getElementById('fu-toast');
                                       if (el) { el.textContent = `Snoozed until ${dateStr}`; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
                                     }
-                                  }} className={`py-2.5 rounded-lg text-xs font-montserrat font-semibold transition-colors disabled:opacity-50 ${opt.days === getDefaultSnoozeDays(c.disc_type) ? 'bg-gold/20 text-gold border border-gold/30' : 'bg-navy/5 dark:bg-white/10 text-navy/60 dark:text-white/60'}`}>{opt.label}</button>
+                                  }} className={`py-2.5 rounded-lg text-xs font-montserrat font-semibold transition-colors disabled:opacity-50 ${opt.days === getDefaultSnoozeDays(c.disc_type) ? 'bg-gold/20 text-gold border border-gold/30' : 'bg-white/10 text-white/60'}`}>{opt.label}</button>
                                 ))}
                               </div>
-                              <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">Cancel</button>
+                              <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-white/40 hover:text-white">Cancel</button>
                             </div>
                           )}
 
                           {/* SKIP confirmation */}
                           {currentAction === 'skip' && (
                             <div className="p-3 space-y-2.5">
-                              <p className="text-xs font-montserrat font-semibold text-navy/60 dark:text-white/60">Remove follow-up for {c.first_name}?</p>
+                              <p className="text-xs font-montserrat font-semibold text-white/60">Remove follow-up for {c.first_name}?</p>
                               <div className="flex items-center gap-2">
                                 <button type="button" disabled={isLoading} onClick={async () => {
                                   const result = await handleAction(c.id, { action: 'skip', skip_type: '30days' });
@@ -698,7 +698,7 @@ export default function DashboardPage() {
                                   if (result !== null) { dismissCard(c.id); const el = document.getElementById('fu-toast'); if (el) { el.textContent = 'Follow-up removed'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); } }
                                 }} className="flex-1 py-2.5 rounded-lg text-xs font-montserrat font-semibold border border-red-500/30 text-red-500 disabled:opacity-50">Remove</button>
                               </div>
-                              <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-navy/40 dark:text-white/40 hover:text-navy dark:hover:text-white">Cancel</button>
+                              <button type="button" onClick={() => setActiveAction(prev => ({ ...prev, [c.id]: null }))} className="text-xs font-inter text-white/40 hover:text-white">Cancel</button>
                             </div>
                           )}
                         </div>
@@ -711,11 +711,11 @@ export default function DashboardPage() {
           ) : (
             <div className="flex flex-col items-center py-6 gap-2">
               <Check size={24} className="text-gold" />
-              <p className="text-sm font-montserrat font-semibold text-navy dark:text-white">All caught up</p>
+              <p className="text-sm font-montserrat font-semibold text-white">All caught up</p>
               {nextFuture ? (
-                <p className="text-xs font-inter text-navy/40 dark:text-white/40">Next follow-up: {nextFuture.name} on {formatSnoozeDate(nextFuture.date)}</p>
+                <p className="text-xs font-inter text-white/40">Next follow-up: {nextFuture.name} on {formatSnoozeDate(nextFuture.date)}</p>
               ) : (
-                <p className="text-xs font-inter text-navy/40 dark:text-white/40">No follow-ups scheduled</p>
+                <p className="text-xs font-inter text-white/40">No follow-ups scheduled</p>
               )}
             </div>
           )}
@@ -729,7 +729,7 @@ export default function DashboardPage() {
           <Card className="!p-4 sm:!p-6">
             <div className="flex items-center gap-3 mb-4">
               <Heart size={22} style={{ color: '#d3a971' }} />
-              <h2 className="text-lg font-semibold font-montserrat text-navy dark:text-white">Nurture</h2>
+              <h2 className="text-lg font-semibold font-montserrat text-white">Nurture</h2>
               {(milestonesData?.post_close_overdue || 0) > 0 && (
                 <span className="text-[10px] font-montserrat font-semibold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">
                   {milestonesData?.post_close_overdue} overdue
@@ -749,7 +749,7 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={key}
-                      className="rounded-lg border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 overflow-hidden"
+                      className="rounded-lg border border-white/5 bg-white/5 overflow-hidden"
                       style={{
                         transition: 'transform 200ms ease-out, opacity 200ms ease-out',
                         transform: isExiting ? 'translateX(-100%)' : 'translateX(0)',
@@ -761,7 +761,7 @@ export default function DashboardPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm">{'\uD83C\uDF82'}</span>
-                              <a href={`/contacts/${m.contact.id}`} className="text-sm font-montserrat font-medium text-navy dark:text-white hover:text-gold transition-colors">
+                              <a href={`/contacts/${m.contact.id}`} className="text-sm font-montserrat font-medium text-white hover:text-gold transition-colors">
                                 {m.contact.first_name}&apos;s birthday
                               </a>
                               <span
@@ -775,8 +775,8 @@ export default function DashboardPage() {
                               </span>
                             </div>
                             {m.message && (
-                              <div className="mt-2 p-3 rounded-lg text-sm font-inter text-navy/70 dark:text-white/70" style={{ backgroundColor: '#f4f4f4' }}>
-                                <span className="dark:text-navy/70">{m.message}</span>
+                              <div className="mt-2 p-3 rounded-lg text-sm font-inter text-white/70" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                                <span>{m.message}</span>
                               </div>
                             )}
                             <div className="flex items-center gap-2 mt-2">
@@ -821,7 +821,7 @@ export default function DashboardPage() {
                                     if (el) { el.textContent = 'Skipped'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
                                   }
                                 }}
-                                className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-navy/40 dark:text-white/40 bg-navy/5 dark:bg-white/10 disabled:opacity-50 min-h-[44px]"
+                                className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white/40 bg-white/10 disabled:opacity-50 min-h-[44px]"
                               >
                                 Skip
                               </button>
@@ -848,7 +848,7 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={key}
-                      className="rounded-lg border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 overflow-hidden"
+                      className="rounded-lg border border-white/5 bg-white/5 overflow-hidden"
                       style={{
                         transition: 'transform 200ms ease-out, opacity 200ms ease-out',
                         transform: isExiting ? 'translateX(-100%)' : 'translateX(0)',
@@ -861,13 +861,13 @@ export default function DashboardPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm">{'\uD83C\uDFE0'}</span>
-                              <a href={`/contacts/${m.contact.id}`} className="text-sm font-montserrat font-medium text-navy dark:text-white hover:text-gold transition-colors">
+                              <a href={`/contacts/${m.contact.id}`} className="text-sm font-montserrat font-medium text-white hover:text-gold transition-colors">
                                 {m.contact.first_name}
                               </a>
-                              <span className="text-xs font-inter text-navy/50 dark:text-white/50">- {m.milestone_label}</span>
+                              <span className="text-xs font-inter text-white/50">- {m.milestone_label}</span>
                             </div>
                             {shortAddr && (
-                              <p className="text-xs font-inter text-navy/40 dark:text-white/40 mt-0.5">{shortAddr}</p>
+                              <p className="text-xs font-inter text-white/40 mt-0.5">{shortAddr}</p>
                             )}
                             <span
                               className="text-[10px] font-montserrat font-semibold mt-0.5 inline-block"
@@ -876,8 +876,8 @@ export default function DashboardPage() {
                               {daysLabel}
                             </span>
                             {m.message && (
-                              <div className="mt-2 p-3 rounded-lg text-sm font-inter text-navy/70 dark:text-white/70" style={{ backgroundColor: '#f4f4f4' }}>
-                                <span className="dark:text-navy/70">{m.message}</span>
+                              <div className="mt-2 p-3 rounded-lg text-sm font-inter text-white/70" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                                <span>{m.message}</span>
                               </div>
                             )}
                             <div className="flex items-center gap-2 mt-2">
@@ -922,7 +922,7 @@ export default function DashboardPage() {
                                     if (el) { el.textContent = 'Skipped'; el.classList.remove('opacity-0'); setTimeout(() => el.classList.add('opacity-0'), 2500); }
                                   }
                                 }}
-                                className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-navy/40 dark:text-white/40 bg-navy/5 dark:bg-white/10 disabled:opacity-50 min-h-[44px]"
+                                className="px-4 py-2 rounded-lg text-xs font-montserrat font-semibold text-white/40 bg-white/10 disabled:opacity-50 min-h-[44px]"
                               >
                                 Skip
                               </button>
@@ -939,14 +939,14 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={key}
-                      className="rounded-lg border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 p-3"
+                      className="rounded-lg border border-white/5 bg-white/5 p-3"
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-sm">{'\uD83D\uDCC5'}</span>
-                        <span className="text-sm font-montserrat font-medium text-navy dark:text-white">{m.name}</span>
-                        <span className="text-[10px] font-montserrat font-semibold text-navy/50 dark:text-white/50">In {m.days_until} days</span>
+                        <span className="text-sm font-montserrat font-medium text-white">{m.name}</span>
+                        <span className="text-[10px] font-montserrat font-semibold text-white/50">In {m.days_until} days</span>
                       </div>
-                      <p className="text-xs font-inter text-navy/40 dark:text-white/40 mt-1 ml-6">
+                      <p className="text-xs font-inter text-white/40 mt-1 ml-6">
                         {totalContactsCount > 0 ? `${totalContactsCount} contacts to reach out to` : 'Holiday reminder'}
                       </p>
                     </div>
@@ -958,17 +958,17 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={key}
-                      className="rounded-lg border border-navy/5 dark:border-white/5 bg-surface dark:bg-navy/30 p-3"
+                      className="rounded-lg border border-white/5 bg-white/5 p-3"
                     >
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm">{'\u26A0\uFE0F'}</span>
-                        <a href={`/contacts/${m.contact.id}`} className="text-sm font-montserrat font-medium text-navy dark:text-white hover:text-gold transition-colors">
+                        <a href={`/contacts/${m.contact.id}`} className="text-sm font-montserrat font-medium text-white hover:text-gold transition-colors">
                           {m.contact.first_name}
                         </a>
-                        <span className="text-xs font-inter text-navy/40 dark:text-white/40">- {m.days_silent} days since last contact</span>
+                        <span className="text-xs font-inter text-white/40">- {m.days_silent} days since last contact</span>
                       </div>
                       {m.suggested_action && (
-                        <p className="text-xs font-inter text-navy/50 dark:text-white/50 mt-1 ml-6 italic">{m.suggested_action}</p>
+                        <p className="text-xs font-inter text-white/50 mt-1 ml-6 italic">{m.suggested_action}</p>
                       )}
                     </div>
                   );
@@ -999,7 +999,7 @@ export default function DashboardPage() {
         <Card className="!p-6">
           <div className="flex items-center gap-3 mb-4">
             <Calendar size={22} className="text-gold" />
-            <h2 className="text-lg font-semibold font-montserrat text-navy dark:text-white">Upcoming Events</h2>
+            <h2 className="text-lg font-semibold font-montserrat text-white">Upcoming Events</h2>
           </div>
           {upcomingEvents.length > 0 ? (
             <div className="space-y-2">
@@ -1007,14 +1007,14 @@ export default function DashboardPage() {
                 const evDate = new Date(ev.activity_date);
                 const contactName = ev.contacts ? getDisplayName(ev.contacts) : '';
                 return (
-                  <div key={ev.id} className="flex items-start gap-3 p-3 rounded-lg bg-surface dark:bg-navy/30">
+                  <div key={ev.id} className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
                     <div className="w-7 h-7 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Calendar size={12} className="text-gold" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-montserrat font-medium text-navy dark:text-white truncate">{ev.description}</p>
+                      <p className="text-sm font-montserrat font-medium text-white truncate">{ev.description}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-navy/50 dark:text-white/50 font-inter">
+                        <span className="text-xs text-white/50 font-inter">
                           {evDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at {evDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                         </span>
                         {contactName && (
@@ -1024,15 +1024,15 @@ export default function DashboardPage() {
                         )}
                       </div>
                     </div>
-                    <ChevronRight size={14} className="text-navy/20 dark:text-white/20 flex-shrink-0 mt-1" />
+                    <ChevronRight size={14} className="text-white/20 flex-shrink-0 mt-1" />
                   </div>
                 );
               })}
             </div>
           ) : googleConnected ? (
-            <p className="text-sm text-navy/50 dark:text-white/50 font-inter">No upcoming events. Events sync from Google Calendar every 6 hours.</p>
+            <p className="text-sm text-white/50 font-inter">No upcoming events. Events sync from Google Calendar every 6 hours.</p>
           ) : (
-            <p className="text-sm text-navy/50 dark:text-white/50 font-inter">
+            <p className="text-sm text-white/50 font-inter">
               Connect Google in <a href="/settings?tab=integrations" className="text-gold hover:underline">Settings</a> to see calendar events.
             </p>
           )}
@@ -1043,7 +1043,7 @@ export default function DashboardPage() {
           <Card className="!p-6">
             <div className="flex items-center gap-3 mb-4">
               <Send size={22} className="text-gold" />
-              <h2 className="text-lg font-semibold font-montserrat text-navy dark:text-white">Campaign Messages Due</h2>
+              <h2 className="text-lg font-semibold font-montserrat text-white">Campaign Messages Due</h2>
               <Badge variant="gold">{campaignMessages.length}</Badge>
             </div>
             <div className="space-y-2">
@@ -1055,16 +1055,16 @@ export default function DashboardPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{msg.contact_name}</p>
-                        <p className="text-xs text-navy/50 dark:text-white/50 font-inter">{msg.campaign_name} - Step {msg.current_step}</p>
+                        <p className="text-sm font-montserrat font-medium text-white">{msg.contact_name}</p>
+                        <p className="text-xs text-white/50 font-inter">{msg.campaign_name} - Step {msg.current_step}</p>
                       </div>
-                      <ChevronRight size={14} className={`text-navy/20 dark:text-white/20 transition-transform ${expandedCampaignId === msg.enrollment_id ? 'rotate-90' : ''}`} />
+                      <ChevronRight size={14} className={`text-white/20 transition-transform ${expandedCampaignId === msg.enrollment_id ? 'rotate-90' : ''}`} />
                     </div>
                   </button>
                   {expandedCampaignId === msg.enrollment_id && (
                     <div className="px-3 pb-3 space-y-2">
-                      <div className="p-3 rounded-lg bg-surface dark:bg-navy/30">
-                        <p className="text-sm font-inter text-navy/70 dark:text-white/70 whitespace-pre-wrap">{msg.message_content}</p>
+                      <div className="p-3 rounded-lg bg-white/5">
+                        <p className="text-sm font-inter text-white/70 whitespace-pre-wrap">{msg.message_content}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -1082,7 +1082,7 @@ export default function DashboardPage() {
                             });
                             fetchDashboard();
                           }}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-[8px] bg-navy text-white dark:bg-gold dark:text-navy text-xs font-montserrat font-medium hover:opacity-90 transition-colors"
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-[8px] bg-gold text-navy text-xs font-montserrat font-medium hover:opacity-90 transition-colors"
                         >
                           <Check size={12} /> Log and Advance
                         </button>
@@ -1099,23 +1099,23 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <DollarSign size={16} className="text-gold mb-1 lg:mb-2" />
-            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>{formatMoney(pipelineValue)}</p>
-            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Pipeline Value</p>
+            <p className="text-lg lg:text-2xl font-bold text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>{formatMoney(pipelineValue)}</p>
+            <p className="text-[10px] lg:text-xs text-white/50 font-inter">Pipeline Value</p>
           </Card>
           <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <Users size={16} className="text-gold mb-1 lg:mb-2" />
-            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{data?.contacts.activeLeads || 0}</p>
-            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Active Leads</p>
+            <p className="text-lg lg:text-2xl font-bold text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{data?.contacts.activeLeads || 0}</p>
+            <p className="text-[10px] lg:text-xs text-white/50 font-inter">Active Leads</p>
           </Card>
           <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <FileText size={16} className="text-gold mb-1 lg:mb-2" />
-            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{activeDeals}</p>
-            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Active Deals</p>
+            <p className="text-lg lg:text-2xl font-bold text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{activeDeals}</p>
+            <p className="text-[10px] lg:text-xs text-white/50 font-inter">Active Deals</p>
           </Card>
           <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <Users size={16} className="text-gold mb-1 lg:mb-2" />
-            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{contactTotal}</p>
-            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Total Contacts</p>
+            <p className="text-lg lg:text-2xl font-bold text-white" style={{ fontFamily: BRAND.fonts.dmSerif }}>{contactTotal}</p>
+            <p className="text-[10px] lg:text-xs text-white/50 font-inter">Total Contacts</p>
           </Card>
         </div>
 
@@ -1123,13 +1123,13 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 gap-4">
           <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <DollarSign size={16} className="text-green-500 mb-1 lg:mb-2" />
-            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>{formatMoney(data?.commissionYTD || 0)}</p>
-            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">YTD Income (Net)</p>
+            <p className="text-lg lg:text-2xl font-bold text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>{formatMoney(data?.commissionYTD || 0)}</p>
+            <p className="text-[10px] lg:text-xs text-white/50 font-inter">YTD Income (Net)</p>
           </Card>
           <Card className="!p-3 lg:!p-4 min-h-[80px]">
             <TrendingUp size={16} className="text-gold mb-1 lg:mb-2" />
-            <p className="text-lg lg:text-2xl font-bold text-navy dark:text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>{formatMoney(data?.commissionProjected || 0)}</p>
-            <p className="text-[10px] lg:text-xs text-navy/50 dark:text-white/50 font-inter">Projected (Active)</p>
+            <p className="text-lg lg:text-2xl font-bold text-white truncate" style={{ fontFamily: BRAND.fonts.dmSerif }}>{formatMoney(data?.commissionProjected || 0)}</p>
+            <p className="text-[10px] lg:text-xs text-white/50 font-inter">Projected (Active)</p>
           </Card>
         </div>
 
@@ -1139,7 +1139,7 @@ export default function DashboardPage() {
             <Card className="!p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Clock size={18} className="text-gold" />
-                <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">Recent Activity</h3>
+                <h3 className="text-sm font-montserrat font-semibold text-white/70">Recent Activity</h3>
               </div>
               {data?.recentActivities && data.recentActivities.length > 0 ? (
                 <div className="space-y-2">
@@ -1147,26 +1147,26 @@ export default function DashboardPage() {
                     const Icon = ACTIVITY_ICONS[a.activity_type] || Clock;
                     const contactName = a.contacts ? getDisplayName(a.contacts) : '';
                     return (
-                      <div key={a.id} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-surface dark:bg-navy/30">
+                      <div key={a.id} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/5">
                         <div className="w-7 h-7 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <Icon size={12} className="text-gold" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline justify-between gap-2">
-                            <p className="text-sm font-inter font-medium text-navy dark:text-white capitalize truncate">{a.activity_type}</p>
-                            <span className="text-[10px] text-navy/30 dark:text-white/30 font-inter flex-shrink-0 whitespace-nowrap">
+                            <p className="text-sm font-inter font-medium text-white capitalize truncate">{a.activity_type}</p>
+                            <span className="text-[10px] text-white/30 font-inter flex-shrink-0 whitespace-nowrap">
                               {new Date(a.activity_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                             </span>
                           </div>
-                          {contactName && <p className="text-xs text-navy/60 dark:text-white/60 font-inter truncate">{contactName}</p>}
-                          <p className="text-xs text-navy/40 dark:text-white/40 font-inter truncate">{a.description}</p>
+                          {contactName && <p className="text-xs text-white/60 font-inter truncate">{contactName}</p>}
+                          <p className="text-xs text-white/40 font-inter truncate">{a.description}</p>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-navy/50 dark:text-white/50 font-inter">No activities logged yet. Go to a contact and log your first activity.</p>
+                <p className="text-sm text-white/50 font-inter">No activities logged yet. Go to a contact and log your first activity.</p>
               )}
             </Card>
           </div>
@@ -1176,24 +1176,24 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Handshake size={18} className="text-gold" />
-                <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">Partners</h3>
+                <h3 className="text-sm font-montserrat font-semibold text-white/70">Partners</h3>
               </div>
               <a href="/partners" className="text-xs text-gold font-montserrat hover:underline">View All</a>
             </div>
             {data?.partners && data.partners.length > 0 ? (
               <div className="space-y-3">
                 {data.partners.map(p => (
-                  <a key={p.id} href={`/partners/${p.id}`} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-surface dark:hover:bg-navy/30 transition-colors touch-row">
+                  <a key={p.id} href={`/partners/${p.id}`} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-white/5 hover:bg-white/5 transition-colors touch-row">
                     <div>
-                      <p className="text-sm font-montserrat font-medium text-navy dark:text-white">{getDisplayName(p)}</p>
-                      <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter">{p.total_leads_sent} leads, {p.total_closings} closings</p>
+                      <p className="text-sm font-montserrat font-medium text-white">{getDisplayName(p)}</p>
+                      <p className="text-[10px] text-white/40 font-inter">{p.total_leads_sent} leads, {p.total_closings} closings</p>
                     </div>
                     <span className="text-xs font-inter text-gold font-medium">${(p.total_revenue_generated || 0).toLocaleString()}</span>
                   </a>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-navy/50 dark:text-white/50 font-inter">No referral partners yet. <a href="/partners" className="text-gold hover:underline">Add one</a></p>
+              <p className="text-sm text-white/50 font-inter">No referral partners yet. <a href="/partners" className="text-gold hover:underline">Add one</a></p>
             )}
           </Card>
 
@@ -1203,7 +1203,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <CheckCircle size={22} className="text-gold" />
-                  <h2 className="text-lg font-semibold font-montserrat text-navy dark:text-white">Approval Queue</h2>
+                  <h2 className="text-lg font-semibold font-montserrat text-white">Approval Queue</h2>
                   {approvalCount > 0 && <Badge count={approvalCount} variant="gold" />}
                   {data?.approvalQueue.hasOverdue && <Badge variant="danger">Overdue</Badge>}
                 </div>
@@ -1212,19 +1212,19 @@ export default function DashboardPage() {
               {approvalCount > 0 ? (
                 <div className="space-y-2">
                   {data!.approvalQueue.items.slice(0, 3).map(item => (
-                    <a key={item.id} href="/approval-queue" className="flex items-center justify-between p-3 rounded-lg bg-white/50 dark:bg-navy/30 hover:bg-white dark:hover:bg-navy/50 transition-colors">
+                    <a key={item.id} href="/approval-queue" className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                       <div className="flex items-center gap-3">
                         {item.is_overdue && <AlertTriangle size={14} className="text-red-500" />}
-                        <div><p className="text-sm font-montserrat font-medium text-navy dark:text-white">{item.subject || formatItemType(item.item_type)}</p><p className="text-xs text-navy/40 dark:text-white/40 font-inter">{formatItemType(item.item_type)}</p></div>
+                        <div><p className="text-sm font-montserrat font-medium text-white">{item.subject || formatItemType(item.item_type)}</p><p className="text-xs text-white/40 font-inter">{formatItemType(item.item_type)}</p></div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant={item.urgency_level === 1 ? 'danger' : item.urgency_level === 2 ? 'warning' : 'navy'}>P{item.urgency_level}</Badge>
-                        <ChevronRight size={14} className="text-navy/30 dark:text-white/30" />
+                        <ChevronRight size={14} className="text-white/30" />
                       </div>
                     </a>
                   ))}
                 </div>
-              ) : <p className="text-sm text-navy/50 dark:text-white/50 font-inter">No items waiting for your review.</p>}
+              ) : <p className="text-sm text-white/50 font-inter">No items waiting for your review.</p>}
             </Card>
           </div>
 
@@ -1234,19 +1234,19 @@ export default function DashboardPage() {
               <Card>
                 <div className="flex items-center gap-2 mb-4">
                   <Calendar size={18} className="text-gold" />
-                  <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">Upcoming Closings (Next 30 Days)</h3>
+                  <h3 className="text-sm font-montserrat font-semibold text-white/70">Upcoming Closings (Next 30 Days)</h3>
                   <Badge count={data.pipeline.upcomingClosings.length} variant="gold" />
                 </div>
                 <div className="space-y-2">
                   {data.pipeline.upcomingClosings.map(tx => {
                     const days = tx.closing_date ? Math.floor((new Date(tx.closing_date + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
                     return (
-                      <a key={tx.id} href={`/transactions/${tx.id}`} className="flex items-center justify-between p-3 rounded-lg bg-surface dark:bg-navy/30 hover:bg-gold/5 transition-colors touch-row">
-                        <div><p className="text-sm font-montserrat font-medium text-navy dark:text-white">{tx.property_address}</p><p className="text-xs text-navy/40 dark:text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'Price TBD'}</p></div>
+                      <a key={tx.id} href={`/transactions/${tx.id}`} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-gold/5 transition-colors touch-row">
+                        <div><p className="text-sm font-montserrat font-medium text-white">{tx.property_address}</p><p className="text-xs text-white/40 font-inter">{tx.contract_price ? `$${tx.contract_price.toLocaleString()}` : 'Price TBD'}</p></div>
                         <div className="flex items-center gap-2">
                           {days !== null && days <= 7 && <AlertTriangle size={12} className="text-red-500" />}
-                          <span className={`text-xs font-inter ${days !== null && days <= 7 ? 'text-red-500 font-semibold' : days !== null && days <= 14 ? 'text-gold' : 'text-navy/60 dark:text-white/60'}`}>{days !== null ? (days < 0 ? `${Math.abs(days)}d overdue` : `${days}d`) : 'TBD'}</span>
-                          <ChevronRight size={14} className="text-navy/30 dark:text-white/30" />
+                          <span className={`text-xs font-inter ${days !== null && days <= 7 ? 'text-red-500 font-semibold' : days !== null && days <= 14 ? 'text-gold' : 'text-white/60'}`}>{days !== null ? (days < 0 ? `${Math.abs(days)}d overdue` : `${days}d`) : 'TBD'}</span>
+                          <ChevronRight size={14} className="text-white/30" />
                         </div>
                       </a>
                     );
@@ -1260,7 +1260,7 @@ export default function DashboardPage() {
           <Card className="!p-5">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles size={18} style={{ color: '#d3a971' }} />
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">Contact Intelligence</h3>
+              <h3 className="text-sm font-montserrat font-semibold text-white/70">Contact Intelligence</h3>
             </div>
             <div className="flex items-center gap-4">
               <div className="relative flex-shrink-0" style={{ width: 64, height: 64 }}>
@@ -1274,11 +1274,11 @@ export default function DashboardPage() {
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-sm font-montserrat font-bold text-navy dark:text-white">{intelStats.profiled}/{intelStats.total}</span>
+                  <span className="text-sm font-montserrat font-bold text-white">{intelStats.profiled}/{intelStats.total}</span>
                 </div>
               </div>
               <div className="flex-1">
-                <p className="text-xs text-navy/50 dark:text-white/50 font-inter">contacts profiled</p>
+                <p className="text-xs text-white/50 font-inter">contacts profiled</p>
                 {intelStats.ready > 0 && (
                   <p className="text-xs font-inter mt-1" style={{ color: '#d3a971' }}>{intelStats.ready} ready for analysis</p>
                 )}
@@ -1313,10 +1313,10 @@ export default function DashboardPage() {
           <Card>
             <div className="flex items-center gap-2 mb-3">
               <Shield size={18} className="text-green-500" />
-              <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">Security Status</h3>
+              <h3 className="text-sm font-montserrat font-semibold text-white/70">Security Status</h3>
             </div>
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500" /><p className="text-sm text-navy/70 dark:text-white/70 font-inter">All systems secure</p></div>
-            <p className="text-xs text-navy/40 dark:text-white/40 font-inter mt-2">MFA active &middot; RLS enforced &middot; PII encrypted</p>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500" /><p className="text-sm text-white/70 font-inter">All systems secure</p></div>
+            <p className="text-xs text-white/40 font-inter mt-2">MFA active &middot; RLS enforced &middot; PII encrypted</p>
           </Card>
 
           {/* Intelligence */}
@@ -1325,13 +1325,13 @@ export default function DashboardPage() {
               <Card>
                 <div className="flex items-center gap-2 mb-4">
                   <Zap size={18} className="text-gold" />
-                  <h3 className="text-sm font-montserrat font-semibold text-navy/70 dark:text-white/70">Intelligence</h3>
+                  <h3 className="text-sm font-montserrat font-semibold text-white/70">Intelligence</h3>
                 </div>
                 <div className="space-y-2">
                   {data.intelligence.alerts.map((alert, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-surface dark:bg-navy/30">
+                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
                       {alert.severity === 'urgent' ? <AlertTriangle size={14} className="text-red-500 mt-0.5" /> : <Zap size={14} className="text-blue-500 mt-0.5" />}
-                      <div><p className="text-sm font-inter text-navy dark:text-white">{alert.message}</p><p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-0.5">{alert.category.replace(/_/g, ' ')}</p></div>
+                      <div><p className="text-sm font-inter text-white">{alert.message}</p><p className="text-[10px] text-white/40 font-inter mt-0.5">{alert.category.replace(/_/g, ' ')}</p></div>
                     </div>
                   ))}
                 </div>

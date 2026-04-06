@@ -41,8 +41,8 @@ interface HealthStatus {
 function StatusRow({ label, ok }: { label: string; ok: boolean }) {
   return (
     <div className="flex items-center gap-2">
-      <Check size={12} className={ok ? 'text-green-500' : 'text-gray-400'} />
-      <span className="text-xs text-navy/60 dark:text-white/60 font-inter">{label}</span>
+      <Check size={12} className={ok ? 'text-green-500' : 'text-white/40'} />
+      <span className="text-xs text-white/60 font-inter">{label}</span>
     </div>
   );
 }
@@ -143,7 +143,7 @@ export function Integrations() {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 size={24} className="animate-spin text-gold" />
-        <span className="ml-2 text-sm text-navy/50 dark:text-white/50 font-inter">Loading integrations...</span>
+        <span className="ml-2 text-sm text-white/50 font-inter">Loading integrations...</span>
       </div>
     );
   }
@@ -153,12 +153,12 @@ export function Integrations() {
       {/* Section Header */}
       <div>
         <h2
-          className="text-xl font-semibold text-navy dark:text-white"
+          className="text-xl font-semibold text-white"
           style={{ fontFamily: BRAND.fonts.playfair }}
         >
           Integrations
         </h2>
-        <p className="text-sm text-navy/50 dark:text-white/50 font-inter mt-1">
+        <p className="text-sm text-white/50 font-inter mt-1">
           Connect your accounts to enable email sync, calendar events, and more.
           Green means connected and verified.
         </p>
@@ -178,18 +178,18 @@ export function Integrations() {
                 <div className="flex items-center gap-2">
                   <Check size={14} className="text-green-500 flex-shrink-0" />
                   <div>
-                    <p className="text-xs text-green-700 dark:text-green-400 font-inter font-medium">
+                    <p className="text-xs text-green-400 font-inter font-medium">
                       Connected
                     </p>
                     {googleStatus.created_at && (
-                      <p className="text-[10px] text-green-600/60 dark:text-green-400/60 font-inter">
+                      <p className="text-[10px] text-green-400/60 font-inter">
                         Last connected: {new Date(googleStatus.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                       </p>
                     )}
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+              <p className="text-xs text-white/50 font-inter">
                 Gmail and Calendar syncing
               </p>
               <div className="space-y-1.5">
@@ -242,14 +242,14 @@ export function Integrations() {
             </>
           ) : (
             <>
-              <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+              <p className="text-xs text-white/50 font-inter">
                 Connect to sync emails and calendar events
               </p>
               <Button variant="accent" onClick={connectGoogle}>
                 <Globe size={14} className="mr-2" />
                 Connect Google
               </Button>
-              <p className="text-xs text-navy/60 dark:text-white/50 font-inter">
+              <p className="text-xs text-white/50 font-inter">
                 Scopes: gmail.readonly, calendar, calendar.events
               </p>
             </>
@@ -265,7 +265,7 @@ export function Integrations() {
         lastVerified="Always active"
       >
         <div className="space-y-3">
-          <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+          <p className="text-xs text-white/50 font-inter">
             Primary database - always active
           </p>
           <div className="space-y-1.5">
@@ -283,7 +283,7 @@ export function Integrations() {
         status={mapsConfigured ? 'connected' : 'partial'}
       >
         <div className="space-y-3">
-          <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+          <p className="text-xs text-white/50 font-inter">
             Address autocomplete for contacts and deals
           </p>
           {mapsConfigured ? (
@@ -292,7 +292,7 @@ export function Integrations() {
               <StatusRow label="Geocoding API" ok={true} />
             </div>
           ) : (
-            <p className="text-xs text-amber-600 dark:text-amber-400 font-inter">
+            <p className="text-xs text-amber-400 font-inter">
               Setup needed - configure NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
             </p>
           )}
@@ -306,13 +306,13 @@ export function Integrations() {
         status={aiConfigured ? 'connected' : 'partial'}
       >
         <div className="space-y-3">
-          <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+          <p className="text-xs text-white/50 font-inter">
             Powers contact intelligence and pipeline analysis
           </p>
           {aiConfigured ? (
             <StatusRow label="API key configured" ok={true} />
           ) : (
-            <p className="text-xs text-amber-600 dark:text-amber-400 font-inter">
+            <p className="text-xs text-amber-400 font-inter">
               API key needed - configure ANTHROPIC_API_KEY
             </p>
           )}
@@ -326,10 +326,10 @@ export function Integrations() {
         status="not_connected"
       >
         <div className="space-y-3">
-          <div className="inline-flex items-center px-2 py-1 rounded-full bg-navy/10 dark:bg-white/10">
-            <span className="text-[10px] text-navy/50 dark:text-white/50 font-montserrat font-medium">Coming soon</span>
+          <div className="inline-flex items-center px-2 py-1 rounded-full bg-white/10">
+            <span className="text-[10px] text-white/50 font-montserrat font-medium">Coming soon</span>
           </div>
-          <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+          <p className="text-xs text-white/50 font-inter">
             Deal document signing - Phase 3
           </p>
         </div>
@@ -342,10 +342,10 @@ export function Integrations() {
         status="not_connected"
       >
         <div className="space-y-3">
-          <div className="inline-flex items-center px-2 py-1 rounded-full bg-navy/10 dark:bg-white/10">
-            <span className="text-[10px] text-navy/50 dark:text-white/50 font-montserrat font-medium">Coming soon</span>
+          <div className="inline-flex items-center px-2 py-1 rounded-full bg-white/10">
+            <span className="text-[10px] text-white/50 font-montserrat font-medium">Coming soon</span>
           </div>
-          <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+          <p className="text-xs text-white/50 font-inter">
             Post analytics and KPI tracking - requires Meta Business verification
           </p>
         </div>

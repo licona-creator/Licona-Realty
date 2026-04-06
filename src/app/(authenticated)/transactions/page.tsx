@@ -129,7 +129,7 @@ export default function TransactionsPage() {
 
       {/* Deal List */}
       {filtered.length > 0 ? (
-        <div className="space-y-2">
+        <div className="space-y-2 stagger-children">
           {filtered.map(tx => {
             const days = tx.closing_date
               ? Math.floor((new Date(tx.closing_date + 'T00:00:00').getTime() - Date.now()) / 86400000)

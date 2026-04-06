@@ -22,7 +22,7 @@ const variantStyles = {
   accent:
     'bg-gold text-navy font-montserrat font-semibold hover:brightness-105',
   ghost:
-    'bg-transparent text-navy dark:text-white font-montserrat font-medium hover:bg-gold/10 border border-gold/15',
+    'bg-transparent text-white font-montserrat font-medium hover:bg-gold/10 border border-gold/15',
   danger:
     'bg-red-600 text-white font-montserrat font-semibold hover:bg-red-700',
 };

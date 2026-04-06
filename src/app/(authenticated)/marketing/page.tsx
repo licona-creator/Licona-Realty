@@ -417,7 +417,7 @@ export default function MarketingPage() {
       <div className="flex items-center gap-3 mb-6">
         <Megaphone size={24} className="text-gold" />
         <h1
-          className="text-2xl font-semibold text-navy dark:text-white"
+          className="text-2xl font-semibold text-white"
           style={{ fontFamily: BRAND.fonts.playfair }}
         >
           Marketing Hub
@@ -425,7 +425,7 @@ export default function MarketingPage() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex items-center gap-1 mb-6 bg-surface dark:bg-navy/50 rounded-lg p-1 overflow-x-auto w-fit max-w-full">
+      <div className="flex items-center gap-1 mb-6 bg-white/5 rounded-lg p-1 overflow-x-auto w-fit max-w-full">
         {tabs.map(tab => (
           <button
             type="button"
@@ -433,8 +433,8 @@ export default function MarketingPage() {
             onClick={() => setActiveTab(tab.key)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-montserrat font-medium transition-colors whitespace-nowrap ${
               activeTab === tab.key
-                ? 'bg-navy text-white dark:bg-gold dark:text-navy'
-                : 'text-navy/60 dark:text-white/60 hover:text-navy dark:hover:text-white'
+                ? 'bg-gold text-navy'
+                : 'text-white/60 hover:text-white'
             }`}
           >
             <tab.icon size={14} />
@@ -450,7 +450,7 @@ export default function MarketingPage() {
         <div className="space-y-6">
           {/* Platform selector */}
           <div>
-            <label className="block text-xs font-montserrat font-medium text-navy/60 dark:text-white/60 mb-2">
+            <label className="block text-xs font-montserrat font-medium text-white/60 mb-2">
               Platform
             </label>
             <div className="flex gap-2">
@@ -462,7 +462,7 @@ export default function MarketingPage() {
                     type="button"
                     key={p}
                     onClick={() => setSelectedPlatform(active ? null : p)}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-montserrat transition-colors text-navy dark:text-white ${
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg border text-sm font-montserrat transition-colors text-white ${
                       active ? 'border-gold bg-gold/10' : 'border-gold/20 hover:border-gold'
                     }`}
                   >
@@ -476,7 +476,7 @@ export default function MarketingPage() {
 
           {/* Content pillar cards */}
           <div>
-            <label className="block text-xs font-montserrat font-medium text-navy/60 dark:text-white/60 mb-2">
+            <label className="block text-xs font-montserrat font-medium text-white/60 mb-2">
               Content Pillar
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -492,15 +492,15 @@ export default function MarketingPage() {
                     className={`flex items-start gap-2.5 p-3 rounded-xl border text-left transition-all ${
                       active
                         ? 'border-gold bg-gold/10 shadow-sm'
-                        : 'border-gold/10 bg-white dark:bg-dark-card hover:border-gold/30'
+                        : 'border-gold/10 bg-[var(--lr-depth-2)] hover:border-gold/30'
                     }`}
                   >
                     <PillarIcon size={18} style={{ color: pillar.color }} className="flex-shrink-0 mt-0.5" />
                     <div className="min-w-0">
-                      <p className="text-xs font-montserrat font-semibold text-navy dark:text-white leading-tight">
+                      <p className="text-xs font-montserrat font-semibold text-white leading-tight">
                         {pillar.label}
                       </p>
-                      <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-0.5 line-clamp-2">
+                      <p className="text-[10px] text-white/40 font-inter mt-0.5 line-clamp-2">
                         {pillar.description}
                       </p>
                     </div>
@@ -513,10 +513,10 @@ export default function MarketingPage() {
           {/* Caption textarea */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-montserrat font-medium text-navy/60 dark:text-white/60">
+              <label className="text-xs font-montserrat font-medium text-white/60">
                 Caption
               </label>
-              <span className="text-[10px] font-inter text-navy/40 dark:text-white/40">
+              <span className="text-[10px] font-inter text-white/40">
                 {caption.length} characters
               </span>
             </div>
@@ -524,10 +524,10 @@ export default function MarketingPage() {
               rows={5}
               value={caption}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setCaption(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-white dark:bg-navy focus:border-gold focus:ring-1 focus:ring-gold/30 text-sm font-inter text-navy dark:text-white outline-none resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-navy focus:border-gold focus:ring-1 focus:ring-gold/30 text-sm font-inter text-white outline-none resize-none"
               placeholder="Write your caption or generate one with AI..."
             />
-            <p className="text-[10px] text-navy/40 dark:text-white/40 font-inter mt-1">
+            <p className="text-[10px] text-white/40 font-inter mt-1">
               Variables: {'{first_name}'}, {'{property_address}'}, {'{market_stat}'}
             </p>
           </div>
@@ -556,13 +556,13 @@ export default function MarketingPage() {
             <button
               type="button"
               onClick={prevMonth}
-              className="p-2 rounded-lg hover:bg-gold/10 transition-colors text-navy dark:text-white"
+              className="p-2 rounded-lg hover:bg-gold/10 transition-colors text-white"
               aria-label="Previous month"
             >
               <ChevronLeft size={20} />
             </button>
             <h2
-              className="text-lg font-semibold text-navy dark:text-white"
+              className="text-lg font-semibold text-white"
               style={{ fontFamily: BRAND.fonts.playfair }}
             >
               {MONTH_NAMES[calMonth]} {calYear}
@@ -570,7 +570,7 @@ export default function MarketingPage() {
             <button
               type="button"
               onClick={nextMonth}
-              className="p-2 rounded-lg hover:bg-gold/10 transition-colors text-navy dark:text-white"
+              className="p-2 rounded-lg hover:bg-gold/10 transition-colors text-white"
               aria-label="Next month"
             >
               <ChevronRight size={20} />
@@ -584,7 +584,7 @@ export default function MarketingPage() {
               {DAY_LABELS.map(d => (
                 <div
                   key={d}
-                  className="text-center text-[10px] font-montserrat font-semibold text-navy/50 dark:text-white/50 py-1"
+                  className="text-center text-[10px] font-montserrat font-semibold text-white/50 py-1"
                 >
                   {d}
                 </div>
@@ -607,11 +607,11 @@ export default function MarketingPage() {
                     type="button"
                     key={day}
                     onClick={() => setSelectedDay(isSelected ? null : day)}
-                    className={`relative h-12 sm:h-16 rounded-lg text-xs font-inter transition-colors text-navy dark:text-white ${
+                    className={`relative h-12 sm:h-16 rounded-lg text-xs font-inter transition-colors text-white ${
                       isSelected
                         ? 'bg-gold/15 border border-gold'
                         : isToday
-                          ? 'bg-navy/5 dark:bg-white/5 border border-gold/30'
+                          ? 'bg-white/5 border border-gold/30'
                           : 'hover:bg-gold/5 border border-transparent'
                     }`}
                   >
@@ -634,7 +634,7 @@ export default function MarketingPage() {
           {selectedDay !== null && (
             <Card className="!p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-montserrat font-semibold text-navy dark:text-white">
+                <h3 className="text-sm font-montserrat font-semibold text-white">
                   {MONTH_NAMES[calMonth]} {selectedDay}, {calYear}
                 </h3>
                 <Button
@@ -654,21 +654,21 @@ export default function MarketingPage() {
                   {postsForDay(selectedDay).map(post => (
                     <div
                       key={post.id}
-                      className="flex items-start gap-2 p-2 rounded-lg bg-surface dark:bg-navy/50"
+                      className="flex items-start gap-2 p-2 rounded-lg bg-white/5"
                     >
                       {post.platform === 'instagram' ? (
                         <Instagram size={14} className="text-pink-500 mt-0.5 flex-shrink-0" />
                       ) : (
                         <Facebook size={14} className="text-blue-600 mt-0.5 flex-shrink-0" />
                       )}
-                      <p className="text-xs font-inter text-navy dark:text-white line-clamp-2">
+                      <p className="text-xs font-inter text-white line-clamp-2">
                         {post.caption}
                       </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-navy/40 dark:text-white/40 font-inter">
+                <p className="text-xs text-white/40 font-inter">
                   No posts scheduled for this day.
                 </p>
               )}
@@ -684,7 +684,7 @@ export default function MarketingPage() {
         <div className="space-y-6">
           {/* Content metrics */}
           <div>
-            <h3 className="text-sm font-montserrat font-semibold text-navy dark:text-white mb-3">
+            <h3 className="text-sm font-montserrat font-semibold text-white mb-3">
               Content Metrics
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -697,12 +697,12 @@ export default function MarketingPage() {
                 <Card key={stat.label} className="!p-4">
                   <stat.icon size={16} className={`${stat.color} mb-2`} />
                   <p
-                    className="text-2xl font-bold text-navy dark:text-white"
+                    className="text-2xl font-bold text-white"
                     style={{ fontFamily: BRAND.fonts.dmSerif }}
                   >
                     {stat.value}
                   </p>
-                  <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+                  <p className="text-xs text-white/50 font-inter">
                     {stat.label}
                   </p>
                 </Card>
@@ -712,7 +712,7 @@ export default function MarketingPage() {
 
           {/* SEO metrics */}
           <div>
-            <h3 className="text-sm font-montserrat font-semibold text-navy dark:text-white mb-3">
+            <h3 className="text-sm font-montserrat font-semibold text-white mb-3">
               SEO Metrics
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -724,12 +724,12 @@ export default function MarketingPage() {
                 <Card key={stat.label} className="!p-4">
                   <stat.icon size={16} className={`${stat.color} mb-2`} />
                   <p
-                    className="text-2xl font-bold text-navy dark:text-white"
+                    className="text-2xl font-bold text-white"
                     style={{ fontFamily: BRAND.fonts.dmSerif }}
                   >
                     {stat.value}
                   </p>
-                  <p className="text-xs text-navy/50 dark:text-white/50 font-inter">
+                  <p className="text-xs text-white/50 font-inter">
                     {stat.label}
                   </p>
                 </Card>
@@ -746,18 +746,18 @@ export default function MarketingPage() {
         <div className="space-y-6">
           {/* Add new idea */}
           <Card className="!p-4">
-            <h3 className="text-sm font-montserrat font-semibold text-navy dark:text-white mb-3">
+            <h3 className="text-sm font-montserrat font-semibold text-white mb-3">
               Save a Content Idea
             </h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-montserrat font-medium text-navy/60 dark:text-white/60 mb-1">
+                <label className="block text-xs font-montserrat font-medium text-white/60 mb-1">
                   Pillar
                 </label>
                 <select
                   value={newIdeaPillar}
                   onChange={(e: ChangeEvent<HTMLSelectElement>) => setNewIdeaPillar(e.target.value as ContentPillar)}
-                  className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-white dark:bg-navy text-sm font-inter text-navy dark:text-white outline-none focus:border-gold"
+                  className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-navy text-sm font-inter text-white outline-none focus:border-gold"
                 >
                   {ALL_PILLARS.map(k => (
                     <option key={k} value={k}>{PILLAR_MAP[k].label}</option>
@@ -769,7 +769,7 @@ export default function MarketingPage() {
                 value={newIdeaText}
                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setNewIdeaText(e.target.value)}
                 placeholder="Write your content idea or caption template..."
-                className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-white dark:bg-navy text-sm font-inter text-navy dark:text-white outline-none resize-none focus:border-gold"
+                className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-navy text-sm font-inter text-white outline-none resize-none focus:border-gold"
               />
               <Button variant="accent" size="sm" onClick={addIdea} disabled={!newIdeaText.trim()}>
                 <Plus size={14} />
@@ -790,17 +790,17 @@ export default function MarketingPage() {
             </Button>
             {showAiIdeas && (
               <Card className="!p-4 mt-3">
-                <h4 className="text-xs font-montserrat font-semibold text-navy dark:text-white mb-3">
+                <h4 className="text-xs font-montserrat font-semibold text-white mb-3">
                   AI-Generated Post Ideas
                 </h4>
                 <div className="space-y-2">
                   {AI_IDEAS.map((idea, i) => (
                     <div
                       key={i}
-                      className="flex items-start gap-2 p-2 rounded-lg bg-surface dark:bg-navy/50"
+                      className="flex items-start gap-2 p-2 rounded-lg bg-white/5"
                     >
                       <Sparkles size={12} className="text-gold mt-0.5 flex-shrink-0" />
-                      <p className="text-xs font-inter text-navy dark:text-white">{idea}</p>
+                      <p className="text-xs font-inter text-white">{idea}</p>
                     </div>
                   ))}
                 </div>
@@ -810,7 +810,7 @@ export default function MarketingPage() {
 
           {/* Caption templates by pillar */}
           <div>
-            <h3 className="text-sm font-montserrat font-semibold text-navy dark:text-white mb-3">
+            <h3 className="text-sm font-montserrat font-semibold text-white mb-3">
               Pre-Built Caption Templates
             </h3>
             <div className="space-y-4">
@@ -821,7 +821,7 @@ export default function MarketingPage() {
                   <Card key={pillarKey} className="!p-4">
                     <div className="flex items-center gap-2 mb-3">
                       <PillarIcon size={14} style={{ color: pillar.color }} />
-                      <span className="text-xs font-montserrat font-semibold text-navy dark:text-white">
+                      <span className="text-xs font-montserrat font-semibold text-white">
                         {pillar.label}
                       </span>
                     </div>
@@ -829,7 +829,7 @@ export default function MarketingPage() {
                       {PILLAR_CAPTIONS[pillarKey].map((tmpl, i) => (
                         <p
                           key={i}
-                          className="text-xs font-inter text-navy/70 dark:text-white/70 p-2 rounded-lg bg-surface dark:bg-navy/50 leading-relaxed"
+                          className="text-xs font-inter text-white/70 p-2 rounded-lg bg-white/5 leading-relaxed"
                         >
                           {tmpl}
                         </p>
@@ -844,7 +844,7 @@ export default function MarketingPage() {
           {/* Saved ideas */}
           {libraryIdeas.length > 0 && (
             <div>
-              <h3 className="text-sm font-montserrat font-semibold text-navy dark:text-white mb-3">
+              <h3 className="text-sm font-montserrat font-semibold text-white mb-3">
                 Your Saved Ideas
               </h3>
               <div className="space-y-3">
@@ -859,7 +859,7 @@ export default function MarketingPage() {
                           rows={3}
                           value={editingText}
                           onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setEditingText(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-white dark:bg-navy text-sm font-inter text-navy dark:text-white outline-none resize-none focus:border-gold"
+                          className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-navy text-sm font-inter text-white outline-none resize-none focus:border-gold"
                         />
                         <div className="flex gap-2">
                           <Button variant="accent" size="sm" onClick={() => saveEdit(idea.id)}>
@@ -872,7 +872,7 @@ export default function MarketingPage() {
                       </div>
                     ) : (
                       <>
-                        <p className="text-xs font-inter text-navy/70 dark:text-white/70 mb-2 leading-relaxed">
+                        <p className="text-xs font-inter text-white/70 mb-2 leading-relaxed">
                           {idea.caption}
                         </p>
                         <div className="flex gap-2">
