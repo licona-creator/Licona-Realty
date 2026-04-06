@@ -249,8 +249,8 @@ export function PlatformPreferences() {
               onChange={(e) => setUiLanguage(e.target.value as 'en' | 'es')}
               className="text-sm font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-3 py-1.5"
             >
-              <option value="en">English</option>
-              <option value="es">Spanish</option>
+              <option value="en" className="bg-[#132236] text-white">English</option>
+              <option value="es" className="bg-[#132236] text-white">Spanish</option>
             </select>
           </div>
           <div className="flex items-center gap-4">
@@ -260,9 +260,9 @@ export function PlatformPreferences() {
               onChange={(e) => setContentLanguage(e.target.value as 'en_first' | 'es_first' | 'match')}
               className="text-sm font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-3 py-1.5"
             >
-              <option value="en_first">English first</option>
-              <option value="es_first">Spanish first</option>
-              <option value="match">Match contact preference</option>
+              <option value="en_first" className="bg-[#132236] text-white">English first</option>
+              <option value="es_first" className="bg-[#132236] text-white">Spanish first</option>
+              <option value="match" className="bg-[#132236] text-white">Match contact preference</option>
             </select>
           </div>
         </div>
@@ -282,10 +282,10 @@ export function PlatformPreferences() {
               onChange={(e) => setTimezone(e.target.value)}
               className="text-sm font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-3 py-1.5"
             >
-              <option value="America/Chicago">Central Time (CT) - Dallas/Fort Worth</option>
-              <option value="America/New_York">Eastern Time (ET)</option>
-              <option value="America/Denver">Mountain Time (MT)</option>
-              <option value="America/Los_Angeles">Pacific Time (PT)</option>
+              <option value="America/Chicago" className="bg-[#132236] text-white">Central Time (CT) - Dallas/Fort Worth</option>
+              <option value="America/New_York" className="bg-[#132236] text-white">Eastern Time (ET)</option>
+              <option value="America/Denver" className="bg-[#132236] text-white">Mountain Time (MT)</option>
+              <option value="America/Los_Angeles" className="bg-[#132236] text-white">Pacific Time (PT)</option>
             </select>
           </div>
           <div className="flex items-center gap-4">
@@ -366,9 +366,9 @@ export function PlatformPreferences() {
                 onChange={(e) => setDuplicateDetection(e.target.value as 'strict' | 'moderate' | 'off')}
                 className="text-sm font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-3 py-1.5"
               >
-                <option value="strict">Strict (flag any matching phone or email)</option>
-                <option value="moderate">Moderate (flag exact matches only)</option>
-                <option value="off">Off</option>
+                <option value="strict" className="bg-[#132236] text-white">Strict (flag any matching phone or email)</option>
+                <option value="moderate" className="bg-[#132236] text-white">Moderate (flag exact matches only)</option>
+                <option value="off" className="bg-[#132236] text-white">Off</option>
               </select>
             </div>
           </div>

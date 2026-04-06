@@ -29,7 +29,7 @@ interface ReferredTransaction {
   closing_date: string | null; contact_id: string;
 }
 
-const selectClassName = `w-full px-4 py-2.5 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 ease-in-out appearance-none`;
+const selectClassName = `w-full px-4 py-3 rounded-xl bg-[var(--lr-depth-1)] border border-[rgba(255,255,255,0.1)] text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971] transition-all duration-200 ease-in-out appearance-none`;
 
 export default function PartnerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -220,7 +220,7 @@ export default function PartnerDetailPage() {
             <Input label="Email" value={editForm.email || ''} onChange={e => setEditForm(p => ({ ...p, email: e.target.value }))} disabled={saving} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Language</label><select value={editForm.language_preference || 'spanish'} onChange={e => setEditForm(p => ({ ...p, language_preference: e.target.value }))} className={selectClassName} disabled={saving}><option value="spanish">Spanish</option><option value="english">English</option><option value="bilingual">Bilingual</option></select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Language</label><select value={editForm.language_preference || 'spanish'} onChange={e => setEditForm(p => ({ ...p, language_preference: e.target.value }))} className={selectClassName} disabled={saving}><option value="spanish" className="bg-[#132236] text-white">Spanish</option><option value="english" className="bg-[#132236] text-white">English</option><option value="bilingual" className="bg-[#132236] text-white">Bilingual</option></select></div>
             <Input label="Fee Structure" value={editForm.referral_fee_structure || ''} onChange={e => setEditForm(p => ({ ...p, referral_fee_structure: e.target.value }))} disabled={saving} />
           </div>
           <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Notes</label><textarea rows={3} value={editForm.notes || ''} onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))} className={`${selectClassName} resize-none`} disabled={saving} /></div>

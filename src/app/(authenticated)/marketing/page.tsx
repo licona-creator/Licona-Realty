@@ -760,7 +760,7 @@ export default function MarketingPage() {
                   className="w-full px-3 py-2 rounded-lg border border-gold/20 bg-navy text-sm font-inter text-white outline-none focus:border-gold"
                 >
                   {ALL_PILLARS.map(k => (
-                    <option key={k} value={k}>{PILLAR_MAP[k].label}</option>
+                    <option key={k} value={k} className="bg-[#132236] text-white">{PILLAR_MAP[k].label}</option>
                   ))}
                 </select>
               </div>

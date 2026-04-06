@@ -166,9 +166,9 @@ export function CampaignDefaults() {
                 onChange={(e) => setLanguages({ ...languages, [track]: e.target.value })}
                 className="text-sm font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-3 py-1.5 flex-1 max-w-xs"
               >
-                <option value="english">English</option>
-                <option value="spanish">Spanish</option>
-                <option value="ask">Ask on each contact</option>
+                <option value="english" className="bg-[#132236] text-white">English</option>
+                <option value="spanish" className="bg-[#132236] text-white">Spanish</option>
+                <option value="ask" className="bg-[#132236] text-white">Ask on each contact</option>
               </select>
             </div>
           ))}
@@ -195,7 +195,7 @@ export function CampaignDefaults() {
                 className="text-sm font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-3 py-1.5 flex-1 max-w-xs"
               >
                 {TONE_OPTIONS.map((tone) => (
-                  <option key={tone} value={tone}>{tone}</option>
+                  <option key={tone} value={tone} className="bg-[#132236] text-white">{tone}</option>
                 ))}
               </select>
             </div>

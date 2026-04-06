@@ -828,9 +828,9 @@ function MarketTab({
               border: `1px solid rgba(211,169,113,0.2)`,
             }}
           >
-            <option value="" style={{ backgroundColor: BRAND.colors.primary }}>Choose zip...</option>
+            <option value="" style={{ backgroundColor: BRAND.colors.primary }} className="bg-[#132236] text-white">Choose zip...</option>
             {zipCodes.sort().map(zip => (
-              <option key={zip} value={zip} style={{ backgroundColor: BRAND.colors.primary }}>{zip}</option>
+              <option key={zip} value={zip} style={{ backgroundColor: BRAND.colors.primary }} className="bg-[#132236] text-white">{zip}</option>
             ))}
           </select>
           <div className="flex gap-1">

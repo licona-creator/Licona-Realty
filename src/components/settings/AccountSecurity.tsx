@@ -341,10 +341,10 @@ export function AccountSecurity() {
               onChange={(e) => setSessionExpiry(Number(e.target.value))}
               className="text-xs font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-2 py-1.5"
             >
-              <option value={4}>4 hours</option>
-              <option value={8}>8 hours</option>
-              <option value={12}>12 hours</option>
-              <option value={24}>24 hours</option>
+              <option value={4} className="bg-[#132236] text-white">4 hours</option>
+              <option value={8} className="bg-[#132236] text-white">8 hours</option>
+              <option value={12} className="bg-[#132236] text-white">12 hours</option>
+              <option value={24} className="bg-[#132236] text-white">24 hours</option>
             </select>
           </div>
         </div>
@@ -368,11 +368,11 @@ export function AccountSecurity() {
             />
           </div>
           <select className="text-xs font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-2 py-2">
-            <option>All Events</option>
-            <option>Logins</option>
-            <option>Settings Changes</option>
-            <option>Security Events</option>
-            <option>Data Exports</option>
+            <option className="bg-[#132236] text-white">All Events</option>
+            <option className="bg-[#132236] text-white">Logins</option>
+            <option className="bg-[#132236] text-white">Settings Changes</option>
+            <option className="bg-[#132236] text-white">Security Events</option>
+            <option className="bg-[#132236] text-white">Data Exports</option>
           </select>
           <Button size="sm" variant="ghost" onClick={() => info('MFA Verification Required', 'Re-verification required before exporting audit log data.')}>
             <Download size={12} className="mr-1" />

@@ -187,13 +187,13 @@ export function AddressAutocomplete({
   }, [loaded]);
 
   const inputClassName = className || `
-    w-full px-4 py-2.5 rounded-[8px]
-    bg-dark-card
-    border border-gold/15
+    w-full px-4 py-3 rounded-xl
+    bg-[var(--lr-depth-1)]
+    border border-[rgba(255,255,255,0.1)]
     text-white
     font-inter text-sm
     placeholder:text-white/40
-    focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
+    focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971]
     transition-all duration-200 ease-in-out
     disabled:opacity-50 disabled:cursor-not-allowed
   `.replace(/\n\s+/g, ' ').trim();
@@ -201,8 +201,8 @@ export function AddressAutocomplete({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-montserrat font-medium text-white mb-1.5">
-          {label}
+        <label className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5">
+          {label?.endsWith(' *') ? <>{label.slice(0, -2)}<span className="text-[#d3a971] ml-0.5">*</span></> : label}
         </label>
       )}
       <input

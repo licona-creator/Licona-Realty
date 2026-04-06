@@ -227,7 +227,7 @@ export function Notifications() {
               className="text-sm font-inter rounded-[8px] border border-gold/15 bg-white/5 text-white px-3 py-1.5"
             >
               {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((d) => (
-                <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
+                <option key={d} value={d} className="bg-[#132236] text-white">{d.charAt(0).toUpperCase() + d.slice(1)}</option>
               ))}
             </select>
           </div>

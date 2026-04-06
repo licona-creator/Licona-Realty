@@ -163,12 +163,12 @@ const INITIAL_FORM: FormData = {
 };
 
 const selectClassName = `
-  w-full px-4 py-2.5 rounded-[8px]
+  w-full px-4 py-3 rounded-xl
   bg-[var(--lr-depth-1)]
-  border border-gold/15
+  border border-[rgba(255,255,255,0.1)]
   text-white
   font-inter text-sm
-  focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
+  focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971]
   transition-all duration-200 ease-in-out
   disabled:opacity-50 disabled:cursor-not-allowed
   appearance-none
@@ -353,7 +353,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           <div className="w-full">
             <label
               htmlFor="track-type"
-              className="block text-sm font-montserrat font-medium text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
             >
               Track Type
             </label>
@@ -365,7 +365,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
               disabled={loading}
             >
               {TRACK_TYPE_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>
+                <option key={opt.value} value={opt.value} className="bg-[#132236] text-white">
                   {opt.label}
                 </option>
               ))}
@@ -374,7 +374,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           <div className="w-full">
             <label
               htmlFor="pipeline-stage"
-              className="block text-sm font-montserrat font-medium text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
             >
               Pipeline Stage
             </label>
@@ -386,7 +386,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
               disabled={loading}
             >
               {availableStages.map(opt => (
-                <option key={opt.value} value={opt.value}>
+                <option key={opt.value} value={opt.value} className="bg-[#132236] text-white">
                   {opt.label}
                 </option>
               ))}
@@ -417,7 +417,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           <div className="w-full">
             <label
               htmlFor="lead-source"
-              className="block text-sm font-montserrat font-medium text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
             >
               Lead Source
             </label>
@@ -429,14 +429,14 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
               disabled={loading}
             >
               {LEAD_SOURCES.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value} className="bg-[#132236] text-white">{opt.label}</option>
               ))}
             </select>
           </div>
           <div className="w-full">
             <label
               htmlFor="language-pref"
-              className="block text-sm font-montserrat font-medium text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
             >
               Language
             </label>
@@ -448,7 +448,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
               disabled={loading}
             >
               {LANGUAGE_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value} className="bg-[#132236] text-white">{opt.label}</option>
               ))}
             </select>
           </div>
@@ -466,7 +466,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
           <div className="w-full">
             <label
               htmlFor="referral-partner"
-              className="block text-sm font-montserrat font-medium text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
             >
               Referral Partner
             </label>
@@ -477,9 +477,9 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
               className={selectClassName}
               disabled={loading}
             >
-              <option value="">None</option>
+              <option value="" className="bg-[#132236] text-white">None</option>
               {partners.map(p => (
-                <option key={p.id} value={p.id}>{getDisplayName(p)}</option>
+                <option key={p.id} value={p.id} className="bg-[#132236] text-white">{getDisplayName(p)}</option>
               ))}
             </select>
           </div>
@@ -550,7 +550,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
 
         {/* Birthday */}
         <div>
-          <label className="block text-sm font-montserrat font-medium text-white mb-1.5">
+          <label className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5">
             Birthday
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -565,9 +565,9 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
               className={selectClassName}
               disabled={loading}
             >
-              <option value="">Month</option>
+              <option value="" className="bg-[#132236] text-white">Month</option>
               {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((label, i) => (
-                <option key={i + 1} value={i + 1}>{label}</option>
+                <option key={i + 1} value={i + 1} className="bg-[#132236] text-white">{label}</option>
               ))}
             </select>
             <select
@@ -576,9 +576,9 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
               className={selectClassName}
               disabled={loading}
             >
-              <option value="">Day</option>
+              <option value="" className="bg-[#132236] text-white">Day</option>
               {Array.from({ length: form.birthday_month ? [31,29,31,30,31,30,31,31,30,31,30,31][Number(form.birthday_month) - 1] : 31 }, (_, i) => (
-                <option key={i + 1} value={i + 1}>{i + 1}</option>
+                <option key={i + 1} value={i + 1} className="bg-[#132236] text-white">{i + 1}</option>
               ))}
             </select>
             <Input
@@ -615,7 +615,7 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
         <div className="w-full">
           <label
             htmlFor="contact-notes"
-            className="block text-sm font-montserrat font-medium text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
           >
             Notes
           </label>
@@ -627,13 +627,13 @@ export function AddContactModal({ open, onClose, onSuccess }: AddContactModalPro
             onChange={e => updateField('notes', e.target.value)}
             disabled={loading}
             className={`
-              w-full px-4 py-2.5 rounded-[8px]
+              w-full px-4 py-3 rounded-xl
               bg-[var(--lr-depth-1)]
-              border border-gold/15
+              border border-[rgba(255,255,255,0.1)]
               text-white
               font-inter text-sm
               placeholder:text-white/40
-              focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
+              focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971]
               transition-all duration-200 ease-in-out
               disabled:opacity-50 disabled:cursor-not-allowed
               resize-none

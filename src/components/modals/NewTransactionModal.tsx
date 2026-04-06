@@ -79,13 +79,14 @@ const STATUS_OPTIONS = [
 ];
 
 const selectClasses = `
-  w-full px-4 py-2.5 rounded-[8px]
+  w-full px-4 py-3 rounded-xl
   bg-[var(--lr-depth-1)]
-  border border-gold/15
+  border border-[rgba(255,255,255,0.1)]
   text-white
   font-inter text-sm
-  focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
+  focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971]
   transition-all duration-200 ease-in-out
+  appearance-none
 `;
 
 export function NewTransactionModal({ open, onClose, onSuccess }: NewTransactionModalProps) {
@@ -234,9 +235,9 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         <div className="w-full">
           <label
             htmlFor="transaction-contact"
-            className="block text-sm font-montserrat font-medium text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
           >
-            Contact *
+            Contact <span className="text-[#d3a971]">*</span>
           </label>
           <select
             id="transaction-contact"
@@ -247,18 +248,18 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
             className={selectClasses}
           >
             {contactsLoading ? (
-              <option value="">Loading contacts...</option>
+              <option value="" className="bg-[#132236] text-white">Loading contacts...</option>
             ) : hasContacts ? (
               <>
-                <option value="">Select a contact</option>
+                <option value="" className="bg-[#132236] text-white">Select a contact</option>
                 {contacts.map(c => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={c.id} className="bg-[#132236] text-white">
                     {getDisplayName(c)}
                   </option>
                 ))}
               </>
             ) : (
-              <option value="">Add a contact first</option>
+              <option value="" className="bg-[#132236] text-white">Add a contact first</option>
             )}
           </select>
           {!contactsLoading && !hasContacts && (
@@ -338,9 +339,9 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         <div className="w-full">
           <label
             htmlFor="transaction-type"
-            className="block text-sm font-montserrat font-medium text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
           >
-            Transaction Type *
+            Transaction Type <span className="text-[#d3a971]">*</span>
           </label>
           <select
             id="transaction-type"
@@ -350,7 +351,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
             className={selectClasses}
           >
             {(Object.entries(TRANSACTION_TYPE_LABELS) as [TransactionType, string][]).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
+              <option key={value} value={value} className="bg-[#132236] text-white">{label}</option>
             ))}
           </select>
         </div>
@@ -360,7 +361,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
           <div className="w-full">
             <label
               htmlFor="transaction-track-type"
-              className="block text-sm font-montserrat font-medium text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
             >
               Track Type
             </label>
@@ -370,17 +371,17 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
               onChange={e => update('track_type', e.target.value as TrackType)}
               className={selectClasses}
             >
-              <option value="buyer">Buyer</option>
-              <option value="seller">Seller</option>
-              <option value="landlord">Landlord</option>
-              <option value="tenant">Tenant</option>
-              <option value="investor">Investor</option>
+              <option value="buyer" className="bg-[#132236] text-white">Buyer</option>
+              <option value="seller" className="bg-[#132236] text-white">Seller</option>
+              <option value="landlord" className="bg-[#132236] text-white">Landlord</option>
+              <option value="tenant" className="bg-[#132236] text-white">Tenant</option>
+              <option value="investor" className="bg-[#132236] text-white">Investor</option>
             </select>
           </div>
           <div className="w-full">
             <label
               htmlFor="transaction-status"
-              className="block text-sm font-montserrat font-medium text-white mb-1.5"
+              className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
             >
               Status
             </label>
@@ -391,7 +392,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
               className={selectClasses}
             >
               {STATUS_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value} className="bg-[#132236] text-white">{o.label}</option>
               ))}
             </select>
           </div>
@@ -425,7 +426,7 @@ export function NewTransactionModal({ open, onClose, onSuccess }: NewTransaction
         <div className="w-full">
           <label
             htmlFor="transaction-notes"
-            className="block text-sm font-montserrat font-medium text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
           >
             Notes
           </label>

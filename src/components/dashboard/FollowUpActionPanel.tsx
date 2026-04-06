@@ -67,7 +67,7 @@ const STAGE_COLORS: Record<string, string> = {
   on_hold: 'bg-white/10 text-white/60',
 };
 
-const selectClassName = `w-full px-3 py-2.5 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 appearance-none min-h-[44px]`;
+const selectClassName = `w-full px-3 py-3 rounded-xl bg-[var(--lr-depth-1)] border border-[rgba(255,255,255,0.1)] text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971] transition-all duration-200 appearance-none min-h-[44px]`;
 
 interface FollowUpActionPanelProps {
   contact: FollowUpContact;
@@ -342,10 +342,10 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
               className={selectClassName}
               disabled={saving}
             >
-              <option value="text">Text</option>
-              <option value="call">Call</option>
-              <option value="email">Email</option>
-              <option value="note">Note</option>
+              <option value="text" className="bg-[#132236] text-white">Text</option>
+              <option value="call" className="bg-[#132236] text-white">Call</option>
+              <option value="email" className="bg-[#132236] text-white">Email</option>
+              <option value="note" className="bg-[#132236] text-white">Note</option>
             </select>
           </div>
           <div>
@@ -356,8 +356,8 @@ export function FollowUpActionPanel({ contact, onComplete, onClose }: FollowUpAc
               className={selectClassName}
               disabled={saving}
             >
-              <option value="outbound">Outbound</option>
-              <option value="inbound">Inbound</option>
+              <option value="outbound" className="bg-[#132236] text-white">Outbound</option>
+              <option value="inbound" className="bg-[#132236] text-white">Inbound</option>
             </select>
           </div>
         </div>

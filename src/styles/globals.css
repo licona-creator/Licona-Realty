@@ -349,6 +349,12 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 0 3px var(--lr-gold-subtle) !important;
 }
 
+/* Dark option elements inside selects */
+option {
+  background-color: var(--lr-depth-1);
+  color: var(--lr-text-primary);
+}
+
 /* ============================================
    PREVENT LIGHT MODE LEAKS
    ============================================ */

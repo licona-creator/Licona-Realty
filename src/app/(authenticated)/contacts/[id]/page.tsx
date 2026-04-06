@@ -308,7 +308,7 @@ const STAGE_COLORS: Record<string, string> = {
   on_hold: 'bg-white/10 text-white/60',
 };
 
-const selectClassName = `w-full px-4 py-2.5 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 ease-in-out appearance-none`;
+const selectClassName = `w-full px-4 py-3 rounded-xl bg-[var(--lr-depth-1)] border border-[rgba(255,255,255,0.1)] text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971] transition-all duration-200 ease-in-out appearance-none`;
 
 export default function ContactDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -947,12 +947,12 @@ export default function ContactDetailPage() {
             <Input label="Phone" type="tel" value={editForm.phone || ''} onChange={e => setEditForm(p => ({ ...p, phone: e.target.value }))} disabled={saving} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Track Type</label><select value={editForm.track_type || 'buyer'} onChange={e => setEditForm(p => ({ ...p, track_type: e.target.value }))} className={selectClassName} disabled={saving}>{TRACK_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
-            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Pipeline Stage</label><select value={editForm.pipeline_stage || 'new'} onChange={e => setEditForm(p => ({ ...p, pipeline_stage: e.target.value }))} className={selectClassName} disabled={saving}>{PIPELINE_STAGES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Track Type</label><select value={editForm.track_type || 'buyer'} onChange={e => setEditForm(p => ({ ...p, track_type: e.target.value }))} className={selectClassName} disabled={saving}>{TRACK_OPTIONS.map(o => <option key={o.value} value={o.value} className="bg-[#132236] text-white">{o.label}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Pipeline Stage</label><select value={editForm.pipeline_stage || 'new'} onChange={e => setEditForm(p => ({ ...p, pipeline_stage: e.target.value }))} className={selectClassName} disabled={saving}>{PIPELINE_STAGES.map(o => <option key={o.value} value={o.value} className="bg-[#132236] text-white">{o.label}</option>)}</select></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Lead Source</label><select value={editForm.lead_source || ''} onChange={e => setEditForm(p => ({ ...p, lead_source: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{LEAD_SOURCES.map(s => <option key={s} value={s.toLowerCase()}>{s}</option>)}</select></div>
-            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Language</label><select value={editForm.language_preference || 'en'} onChange={e => setEditForm(p => ({ ...p, language_preference: e.target.value }))} className={selectClassName} disabled={saving}>{LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Lead Source</label><select value={editForm.lead_source || ''} onChange={e => setEditForm(p => ({ ...p, lead_source: e.target.value }))} className={selectClassName} disabled={saving}><option value="" className="bg-[#132236] text-white">None</option>{LEAD_SOURCES.map(s => <option key={s} value={s.toLowerCase()} className="bg-[#132236] text-white">{s}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Language</label><select value={editForm.language_preference || 'en'} onChange={e => setEditForm(p => ({ ...p, language_preference: e.target.value }))} className={selectClassName} disabled={saving}>{LANGUAGES.map(l => <option key={l.value} value={l.value} className="bg-[#132236] text-white">{l.label}</option>)}</select></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Budget" placeholder="$300k - $450k" value={editForm.budget || ''} onChange={e => setEditForm(p => ({ ...p, budget: e.target.value }))} disabled={saving} />
@@ -960,7 +960,7 @@ export default function ContactDetailPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Next Follow-Up Date" type="date" value={editForm.next_follow_up_date || ''} onChange={e => setEditForm(p => ({ ...p, next_follow_up_date: e.target.value }))} disabled={saving} />
-            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Referral Partner</label><select value={editForm.referral_partner_id || ''} onChange={e => setEditForm(p => ({ ...p, referral_partner_id: e.target.value }))} className={selectClassName} disabled={saving}><option value="">None</option>{partners.map(p => <option key={p.id} value={p.id}>{getDisplayName(p)}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Referral Partner</label><select value={editForm.referral_partner_id || ''} onChange={e => setEditForm(p => ({ ...p, referral_partner_id: e.target.value }))} className={selectClassName} disabled={saving}><option value="" className="bg-[#132236] text-white">None</option>{partners.map(p => <option key={p.id} value={p.id} className="bg-[#132236] text-white">{getDisplayName(p)}</option>)}</select></div>
           </div>
           <Input label="Follow-Up Notes" placeholder="Reminder notes for follow-up..." value={editForm.follow_up_notes || ''} onChange={e => setEditForm(p => ({ ...p, follow_up_notes: e.target.value }))} disabled={saving} />
           <DISCSelector
@@ -985,9 +985,9 @@ export default function ContactDetailPage() {
                 className={selectClassName}
                 disabled={saving}
               >
-                <option value="">Month</option>
+                <option value="" className="bg-[#132236] text-white">Month</option>
                 {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((label, i) => (
-                  <option key={i + 1} value={i + 1}>{label}</option>
+                  <option key={i + 1} value={i + 1} className="bg-[#132236] text-white">{label}</option>
                 ))}
               </select>
               <select
@@ -996,9 +996,9 @@ export default function ContactDetailPage() {
                 className={selectClassName}
                 disabled={saving}
               >
-                <option value="">Day</option>
+                <option value="" className="bg-[#132236] text-white">Day</option>
                 {Array.from({ length: editForm.birthday_month ? [31,29,31,30,31,30,31,31,30,31,30,31][Number(editForm.birthday_month) - 1] : 31 }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  <option key={i + 1} value={i + 1} className="bg-[#132236] text-white">{i + 1}</option>
                 ))}
               </select>
               <Input
@@ -1046,8 +1046,8 @@ export default function ContactDetailPage() {
       <Modal open={showLogActivity} onClose={() => !logSaving && setShowLogActivity(false)} title="Log Activity" size="md" footer={<div className="flex justify-end gap-3"><Button type="submit" form="log-activity-form" variant="accent" loading={logSaving}>{logSaving ? 'Saving...' : 'Log Activity'}</Button></div>}>
         <form id="log-activity-form" onSubmit={handleLogActivity} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Activity Type *</label><select value={activityForm.activity_type} onChange={e => setActivityForm(p => ({ ...p, activity_type: e.target.value }))} className={selectClassName} disabled={logSaving}>{ACTIVITY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
-            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Direction</label><select value={activityForm.direction} onChange={e => setActivityForm(p => ({ ...p, direction: e.target.value }))} className={selectClassName} disabled={logSaving}><option value="outbound">Outbound</option><option value="inbound">Inbound</option></select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Activity Type *</label><select value={activityForm.activity_type} onChange={e => setActivityForm(p => ({ ...p, activity_type: e.target.value }))} className={selectClassName} disabled={logSaving}>{ACTIVITY_TYPES.map(t => <option key={t.value} value={t.value} className="bg-[#132236] text-white">{t.label}</option>)}</select></div>
+            <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Direction</label><select value={activityForm.direction} onChange={e => setActivityForm(p => ({ ...p, direction: e.target.value }))} className={selectClassName} disabled={logSaving}><option value="outbound" className="bg-[#132236] text-white">Outbound</option><option value="inbound" className="bg-[#132236] text-white">Inbound</option></select></div>
           </div>
           <div><label className="block text-sm font-montserrat font-medium text-white mb-1.5">Description *</label><textarea rows={4} value={activityForm.description} onChange={e => setActivityForm(p => ({ ...p, description: e.target.value }))} className={`${selectClassName} resize-none`} placeholder="What happened?" disabled={logSaving} /></div>
           <Input label="Date" type="datetime-local" value={activityForm.activity_date} onChange={e => setActivityForm(p => ({ ...p, activity_date: e.target.value }))} disabled={logSaving} />

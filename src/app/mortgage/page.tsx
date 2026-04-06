@@ -301,10 +301,10 @@ export default function MortgageCalculatorPage() {
                   color: '#ffffff',
                 }}
               >
-                <option value="excellent" className="bg-navy">{isEnglish ? 'Excellent (740+)' : 'Excelente (740+)'}</option>
-                <option value="good" className="bg-navy">{isEnglish ? 'Good (670-739)' : 'Bueno (670-739)'}</option>
-                <option value="fair" className="bg-navy">{isEnglish ? 'Fair (580-669)' : 'Regular (580-669)'}</option>
-                <option value="poor" className="bg-navy">{isEnglish ? 'Below 580' : 'Debajo de 580'}</option>
+                <option value="excellent" className="bg-[#132236] text-white">{isEnglish ? 'Excellent (740+)' : 'Excelente (740+)'}</option>
+                <option value="good" className="bg-[#132236] text-white">{isEnglish ? 'Good (670-739)' : 'Bueno (670-739)'}</option>
+                <option value="fair" className="bg-[#132236] text-white">{isEnglish ? 'Fair (580-669)' : 'Regular (580-669)'}</option>
+                <option value="poor" className="bg-[#132236] text-white">{isEnglish ? 'Below 580' : 'Debajo de 580'}</option>
               </select>
             </div>
             <div>

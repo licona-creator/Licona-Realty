@@ -82,12 +82,12 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const selectClassName = `
-  w-full px-4 py-2.5 rounded-[8px]
-  bg-[var(--lr-depth-2)]
-  border border-gold/15
+  w-full px-4 py-3 rounded-xl
+  bg-[var(--lr-depth-1)]
+  border border-[rgba(255,255,255,0.1)]
   text-white
   font-inter text-sm
-  focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
+  focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971]
   transition-all duration-200 ease-in-out
   appearance-none
 `.replace(/\n\s+/g, ' ').trim();
@@ -546,12 +546,12 @@ export default function TransactionDetailPage() {
               disabled={saving || contactsLoading}
             >
               {contactsLoading ? (
-                <option value="">Loading contacts...</option>
+                <option value="" className="bg-[#132236] text-white">Loading contacts...</option>
               ) : (
                 <>
-                  <option value="">Select a contact</option>
+                  <option value="" className="bg-[#132236] text-white">Select a contact</option>
                   {contacts.map(c => (
-                    <option key={c.id} value={c.id}>
+                    <option key={c.id} value={c.id} className="bg-[#132236] text-white">
                       {getDisplayName(c)}
                     </option>
                   ))}
@@ -620,7 +620,7 @@ export default function TransactionDetailPage() {
               disabled={saving}
             >
               {(Object.entries(TRANSACTION_TYPE_LABELS) as [TransactionType, string][]).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value} className="bg-[#132236] text-white">{label}</option>
               ))}
             </select>
             {editForm.transaction_type !== transaction.transaction_type && (
@@ -638,7 +638,7 @@ export default function TransactionDetailPage() {
                 className={selectClassName}
                 disabled={saving}
               >
-                {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value} className="bg-[#132236] text-white">{o.label}</option>)}
               </select>
             </div>
             <div>
@@ -649,11 +649,11 @@ export default function TransactionDetailPage() {
                 className={selectClassName}
                 disabled={saving}
               >
-                <option value="buyer">Buyer</option>
-                <option value="seller">Seller</option>
-                <option value="landlord">Landlord</option>
-                <option value="tenant">Tenant</option>
-                <option value="investor">Investor</option>
+                <option value="buyer" className="bg-[#132236] text-white">Buyer</option>
+                <option value="seller" className="bg-[#132236] text-white">Seller</option>
+                <option value="landlord" className="bg-[#132236] text-white">Landlord</option>
+                <option value="tenant" className="bg-[#132236] text-white">Tenant</option>
+                <option value="investor" className="bg-[#132236] text-white">Investor</option>
               </select>
             </div>
           </div>

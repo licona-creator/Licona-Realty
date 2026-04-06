@@ -35,25 +35,25 @@ const TONE_OPTIONS: { value: CampaignTone; label: string }[] = [
 ];
 
 const selectClasses = `
-  w-full px-4 py-2.5 rounded-[8px]
+  w-full px-4 py-3 rounded-xl
   bg-[var(--lr-depth-1)]
-  border border-gold/15
+  border border-[rgba(255,255,255,0.1)]
   text-white
   font-inter text-sm
-  focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
+  focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971]
   transition-all duration-200 ease-in-out
   disabled:opacity-50 disabled:cursor-not-allowed
   appearance-none
 `.trim();
 
 const textareaClasses = `
-  w-full px-4 py-2.5 rounded-[8px]
+  w-full px-4 py-3 rounded-xl
   bg-[var(--lr-depth-1)]
-  border border-gold/15
+  border border-[rgba(255,255,255,0.1)]
   text-white
   font-inter text-sm
   placeholder:text-white/40
-  focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold
+  focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971]
   transition-all duration-200 ease-in-out
   disabled:opacity-50 disabled:cursor-not-allowed
   resize-none
@@ -163,7 +163,7 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
         <div className="w-full">
           <label
             htmlFor="campaign-description"
-            className="block text-sm font-montserrat font-medium text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
           >
             Description
           </label>
@@ -182,7 +182,7 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
         <div className="w-full">
           <label
             htmlFor="campaign-track-type"
-            className="block text-sm font-montserrat font-medium text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
           >
             Track Type
           </label>
@@ -194,7 +194,7 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
             className={selectClasses}
           >
             {TRACK_TYPE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
+              <option key={opt.value} value={opt.value} className="bg-[#132236] text-white">
                 {opt.label}
               </option>
             ))}
@@ -205,7 +205,7 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
         <div className="w-full">
           <label
             htmlFor="campaign-tone"
-            className="block text-sm font-montserrat font-medium text-white mb-1.5"
+            className="block text-sm font-montserrat font-medium text-[rgba(255,255,255,0.65)] mb-1.5"
           >
             Tone
           </label>
@@ -217,7 +217,7 @@ export function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalP
             className={selectClasses}
           >
             {TONE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
+              <option key={opt.value} value={opt.value} className="bg-[#132236] text-white">
                 {opt.label}
               </option>
             ))}

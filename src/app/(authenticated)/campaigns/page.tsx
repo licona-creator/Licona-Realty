@@ -641,11 +641,11 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
           <select
             value={trackType}
             onChange={e => setTrackType(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200"
+            className="w-full px-4 py-2.5 rounded-xl bg-[var(--lr-depth-1)] border border-[rgba(255,255,255,0.1)] text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971] transition-all duration-200"
           >
-            <option value="buyer">Buyer</option>
-            <option value="seller">Seller</option>
-            <option value="investor">Investor</option>
+            <option value="buyer" className="bg-[#132236] text-white">Buyer</option>
+            <option value="seller" className="bg-[#132236] text-white">Seller</option>
+            <option value="investor" className="bg-[#132236] text-white">Investor</option>
           </select>
         </div>
 
@@ -737,7 +737,7 @@ function NewCampaignModal({ open, onClose, onSuccess }: NewCampaignModalProps) {
                           min={0}
                           value={step.day}
                           onChange={e => updateStep(index, 'day', parseInt(e.target.value, 10) || 0)}
-                          className="w-24 px-3 py-2 rounded-[8px] bg-[var(--lr-depth-2)] border border-gold/15 text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200"
+                          className="w-24 px-3 py-2 rounded-xl bg-[var(--lr-depth-1)] border border-[rgba(255,255,255,0.1)] text-white font-inter text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(211,169,113,0.2)] focus:border-[#d3a971] transition-all duration-200"
                         />
                       </div>
                       <div>
