@@ -84,7 +84,7 @@ export function Modal({
         Mobile: full-screen flex column. No calc() margin/maxHeight.
         Desktop: centered card with max-height constraint.
       */}
-      <div className="relative z-10 flex flex-col h-full sm:items-center sm:justify-center sm:p-4">
+      <div className="relative z-10 flex flex-col h-full pb-20 sm:pb-0 sm:items-center sm:justify-center sm:p-4">
         {/* Status bar spacer (mobile only) */}
         <div className="shrink-0 sm:hidden" style={{ height: 'env(safe-area-inset-top, 0px)' }} />
 
@@ -132,7 +132,7 @@ export function Modal({
                 className="sticky bottom-0 z-10 px-5 pt-4 border-t border-[rgba(255,255,255,0.06)]"
                 style={{
                   background: '#132236',
-                  paddingBottom: 'calc(1rem + 5rem)',
+                  paddingBottom: '1rem',
                 }}
               >
                 {footer}
