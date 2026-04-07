@@ -1,21 +1,3 @@
-/**
- * Brand Modal Component
- *
- * Bulletproof modal that guarantees footer buttons are ALWAYS visible
- * above the iPhone bottom nav bar.
- *
- * Architecture:
- *   overlay (fixed inset-0)
- *     backdrop
- *     container (flex col, maxHeight with marginBottom for nav clearance)
- *       header (shrink-0)
- *       body (flex-1 overflow-y-auto min-h-0)
- *       footer (shrink-0) -- NEVER scrolls, ALWAYS visible
- *
- * Mobile: slides up from bottom, sits above 5rem nav + safe area
- * Desktop: centered with max-height constraint
- */
-
 'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
@@ -52,14 +34,11 @@ export function Modal({
 
   useEffect(() => {
     if (!open) return;
-
     document.body.style.overflow = 'hidden';
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', handleKeyDown);
-
     return () => {
       document.body.style.overflow = '';
       document.removeEventListener('keydown', handleKeyDown);
@@ -69,7 +48,7 @@ export function Modal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true">
       {/* Backdrop */}
       <div
         ref={overlayRef}
@@ -80,21 +59,20 @@ export function Modal({
         }}
       />
 
-      {/*
-        Mobile: full-screen flex column. No calc() margin/maxHeight.
-        Desktop: centered card with max-height constraint.
-      */}
-      <div className="relative z-10 flex flex-col h-full pb-20 sm:pb-0 sm:items-center sm:justify-center sm:p-4">
-        {/* Status bar spacer (mobile only) */}
-        <div className="shrink-0 sm:hidden" style={{ height: 'env(safe-area-inset-top, 0px)' }} />
-
-        {/* Modal container */}
+      {/* Mobile: full-screen sheet. Desktop: centered card. */}
+      <div className="relative z-10 flex flex-col h-full sm:items-center sm:justify-center sm:p-4">
         <div
           className={`flex flex-col flex-1 sm:flex-initial w-full ${sizeMap[size]} bg-[#132236] sm:border sm:border-[rgba(255,255,255,0.08)] sm:rounded-2xl sm:max-h-[80vh] overflow-hidden`}
         >
-          {/* Header - never shrinks */}
+          {/* Header */}
           {(title || !hideClose) && (
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)] shrink-0">
+            <div
+              className="shrink-0 flex items-center justify-between px-5 border-b border-[rgba(255,255,255,0.06)]"
+              style={{
+                paddingTop: 'calc(1rem + env(safe-area-inset-top, 0px))',
+                paddingBottom: '1rem',
+              }}
+            >
               <div className="min-w-0">
                 {title && (
                   <h2 className="text-lg font-montserrat font-semibold text-white truncate">
@@ -120,25 +98,24 @@ export function Modal({
             </div>
           )}
 
-          {/* Body - scrollable, takes remaining space. Footer lives INSIDE as sticky. */}
-          <div className="flex-1 overflow-y-auto min-h-0 overscroll-contain scroll-touch">
+          {/* Body - scrolls */}
+          <div className="flex-1 overflow-y-auto min-h-0 overscroll-contain">
             <div className="px-5 py-4">
               {children}
             </div>
-
-            {/* Sticky footer - pinned to bottom of scroll viewport, ALWAYS visible */}
-            {footer && (
-              <div
-                className="sticky bottom-0 z-10 px-5 pt-4 border-t border-[rgba(255,255,255,0.06)]"
-                style={{
-                  background: '#132236',
-                  paddingBottom: '1rem',
-                }}
-              >
-                {footer}
-              </div>
-            )}
           </div>
+
+          {/* Footer - NEVER scrolls, sits at bottom */}
+          {footer && (
+            <div
+              className="shrink-0 px-5 pt-4 border-t border-[rgba(255,255,255,0.06)] bg-[#132236]"
+              style={{
+                paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))',
+              }}
+            >
+              {footer}
+            </div>
+          )}
         </div>
       </div>
     </div>
